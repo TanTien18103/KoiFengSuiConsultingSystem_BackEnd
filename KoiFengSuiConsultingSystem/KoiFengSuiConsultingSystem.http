@@ -1,0 +1,6 @@
+@KoiFengSuiConsultingSystem_HostAddress = http://localhost:5261
+
+GET {{KoiFengSuiConsultingSystem_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

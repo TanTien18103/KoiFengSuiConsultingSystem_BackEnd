@@ -1,0 +1,166 @@
+﻿{
+   "CodeGenerationMode": 4,
+   "ContextClassName": "KoiFishPondContext",
+   "ContextNamespace": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Models",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "BusinessObjects",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[dbo].[Account]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Answer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Attachment]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[BookingOffline]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Certificate]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Chapter]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Color]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ConsultationPackage]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Contract]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Course]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Customer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EnrollAnswer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EnrollCert]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EnrollChapter]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EnrollQuiz]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[FengShuiDocument]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[KoiPond]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[KoiVariety]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Master]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[MasterSchedule]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Membership]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Question]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Quiz]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[RegisterAttend]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[RegisterCourse]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Shape]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Transaction]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[VarietyColor]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Wallet]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[WalletTransaction]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[WorkShop]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": true,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false
+}

@@ -86,6 +86,34 @@ namespace DAOs.DAOs
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        public async Task<string> RegisterGoogleUser(string name, string email)
+        {
+            try
+            {
+                var existingUser = await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);
+                if (existingUser == null)
+                {
+                    var newUser = new Account
+                    {
+                        AccountId = GenerateShortGuid(),
+                        UserName = name,
+                        Email = email,
+                        Password = string.Empty,
+                        Role = "Member"
+                    };
+
+                    _context.Accounts.Add(newUser);
+                    await _context.SaveChangesAsync();
+                    existingUser = newUser;
+                }
+                return CreateToken(existingUser);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Google registration failed: {ex.Message}");
+            }
+        }
+
         public async Task<string> Register(Request.RegisterRequest registerRequest)
         {
             try

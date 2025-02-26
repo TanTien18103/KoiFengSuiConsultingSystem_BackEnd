@@ -42,5 +42,9 @@ namespace Services.Services
         {
             _accountRepository.Logout();
         }
+        public async Task<string> RegisterGoogleUser(string name, string email)
+        {
+            return await _accountRepository.RegisterGoogleUser(name, email);
+        }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using DAOs.Request;
 using KoiFengSuiConsultingSystem.Request;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -16,6 +18,47 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             _accountService = accountService;
         }
+
+        [HttpGet("google-response")]
+        public async Task<IActionResult> GoogleResponse()
+        {
+            var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+
+            if (!result.Succeeded || result.Principal == null)
+            {
+                return BadRequest("Google authentication failed.");
+            }
+
+            var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
+            if (claims == null)
+            {
+                return BadRequest("No claims found.");
+            }
+
+            string email = claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
+            string name = claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value;
+
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(name))
+            {
+                return BadRequest("Email or name not found in claims.");
+            }
+
+            // Lưu vào database
+            var accessToken = await _accountService.RegisterGoogleUser(name, email);
+
+            return Ok(new { accessToken });
+        }
+
+
+        [HttpGet("login-google")]
+        public IActionResult LoginWithGoogle()
+        {
+            var redirectUrl = Url.Action(nameof(GoogleResponse), "Account", null, Request.Scheme);
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+
 
         /// <summary>
         /// Đăng nhập và lấy Access Token + Refresh Token

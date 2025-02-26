@@ -19,6 +19,11 @@ namespace Repositories.Repository
         {
             _accountDAO = new AccountDAO(configuration, httpContextAccessor);
         }
+        public async Task<string> RegisterGoogleUser(string name, string email)
+        {
+            return await _accountDAO.RegisterGoogleUser(name, email);
+        }
+
 
         public async Task<string> GetAccount(string email, string password)
         {

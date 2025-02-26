@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repositories.Interfaces;
@@ -60,7 +61,8 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = "Cookies";
 })
 .AddJwtBearer(options =>
 {
@@ -75,13 +77,19 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
+}).AddCookie("Cookies")
+.AddGoogle(googleOptions =>
+{
+    googleOptions.ClientId = builder.Configuration["Google:ClientId"];
+    googleOptions.ClientSecret = builder.Configuration["Google:ClientSecret"];
+    googleOptions.CallbackPath = "/signin-google";
 });
 
 // CORS Policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        builder =>
+    options.AddPolicy("AllowAllOrigins",
+           builder =>
         {
             builder.AllowAnyOrigin()
                    .AllowAnyMethod()
@@ -100,6 +108,9 @@ if (app.Environment.IsDevelopment())
 }
 app.UseSession();
 
+app.UseCors("AllowAllOrigins");
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

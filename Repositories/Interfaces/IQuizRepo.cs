@@ -1,0 +1,18 @@
+﻿using BusinessObjects.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Repositories.Interfaces
+{
+    public interface IQuizRepo
+    {
+        Task<Quiz> GetQuizById(string quizId);
+        Task<List<Quiz>> GetQuizzes();
+        Task<Quiz> CreateQuiz(Quiz quiz);
+        Task<Quiz> UpdateQuiz(Quiz quiz);
+        Task DeleteQuiz(string quizId);
+    }
+}

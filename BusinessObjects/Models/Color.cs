@@ -14,6 +14,6 @@ public partial class Color
     public string ColorCode { get; set; }
 
     public string Element { get; set; }
-
+     
     public virtual ICollection<VarietyColor> VarietyColors { get; set; } = new List<VarietyColor>();
 }

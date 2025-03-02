@@ -21,12 +21,14 @@ namespace DAOs.DAOs
         private readonly KoiFishPondContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
+
         public AccountDAO(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _configuration = configuration;
             _context = new KoiFishPondContext();
             _httpContextAccessor = httpContextAccessor;
         }
+
         public async Task<string> GetAccount(string email, string password)
         {
             var (accessToken, refreshToken) = await Login(email, password);

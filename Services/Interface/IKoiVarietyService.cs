@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repositories.Interfaces
+namespace Services.Interface
 {
-    public interface IKoiVarietyRepo
+    public interface IKoiVarietyService
     {
         Task<KoiVariety> GetKoiVarietyById(string koiVarietyId);
         Task<List<KoiVariety>> GetKoiVarieties();
@@ -17,6 +17,7 @@ namespace Repositories.Interfaces
         Task DeleteKoiVariety(string koiVarietyId);
         Task<List<FishesWithColorsDTO>> GetKoiVarietyWithColors();
         Task<FishesWithColorsDTO> GetKoiVarietyWithColorsById(string id);
+
 
     }
 }

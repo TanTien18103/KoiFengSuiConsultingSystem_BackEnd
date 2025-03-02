@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
+using System.Security.Claims;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -111,9 +112,28 @@ namespace KoiFengSuiConsultingSystem.Controllers
             }
         }
 
-        /// <summary>
-        /// Đăng xuất
-        /// </summary>
+        [HttpGet("current-user")]
+        public IActionResult GetCurrentUser()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity != null)
+            {
+                var claims = identity.Claims;
+                var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                var role = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                return Ok(new
+                {
+                    AccountId = accountId,
+                    Email = email,
+                    Role = role
+                });
+            }
+            return Unauthorized(new { message = "User is not logged in." });
+        }
+
+     
         [HttpPost("logout")]
         public IActionResult Logout()
         {

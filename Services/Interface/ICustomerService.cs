@@ -1,6 +1,7 @@
 ﻿using BusinessObjects.Models;
 using DAOs.DTOs;
 using KoiFengSuiConsultingSystem.Request;
+using KoiFengSuiConsultingSystem.Respone;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,6 @@ namespace Services.Interface
         Task<Customer> CreateCustomer(Customer customer);
         Task<Customer> UpdateCustomer(Customer customer);
         Task DeleteCustomer(string customerId);
-        Task<double> CalculateCompatibility(CompatibilityRequest request);
+        Task<FengShuiResult> CalculateCompatibility(CompatibilityRequest request);
     }
 }

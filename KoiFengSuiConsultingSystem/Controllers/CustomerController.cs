@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
 using KoiFengSuiConsultingSystem.Request;
+using KoiFengSuiConsultingSystem.Respone;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -33,10 +34,16 @@ namespace KoiFengSuiConsultingSystem.Controllers
         [HttpPost("calculate-compatibility")]
         public async Task<IActionResult> CalculateCompatibility([FromBody] CompatibilityRequest request)
         {
-            double compatibilityScore = await _customerService.CalculateCompatibility(request);
+            var result = await _customerService.CalculateCompatibility(request);
 
-            return Ok(new { Score = compatibilityScore });
+            return Ok(new FengShuiResult
+            {
+                CompatibilityScore = result.CompatibilityScore,
+                Message = result.Message
+            });
         }
+
+
     }
 
 }

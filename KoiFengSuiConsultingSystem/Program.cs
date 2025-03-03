@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.Google;
+﻿using BusinessObjects.Models;
+using DAOs.DAOs;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repositories.Interfaces;
@@ -14,6 +17,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+
+
+builder.Services.AddScoped<KoiVarietyDAO>();
+builder.Services.AddScoped<IKoiVarietyRepo, KoiVarietyRepo>();
+builder.Services.AddScoped<IKoiVarietyService, KoiVarietyService>();
+
+builder.Services.AddScoped<CustomerDAO>();
+builder.Services.AddScoped<ICustomerRepo, CustomerRepo>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+builder.Services.AddDbContext<KoiFishPondContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 
 builder.Services.AddDistributedMemoryCache();
 

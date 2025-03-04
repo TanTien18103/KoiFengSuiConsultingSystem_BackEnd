@@ -36,7 +36,7 @@ builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromDays(7); // Refresh Token có hiệu lực 7 ngày
+    options.IdleTimeout = TimeSpan.FromDays(7); 
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

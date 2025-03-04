@@ -44,7 +44,6 @@ namespace KoiFengSuiConsultingSystem.Controllers
                 return BadRequest("Email or name not found in claims.");
             }
 
-            // Lưu vào database
             var accessToken = await _accountService.RegisterGoogleUser(name, email);
 
             return Ok(new { accessToken });
@@ -59,11 +58,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
 
-
-
-        /// <summary>
-        /// Đăng nhập và lấy Access Token + Refresh Token
-        /// </summary>
+      
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
@@ -78,9 +73,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             }
         }
 
-        /// <summary>
-        /// Đăng ký tài khoản mới
-        /// </summary>
+      
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
         {
@@ -95,9 +88,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             }
         }
 
-        /// <summary>
-        /// Làm mới Access Token bằng Refresh Token
-        /// </summary>
+        
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {

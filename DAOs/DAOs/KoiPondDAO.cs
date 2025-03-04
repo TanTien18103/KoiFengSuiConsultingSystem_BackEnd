@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,9 @@ namespace DAOs.DAOs
     {
         private readonly KoiFishPondContext _context;
 
-        public KoiPondDAO(KoiFishPondContext context)
+        public KoiPondDAO()
         {
-            _context = context;
+            _context = new KoiFishPondContext();
         }
 
         public async Task<KoiPond> GetKoiPondById(string koiPondId)
@@ -21,9 +22,9 @@ namespace DAOs.DAOs
             return await _context.KoiPonds.FindAsync(koiPondId);
         }
 
-        public async Task<List<KoiPond>> GetKoiPonds()
+        public async Task<List<KoiPond>> GetKoiPonds()  
         {
-            return _context.KoiPonds.ToList();
+            return await _context.KoiPonds.Include(x => x.Shape).ToListAsync();
         }
 
         public async Task<KoiPond> CreateKoiPond(KoiPond koiPond)

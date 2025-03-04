@@ -29,11 +29,11 @@ namespace DAOs.DAOs
         }
         public async Task<string> GetAccount(string email, string password)
         {
-            var (accessToken, refreshToken) = await Login(email, password);
+            var (accessToken, _, _, _) = await Login(email, password);
             return accessToken;
         }
 
-        public async Task<(string accessToken, string refreshToken)> Login(string email, string password)
+        public async Task<(string accessToken, string refreshToken, string role, string accountId)> Login(string email, string password)
         {
             try
             {
@@ -52,16 +52,14 @@ namespace DAOs.DAOs
                 {
                     _httpContextAccessor.HttpContext.Session.SetString("RefreshToken", refreshToken);
                     _httpContextAccessor.HttpContext.Session.SetString("Email", email);
-
                 }
-                return (accessToken, refreshToken);
+                return (accessToken, refreshToken, user.Role, user.AccountId);
             }
-            catch (Exception ex)
+            catch (Exception ex)    
             {
                 throw new Exception($"{ex.Message}");
             }
         }
-
 
         private string CreateToken(Account user)
         {
@@ -99,7 +97,8 @@ namespace DAOs.DAOs
                         UserName = name,
                         Email = email,
                         Password = string.Empty,
-                        Role = "Member"
+                        //Role = "Member",
+                        Role = "Customer"
                     };
 
                     _context.Accounts.Add(newUser);
@@ -131,7 +130,8 @@ namespace DAOs.DAOs
                     Email = registerRequest.Email,
                     Password = hashedPassword,
                     Gender = registerRequest.Gender,
-                    Role = "Member" 
+                    //Role = "Member",
+                    Role = "Customer" 
                 };
 
                 _context.Accounts.Add(newUser);

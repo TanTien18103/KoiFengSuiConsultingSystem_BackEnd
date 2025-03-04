@@ -13,9 +13,9 @@ namespace Repositories.Repository
     {
         private readonly ShapeDAO _shapeDAO;
 
-        public ShapeRepo(ShapeDAO shapeDAO)
+        public ShapeRepo()
         {
-            _shapeDAO = shapeDAO;
+            _shapeDAO = new ShapeDAO();
         }
 
         public async Task<Shape> GetShapeById(string shapeId)

@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,9 @@ namespace DAOs.DAOs
     {
         private readonly KoiFishPondContext _context;
 
-        public ShapeDAO(KoiFishPondContext context)
+        public ShapeDAO()
         {
-            _context = context;
+            _context = new KoiFishPondContext();
         }
 
         public async Task<Shape> GetShapeById(string shapeId)
@@ -23,7 +24,7 @@ namespace DAOs.DAOs
 
         public async Task<List<Shape>> GetShapes()
         {
-            return _context.Shapes.ToList();
+            return await _context.Shapes.ToListAsync();
         }
 
         public async Task<Shape> CreateShape(Shape shape)
@@ -46,7 +47,5 @@ namespace DAOs.DAOs
             _context.Shapes.Remove(shape);
             await _context.SaveChangesAsync();
         }
-
-
     }
 }

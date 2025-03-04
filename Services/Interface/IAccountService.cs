@@ -12,7 +12,7 @@ namespace Services.Interface
         Task<string> RegisterGoogleUser(string name, string email);
 
         Task<string> GetAccount(string email, string password);
-        Task<(string accessToken, string refreshToken)> Login(string email, string password);
+        Task<object> Login(string email, string password);
         Task<string> Register(RegisterRequest registerRequest);
         Task<string> RefreshAccessToken();
         void Logout();

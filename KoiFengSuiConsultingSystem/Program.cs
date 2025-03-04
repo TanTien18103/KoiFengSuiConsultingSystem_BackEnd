@@ -7,14 +7,32 @@ using Repositories.Repository;
 using Services.Interface;
 using Services.Services;
 using System.Text;
+using DAOs.DAOs;
+using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
+using Services.Mapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Register DAOs
+builder.Services.AddScoped<ShapeDAO>();
+builder.Services.AddScoped<KoiPondDAO>();
+builder.Services.AddScoped<CustomerDAO>();
 
+// Register Repositories
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IKoiPondRepo, KoiPondRepo>();
+builder.Services.AddScoped<IShapeRepo, ShapeRepo>();
+builder.Services.AddScoped<ICustomerRepo, CustomerRepo>();
 
+// Register Services
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IKoiPondService, KoiPondService>();
+
+// Configure AutoMapper
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+// Add Distributed Memory Cache
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
@@ -89,7 +107,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
-           builder =>
+        builder =>
         {
             builder.AllowAnyOrigin()
                    .AllowAnyMethod()
@@ -103,11 +121,17 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c => {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "KoiFengShuiConsultingSystem v1");
+        c.EnableDeepLinking();
+        c.DisplayRequestDuration();
+    });
 }
-app.UseSession();
 
+app.UseHttpsRedirection();
+// Use CORS before other middleware
 app.UseCors("AllowAllOrigins");
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();

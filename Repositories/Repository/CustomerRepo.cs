@@ -13,9 +13,9 @@ namespace Repositories.Repository
     {
         private readonly CustomerDAO _customerDAO;
 
-        public CustomerRepo(CustomerDAO customerDAO)
+        public CustomerRepo()
         {
-            _customerDAO = customerDAO;
+            _customerDAO = new CustomerDAO();
         }
 
         public async Task<Customer> GetCustomerById(string customerId)

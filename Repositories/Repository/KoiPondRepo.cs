@@ -1,5 +1,7 @@
 ﻿using BusinessObjects.Models;
 using DAOs.DAOs;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -9,13 +11,12 @@ using System.Threading.Tasks;
 
 namespace Repositories.Repository
 {
-    public class KoiPondRepp : IKoiPondRepo
+    public class KoiPondRepo : IKoiPondRepo
     {
         private readonly KoiPondDAO _koiPondDAO;
-
-        public KoiPondRepp(KoiPondDAO koiPondDAO)
+        public KoiPondRepo()
         {
-            _koiPondDAO = koiPondDAO;
+            _koiPondDAO = new KoiPondDAO();
         }
 
         public async Task<KoiPond> GetKoiPondById(string koiPondId)

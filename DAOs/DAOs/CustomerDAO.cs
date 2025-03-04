@@ -11,9 +11,9 @@ namespace DAOs.DAOs
     {
         private readonly KoiFishPondContext _context;
 
-        public CustomerDAO(KoiFishPondContext context)
+        public CustomerDAO()
         {
-            _context = context;
+            _context = new KoiFishPondContext();
         }
 
         public async Task<Customer> GetCustomerById(string customerId)
@@ -46,7 +46,5 @@ namespace DAOs.DAOs
             _context.Customers.Remove(customer);
             await _context.SaveChangesAsync();
         }
-
-
     }
 }

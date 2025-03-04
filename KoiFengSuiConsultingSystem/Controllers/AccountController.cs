@@ -49,7 +49,6 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return Ok(new { accessToken });
         }
 
-
         [HttpGet("login-google")]
         public IActionResult LoginWithGoogle()
         {
@@ -57,8 +56,6 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
-
-
 
         /// <summary>
         /// Đăng nhập và lấy Access Token + Refresh Token
@@ -68,8 +65,8 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             try
             {
-                var (accessToken, refreshToken) = await _accountService.Login(request.Email, request.Password);
-                return Ok(new { accessToken, refreshToken });
+                var loginResult = await _accountService.Login(request.Email, request.Password);
+                return Ok(loginResult);
             }
             catch (Exception ex)
             {

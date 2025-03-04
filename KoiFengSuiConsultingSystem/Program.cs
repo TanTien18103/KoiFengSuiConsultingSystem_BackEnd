@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.Google;
+﻿using BusinessObjects.Models;
+using DAOs.DAOs;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repositories.Interfaces;
@@ -25,19 +28,25 @@ builder.Services.AddScoped<IKoiPondRepo, KoiPondRepo>();
 builder.Services.AddScoped<IShapeRepo, ShapeRepo>();
 builder.Services.AddScoped<ICustomerRepo, CustomerRepo>();
 
-// Register Services
-builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IKoiPondService, KoiPondService>();
 
-// Configure AutoMapper
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddScoped<KoiVarietyDAO>();
+builder.Services.AddScoped<IKoiVarietyRepo, KoiVarietyRepo>();
+builder.Services.AddScoped<IKoiVarietyService, KoiVarietyService>();
 
-// Add Distributed Memory Cache
+builder.Services.AddScoped<CustomerDAO>();
+builder.Services.AddScoped<ICustomerRepo, CustomerRepo>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+builder.Services.AddDbContext<KoiFishPondContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromDays(7); // Refresh Token có hiệu lực 7 ngày
+    options.IdleTimeout = TimeSpan.FromDays(7); 
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

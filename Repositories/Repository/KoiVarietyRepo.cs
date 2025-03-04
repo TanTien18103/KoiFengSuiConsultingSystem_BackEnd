@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
 using DAOs.DAOs;
+using DAOs.DTOs;
 using Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,15 @@ namespace Repositories.Repository
         public async Task<List<KoiVariety>> GetKoiVarieties()
         {
             return await _koiVarietyDAO.GetKoiVarieties();
+        }
+
+        public async Task<List<FishesWithColorsDTO>> GetKoiVarietyWithColors()
+        {
+            return await _koiVarietyDAO.GetAllKoiVarietiesWithColors();
+        }
+        public async Task<FishesWithColorsDTO> GetKoiVarietyWithColorsById(string id)
+        {
+            return await _koiVarietyDAO.GetAllKoiVarietiesWithColorsById(id);
         }
     }
 }

@@ -1,13 +1,18 @@
 ﻿using BusinessObjects.Models;
+using DAOs.DAOs;
 using DAOs.Request;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
 using Services.Interface;
 using Services.Request;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,86 +22,161 @@ namespace Services.Services
     public class AccountService : IAccountService
     {
         private readonly IAccountRepository _accountRepository;
-        private readonly ICustomerRepo _customerRepo;
+        private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AccountService(IAccountRepository accountRepository, ICustomerRepo customerRepo)
+        public AccountService(IAccountRepository accountRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _accountRepository = accountRepository;
-            _customerRepo = customerRepo;
+            _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<string> GetAccount(string email, string password)
+        private bool VerifyPassword(string inputPassword, string storedPasswordHash)
         {
-            return await _accountRepository.GetAccount(email, password);
+            return BCrypt.Net.BCrypt.Verify(inputPassword, storedPasswordHash);
         }
 
-        public async Task<object> Login(string email, string password)
+        private string CreateToken(Account user)
         {
-            var (accessToken, refreshToken, role, accountId) = await _accountRepository.Login(email, password);
-            
-            switch (role.ToLower())
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new List<Claim>
             {
-                case "member":
-                case "customer":
-                    var customer = (await _customerRepo.GetCustomers())
-                        .FirstOrDefault(c => c.AccountId == accountId);
-                    
-                    if (customer == null)
-                        throw new Exception("Customer information not found");
+                new Claim(ClaimTypes.NameIdentifier, user.AccountId.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role.ToString())
+            };
 
-                    return new
-                    {
-                        accessToken,
-                        refreshToken,
-                        role,
-                        customerInfo = new
-                        {
-                            customerId = customer.CustomerId,
-                            element = customer.Element,
-                            lifePalace = customer.LifePalace
-                        }
-                    };
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddHours(3),
+                signingCredentials: credentials);
 
-                case "admin":
-                    return new
-                    {
-                        accessToken,
-                        refreshToken,
-                        role
-                    };
-
-                case "master":
-                    return new
-                    {
-                        accessToken,
-                        refreshToken,
-                        role
-                    };
-
-                default:
-                    throw new Exception($"Unsupported role: {role}");
-            }
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async Task<string> Register(RegisterRequest registerRequest)
+        private string GenerateRefreshToken()
         {
-            return await _accountRepository.Register(registerRequest);
+            return Convert.ToBase64String(Guid.NewGuid().ToByteArray());
         }
 
-        public async Task<string> RefreshAccessToken()
+        public static string GenerateShortGuid()
         {
-            return await _accountRepository.RefreshAccessToken();
-        }
-
-        public void Logout()
-        {
-            _accountRepository.Logout();
+            Guid guid = Guid.NewGuid();
+            string base64 = Convert.ToBase64String(guid.ToByteArray());
+            return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
         }
 
         public async Task<string> RegisterGoogleUser(string name, string email)
         {
-            return await _accountRepository.RegisterGoogleUser(name, email);
+            var existingUser = await _accountRepository.GetAccountByEmailAsync(email);
+            if (existingUser == null)
+            {
+                var newUser = new Account
+                {
+                    AccountId = GenerateShortGuid(),
+                    UserName = name,
+                    Email = email,
+                    Password = string.Empty,
+                    Role = "Member"
+                };
+
+                await _accountRepository.AddAccountAsync(newUser);
+                existingUser = newUser;
+            }
+            return CreateToken(existingUser);
+        }
+
+        public async Task<string> GetAccount(string email, string password)
+        {
+           return _accountRepository.GetAccountByEmailAsync(email).Result switch
+           {
+               null => throw new Exception("Account not found"),
+               var user => VerifyPassword(password, user.Password) ? CreateToken(user) : throw new Exception("Invalid password")
+           };
+        }
+
+        public async Task<object> Login(string email, string password)
+        {
+            var user = await _accountRepository.GetAccountByEmailAsync(email);
+            if (user == null)
+                throw new KeyNotFoundException("USER IS NOT FOUND");
+
+            if (!VerifyPassword(password, user.Password))
+                throw new UnauthorizedAccessException("INVALID PASSWORD");
+
+            string accessToken = CreateToken(user);
+            string refreshToken = GenerateRefreshToken();
+
+            if (_httpContextAccessor.HttpContext?.Session != null)
+            {
+                _httpContextAccessor.HttpContext.Session.SetString("RefreshToken", refreshToken);
+                _httpContextAccessor.HttpContext.Session.SetString("Email", email);
+            }
+
+            return (accessToken, refreshToken);
+        }
+
+
+        public async Task<string> Register(DAOs.Request.RegisterRequest registerRequest)
+        {
+            var existingUser = await _accountRepository.GetAccountByEmailAsync(registerRequest.Email);
+            if (existingUser != null)
+                throw new Exception("Email is already in use.");
+
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
+
+            var newUser = new Account
+            {
+                AccountId = GenerateShortGuid(),
+                UserName = registerRequest.FullName,
+                Email = registerRequest.Email,
+                Password = hashedPassword,
+                Gender = registerRequest.Gender,
+                Role = "Member"
+            };
+
+            await _accountRepository.AddAccountAsync(newUser);
+            existingUser = newUser;
+
+            string accessToken = CreateToken(newUser);
+            string refreshToken = GenerateRefreshToken();
+
+            if (_httpContextAccessor.HttpContext?.Session != null)
+            {
+                _httpContextAccessor.HttpContext.Session.SetString("RefreshToken", refreshToken);
+                _httpContextAccessor.HttpContext.Session.SetString("Email", registerRequest.Email);
+            }
+
+            return accessToken;
+        }
+
+        public async Task<string> RefreshAccessToken()
+        {
+            if (_httpContextAccessor.HttpContext == null)
+                throw new UnauthorizedAccessException("Session is not available.");
+
+            var session = _httpContextAccessor.HttpContext.Session;
+            string? refreshToken = session.GetString("RefreshToken");
+            string? email = session.GetString("Email");
+
+            if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(email))
+                throw new UnauthorizedAccessException("Invalid session. Please log in again.");
+
+            var user = await _accountRepository.GetAccountByEmailAsync(email);
+            if (user == null)
+                throw new KeyNotFoundException("User not found.");
+
+            return CreateToken(user);
+        }
+
+        public async void Logout()
+        {
+            _httpContextAccessor.HttpContext?.Session.Clear();
         }
 
         //public async Task<ResultModel> EditProfile(EditProfileRequest request)

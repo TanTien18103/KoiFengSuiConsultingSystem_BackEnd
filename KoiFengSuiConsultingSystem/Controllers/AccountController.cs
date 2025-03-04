@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
+using System.Security.Claims;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -43,7 +44,6 @@ namespace KoiFengSuiConsultingSystem.Controllers
                 return BadRequest("Email or name not found in claims.");
             }
 
-            // Lưu vào database
             var accessToken = await _accountService.RegisterGoogleUser(name, email);
 
             return Ok(new { accessToken });
@@ -57,9 +57,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
 
-        /// <summary>
-        /// Đăng nhập và lấy Access Token + Refresh Token
-        /// </summary>
+      
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
@@ -74,9 +72,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             }
         }
 
-        /// <summary>
-        /// Đăng ký tài khoản mới
-        /// </summary>
+      
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
         {
@@ -91,9 +87,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             }
         }
 
-        /// <summary>
-        /// Làm mới Access Token bằng Refresh Token
-        /// </summary>
+        
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {
@@ -108,9 +102,28 @@ namespace KoiFengSuiConsultingSystem.Controllers
             }
         }
 
-        /// <summary>
-        /// Đăng xuất
-        /// </summary>
+        [HttpGet("current-user")]
+        public IActionResult GetCurrentUser()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity != null)
+            {
+                var claims = identity.Claims;
+                var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                var role = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                return Ok(new
+                {
+                    AccountId = accountId,
+                    Email = email,
+                    Role = role
+                });
+            }
+            return Unauthorized(new { message = "User is not logged in." });
+        }
+
+     
         [HttpPost("logout")]
         public IActionResult Logout()
         {

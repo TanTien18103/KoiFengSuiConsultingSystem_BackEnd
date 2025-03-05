@@ -35,11 +35,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             var result = await _customerService.CalculateCompatibility(request);
 
-            return Ok(new FengShuiResult
-            {
-                CompatibilityScore = result.CompatibilityScore,
-                Message = result.Message
-            });
+            return Ok(result);
         }
 
 

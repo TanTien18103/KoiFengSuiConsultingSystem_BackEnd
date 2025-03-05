@@ -153,38 +153,36 @@ public class CustomerService : ICustomerService
         return await _customerRepo.UpdateCustomer(customer);
     }
 
-    public async Task<FengShuiResult> CalculateCompatibility(CompatibilityRequest request)
+    public async Task<ResultModel> CalculateCompatibility(CompatibilityRequest request)
     {
+        var res = new ResultModel();
         double compatibilityScore = 0;
 
         var result = await GetElementLifePalaceById();
         if (!result.IsSuccess || result.Data == null)
         {
-            return new FengShuiResult
-            {
-                CompatibilityScore = 0,
-                Message = "Không tìm thấy cung mệnh. Vui lòng kiểm tra lại!"
-            };
+            res.IsSuccess = false;
+            res.Message = "Không tìm thấy cung mệnh. Vui lòng kiểm tra lại!";
+            res.StatusCode = StatusCodes.Status404NotFound;
+            return res;
         }
 
         var elementLifePalace = result.Data as ElementLifePalaceDto;
         if (elementLifePalace == null || string.IsNullOrEmpty(elementLifePalace.Element))
         {
-            return new FengShuiResult
-            {
-                CompatibilityScore = 0,
-                Message = "Không tìm thấy thông tin mệnh. Vui lòng kiểm tra lại!"
-            };
+            res.IsSuccess = false;
+            res.Message = "Không tìm thấy cung mệnh. Vui lòng kiểm tra lại!";
+            res.StatusCode = StatusCodes.Status404NotFound;
+            return res;
         }
 
         double totalRatio = request.ColorRatios.Values.Sum();
         if (Math.Abs(totalRatio - 100.0) > 0.01)
         {
-            return new FengShuiResult
-            {
-                CompatibilityScore = 0,
-                Message = "Tổng tỷ lệ màu cá phải bằng 100%. Vui lòng kiểm tra lại!"
-            };
+            res.IsSuccess = false;
+            res.Message = "Tổng tỉ lệ màu không đúng. Vui lòng kiểm tra lại!";
+            res.StatusCode = StatusCodes.Status400BadRequest;
+            return res;
         }
 
         if (ElementColorPoints.ContainsKey(elementLifePalace.Element))
@@ -216,11 +214,16 @@ public class CustomerService : ICustomerService
         double normalizedScore = ((compatibilityScore - minScore) / (maxScore - minScore)) * 100;
         double finalScore = Math.Round(normalizedScore, 2);
 
-        return new FengShuiResult
-        {
-            CompatibilityScore = finalScore,
-            Message = GetCompatibilityMessage(finalScore)
-        };
+        res.IsSuccess = true;
+        res.Message = GetCompatibilityMessage(finalScore);
+        res.StatusCode = StatusCodes.Status200OK;
+        res.Data =
+            new FengShuiResult
+            {
+                CompatibilityScore = finalScore,
+                Message = res.Message
+            };
+        return res;
     }
 
 

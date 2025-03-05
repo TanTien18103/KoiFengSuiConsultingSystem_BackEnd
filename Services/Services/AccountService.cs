@@ -7,7 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
+using Services.ApiModels;
+using Services.ApiModels.Account;
 using Services.Interfaces;
+using Services.Mapper;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,6 +18,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 
 namespace Services.Services
 {
@@ -23,12 +27,14 @@ namespace Services.Services
         private readonly IAccountRepo _accountRepository;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
 
-        public AccountService(IAccountRepo accountRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public AccountService(IAccountRepo accountRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IMapper mapper)
         {
             _accountRepository = accountRepository;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
         }
 
         private bool VerifyPassword(string inputPassword, string storedPasswordHash)
@@ -178,37 +184,71 @@ namespace Services.Services
             _httpContextAccessor.HttpContext?.Session.Clear();
         }
 
-        //public async Task<ResultModel> EditProfile(EditProfileRequest request)
-        //{
-        //    var res = new ResultModel();
-        //    try
-        //    {
-        //        var currentUserIdClaim = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Sid);
-        //        if (currentUserIdClaim == null || !short.TryParse(currentUserIdClaim.Value, out short currentUserId))
-        //        {
-        //            res.IsSuccess = false;
-        //            res.Code = (int)HttpStatusCode.BadRequest;
-        //            res.Data = null;
-        //            res.Message = "User is not authenticated or ID is invalid";
-        //        }
-        //        var existingAccount = await _accountRepository.GetAccount(currentUserId).FirstOrDefaultAsync();
-        //        if (existingAccount == null)
-        //        {
-        //            return new ResultModel<UpdateProfileRequest>
-        //            {
-        //                IsSuccess = false,
-        //                Code = (int)HttpStatusCode.NotFound,
-        //                Message = "System account not found"
-        //            };
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        res.IsSuccess = false;
-        //        res.Code = (int)HttpStatusCode.InternalServerError;
-        //        res.Data = null;
-        //        res.Message = ex.Message;
-        //    }
-        //}
+        public async Task<ResultModel> EditProfile(EditProfileRequest request)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    res.IsSuccess = false;
+                    res.Message = "Token xác thực không được cung cấp";
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var token = authHeader.Substring("Bearer ".Length);
+                if (string.IsNullOrEmpty(token))
+                {
+                    res.IsSuccess = false;
+                    res.Message = "Token không hợp lệ";
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var accountId = await _accountRepository.GetAccountIdFromToken(token);
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.Message = "Token không hợp lệ hoặc đã hết hạn";
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var existingAccount = await _accountRepository.GetAccountByEmail(request.Email);
+                if (existingAccount == null)
+                {
+                    res.IsSuccess = false;
+                    res.Message = "Không tìm thấy tài khoản";
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                if (existingAccount.AccountId != accountId)
+                {
+                    res.IsSuccess = false;
+                    res.Message = "Không có quyền chỉnh sửa tài khoản này";
+                    res.StatusCode = StatusCodes.Status403Forbidden;
+                    return res;
+                }
+
+                _mapper.Map(request, existingAccount);
+
+                await _accountRepository.UpdateAccount(existingAccount);
+
+                res.IsSuccess = true;
+                res.Message = "Cập nhật thông tin thành công";
+                res.StatusCode = StatusCodes.Status200OK;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.Message = $"Lỗi khi cập nhật thông tin: {ex.Message}";
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
     }
 }

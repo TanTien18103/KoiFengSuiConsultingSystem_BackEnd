@@ -53,5 +53,12 @@ namespace DAOs.DAOs
                 return string.Empty;
             }
         }
+
+        public async Task<Account> UpdateAccountDao(Account account)
+        {
+            _context.Accounts.Update(account);
+            await _context.SaveChangesAsync();
+            return account;
+        }
     }
 }

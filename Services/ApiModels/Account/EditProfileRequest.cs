@@ -8,8 +8,6 @@ namespace Services.ApiModels.Account
 {
     public class EditProfileRequest
     {
-        public string AccountId { get; set; }
-
         public string UserName { get; set; }
 
         public string Email { get; set; }

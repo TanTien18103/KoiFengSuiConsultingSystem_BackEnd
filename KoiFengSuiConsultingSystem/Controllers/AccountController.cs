@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using System.Security.Claims;
+using Services.ApiModels.Account;
+using Microsoft.AspNetCore.Authorization;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -136,6 +138,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        [Authorize]
+        [HttpPut("edit-profile")]
+        public async Task<IActionResult> EditProfile([FromBody]EditProfileRequest request)
+        {
+            var res = await _accountService.EditProfile(request);
+            return StatusCode(res.StatusCode, res);
         }
     }
 }

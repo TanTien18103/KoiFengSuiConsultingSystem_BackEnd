@@ -30,5 +30,10 @@ namespace Repositories.Repository
         {
             return AccountDAO.Instance.GetAccountIdFromTokenDao(token);
         }
+
+        public Task<Account> UpdateAccount(Account account)
+        {
+            return AccountDAO.Instance.UpdateAccountDao(account);
+        }
     }
 }

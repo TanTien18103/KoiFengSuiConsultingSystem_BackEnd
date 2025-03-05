@@ -25,7 +25,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpGet("get")]
-        public async Task<ActionResult> GetPondById(string id)
+        public async Task<IActionResult> GetPondById(string id)
         {
             var res = await _iKoiPondService.GetKoiPondById(id);
             return StatusCode(res.StatusCode, res);
@@ -33,7 +33,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpGet("get-all")]
-        public async Task<ActionResult> GetAllPond()
+        public async Task<IActionResult> GetAllPond()
         {
             var res = await _iKoiPondService.GetAllKoiPonds();
             return StatusCode(res.StatusCode, res);

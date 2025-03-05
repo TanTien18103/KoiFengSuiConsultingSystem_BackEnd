@@ -10,6 +10,10 @@ namespace Services.Mapper
         public AccountMappingProfile()
         {
             CreateMap<Account, EditProfileRequest>();
+            CreateMap<EditProfileRequest, Account>()
+                .ForMember(dest => dest.Password, opt => opt.Ignore())
+                .ForMember(dest => dest.AccountId, opt => opt.Ignore())
+                .ForMember(dest => dest.Role, opt => opt.Ignore());
         }
     }
 } 

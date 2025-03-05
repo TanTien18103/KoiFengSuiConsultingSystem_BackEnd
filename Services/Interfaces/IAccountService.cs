@@ -1,4 +1,6 @@
 ﻿using DAOs.Request;
+using Services.ApiModels;
+using Services.ApiModels.Account;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +17,6 @@ namespace Services.Interfaces
         Task<string> Register(RegisterRequest registerRequest);
         Task<string> RefreshAccessToken();
         void Logout();
+        Task<ResultModel> EditProfile(EditProfileRequest request);
     }
 }

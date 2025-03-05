@@ -1,4 +1,4 @@
-﻿using BusinessObjects.Models;
+using BusinessObjects.Models;
 using DAOs.DAOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
@@ -20,6 +20,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 using RegisterRequest = Services.ApiModels.Account.RegisterRequest;
 using static System.Collections.Specialized.BitVector32;
+using Repositories.Helpers;
+using BusinessObjects.Enums;
 
 namespace Services.Services
 {
@@ -134,20 +136,42 @@ namespace Services.Services
             if (existingUser != null)
                 throw new Exception("Email is already in use.");
 
+            if (!registerRequest.Gender.HasValue)
+                throw new ArgumentException("Gender is required.");
+
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
+
+            // Calculate Element and LifePalace
+            int birthYear = registerRequest.Dob.Year;
+            var (canChi, nguHanh) = AmDuongNienHelper.GetNguHanh(birthYear);
+            string element = AmDuongNienHelper.GetNguHanhName(nguHanh);
+            string lifePalace = LifePalaceHelper.CalculateLifePalace(birthYear, registerRequest.Gender.Value);
+
+            var customer = new Customer
+            {
+                CustomerId = GenerateShortGuid(),
+                LifePalace = lifePalace,
+                Element = element
+            };
 
             var newUser = new Account
             {
                 AccountId = GenerateShortGuid(),
                 UserName = registerRequest.FullName,
+                FullName = registerRequest.FullName,
                 Email = registerRequest.Email,
                 Password = hashedPassword,
+                PhoneNumber = registerRequest.PhoneNumber,
                 Gender = registerRequest.Gender,
-                Role = "Member"
+                Dob = DateOnly.FromDateTime(registerRequest.Dob), // Convert DateTime to DateOnly
+                Role = "Member",
+                Customers = new List<Customer> { customer }
             };
 
+            // Set up the relationship
+            customer.AccountId = newUser.AccountId;
+
             await _accountRepository.AddAccount(newUser);
-            existingUser = newUser;
 
             string accessToken = CreateToken(newUser);
             string refreshToken = GenerateRefreshToken();

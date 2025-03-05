@@ -11,5 +11,6 @@
         public string PhoneNumber { get; set; }
 
         public bool? Gender { get; set; }
+        public DateTime Dob { get; set; }
     }
 }

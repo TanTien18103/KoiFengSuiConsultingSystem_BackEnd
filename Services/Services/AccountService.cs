@@ -1,6 +1,5 @@
 ﻿using BusinessObjects.Models;
 using DAOs.DAOs;
-using DAOs.Request;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +18,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using RegisterRequest = Services.ApiModels.Account.RegisterRequest;
 
 namespace Services.Services
 {
@@ -127,7 +127,7 @@ namespace Services.Services
         }
 
 
-        public async Task<string> Register(DAOs.Request.RegisterRequest registerRequest)
+        public async Task<string> Register(RegisterRequest registerRequest)
         {
             var existingUser = await _accountRepository.GetAccountByEmail(registerRequest.Email);
             if (existingUser != null)

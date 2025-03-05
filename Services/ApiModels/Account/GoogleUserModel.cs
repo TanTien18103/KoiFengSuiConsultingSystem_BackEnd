@@ -1,4 +1,4 @@
-﻿namespace Services.ApiModels.Account
+﻿namespace Services.ApiModels.Account;
     public class GoogleUserModel
     {
         public string Id { get; set; }
@@ -8,4 +8,4 @@
         public string Email { get; set; }
 
     }
-}
+

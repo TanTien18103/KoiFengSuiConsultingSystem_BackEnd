@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using BusinessObjects.Models;
+using Services.ApiModels.Account;
+using Services.ApiModels.KoiVariety;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +12,12 @@ namespace Services.Mapper
 {
     public class KoiVarietyMappingProfile : Profile
     {
+        public KoiVarietyMappingProfile() 
+        {
+            CreateMap<KoiVariety, FishesWithColorsDTO>();
+            CreateMap<KoiVariety, KoiVarietyDto>();
+            CreateMap<KoiVarietyDto, KoiVariety>();
+        }
+
     }
 }

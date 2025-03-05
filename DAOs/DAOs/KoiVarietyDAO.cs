@@ -1,5 +1,4 @@
 ﻿using BusinessObjects.Models;
-using DAOs.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -32,12 +31,18 @@ namespace DAOs.DAOs
 
         public async Task<KoiVariety> GetKoiVarietyByIdDao(string koiVarietyId)
         {
-            return await _context.KoiVarieties.FindAsync(koiVarietyId);
+            return await _context.KoiVarieties
+                .Include(k => k.VarietyColors)
+                    .ThenInclude(vc => vc.Color)
+                .FirstOrDefaultAsync(k => k.KoiVarietyId == koiVarietyId);
         }
 
         public async Task<List<KoiVariety>> GetKoiVarietiesDao()
         {
-            return _context.KoiVarieties.ToList();
+            return await _context.KoiVarieties
+                .Include(k => k.VarietyColors)
+                    .ThenInclude(vc => vc.Color)
+                .ToListAsync();
         }
 
         public async Task<KoiVariety> CreateKoiVarietyDao(KoiVariety koiVariety)
@@ -57,56 +62,27 @@ namespace DAOs.DAOs
         public async Task DeleteKoiVarietyDao(string koiVarietyId)
         {
             var koiVariety = await GetKoiVarietyByIdDao(koiVarietyId);
-            _context.KoiVarieties.Remove(koiVariety);
-            await _context.SaveChangesAsync();
-        }
-
-
-        public async Task<List<FishesWithColorsDTO>> GetAllKoiVarietiesWithColorsDao()
-        {
-            var koiVarieties = await _context.KoiVarieties
-        .Include(k => k.VarietyColors)
-            .ThenInclude(vc => vc.Color)
-        .ToListAsync();
-
-            return koiVarieties.Select(k => new FishesWithColorsDTO
+            if (koiVariety != null)
             {
-                Id = k.KoiVarietyId,
-                VarietyName = k.VarietyName,
-                Colors = k.VarietyColors
-                    .Where(vc => vc.Color != null) 
-                    .Select(vc => new ColorPercentageDto
-                    {
-                        ColorName = vc.Color.ColorName,
-                        ColorCode = vc.Color.ColorCode,
-                        Percentage = vc.Percentage ?? 0 
-                    }).ToList()
-            }).ToList();
+                _context.KoiVarieties.Remove(koiVariety);
+                await _context.SaveChangesAsync();
+            }
         }
 
-        public async Task<FishesWithColorsDTO> GetAllKoiVarietiesWithColorsByIdDao(string koiVarietyId)
+        public async Task<List<KoiVariety>> GetAllKoiVarietiesWithColorsDao()
         {
-            var koiVariety = await _context.KoiVarieties
+            return await _context.KoiVarieties
                 .Include(k => k.VarietyColors)
-                    .ThenInclude(vc => vc.Color)
-                .FirstOrDefaultAsync(k => k.KoiVarietyId == koiVarietyId);
-
-            if (koiVariety == null) return null;
-
-            return new FishesWithColorsDTO
-            {
-                Id = koiVariety.KoiVarietyId,
-                VarietyName = koiVariety.VarietyName,
-                Colors = koiVariety.VarietyColors
-                    .Where(vc => vc.Color != null)
-                    .Select(vc => new ColorPercentageDto
-                    {
-                        ColorName = vc.Color.ColorName,
-                        ColorCode = vc.Color.ColorCode,
-                        Percentage = vc.Percentage ?? 0
-                    }).ToList()
-            };
+                .ThenInclude(vc => vc.Color)
+                .ToListAsync();
         }
 
+        public async Task<KoiVariety> GetAllKoiVarietiesWithColorsByIdDao(string koiVarietyId)
+        {
+            return await _context.KoiVarieties
+                .Include(k => k.VarietyColors)
+                .ThenInclude(vc => vc.Color)
+                .FirstOrDefaultAsync(k => k.KoiVarietyId == koiVarietyId);
+        }
     }
 }

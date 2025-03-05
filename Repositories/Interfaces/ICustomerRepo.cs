@@ -1,5 +1,4 @@
 ﻿using BusinessObjects.Models;
-using DAOs.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +11,7 @@ namespace Repositories.Interfaces
     {
         Task<Customer> GetCustomerById(string customerId);
 
-        Task<ElementLifePalaceDto> GetElementLifePalaceById(string customerId);
+        Task<Customer> GetElementLifePalaceById(string accountId);
         Task<List<Customer>> GetCustomers();
         Task<Customer> CreateCustomer(Customer customer);
         Task<Customer> UpdateCustomer(Customer customer);

@@ -1,5 +1,4 @@
 ﻿using BusinessObjects.Models;
-using DAOs.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +14,7 @@ namespace Repositories.Interfaces
         Task<KoiVariety> CreateKoiVariety(KoiVariety koiVariety);
         Task<KoiVariety> UpdateKoiVariety(KoiVariety koiVariety);
         Task DeleteKoiVariety(string koiVarietyId);
-        Task<List<FishesWithColorsDTO>> GetKoiVarietyWithColors();
-        Task<FishesWithColorsDTO> GetKoiVarietyWithColorsById(string id);
-
+        Task<List<KoiVariety>> GetKoiVarietyWithColors();
+        Task<KoiVariety> GetKoiVarietyWithColorsById(string id);
     }
 }

@@ -5,5 +5,4 @@
         public string Element { get; set; }
         public string LifePalace { get; set; }
     }
-
 }

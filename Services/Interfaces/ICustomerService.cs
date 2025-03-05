@@ -1,5 +1,4 @@
 ﻿using BusinessObjects.Models;
-using DAOs.DTOs;
 using Services.ApiModels;
 using System;
 using System.Collections.Generic;
@@ -12,7 +11,7 @@ namespace Services.Interfaces
     public interface ICustomerService
     {
         Task<Customer> GetCustomerById(string customerId);
-        Task<ElementLifePalaceDto> GetElementLifePalaceById();
+        Task<ResultModel> GetElementLifePalaceById();
         Task<List<Customer>> GetCustomers();
         Task<Customer> CreateCustomer(Customer customer);
         Task<Customer> UpdateCustomer(Customer customer);

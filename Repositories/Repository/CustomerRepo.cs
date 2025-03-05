@@ -1,6 +1,5 @@
 ﻿using BusinessObjects.Models;
 using DAOs.DAOs;
-using DAOs.DTOs;
 using Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -37,9 +36,9 @@ namespace Repositories.Repository
             return CustomerDAO.Instance.GetCustomersDao();
         }
 
-        public Task<ElementLifePalaceDto> GetElementLifePalaceById(string customerId)
+        public Task<Customer> GetElementLifePalaceById(string accountId)
         {
-            return CustomerDAO.Instance.GetElementLifePalaceByIdDao(customerId);
+            return CustomerDAO.Instance.GetElementLifePalaceByIdDao(accountId);
         }
     }
 }

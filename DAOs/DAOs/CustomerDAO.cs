@@ -1,5 +1,4 @@
 ﻿using BusinessObjects.Models;
-using DAOs.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -34,23 +33,16 @@ namespace DAOs.DAOs
         {
             return await _context.Customers.FindAsync(customerId);
         }
-        public async Task<ElementLifePalaceDto> GetElementLifePalaceByIdDao(string accountId)
+        public async Task<Customer> GetElementLifePalaceByIdDao(string accountId)
         {
             if (string.IsNullOrWhiteSpace(accountId))
             {
                 return null;
             }
-
-            var customer = await _context.Customers
+        
+            return await _context.Customers
                 .Where(c => c.AccountId == accountId)
-                .Select(c => new ElementLifePalaceDto
-                {
-                    Element = c.Element,
-                    LifePalace = c.LifePalace
-                })
                 .FirstOrDefaultAsync();
-
-            return customer;
         }
 
         public async Task<List<Customer>> GetCustomersDao()

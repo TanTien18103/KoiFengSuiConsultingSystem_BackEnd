@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using DAOs.DTOs;
 using Services.ApiModels;
 using Services.ApiModels.KoiVariety;
 using System;
@@ -16,8 +17,6 @@ namespace Services.Interfaces
         Task<KoiVariety> CreateKoiVarietyAsync(KoiVariety koiVariety);
         Task<KoiVariety> UpdateKoiVarietyAsync(KoiVariety koiVariety);
         Task DeleteKoiVarietyAsync(string koiVarietyId);
-        Task<List<FishesWithColorsDTO>> GetKoiVarietyWithColorsAsync();
-        Task<FishesWithColorsDTO> GetKoiVarietyWithColorsByIdAsync(string id);
         Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByElementAsync(string element);
         Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByCustomerElementAsync(Customer customer);
         Task<ResultModel> GetKoiVarietyWithColorsAsync();

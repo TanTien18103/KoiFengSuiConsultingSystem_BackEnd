@@ -21,6 +21,8 @@ public partial class Customer
 
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 
+    public virtual ICollection<BookingOnline> BookingOnlines { get; set; } = new List<BookingOnline>();
+
     public virtual ICollection<EnrollCert> EnrollCerts { get; set; } = new List<EnrollCert>();
 
     public virtual ICollection<EnrollQuiz> EnrollQuizzes { get; set; } = new List<EnrollQuiz>();

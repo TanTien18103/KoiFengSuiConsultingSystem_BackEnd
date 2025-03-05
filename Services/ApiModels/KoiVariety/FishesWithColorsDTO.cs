@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Services.ApiModels.Color;
 
-namespace DAOs.DTOs
+namespace Services.ApiModels.KoiVariety
 {
     public class FishesWithColorsDTO
     {

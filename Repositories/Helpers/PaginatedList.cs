@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repositories.Extensions
+namespace Repositories.Helpers
 {
     public class PaginatedList<T>
     {

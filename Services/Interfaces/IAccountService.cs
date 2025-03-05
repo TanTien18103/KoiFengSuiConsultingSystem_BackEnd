@@ -17,5 +17,8 @@ namespace Services.Interfaces
         Task<string> RefreshAccessToken();
         void Logout();
         Task<ResultModel> EditProfile(EditProfileRequest request);
+        Task<ResultModel> ChangePassword(ChangePasswordRequest request);
+        
+
     }
 }

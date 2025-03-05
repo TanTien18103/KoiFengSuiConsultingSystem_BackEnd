@@ -13,5 +13,6 @@ namespace Repositories.Interfaces
         Task<Account?> GetAccountByEmail(string email);
         Task<string> GetAccountIdFromToken(string token);
         Task<Account> UpdateAccount(Account account);
+        Task<Account> GetAccountById(string accountId);
     }
 }

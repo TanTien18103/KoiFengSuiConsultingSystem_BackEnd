@@ -1,4 +1,4 @@
-﻿using BusinessObjects.Models;
+using BusinessObjects.Models;
 using DAOs.DAOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
@@ -19,6 +19,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using RegisterRequest = Services.ApiModels.Account.RegisterRequest;
+using static System.Collections.Specialized.BitVector32;
 using Repositories.Helpers;
 using BusinessObjects.Enums;
 
@@ -100,11 +101,11 @@ namespace Services.Services
 
         public async Task<string> GetAccount(string email, string password)
         {
-           return _accountRepository.GetAccountByEmail(email).Result switch
-           {
-               null => throw new Exception("Account not found"),
-               var user => VerifyPassword(password, user.Password) ? CreateToken(user) : throw new Exception("Invalid password")
-           };
+            return _accountRepository.GetAccountByEmail(email).Result switch
+            {
+                null => throw new Exception("Account not found"),
+                var user => VerifyPassword(password, user.Password) ? CreateToken(user) : throw new Exception("Invalid password")
+            };
         }
 
         public async Task<(string accessToken, string refreshToken)> Login(string email, string password)
@@ -272,6 +273,126 @@ namespace Services.Services
                 res.Message = $"Lỗi khi cập nhật thông tin: {ex.Message}";
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 return res;
+            }
+        }
+
+        public async Task<ResultModel> ChangePassword(ChangePasswordRequest request)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        Message = "Token xác thực không được cung cấp",
+                        StatusCode = StatusCodes.Status401Unauthorized
+                    };
+                }
+
+                var token = authHeader.Substring("Bearer ".Length);
+                if (string.IsNullOrEmpty(token))
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        Message = "Token không hợp lệ",
+                        StatusCode = StatusCodes.Status401Unauthorized
+                    };
+                }
+
+                var accountId = await _accountRepository.GetAccountIdFromToken(token);
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        Message = "Token không hợp lệ hoặc đã hết hạn",
+                        StatusCode = StatusCodes.Status401Unauthorized
+                    };
+                }
+
+                var existingAccount = await _accountRepository.GetAccountById(accountId);
+                if (existingAccount == null)
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        Message = "Không tìm thấy tài khoản",
+                        StatusCode = StatusCodes.Status404NotFound
+                    };
+                }
+
+                if (string.IsNullOrEmpty(request.OldPassword) || string.IsNullOrEmpty(request.NewPassword))
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        Message = "Mật khẩu không được để trống",
+                        StatusCode = StatusCodes.Status400BadRequest
+                    };
+                }
+
+                if (request.NewPassword.Length < 6)
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        Message = "Mật khẩu mới phải có ít nhất 6 ký tự",
+                        StatusCode = StatusCodes.Status400BadRequest
+                    };
+                }
+
+                if (request.NewPassword != request.ConfirmPassword)
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        Message = "Mật khẩu xác nhận không khớp",
+                        StatusCode = StatusCodes.Status400BadRequest
+                    };
+                }
+
+                if (!BCrypt.Net.BCrypt.Verify(request.OldPassword, existingAccount.Password))
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        Message = "Mật khẩu cũ không chính xác",
+                        StatusCode = StatusCodes.Status400BadRequest
+                    };
+                }
+
+                if (BCrypt.Net.BCrypt.Verify(request.NewPassword, existingAccount.Password))
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        Message = "Mật khẩu mới không được trùng với mật khẩu cũ",
+                        StatusCode = StatusCodes.Status400BadRequest
+                    };
+                }
+
+                existingAccount.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+                await _accountRepository.UpdateAccount(existingAccount);
+
+                return new ResultModel
+                {
+                    IsSuccess = true,
+                    Message = "Đổi mật khẩu thành công",
+                    StatusCode = StatusCodes.Status200OK
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    Message = $"Lỗi khi đổi mật khẩu: {ex.Message}",
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
             }
         }
     }

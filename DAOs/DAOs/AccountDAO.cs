@@ -39,6 +39,11 @@ namespace DAOs.DAOs
             await _context.SaveChangesAsync();
         }
 
+        public async Task<Account?> GetAccountByIdDao(string accountId)
+        {
+            return await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId == accountId);
+        }
+
         public async Task<string> GetAccountIdFromTokenDao(string token)
         {
             try

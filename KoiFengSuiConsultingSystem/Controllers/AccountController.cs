@@ -58,6 +58,8 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
       
+
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
@@ -143,6 +145,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
         public async Task<IActionResult> EditProfile([FromBody]EditProfileRequest request)
         {
             var res = await _accountService.EditProfile(request);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [Authorize]
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            var res = await _accountService.ChangePassword(request);
             return StatusCode(res.StatusCode, res);
         }
     }

@@ -31,6 +31,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[BookingOnline]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Certificate]",
          "ObjectType": 0
       },
@@ -40,6 +44,10 @@
       },
       {
          "Name": "[dbo].[Color]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CompatibilityPoint]",
          "ObjectType": 0
       },
       {
@@ -56,6 +64,10 @@
       },
       {
          "Name": "[dbo].[Customer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ElementPoint]",
          "ObjectType": 0
       },
       {
@@ -84,6 +96,10 @@
       },
       {
          "Name": "[dbo].[KoiVariety]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[MansionsPoint]",
          "ObjectType": 0
       },
       {

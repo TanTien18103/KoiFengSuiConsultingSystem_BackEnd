@@ -29,6 +29,8 @@ public partial class Master
 
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 
+    public virtual ICollection<BookingOnline> BookingOnlines { get; set; } = new List<BookingOnline>();
+
     public virtual ICollection<MasterSchedule> MasterSchedules { get; set; } = new List<MasterSchedule>();
 
     public virtual ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();

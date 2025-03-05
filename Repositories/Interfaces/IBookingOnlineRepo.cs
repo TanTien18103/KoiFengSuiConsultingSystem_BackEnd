@@ -1,0 +1,22 @@
+﻿using BusinessObjects.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Repositories.Interfaces
+{
+    public interface IBookingOnlineRepo
+    {
+        Task<BookingOnline> GetBookingOnlineByIdRepo(string bookingOnlineId);
+
+        Task<List<BookingOnline>> GetBookingOnlinesRepo();
+
+        Task<BookingOnline> CreateBookingOnlineRepo(BookingOnline bookingOnline);
+
+        Task<BookingOnline> UpdateBookingOnlineRepo(BookingOnline bookingOnline);
+
+        Task DeleteBookingOnlineRepo(string bookingOnlineId);
+    }
+}

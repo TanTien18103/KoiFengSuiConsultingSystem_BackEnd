@@ -1,9 +1,10 @@
-﻿using BusinessObjects.Models;
-using DAOs.DTOs;
+﻿using AutoMapper;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 using Repositories.Interfaces;
 using Repositories.Repository;
 using Services.ApiModels;
+using Services.ApiModels.Customer;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ public class CustomerService : ICustomerService
 {
     private readonly ICustomerRepo _customerRepo;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IMapper _mapper;
     private static readonly Dictionary<string, Dictionary<string, double>> ElementColorPoints = new()
 {
     { "Metal", new() { { "White", 10 }, { "Yellow", 5 }, { "Blue", -5 }, { "Red", -10 }, { "Black", -8 } } },
@@ -71,10 +73,11 @@ public class CustomerService : ICustomerService
         { "Fire", "Metal" },
         { "Earth", "Water" }
     };
-    public CustomerService(ICustomerRepo customerRepo, IHttpContextAccessor httpContextAccessor)
+    public CustomerService(ICustomerRepo customerRepo, IHttpContextAccessor httpContextAccessor, IMapper mapper)
     {
         _customerRepo = customerRepo;
         _httpContextAccessor = httpContextAccessor;
+        _mapper = mapper;
     }
 
     public async Task<Customer> CreateCustomer(Customer customer)
@@ -96,90 +99,131 @@ public class CustomerService : ICustomerService
         return await _customerRepo.GetCustomers();
     }
 
-    public async Task<ElementLifePalaceDto> GetElementLifePalaceById()
+    public async Task<ResultModel> GetElementLifePalaceById()
     {
-        var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
-        if (identity == null || !identity.IsAuthenticated)
+        var res = new ResultModel();
+        try
         {
-            return null;
+            var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+            if (identity == null || !identity.IsAuthenticated)
+            {
+                res.IsSuccess = false;
+                res.Message = "Người dùng chưa xác thực";
+                res.StatusCode = StatusCodes.Status401Unauthorized;
+                return res;
+            }
+
+            var claims = identity.Claims;
+            var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(accountId))
+            {
+                res.IsSuccess = false;
+                res.Message = "Không tìm thấy thông tin tài khoản";
+                res.StatusCode = StatusCodes.Status400BadRequest;
+                return res;
+            }
+
+            var customer = await _customerRepo.GetElementLifePalaceById(accountId);
+
+            if (customer == null)
+            {
+                res.IsSuccess = false;
+                res.Message = "Không tìm thấy thông tin khách hàng";
+                res.StatusCode = StatusCodes.Status404NotFound;
+                return res;
+            }
+
+            res.IsSuccess = true;
+            res.Message = "Lấy thông tin thành công";
+            res.StatusCode = StatusCodes.Status200OK;
+            res.Data = _mapper.Map<ElementLifePalaceDto>(customer);
+            return res;
         }
-
-        var claims = identity.Claims;
-        var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-
-        if (string.IsNullOrEmpty(accountId))
+        catch (Exception ex)
         {
-            return null;
+            res.IsSuccess = false;
+            res.Message = $"Đã xảy ra lỗi: {ex.Message}";
+            res.StatusCode = StatusCodes.Status500InternalServerError;
+            return res;
         }
-
-        return await _customerRepo.GetElementLifePalaceById(accountId);
     }
-
-
 
     public async Task<Customer> UpdateCustomer(Customer customer)
     {
         return await _customerRepo.UpdateCustomer(customer);
     }
 
-    public async Task<FengShuiResult> CalculateCompatibility(CompatibilityRequest request)
+    public async Task<ResultModel> CalculateCompatibility(CompatibilityRequest request)
     {
+        var res = new ResultModel();
         double compatibilityScore = 0;
 
         var result = await GetElementLifePalaceById();
-        if (result == null)
+        if (!result.IsSuccess || result.Data == null)
         {
-            return new FengShuiResult
-            {
-                CompatibilityScore = 0,
-                Message = "Không tìm thấy cung mệnh. Vui lòng kiểm tra lại!"
-            };
+            res.IsSuccess = false;
+            res.Message = "Không tìm thấy cung mệnh. Vui lòng kiểm tra lại!";
+            res.StatusCode = StatusCodes.Status404NotFound;
+            return res;
+        }
+
+        var elementLifePalace = result.Data as ElementLifePalaceDto;
+        if (elementLifePalace == null || string.IsNullOrEmpty(elementLifePalace.Element))
+        {
+            res.IsSuccess = false;
+            res.Message = "Không tìm thấy cung mệnh. Vui lòng kiểm tra lại!";
+            res.StatusCode = StatusCodes.Status404NotFound;
+            return res;
         }
 
         double totalRatio = request.ColorRatios.Values.Sum();
         if (Math.Abs(totalRatio - 100.0) > 0.01)
         {
-            return new FengShuiResult
-            {
-                CompatibilityScore = 0,
-                Message = "Tổng tỷ lệ màu cá phải bằng 100%. Vui lòng kiểm tra lại!"
-            };
+            res.IsSuccess = false;
+            res.Message = "Tổng tỉ lệ màu không đúng. Vui lòng kiểm tra lại!";
+            res.StatusCode = StatusCodes.Status400BadRequest;
+            return res;
         }
 
-        if (ElementColorPoints.ContainsKey(result.Element))
+        if (ElementColorPoints.ContainsKey(elementLifePalace.Element))
         {
             foreach (var color in request.ColorRatios)
             {
-                if (ElementColorPoints[result.Element].ContainsKey(color.Key))
+                if (ElementColorPoints[elementLifePalace.Element].ContainsKey(color.Key))
                 {
-                    double colorPoint = ElementColorPoints[result.Element][color.Key] * (color.Value / 100.0);
+                    double colorPoint = ElementColorPoints[elementLifePalace.Element][color.Key] * (color.Value / 100.0);
                     compatibilityScore += colorPoint;
                 }
             }
         }
 
-        if (ShapePoints.ContainsKey(result.Element) && ShapePoints[result.Element].ContainsKey(request.PondShape))
+        if (ShapePoints.ContainsKey(elementLifePalace.Element) && ShapePoints[elementLifePalace.Element].ContainsKey(request.PondShape))
         {
-            compatibilityScore += ShapePoints[result.Element][request.PondShape];
+            compatibilityScore += ShapePoints[elementLifePalace.Element][request.PondShape];
         }
 
-        if (DirectionPoints.ContainsKey(result.Element) && DirectionPoints[result.Element].ContainsKey(request.PondDirection))
+        if (DirectionPoints.ContainsKey(elementLifePalace.Element) && DirectionPoints[elementLifePalace.Element].ContainsKey(request.PondDirection))
         {
-            compatibilityScore += DirectionPoints[result.Element][request.PondDirection];
+            compatibilityScore += DirectionPoints[elementLifePalace.Element][request.PondDirection];
         }
 
-        compatibilityScore += CalculateFishCountBonus(request.FishCount, result.Element);
+        compatibilityScore += CalculateFishCountBonus(request.FishCount, elementLifePalace.Element);
 
         double minScore = -50;
         double maxScore = 50;
         double normalizedScore = ((compatibilityScore - minScore) / (maxScore - minScore)) * 100;
         double finalScore = Math.Round(normalizedScore, 2);
 
-        return new FengShuiResult
-        {
-            CompatibilityScore = finalScore,
-            Message = GetCompatibilityMessage(finalScore) 
-        };
+        res.IsSuccess = true;
+        res.Message = GetCompatibilityMessage(finalScore);
+        res.StatusCode = StatusCodes.Status200OK;
+        res.Data =
+            new FengShuiResult
+            {
+                CompatibilityScore = finalScore,
+                Message = res.Message
+            };
+        return res;
     }
 
 

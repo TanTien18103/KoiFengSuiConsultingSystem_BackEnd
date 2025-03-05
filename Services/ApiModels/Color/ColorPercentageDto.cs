@@ -1,4 +1,4 @@
-﻿namespace DAOs.DTOs
+﻿namespace Services.ApiModels.Color
 {
     public class ColorPercentageDto
     {

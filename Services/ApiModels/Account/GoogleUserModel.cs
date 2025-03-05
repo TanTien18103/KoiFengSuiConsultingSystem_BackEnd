@@ -1,5 +1,4 @@
-﻿namespace KoiFengSuiConsultingSystem.Request
-{
+﻿namespace Services.ApiModels.Account;
     public class GoogleUserModel
     {
         public string Id { get; set; }
@@ -9,4 +8,4 @@
         public string Email { get; set; }
 
     }
-}
+

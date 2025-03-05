@@ -25,6 +25,11 @@ namespace Repositories.Repository
             return AccountDAO.Instance.GetAccountByEmailDao(email);
         }
 
+        public Task<Account> GetAccountById(string accountId)
+        {
+            return AccountDAO.Instance.GetAccountByIdDao(accountId);
+        }
+
         public Task<string> GetAccountIdFromToken(string token)
         {
             return AccountDAO.Instance.GetAccountIdFromTokenDao(token);

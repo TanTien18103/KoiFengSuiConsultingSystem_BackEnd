@@ -11,18 +11,30 @@ namespace DAOs.DAOs
 {
     public class CustomerDAO
     {
+        public static CustomerDAO instance = null;
         private readonly KoiFishPondContext _context;
 
         public CustomerDAO()
         {
             _context = new KoiFishPondContext();
         }
+        public static CustomerDAO Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new CustomerDAO();
+                }
+                return instance;
+            }
+        }
 
-        public async Task<Customer> GetCustomerById(string customerId)
+        public async Task<Customer> GetCustomerByIdDao(string customerId)
         {
             return await _context.Customers.FindAsync(customerId);
         }
-        public async Task<ElementLifePalaceDto> GetElementLifePalaceById(string accountId)
+        public async Task<ElementLifePalaceDto> GetElementLifePalaceByIdDao(string accountId)
         {
             if (string.IsNullOrWhiteSpace(accountId))
             {
@@ -41,32 +53,28 @@ namespace DAOs.DAOs
             return customer;
         }
 
-
-
-        public async Task<List<Customer>> GetCustomers()
+        public async Task<List<Customer>> GetCustomersDao()
         {
             return _context.Customers.ToList();
         }
 
-
-
-        public async Task<Customer> CreateCustomer(Customer customer)
+        public async Task<Customer> CreateCustomerDao(Customer customer)
         {
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
             return customer;
         }
 
-        public async Task<Customer> UpdateCustomer(Customer customer)
+        public async Task<Customer> UpdateCustomerDao(Customer customer)
         {
             _context.Customers.Update(customer);
             await _context.SaveChangesAsync();
             return customer;
         }
 
-        public async Task DeleteCustomer(string customerId)
+        public async Task DeleteCustomerDao(string customerId)
         {
-            var customer = await GetCustomerById(customerId);
+            var customer = await GetCustomerByIdDao(customerId);
             _context.Customers.Remove(customer);
             await _context.SaveChangesAsync();
         }

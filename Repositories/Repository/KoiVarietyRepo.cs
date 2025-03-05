@@ -12,45 +12,38 @@ namespace Repositories.Repository
 {
     public class KoiVarietyRepo : IKoiVarietyRepo
     {
-        private readonly KoiVarietyDAO _koiVarietyDAO;
-
-        public KoiVarietyRepo(KoiVarietyDAO koiVarietyDAO)
+        public Task<KoiVariety> GetKoiVarietyById(string koiVarietyId)
         {
-            _koiVarietyDAO = koiVarietyDAO;
+            return KoiVarietyDAO.Instance.GetKoiVarietyByIdDao(koiVarietyId);
         }
 
-        public async Task<KoiVariety> GetKoiVarietyById(string koiVarietyId)
+        public Task<KoiVariety> CreateKoiVariety(KoiVariety koiVariety)
         {
-            return await _koiVarietyDAO.GetKoiVarietyById(koiVarietyId);
+            return KoiVarietyDAO.Instance.CreateKoiVarietyDao(koiVariety);
         }
 
-        public async Task<KoiVariety> CreateKoiVariety(KoiVariety koiVariety)
+        public Task<KoiVariety> UpdateKoiVariety(KoiVariety koiVariety)
         {
-            return await _koiVarietyDAO.CreateKoiVariety(koiVariety);
+            return KoiVarietyDAO.Instance.UpdateKoiVarietyDao(koiVariety);
         }
 
-        public async Task<KoiVariety> UpdateKoiVariety(KoiVariety koiVariety)
+        public Task DeleteKoiVariety(string koiVarietyId)
         {
-            return await _koiVarietyDAO.UpdateKoiVariety(koiVariety);
+            return KoiVarietyDAO.Instance.DeleteKoiVarietyDao(koiVarietyId);
         }
 
-        public async Task DeleteKoiVariety(string koiVarietyId)
+        public Task<List<KoiVariety>> GetKoiVarieties()
         {
-            await _koiVarietyDAO.DeleteKoiVariety(koiVarietyId);
+            return KoiVarietyDAO.Instance.GetKoiVarietiesDao();
         }
 
-        public async Task<List<KoiVariety>> GetKoiVarieties()
+        public Task<List<FishesWithColorsDTO>> GetKoiVarietyWithColors()
         {
-            return await _koiVarietyDAO.GetKoiVarieties();
+            return KoiVarietyDAO.Instance.GetAllKoiVarietiesWithColorsDao();
         }
-
-        public async Task<List<FishesWithColorsDTO>> GetKoiVarietyWithColors()
+        public Task<FishesWithColorsDTO> GetKoiVarietyWithColorsById(string id)
         {
-            return await _koiVarietyDAO.GetAllKoiVarietiesWithColors();
-        }
-        public async Task<FishesWithColorsDTO> GetKoiVarietyWithColorsById(string id)
-        {
-            return await _koiVarietyDAO.GetAllKoiVarietiesWithColorsById(id);
+            return KoiVarietyDAO.Instance.GetAllKoiVarietiesWithColorsByIdDao(id);
         }
     }
 }

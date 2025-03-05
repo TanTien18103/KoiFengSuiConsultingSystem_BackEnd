@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class EnrollQuizRepo : IEnrollQuizRepo
     {
-        private readonly EnrollQuizDAO _enrollQuizDAO;
-
-        public EnrollQuizRepo(EnrollQuizDAO enrollQuizDAO)
+        public Task<EnrollQuiz> GetEnrollQuizById(string enrollQuizId)
         {
-            _enrollQuizDAO = enrollQuizDAO;
+            return EnrollQuizDAO.Instance.GetEnrollQuizByIdDao(enrollQuizId);
         }
 
-        public async Task<EnrollQuiz> GetEnrollQuizById(string enrollQuizId)
+        public Task<EnrollQuiz> CreateEnrollQuiz(EnrollQuiz enrollQuiz)
         {
-            return await _enrollQuizDAO.GetEnrollQuizById(enrollQuizId);
+            return EnrollQuizDAO.Instance.CreateEnrollQuizDao(enrollQuiz);
         }
 
-        public async Task<EnrollQuiz> CreateEnrollQuiz(EnrollQuiz enrollQuiz)
+        public Task<EnrollQuiz> UpdateEnrollQuiz(EnrollQuiz enrollQuiz)
         {
-            return await _enrollQuizDAO.CreateEnrollQuiz(enrollQuiz);
+            return EnrollQuizDAO.Instance.UpdateEnrollQuizDao(enrollQuiz);
         }
 
-        public async Task<EnrollQuiz> UpdateEnrollQuiz(EnrollQuiz enrollQuiz)
+        public Task DeleteEnrollQuiz(string enrollQuizId)
         {
-            return await _enrollQuizDAO.UpdateEnrollQuiz(enrollQuiz);
+            return EnrollQuizDAO.Instance.DeleteEnrollQuizDao(enrollQuizId);
         }
 
-        public async Task DeleteEnrollQuiz(string enrollQuizId)
+        public Task<List<EnrollQuiz>> GetEnrollQuizzes()
         {
-            await _enrollQuizDAO.DeleteEnrollQuiz(enrollQuizId);
-        }
-
-        public async Task<List<EnrollQuiz>> GetEnrollQuizzes()
-        {
-            return await _enrollQuizDAO.GetEnrollQuizzes();
+            return EnrollQuizDAO.Instance.GetEnrollQuizzesDao();
         }
     }
 }

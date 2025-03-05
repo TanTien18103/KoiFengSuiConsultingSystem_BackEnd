@@ -12,41 +12,34 @@ namespace Repositories.Repository
 {
     public class CustomerRepo : ICustomerRepo
     {
-        private readonly CustomerDAO _customerDAO;
-
-        public CustomerRepo()
+        public Task<Customer> GetCustomerById(string customerId)
         {
-            _customerDAO = new CustomerDAO();
+            return CustomerDAO.Instance.GetCustomerByIdDao(customerId);
         }
 
-        public async Task<Customer> GetCustomerById(string customerId)
+        public Task<Customer> CreateCustomer(Customer customer)
         {
-            return await _customerDAO.GetCustomerById(customerId);
+            return CustomerDAO.Instance.CreateCustomerDao(customer);
         }
 
-        public async Task<Customer> CreateCustomer(Customer customer)
+        public Task<Customer> UpdateCustomer(Customer customer)
         {
-            return await _customerDAO.CreateCustomer(customer);
+            return CustomerDAO.Instance.UpdateCustomerDao(customer);
         }
 
-        public async Task<Customer> UpdateCustomer(Customer customer)
+        public Task DeleteCustomer(string customerId)
         {
-            return await _customerDAO.UpdateCustomer(customer);
+            return CustomerDAO.Instance.DeleteCustomerDao(customerId);
         }
 
-        public async Task DeleteCustomer(string customerId)
+        public Task<List<Customer>> GetCustomers()
         {
-            await _customerDAO.DeleteCustomer(customerId);
-        }
-
-        public async Task<List<Customer>> GetCustomers()
-        {
-            return await _customerDAO.GetCustomers();
+            return CustomerDAO.Instance.GetCustomersDao();
         }
 
         public Task<ElementLifePalaceDto> GetElementLifePalaceById(string customerId)
         {
-            return _customerDAO.GetElementLifePalaceById(customerId);
+            return CustomerDAO.Instance.GetElementLifePalaceByIdDao(customerId);
         }
     }
 }

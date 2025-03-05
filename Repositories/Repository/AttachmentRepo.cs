@@ -11,30 +11,23 @@ namespace Repositories.Repository
 {
     public class AttachmentRepo : IAttachmentRepo
     {
-        private readonly AttachmentDAO _attachmentDAO;
-
-        public AttachmentRepo(AttachmentDAO attachmentDAO)
+        public Task<Attachment> GetAttachmentById(string attachmentId)
         {
-            _attachmentDAO = attachmentDAO;
+            return  AttachmentDAO.Instance.GetAttachmentByIdDao(attachmentId);
+        }
+        public Task<Attachment> CreateAttachment(Attachment attachment)
+        {
+            return AttachmentDAO.Instance.CreateAttachmentDao(attachment);
         }
 
-        public async Task<Attachment> GetAttachmentById(string attachmentId)
+        public Task<Attachment> UpdateAttachment(Attachment attachment)
         {
-            return await _attachmentDAO.GetAttachmentById(attachmentId);
-        }
-        public async Task<Attachment> CreateAttachment(Attachment attachment)
-        {
-            return await _attachmentDAO.CreateAttachment(attachment);
+            return AttachmentDAO.Instance.UpdateAttachmentDao(attachment);
         }
 
-        public async Task<Attachment> UpdateAttachment(Attachment attachment)
+        public Task DeleteAttachment(string attachmentId)
         {
-            return await _attachmentDAO.UpdateAttachment(attachment);
-        }
-
-        public async Task DeleteAttachment(string attachmentId)
-        {
-            await _attachmentDAO.DeleteAttachment(attachmentId);
+            return AttachmentDAO.Instance.DeleteAttachmentDao(attachmentId);
         }
 
        

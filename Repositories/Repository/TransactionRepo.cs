@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class TransactionRepo : ITransactionRepo
     {
-        private readonly TransactionDAO _transactionDAO;
-
-        public TransactionRepo(TransactionDAO transactionDAO)
+        public Task<Transaction> GetTransactionById(string transactionId)
         {
-            _transactionDAO = transactionDAO;
+            return TransactionDAO.Instance.GetTransactionByIdDao(transactionId);
         }
 
-        public async Task<Transaction> GetTransactionById(string transactionId)
+        public Task<Transaction> CreateTransaction(Transaction transaction)
         {
-            return await _transactionDAO.GetTransactionById(transactionId);
+            return TransactionDAO.Instance.CreateTransactionDao(transaction);
         }
 
-        public async Task<Transaction> CreateTransaction(Transaction transaction)
+        public Task<Transaction> UpdateTransaction(Transaction transaction)
         {
-            return await _transactionDAO.CreateTransaction(transaction);
+            return TransactionDAO.Instance.UpdateTransactionDao(transaction);
         }
 
-        public async Task<Transaction> UpdateTransaction(Transaction transaction)
+        public Task DeleteTransaction(string transactionId)
         {
-            return await _transactionDAO.UpdateTransaction(transaction);
+            return TransactionDAO.Instance.DeleteTransactionDao(transactionId);
         }
 
-        public async Task DeleteTransaction(string transactionId)
+        public Task<List<Transaction>> GetTransactions()
         {
-            await _transactionDAO.DeleteTransaction(transactionId);
-        }
-
-        public async Task<List<Transaction>> GetTransactions()
-        {
-            return await _transactionDAO.GetTransactions();
+            return TransactionDAO.Instance.GetTransactionsDao();
         }
     }
 }

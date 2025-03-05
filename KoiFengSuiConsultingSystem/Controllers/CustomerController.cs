@@ -1,9 +1,8 @@
 ﻿using BusinessObjects.Models;
-using KoiFengSuiConsultingSystem.Request;
-using KoiFengSuiConsultingSystem.Respone;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Services.Interface;
+using Services.ApiModels;
+using Services.Interfaces;
 using System.Security.Claims;
 
 namespace KoiFengSuiConsultingSystem.Controllers

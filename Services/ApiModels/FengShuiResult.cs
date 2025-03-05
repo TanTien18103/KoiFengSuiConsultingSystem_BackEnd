@@ -1,4 +1,4 @@
-﻿namespace KoiFengSuiConsultingSystem.Respone
+﻿namespace Services.ApiModels
 {
     public class FengShuiResult
     {

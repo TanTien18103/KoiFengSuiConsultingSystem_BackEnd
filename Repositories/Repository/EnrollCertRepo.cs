@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class EnrollCertRepo : IEnrollCertRepo
     {
-        private readonly EnrollCertDAO _enrollCertDAO;
-
-        public EnrollCertRepo(EnrollCertDAO enrollCertDAO)
+        public Task<EnrollCert> GetEnrollCertById(string enrollCertId)
         {
-            _enrollCertDAO = enrollCertDAO;
+            return EnrollCertDAO.Instance.GetEnrollCertByIdDao(enrollCertId);
         }
 
-        public async Task<EnrollCert> GetEnrollCertById(string enrollCertId)
+        public Task<EnrollCert> CreateEnrollCert(EnrollCert enrollCert)
         {
-            return await _enrollCertDAO.GetEnrollCertById(enrollCertId);
+            return EnrollCertDAO.Instance.CreateEnrollCertDao(enrollCert);
         }
 
-        public async Task<EnrollCert> CreateEnrollCert(EnrollCert enrollCert)
+        public Task<EnrollCert> UpdateEnrollCert(EnrollCert enrollCert)
         {
-            return await _enrollCertDAO.CreateEnrollCert(enrollCert);
+            return EnrollCertDAO.Instance.UpdateEnrollCertDao(enrollCert);
         }
 
-        public async Task<EnrollCert> UpdateEnrollCert(EnrollCert enrollCert)
+        public Task DeleteEnrollCert(string enrollCertId)
         {
-            return await _enrollCertDAO.UpdateEnrollCert(enrollCert);
+            return EnrollCertDAO.Instance.DeleteEnrollCertDao(enrollCertId);
         }
 
-        public async Task DeleteEnrollCert(string enrollCertId)
+        public Task<List<EnrollCert>> GetEnrollCerts()
         {
-            await _enrollCertDAO.DeleteEnrollCert(enrollCertId);
-        }
-
-        public async Task<List<EnrollCert>> GetEnrollCerts()
-        {
-            return await _enrollCertDAO.GetEnrollCerts();
+            return EnrollCertDAO.Instance.GetEnrollCertsDao();
         }
     }
 }

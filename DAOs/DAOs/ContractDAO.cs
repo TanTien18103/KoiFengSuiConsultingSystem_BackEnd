@@ -9,40 +9,52 @@ namespace DAOs.DAOs
 {
     public class ContractDAO
     {
+        public static ContractDAO instance = null;
         private readonly KoiFishPondContext _context;
 
-        public ContractDAO(KoiFishPondContext context)
+        public ContractDAO()
         {
-            _context = context;
+            _context = new KoiFishPondContext();
+        }
+        public static ContractDAO Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new ContractDAO();
+                }
+                return instance;
+            }
         }
 
-        public async Task<Contract> GetContractById(string contractId)
+        public async Task<Contract> GetContractByIdDao(string contractId)
         {
             return await _context.Contracts.FindAsync(contractId);
         }
 
-        public async Task<List<Contract>> GetContracts()
+        public async Task<List<Contract>> GetContractsDao()
         {
             return _context.Contracts.ToList();
         }
 
-        public async Task<Contract> CreateContract(Contract contract)
+        public async Task<Contract> CreateContractDao(Contract contract)
         {
             _context.Contracts.Add(contract);
             await _context.SaveChangesAsync();
             return contract;
         }
 
-        public async Task<Contract> UpdateContract(Contract contract)
+        public async Task<Contract> UpdateContractDao(Contract contract)
         {
             _context.Contracts.Update(contract);
             await _context.SaveChangesAsync();
             return contract;
         }
 
-        public async Task DeleteContract(string contractId)
+        public async Task DeleteContractDao(string contractId)
         {
-            var contract = await GetContractById(contractId);
+            var contract = await GetContractByIdDao(contractId);
             _context.Contracts.Remove(contract);
             await _context.SaveChangesAsync();
         }

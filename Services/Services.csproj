@@ -10,4 +10,36 @@
     <ProjectReference Include="..\Repositories\Repositories.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ApiModels\Answer\" />
+    <Folder Include="ApiModels\Attachment\" />
+    <Folder Include="ApiModels\BookingOffline\" />
+    <Folder Include="ApiModels\Certificate\" />
+    <Folder Include="ApiModels\Chapter\" />
+    <Folder Include="ApiModels\Color\" />
+    <Folder Include="ApiModels\ConsultationPackage\" />
+    <Folder Include="ApiModels\Contract\" />
+    <Folder Include="ApiModels\Course\" />
+    <Folder Include="ApiModels\Customer\" />
+    <Folder Include="ApiModels\EnrollAnswer\" />
+    <Folder Include="ApiModels\EnrollCert\" />
+    <Folder Include="ApiModels\EnrollChapter\" />
+    <Folder Include="ApiModels\EnrollQuiz\" />
+    <Folder Include="ApiModels\FengShuiDocument\" />
+    <Folder Include="ApiModels\Master\" />
+    <Folder Include="ApiModels\KoiVariety\" />
+    <Folder Include="ApiModels\MasterSchedule\" />
+    <Folder Include="ApiModels\Membership\" />
+    <Folder Include="ApiModels\Workshop\" />
+    <Folder Include="ApiModels\WalletTransaction\" />
+    <Folder Include="ApiModels\Wallet\" />
+    <Folder Include="ApiModels\VarietyColor\" />
+    <Folder Include="ApiModels\Transaction\" />
+    <Folder Include="ApiModels\Shape\" />
+    <Folder Include="ApiModels\RegisterCourse\" />
+    <Folder Include="ApiModels\RegisterAttend\" />
+    <Folder Include="ApiModels\Quiz\" />
+    <Folder Include="ApiModels\Question\" />
+  </ItemGroup>
+
 </Project>

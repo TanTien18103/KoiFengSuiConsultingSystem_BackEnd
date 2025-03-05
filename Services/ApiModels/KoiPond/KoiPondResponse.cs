@@ -1,4 +1,4 @@
-﻿namespace KoiFengSuiConsultingSystem.Response
+﻿namespace Services.ApiModels.KoiPond
 {
     public class KoiPondResponse
     {

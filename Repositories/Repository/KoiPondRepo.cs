@@ -13,35 +13,29 @@ namespace Repositories.Repository
 {
     public class KoiPondRepo : IKoiPondRepo
     {
-        private readonly KoiPondDAO _koiPondDAO;
-        public KoiPondRepo()
+        public Task<KoiPond> GetKoiPondById(string koiPondId)
         {
-            _koiPondDAO = new KoiPondDAO();
+            return KoiPondDAO.Instance.GetKoiPondByIdDao(koiPondId);
         }
 
-        public async Task<KoiPond> GetKoiPondById(string koiPondId)
+        public Task<KoiPond> CreateKoiPond(KoiPond koiPond)
         {
-            return await _koiPondDAO.GetKoiPondById(koiPondId);
+            return KoiPondDAO.Instance.CreateKoiPondDao(koiPond);
         }
 
-        public async Task<KoiPond> CreateKoiPond(KoiPond koiPond)
+        public Task<KoiPond> UpdateKoiPond(KoiPond koiPond)
         {
-            return await _koiPondDAO.CreateKoiPond(koiPond);
+            return KoiPondDAO.Instance.UpdateKoiPondDao(koiPond);
         }
 
-        public async Task<KoiPond> UpdateKoiPond(KoiPond koiPond)
+        public Task DeleteKoiPond(string koiPondId)
         {
-            return await _koiPondDAO.UpdateKoiPond(koiPond);
+            return KoiPondDAO.Instance.DeleteKoiPondDao(koiPondId);
         }
 
-        public async Task DeleteKoiPond(string koiPondId)
+        public Task<List<KoiPond>> GetKoiPonds()
         {
-            await _koiPondDAO.DeleteKoiPond(koiPondId);
-        }
-
-        public async Task<List<KoiPond>> GetKoiPonds()
-        {
-            return await _koiPondDAO.GetKoiPonds();
+            return KoiPondDAO.Instance.GetKoiPondsDao();
         }
     }
 }

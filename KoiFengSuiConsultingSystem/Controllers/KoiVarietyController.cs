@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Services.Interface;
+using Services.Interfaces;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -18,14 +18,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllKoiVarieties()
         {
-            var result = await _koiVarietyService.GetKoiVarietyWithColors();
+            var result = await _koiVarietyService.GetKoiVarietyWithColorsAsync();
             return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetKoiVarietyById(string id)
         {
-            var result = await _koiVarietyService.GetKoiVarietyWithColorsById(id);
+            var result = await _koiVarietyService.GetKoiVarietyWithColorsByIdAsync(id);
 
             if (result == null)
                 return NotFound($"Can not find: {id}");

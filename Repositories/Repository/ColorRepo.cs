@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class ColorRepo : IColorRepo
     {
-        private readonly ColorDAO _colorDAO;
-
-        public ColorRepo(ColorDAO colorDAO)
+        public Task<Color> GetColorById(string colorId)
         {
-            _colorDAO = colorDAO;
+            return ColorDAO.Instance.GetColorByIdDao(colorId);
         }
 
-        public async Task<Color> GetColorById(string colorId)
+        public Task<Color> CreateColor(Color color)
         {
-            return await _colorDAO.GetColorById(colorId);
+            return ColorDAO.Instance.CreateColorDao(color);
         }
 
-        public async Task<Color> CreateColor(Color color)
+        public Task<Color> UpdateColor(Color color)
         {
-            return await _colorDAO.CreateColor(color);
+            return ColorDAO.Instance.UpdateColorDao(color);
         }
 
-        public async Task<Color> UpdateColor(Color color)
+        public Task DeleteColor(string colorId)
         {
-            return await _colorDAO.UpdateColor(color);
+            return ColorDAO.Instance.DeleteColorDao(colorId);
         }
 
-        public async Task DeleteColor(string colorId)
+        public Task<List<Color>> GetColors()
         {
-            await _colorDAO.DeleteColor(colorId);
-        }
-
-        public  async Task<List<Color>> GetColors()
-        {
-            return await _colorDAO.GetColors();
+            return ColorDAO.Instance.GetColorsDao();
         }
     }
 }

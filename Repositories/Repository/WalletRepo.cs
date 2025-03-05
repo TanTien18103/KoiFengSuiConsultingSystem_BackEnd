@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class WalletRepo : IWalletRepo
     {
-        private readonly WalletDAO _walletDAO;
-
-        public WalletRepo(WalletDAO walletDAO)
+        public Task<Wallet> GetWalletById(string walletId)
         {
-            _walletDAO = walletDAO;
+            return WalletDAO.Instance.GetWalletByIdDao(walletId);
         }
 
-        public async Task<Wallet> GetWalletById(string walletId)
+        public Task<Wallet> CreateWallet(Wallet wallet)
         {
-            return await _walletDAO.GetWalletById(walletId);
+            return WalletDAO.Instance.CreateWalletDao(wallet);
         }
 
-        public async Task<Wallet> CreateWallet(Wallet wallet)
+        public Task<Wallet> UpdateWallet(Wallet wallet)
         {
-            return await _walletDAO.CreateWallet(wallet);
+            return WalletDAO.Instance.UpdateWalletDao(wallet);
         }
 
-        public async Task<Wallet> UpdateWallet(Wallet wallet)
+        public Task DeleteWallet(string walletId)
         {
-            return await _walletDAO.UpdateWallet(wallet);
+            return WalletDAO.Instance.DeleteWalletDao(walletId);
         }
 
-        public async Task DeleteWallet(string walletId)
+        public Task<List<Wallet>> GetWallets()
         {
-            await _walletDAO.DeleteWallet(walletId);
-        }
-
-        public async Task<List<Wallet>> GetWallets()
-        {
-            return await _walletDAO.GetWallets();
+            return WalletDAO.Instance.GetWalletsDao();
         }
     }
 }

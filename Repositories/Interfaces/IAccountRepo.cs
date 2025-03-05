@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 
 namespace Repositories.Interfaces
 {
-    public interface IAccountRepository
+    public interface IAccountRepo
     {
-        Task<Account?> GetAccountByEmailAsync(string email);
-        Task AddAccountAsync(Account account);
+        Task AddAccount(Account account);
+        Task<Account?> GetAccountByEmail(string email);
+        Task<string> GetAccountIdFromToken(string token);
     }
 }

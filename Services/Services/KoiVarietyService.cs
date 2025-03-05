@@ -1,7 +1,7 @@
 ﻿using BusinessObjects.Models;
 using DAOs.DTOs;
 using Repositories.Interfaces;
-using Services.Interface;
+using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,38 +19,38 @@ namespace Services.Services
             _koiVarietyRepo = koiVarietyRepo;
         }
 
-        public async Task<KoiVariety> CreateKoiVariety(KoiVariety koiVariety)
+        public async Task<KoiVariety> CreateKoiVarietyAsync(KoiVariety koiVariety)
         {
             return await _koiVarietyRepo.CreateKoiVariety(koiVariety);
         }
 
-        public async Task DeleteKoiVariety(string koiVarietyId)
+        public async Task DeleteKoiVarietyAsync(string koiVarietyId)
         {
             await _koiVarietyRepo.DeleteKoiVariety(koiVarietyId);
         }
 
-        public async Task<List<KoiVariety>> GetKoiVarieties()
+        public async Task<List<KoiVariety>> GetKoiVarietiesAsync()
         {
             return await _koiVarietyRepo.GetKoiVarieties();
         }
 
-        public async Task<KoiVariety> GetKoiVarietyById(string koiVarietyId)
+        public async Task<KoiVariety> GetKoiVarietyByIdAsync(string koiVarietyId)
         {
             return await _koiVarietyRepo.GetKoiVarietyById(koiVarietyId);
         }
 
        
-        public async Task<KoiVariety> UpdateKoiVariety(KoiVariety koiVariety)
+        public async Task<KoiVariety> UpdateKoiVarietyAsync(KoiVariety koiVariety)
         {
             return await _koiVarietyRepo.UpdateKoiVariety(koiVariety);
         }
 
-        public async Task<List<FishesWithColorsDTO>> GetKoiVarietyWithColors()
+        public async Task<List<FishesWithColorsDTO>> GetKoiVarietyWithColorsAsync()
         {
             return await _koiVarietyRepo.GetKoiVarietyWithColors();
         }
 
-        public async Task<FishesWithColorsDTO> GetKoiVarietyWithColorsById(string id)
+        public async Task<FishesWithColorsDTO> GetKoiVarietyWithColorsByIdAsync(string id)
         {
             return await _koiVarietyRepo.GetKoiVarietyWithColorsById(id);
         }

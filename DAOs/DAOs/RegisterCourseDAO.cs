@@ -9,40 +9,52 @@ namespace DAOs.DAOs
 {
     public class RegisterCourseDAO
     {
+        public static RegisterCourseDAO instance = null;
         private readonly KoiFishPondContext _context;
 
-        public RegisterCourseDAO(KoiFishPondContext context)
+        public RegisterCourseDAO()
         {
-            _context = context;
+            _context = new KoiFishPondContext();
+        }
+        public static RegisterCourseDAO Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new RegisterCourseDAO();
+                }
+                return instance;
+            }
         }
 
-        public async Task<RegisterCourse> GetRegisterCourseById(string registerCourseId)
+        public async Task<RegisterCourse> GetRegisterCourseByIdDao(string registerCourseId)
         {
             return await _context.RegisterCourses.FindAsync(registerCourseId);
         }
 
-        public async Task<List<RegisterCourse>> GetRegisterCourses()
+        public async Task<List<RegisterCourse>> GetRegisterCoursesDao()
         {
             return _context.RegisterCourses.ToList();
         }
 
-        public async Task<RegisterCourse> CreateRegisterCourse(RegisterCourse registerCourse)
+        public async Task<RegisterCourse> CreateRegisterCourseDao(RegisterCourse registerCourse)
         {
             _context.RegisterCourses.Add(registerCourse);
             await _context.SaveChangesAsync();
             return registerCourse;
         }
 
-        public async Task<RegisterCourse> UpdateRegisterCourse(RegisterCourse registerCourse)
+        public async Task<RegisterCourse> UpdateRegisterCourseDao(RegisterCourse registerCourse)
         {
             _context.RegisterCourses.Update(registerCourse);
             await _context.SaveChangesAsync();
             return registerCourse;
         }
 
-        public async Task DeleteRegisterCourse(string registerCourseId)
+        public async Task DeleteRegisterCourseDao(string registerCourseId)
         {
-            var registerCourse = await GetRegisterCourseById(registerCourseId);
+            var registerCourse = await GetRegisterCourseByIdDao(registerCourseId);
             _context.RegisterCourses.Remove(registerCourse);
             await _context.SaveChangesAsync();
         }

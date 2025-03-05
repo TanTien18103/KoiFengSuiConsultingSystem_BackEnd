@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class CourseRepo : ICourseRepo
     {
-        private readonly CourseDAO _courseDAO;
-
-        public CourseRepo(CourseDAO courseDAO)
+        public Task<Course> GetCourseById(string courseId)
         {
-            _courseDAO = courseDAO;
+            return CourseDAO.Instance.GetCourseByIdDao(courseId);
         }
 
-        public async Task<Course> GetCourseById(string courseId)
+        public Task<Course> CreateCourse(Course course)
         {
-            return await _courseDAO.GetCourseById(courseId);
+            return CourseDAO.Instance.CreateCourseDao(course);
         }
 
-        public async Task<Course> CreateCourse(Course course)
+        public Task<Course> UpdateCourse(Course course)
         {
-            return await _courseDAO.CreateCourse(course);
+            return CourseDAO.Instance.UpdateCourseDao(course);
         }
 
-        public async Task<Course> UpdateCourse(Course course)
+        public Task DeleteCourse(string courseId)
         {
-            return await _courseDAO.UpdateCourse(course);
+            return CourseDAO.Instance.DeleteCourseDao(courseId);
         }
 
-        public async Task DeleteCourse(string courseId)
+        public Task<List<Course>> GetCourses()
         {
-            await _courseDAO.DeleteCourse(courseId);
-        }
-
-        public async Task<List<Course>> GetCourses()
-        {
-            return await _courseDAO.GetCourses();
+            return CourseDAO.Instance.GetCoursesDao();
         }
     }
 }

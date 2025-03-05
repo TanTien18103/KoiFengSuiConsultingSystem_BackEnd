@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class ShapeRepo : IShapeRepo
     {
-        private readonly ShapeDAO _shapeDAO;
-
-        public ShapeRepo()
+        public Task<Shape> GetShapeById(string shapeId)
         {
-            _shapeDAO = new ShapeDAO();
+            return ShapeDAO.Instance.GetShapeByIdDao(shapeId);
         }
 
-        public async Task<Shape> GetShapeById(string shapeId)
+        public Task<Shape> CreateShape(Shape shape)
         {
-            return await _shapeDAO.GetShapeById(shapeId);
+            return ShapeDAO.Instance.CreateShapeDao(shape);
         }
 
-        public async Task<Shape> CreateShape(Shape shape)
+        public Task<Shape> UpdateShape(Shape shape)
         {
-            return await _shapeDAO.CreateShape(shape);
+            return ShapeDAO.Instance.UpdateShapeDao(shape);
         }
 
-        public async Task<Shape> UpdateShape(Shape shape)
+        public Task DeleteShape(string shapeId)
         {
-            return await _shapeDAO.UpdateShape(shape);
+            return ShapeDAO.Instance.DeleteShapeDao(shapeId);
         }
 
-        public async Task DeleteShape(string shapeId)
+        public Task<List<Shape>> GetShapes()
         {
-            await _shapeDAO.DeleteShape(shapeId);
-        }
-
-        public async Task<List<Shape>> GetShapes()
-        {
-            return await _shapeDAO.GetShapes();
+            return ShapeDAO.Instance.GetShapesDao();
         }
     }
 }

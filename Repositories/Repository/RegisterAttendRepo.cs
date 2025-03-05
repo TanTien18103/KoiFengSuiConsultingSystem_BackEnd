@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class RegisterAttendRepo : IRegisterAttendRepo
     {
-        private readonly RegisterAttendDAO _registerAttendDAO;
-
-        public RegisterAttendRepo(RegisterAttendDAO registerAttendDAO)
+        public Task<RegisterAttend> GetRegisterAttendById(string registerAttendId)
         {
-            _registerAttendDAO = registerAttendDAO;
+            return RegisterAttendDAO.Instance.GetRegisterAttendByIdDao(registerAttendId);
         }
 
-        public async Task<RegisterAttend> GetRegisterAttendById(string registerAttendId)
+        public Task<RegisterAttend> CreateRegisterAttend(RegisterAttend registerAttend)
         {
-            return await _registerAttendDAO.GetRegisterAttendById(registerAttendId);
+            return RegisterAttendDAO.Instance.CreateRegisterAttendDao(registerAttend);
         }
 
-        public async Task<RegisterAttend> CreateRegisterAttend(RegisterAttend registerAttend)
+        public Task<RegisterAttend> UpdateRegisterAttend(RegisterAttend registerAttend)
         {
-            return await _registerAttendDAO.CreateRegisterAttend(registerAttend);
+            return RegisterAttendDAO.Instance.UpdateRegisterAttendDao(registerAttend);
         }
 
-        public async Task<RegisterAttend> UpdateRegisterAttend(RegisterAttend registerAttend)
+        public Task DeleteRegisterAttend(string registerAttendId)
         {
-            return await _registerAttendDAO.UpdateRegisterAttend(registerAttend);
+            return RegisterAttendDAO.Instance.DeleteRegisterAttendDao(registerAttendId);
         }
 
-        public async Task DeleteRegisterAttend(string registerAttendId)
+        public Task<List<RegisterAttend>> GetRegisterAttends()
         {
-            await _registerAttendDAO.DeleteRegisterAttend(registerAttendId);
-        }
-
-        public async Task<List<RegisterAttend>> GetRegisterAttends()
-        {
-            return await _registerAttendDAO.GetRegisterAttends();
+            return RegisterAttendDAO.Instance.GetRegisterAttendsDao();
         }
     }
 }

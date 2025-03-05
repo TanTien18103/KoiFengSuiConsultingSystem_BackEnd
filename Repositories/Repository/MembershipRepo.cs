@@ -11,35 +11,28 @@ namespace Repositories.Repository
 {
     public class MembershipRepo : IMembershipRepo
     {
-        private readonly MembershipDAO _membershipDAO;
-
-        public MembershipRepo(MembershipDAO membershipDAO)
+        public Task<Membership> GetMembershipById(string membershipId)
         {
-            _membershipDAO = membershipDAO;
+            return MembershipDAO.Instance.GetMembershipByIdDao(membershipId);
+        }
+        public Task<Membership> CreateMembership(Membership membership)
+        {
+            return MembershipDAO.Instance.CreateMembershipDao(membership);
         }
 
-        public async Task<Membership> GetMembershipById(string membershipId)
+        public Task<Membership> UpdateMembership(Membership membership)
         {
-            return await _membershipDAO.GetMembershipById(membershipId);
-        }
-        public async Task<Membership> CreateMembership(Membership membership)
-        {
-            return await _membershipDAO.CreateMembership(membership);
+            return MembershipDAO.Instance.UpdateMembershipDao(membership);
         }
 
-        public async Task<Membership> UpdateMembership(Membership membership)
+        public Task DeleteMembership(string membershipId)
         {
-            return await _membershipDAO.UpdateMembership(membership);
+            return MembershipDAO.Instance.DeleteMembershipDao(membershipId);
         }
 
-        public async Task DeleteMembership(string membershipId)
+        public Task<List<Membership>> GetMemberships()
         {
-            await _membershipDAO.DeleteMembership(membershipId);
-        }
-
-        public async Task<List<Membership>> GetMemberships()
-        {
-            return await _membershipDAO.GetMemberships();
+            return MembershipDAO.Instance.GetMembershipsDao();
         }
     }
 }

@@ -11,36 +11,30 @@ namespace Repositories.Repository
 {
     public class VarietyColorRepo : IVarietyColorRepo
     {
-        private readonly VarietyColorDAO _varietyColorDAO;
 
-        public VarietyColorRepo(VarietyColorDAO varietyColorDAO)
+        public Task<VarietyColor> GetVarietyColorById(string varietyColorId)
         {
-            _varietyColorDAO = varietyColorDAO;
+            return VarietyColorDAO.Instance.GetVarietyColorByIdDao(varietyColorId);
         }
 
-        public async Task<VarietyColor> GetVarietyColorById(string varietyColorId)
+        public Task<VarietyColor> CreateVarietyColor(VarietyColor varietyColor)
         {
-            return await _varietyColorDAO.GetVarietyColorById(varietyColorId);
+            return VarietyColorDAO.Instance.CreateVarietyColorDao(varietyColor);
         }
 
-        public async Task<VarietyColor> CreateVarietyColor(VarietyColor varietyColor)
+        public Task<VarietyColor> UpdateVarietyColor(VarietyColor varietyColor)
         {
-            return await _varietyColorDAO.CreateVarietyColor(varietyColor);
+            return VarietyColorDAO.Instance.UpdateVarietyColorDao(varietyColor);
         }
 
-        public async Task<VarietyColor> UpdateVarietyColor(VarietyColor varietyColor)
+        public Task DeleteVarietyColor(string varietyColorId)
         {
-            return await _varietyColorDAO.UpdateVarietyColor(varietyColor);
+            return VarietyColorDAO.Instance.DeleteVarietyColorDao(varietyColorId);
         }
 
-        public async Task DeleteVarietyColor(string varietyColorId)
+        public Task<List<VarietyColor>> GetVarietyColors()
         {
-            await _varietyColorDAO.DeleteVarietyColor(varietyColorId);
-        }
-
-        public async Task<List<VarietyColor>> GetVarietyColors()
-        {
-            return await _varietyColorDAO.GetVarietyColors();
+            return VarietyColorDAO.Instance.GetVarietyColorsDao();
         }
     }
 }

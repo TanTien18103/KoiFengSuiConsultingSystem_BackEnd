@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,40 +10,53 @@ namespace DAOs.DAOs
 {
     public class AnswerDAO
     {
+        public static AnswerDAO instance = null;
         private readonly KoiFishPondContext _context;
 
-        public AnswerDAO(KoiFishPondContext context)
+        public AnswerDAO()
         {
-            _context = context;
+            _context = new KoiFishPondContext();
         }
 
-        public async Task<Answer> GetAnswerById(string answerId)
+        public static AnswerDAO Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new AnswerDAO();
+                }
+                return instance;
+            }
+        }
+
+        public async Task<Answer> GetAnswerByIdDao(string answerId)
         {
             return await _context.Answers.FindAsync(answerId);
         }
 
-        public async Task<List<Answer>> GetAnswersByQuestionId(string questionId)
+        public async Task<List<Answer>> GetAnswersByQuestionIdDao(string questionId)
         {
             return _context.Answers.Where(a => a.QuestionId == questionId).ToList();
         }
 
-        public async Task<Answer> CreateAnswer(Answer answer)
+        public async Task<Answer> CreateAnswerDao(Answer answer)
         {
             _context.Answers.Add(answer);
             await _context.SaveChangesAsync();
             return answer;
         }
 
-        public async Task<Answer> UpdateAnswer(Answer answer)
+        public async Task<Answer> UpdateAnswerDao(Answer answer)
         {
             _context.Answers.Update(answer);
             await _context.SaveChangesAsync();
             return answer;
         }
 
-        public async Task DeleteAnswer(string answerId)
+        public async Task DeleteAnswerDao(string answerId)
         {
-            var answer = await GetAnswerById(answerId);
+            var answer = await GetAnswerByIdDao(answerId);
             _context.Answers.Remove(answer);
             await _context.SaveChangesAsync();
         }

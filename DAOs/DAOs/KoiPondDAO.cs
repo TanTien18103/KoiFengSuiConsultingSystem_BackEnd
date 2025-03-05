@@ -10,40 +10,52 @@ namespace DAOs.DAOs
 {
     public class KoiPondDAO
     {
+        public static KoiPondDAO instance = null;
         private readonly KoiFishPondContext _context;
 
         public KoiPondDAO()
         {
             _context = new KoiFishPondContext();
         }
+        public static KoiPondDAO Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new KoiPondDAO();
+                }
+                return instance;
+            }
+        }
 
-        public async Task<KoiPond> GetKoiPondById(string koiPondId)
+        public async Task<KoiPond> GetKoiPondByIdDao(string koiPondId)
         {
             return await _context.KoiPonds.FindAsync(koiPondId);
         }
 
-        public async Task<List<KoiPond>> GetKoiPonds()  
+        public async Task<List<KoiPond>> GetKoiPondsDao()  
         {
             return await _context.KoiPonds.Include(x => x.Shape).ToListAsync();
         }
 
-        public async Task<KoiPond> CreateKoiPond(KoiPond koiPond)
+        public async Task<KoiPond> CreateKoiPondDao(KoiPond koiPond)
         {
             _context.KoiPonds.Add(koiPond);
             await _context.SaveChangesAsync();
             return koiPond;
         }
 
-        public async Task<KoiPond> UpdateKoiPond(KoiPond koiPond)
+        public async Task<KoiPond> UpdateKoiPondDao(KoiPond koiPond)
         {
             _context.KoiPonds.Update(koiPond);
             await _context.SaveChangesAsync();
             return koiPond;
         }
 
-        public async Task DeleteKoiPond(string koiPondId)
+        public async Task DeleteKoiPondDao(string koiPondId)
         {
-            var koiPond = await GetKoiPondById(koiPondId);
+            var koiPond = await GetKoiPondByIdDao(koiPondId);
             _context.KoiPonds.Remove(koiPond);
             await _context.SaveChangesAsync();
         }

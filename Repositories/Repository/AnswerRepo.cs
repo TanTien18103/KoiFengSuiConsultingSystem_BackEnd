@@ -11,36 +11,28 @@ namespace Repositories.Repository
 {
     public class AnswerRepo : IAnswerRepo
     {
-        private readonly AnswerDAO _answerDAO;
-
-        public AnswerRepo(AnswerDAO answerDAO)
+        public  Task<Answer> GetAnswerById(string answerId)
         {
-            _answerDAO = answerDAO;
+            return AnswerDAO.Instance.GetAnswerByIdDao(answerId);
+        }
+        public Task<Answer> CreateAnswer(Answer answer)
+        {
+            return AnswerDAO.Instance.CreateAnswerDao(answer);
         }
 
-
-        public async Task<Answer> GetAnswerById(string answerId)
+        public Task<Answer> UpdateAnswer(Answer answer)
         {
-            return await _answerDAO.GetAnswerById(answerId);
-        }
-        public async Task<Answer> CreateAnswer(Answer answer)
-        {
-            return await _answerDAO.CreateAnswer(answer);
+            return AnswerDAO.Instance.UpdateAnswerDao(answer);
         }
 
-        public async Task<Answer> UpdateAnswer(Answer answer)
+        public Task DeleteAnswer(string answerId)
         {
-            return await _answerDAO.UpdateAnswer(answer);
+            return AnswerDAO.Instance.DeleteAnswerDao(answerId);
         }
 
-        public async Task DeleteAnswer(string answerId)
+        public Task<List<Answer>> GetAnswersByQuestionId(string questionId)
         {
-            await _answerDAO.DeleteAnswer(answerId);
-        }
-
-        public async Task<List<Answer>> GetAnswersByQuestionId(string questionId)
-        {
-            return await _answerDAO.GetAnswersByQuestionId(questionId);
+            return AnswerDAO.Instance.GetAnswersByQuestionIdDao(questionId);
         }
     }
 }

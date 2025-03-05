@@ -7,8 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Repositories.Interfaces;
-using Services.Interface;
-using Services.Request;
+using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -21,11 +20,11 @@ namespace Services.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly IAccountRepository _accountRepository;
+        private readonly IAccountRepo _accountRepository;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AccountService(IAccountRepository accountRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public AccountService(IAccountRepo accountRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _accountRepository = accountRepository;
             _configuration = configuration;
@@ -73,7 +72,7 @@ namespace Services.Services
 
         public async Task<string> RegisterGoogleUser(string name, string email)
         {
-            var existingUser = await _accountRepository.GetAccountByEmailAsync(email);
+            var existingUser = await _accountRepository.GetAccountByEmail(email);
             if (existingUser == null)
             {
                 var newUser = new Account
@@ -85,7 +84,7 @@ namespace Services.Services
                     Role = "Member"
                 };
 
-                await _accountRepository.AddAccountAsync(newUser);
+                await _accountRepository.AddAccount(newUser);
                 existingUser = newUser;
             }
             return CreateToken(existingUser);
@@ -93,7 +92,7 @@ namespace Services.Services
 
         public async Task<string> GetAccount(string email, string password)
         {
-           return _accountRepository.GetAccountByEmailAsync(email).Result switch
+           return _accountRepository.GetAccountByEmail(email).Result switch
            {
                null => throw new Exception("Account not found"),
                var user => VerifyPassword(password, user.Password) ? CreateToken(user) : throw new Exception("Invalid password")
@@ -102,7 +101,7 @@ namespace Services.Services
 
         public async Task<object> Login(string email, string password)
         {
-            var user = await _accountRepository.GetAccountByEmailAsync(email);
+            var user = await _accountRepository.GetAccountByEmail(email);
             if (user == null)
                 throw new KeyNotFoundException("USER IS NOT FOUND");
 
@@ -124,7 +123,7 @@ namespace Services.Services
 
         public async Task<string> Register(DAOs.Request.RegisterRequest registerRequest)
         {
-            var existingUser = await _accountRepository.GetAccountByEmailAsync(registerRequest.Email);
+            var existingUser = await _accountRepository.GetAccountByEmail(registerRequest.Email);
             if (existingUser != null)
                 throw new Exception("Email is already in use.");
 
@@ -140,7 +139,7 @@ namespace Services.Services
                 Role = "Member"
             };
 
-            await _accountRepository.AddAccountAsync(newUser);
+            await _accountRepository.AddAccount(newUser);
             existingUser = newUser;
 
             string accessToken = CreateToken(newUser);
@@ -167,7 +166,7 @@ namespace Services.Services
             if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(email))
                 throw new UnauthorizedAccessException("Invalid session. Please log in again.");
 
-            var user = await _accountRepository.GetAccountByEmailAsync(email);
+            var user = await _accountRepository.GetAccountByEmail(email);
             if (user == null)
                 throw new KeyNotFoundException("User not found.");
 

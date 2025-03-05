@@ -1,4 +1,4 @@
-﻿namespace KoiFengSuiConsultingSystem.Request
+﻿namespace Services.ApiModels
 {
     public class CompatibilityRequest
     {

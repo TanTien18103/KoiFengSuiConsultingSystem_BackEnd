@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class ContractRepo : IContractRepo
     {
-        private readonly ContractDAO _contractDAO;
-
-        public ContractRepo(ContractDAO contractDAO)
+        public Task<Contract> GetContractById(string contractId)
         {
-            _contractDAO = contractDAO;
+            return ContractDAO.Instance.GetContractByIdDao(contractId);
         }
 
-        public async Task<Contract> GetContractById(string contractId)
+        public Task<Contract> CreateContract(Contract contract)
         {
-            return await _contractDAO.GetContractById(contractId);
+            return ContractDAO.Instance.CreateContractDao(contract);
         }
 
-        public async Task<Contract> CreateContract(Contract contract)
+        public Task<Contract> UpdateContract(Contract contract)
         {
-            return await _contractDAO.CreateContract(contract);
+            return ContractDAO.Instance.UpdateContractDao(contract);
         }
 
-        public async Task<Contract> UpdateContract(Contract contract)
+        public Task DeleteContract(string contractId)
         {
-            return await _contractDAO.UpdateContract(contract);
+            return ContractDAO.Instance.DeleteContractDao(contractId);
         }
 
-        public async Task DeleteContract(string contractId)
+        public Task<List<Contract>> GetContracts()
         {
-            await _contractDAO.DeleteContract(contractId);
-        }
-
-        public async Task<List<Contract>> GetContracts()
-        {
-            return await _contractDAO.GetContracts();
+            return ContractDAO.Instance.GetContractsDao();
         }
     }
 }

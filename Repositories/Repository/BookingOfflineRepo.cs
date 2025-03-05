@@ -11,38 +11,29 @@ namespace Repositories.Repository
 {
     public class BookingOfflineRepo : IBookingOfflineRepo
     {
-        private readonly BookingOfflineDAO _bookingOfflineDAO;
-
-        public BookingOfflineRepo(BookingOfflineDAO bookingOfflineDAO)
+        public Task<BookingOffline> GetBookingOfflineById(string bookingOfflineId)
         {
-            _bookingOfflineDAO = bookingOfflineDAO;
+            return BookingOfflineDAO.Instance.GetBookingOfflineByIdDao(bookingOfflineId);
         }
 
-        public async Task<BookingOffline> GetBookingOfflineById(string bookingOfflineId)
+        public Task<BookingOffline> CreateBookingOffline(BookingOffline bookingOffline)
         {
-            return await _bookingOfflineDAO.GetBookingOfflineById(bookingOfflineId);
+            return BookingOfflineDAO.Instance.CreateBookingOfflineDao(bookingOffline);
         }
 
-       
-
-        public async Task<BookingOffline> CreateBookingOffline(BookingOffline bookingOffline)
+        public Task<BookingOffline> UpdateBookingOffline(BookingOffline bookingOffline)
         {
-            return await _bookingOfflineDAO.CreateBookingOffline(bookingOffline);
+            return BookingOfflineDAO.Instance.UpdateBookingOfflineDao(bookingOffline);
         }
 
-        public async Task<BookingOffline> UpdateBookingOffline(BookingOffline bookingOffline)
+        public Task DeleteBookingOffline(string bookingOfflineId)
         {
-            return await _bookingOfflineDAO.UpdateBookingOffline(bookingOffline);
+            return BookingOfflineDAO.Instance.DeleteBookingOfflineDao(bookingOfflineId);
         }
 
-        public async Task DeleteBookingOffline(string bookingOfflineId)
+        public Task<List<BookingOffline>> GetBookingOfflinesByUserId(string userId)
         {
-            await _bookingOfflineDAO.DeleteBookingOffline(bookingOfflineId);
-        }
-
-        public async Task<List<BookingOffline>> GetBookingOfflinesByUserId(string userId)
-        {
-            return await _bookingOfflineDAO.GetBookingOfflinesByUserId(userId);
+            return BookingOfflineDAO.Instance.GetBookingOfflinesByUserIdDao(userId);
         }
     }
 }

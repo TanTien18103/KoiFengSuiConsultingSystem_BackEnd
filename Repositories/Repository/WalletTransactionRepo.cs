@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class WalletTransactionRepo : IWalletTransactionRepo
     {
-        private readonly WalletTransactionDAO _walletTransactionDAO;
-
-        public WalletTransactionRepo(WalletTransactionDAO walletTransactionDAO)
+        public Task<WalletTransaction> GetWalletTransactionById(string walletTransactionId)
         {
-            _walletTransactionDAO = walletTransactionDAO;
+            return WalletTransactionDAO.Instance.GetWalletTransactionByIdDao(walletTransactionId);
         }
 
-        public async Task<WalletTransaction> GetWalletTransactionById(string walletTransactionId)
+        public Task<WalletTransaction> CreateWalletTransaction(WalletTransaction walletTransaction)
         {
-            return await _walletTransactionDAO.GetWalletTransactionById(walletTransactionId);
+            return WalletTransactionDAO.Instance.CreateWalletTransactionDao(walletTransaction);
         }
 
-        public async Task<WalletTransaction> CreateWalletTransaction(WalletTransaction walletTransaction)
+        public Task<WalletTransaction> UpdateWalletTransaction(WalletTransaction walletTransaction)
         {
-            return await _walletTransactionDAO.CreateWalletTransaction(walletTransaction);
+            return WalletTransactionDAO.Instance.UpdateWalletTransactionDao(walletTransaction);
         }
 
-        public async Task<WalletTransaction> UpdateWalletTransaction(WalletTransaction walletTransaction)
+        public Task DeleteWalletTransaction(string walletTransactionId)
         {
-            return await _walletTransactionDAO.UpdateWalletTransaction(walletTransaction);
+            return WalletTransactionDAO.Instance.DeleteWalletTransactionDao(walletTransactionId);
         }
 
-        public async Task DeleteWalletTransaction(string walletTransactionId)
+        public Task<List<WalletTransaction>> GetWalletTransactions()
         {
-            await _walletTransactionDAO.DeleteWalletTransaction(walletTransactionId);
-        }
-
-        public async Task<List<WalletTransaction>> GetWalletTransactions()
-        {
-            return await _walletTransactionDAO.GetWalletTransactions();
+            return WalletTransactionDAO.Instance.GetWalletTransactionsDao();
         }
     }
 }

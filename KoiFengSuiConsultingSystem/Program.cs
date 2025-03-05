@@ -1,46 +1,32 @@
-﻿using BusinessObjects.Models;
-using DAOs.DAOs;
-using Microsoft.AspNetCore.Authentication.Google;
+﻿using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repositories.Interfaces;
 using Repositories.Repository;
-using Services.Interface;
+using Services.Interfaces;
+using Services.Mapper;
 using Services.Services;
 using System.Text;
-using DAOs.DAOs;
-using BusinessObjects.Models;
-using Microsoft.EntityFrameworkCore;
-using Services.Mapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register DAOs
-builder.Services.AddScoped<ShapeDAO>();
-builder.Services.AddScoped<KoiPondDAO>();
-builder.Services.AddScoped<CustomerDAO>();
-
 // Register Repositories
-builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IAccountRepo, AccountRepo>();
 builder.Services.AddScoped<IKoiPondRepo, KoiPondRepo>();
 builder.Services.AddScoped<IShapeRepo, ShapeRepo>();
 builder.Services.AddScoped<ICustomerRepo, CustomerRepo>();
-
-
-builder.Services.AddScoped<KoiVarietyDAO>();
 builder.Services.AddScoped<IKoiVarietyRepo, KoiVarietyRepo>();
+
+// Register Services
 builder.Services.AddScoped<IKoiVarietyService, KoiVarietyService>();
-
-builder.Services.AddScoped<CustomerDAO>();
-builder.Services.AddScoped<ICustomerRepo, CustomerRepo>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IKoiPondService, KoiPondService>();
 
-builder.Services.AddDbContext<KoiFishPondContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-
+//Register Mapper
+builder.Services.AddAutoMapper(typeof(AccountMappingProfile));
+builder.Services.AddAutoMapper(typeof(KoiPondMappingProfile));
 
 builder.Services.AddDistributedMemoryCache();
 

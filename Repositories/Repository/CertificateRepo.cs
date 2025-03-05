@@ -11,35 +11,28 @@ namespace Repositories.Repository
 {
     public class CertificateRepo : ICertificateRepo
     {
-        private readonly CertificateDAO _certificateDAO;
-
-        public CertificateRepo(CertificateDAO certificateDAO)
+        public Task<Certificate> GetCertificateById(string certificateId)
         {
-            _certificateDAO = certificateDAO;
+            return CertificateDAO.Instance.GetCertificateByIdDao(certificateId);
+        }
+        public Task<Certificate> CreateCertificate(Certificate certificate)
+        {
+            return CertificateDAO.Instance.CreateCertificateDao(certificate);
         }
 
-        public async Task<Certificate> GetCertificateById(string certificateId)
+        public Task<Certificate> UpdateCertificate(Certificate certificate)
         {
-            return await _certificateDAO.GetCertificateById(certificateId);
-        }
-        public async Task<Certificate> CreateCertificate(Certificate certificate)
-        {
-            return await _certificateDAO.CreateCertificate(certificate);
+            return CertificateDAO.Instance.UpdateCertificateDao(certificate);
         }
 
-        public async Task<Certificate> UpdateCertificate(Certificate certificate)
+        public Task DeleteCertificate(string certificateId)
         {
-            return await _certificateDAO.UpdateCertificate(certificate);
+            return CertificateDAO.Instance.DeleteCertificateDao(certificateId);
         }
 
-        public async Task DeleteCertificate(string certificateId)
+        public Task<List<Certificate>> GetCertificatesByCourseId(string courseId)
         {
-            await _certificateDAO.DeleteCertificate(certificateId);
-        }
-
-        public async Task<List<Certificate>> GetCertificatesByCourseId(string courseId)
-        {
-            return await _certificateDAO.GetCertificatesByCourseId(courseId);
+            return CertificateDAO.Instance.GetCertificatesByCourseIdDao(courseId);
         }
     }
 }

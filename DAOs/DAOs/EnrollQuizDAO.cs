@@ -9,40 +9,52 @@ namespace DAOs.DAOs
 {
     public class EnrollQuizDAO
     {
+        public static EnrollQuizDAO instance = null;
         private readonly KoiFishPondContext _context;
 
-        public EnrollQuizDAO(KoiFishPondContext context)
+        public EnrollQuizDAO()
         {
-            _context = context;
+            _context = new KoiFishPondContext();
+        }
+        public static EnrollQuizDAO Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new EnrollQuizDAO();
+                }
+                return instance;
+            }
         }
 
-        public async Task<EnrollQuiz> GetEnrollQuizById(string enrollQuizId)
+        public async Task<EnrollQuiz> GetEnrollQuizByIdDao(string enrollQuizId)
         {
             return await _context.EnrollQuizzes.FindAsync(enrollQuizId);
         }
 
-        public async Task<List<EnrollQuiz>> GetEnrollQuizzes()
+        public async Task<List<EnrollQuiz>> GetEnrollQuizzesDao()
         {
             return _context.EnrollQuizzes.ToList();
         }
 
-        public async Task<EnrollQuiz> CreateEnrollQuiz(EnrollQuiz enrollQuiz)
+        public async Task<EnrollQuiz> CreateEnrollQuizDao(EnrollQuiz enrollQuiz)
         {
             _context.EnrollQuizzes.Add(enrollQuiz);
             await _context.SaveChangesAsync();
             return enrollQuiz;
         }
 
-        public async Task<EnrollQuiz> UpdateEnrollQuiz(EnrollQuiz enrollQuiz)
+        public async Task<EnrollQuiz> UpdateEnrollQuizDao(EnrollQuiz enrollQuiz)
         {
             _context.EnrollQuizzes.Update(enrollQuiz);
             await _context.SaveChangesAsync();
             return enrollQuiz;
         }
 
-        public async Task DeleteEnrollQuiz(string enrollQuizId)
+        public async Task DeleteEnrollQuizDao(string enrollQuizId)
         {
-            var enrollQuiz = await GetEnrollQuizById(enrollQuizId);
+            var enrollQuiz = await GetEnrollQuizByIdDao(enrollQuizId);
             _context.EnrollQuizzes.Remove(enrollQuiz);
             await _context.SaveChangesAsync();
         }

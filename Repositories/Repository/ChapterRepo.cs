@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class ChapterRepo : IChapterRepo
     {
-        private readonly ChapterDAO _chapterDAO;
-
-        public ChapterRepo(ChapterDAO chapterDAO)
+        public Task<Chapter> GetChapterById(string chapterId)
         {
-            _chapterDAO = chapterDAO;
+            return ChapterDAO.Instance.GetChapterByIdDao(chapterId);
         }
 
-        public async Task<Chapter> GetChapterById(string chapterId)
+        public Task<Chapter> CreateChapter(Chapter chapter)
         {
-            return await _chapterDAO.GetChapterById(chapterId);
+            return ChapterDAO.Instance.CreateChapterDao(chapter);
         }
 
-        public async Task<Chapter> CreateChapter(Chapter chapter)
+        public Task<Chapter> UpdateChapter(Chapter chapter)
         {
-            return await _chapterDAO.CreateChapter(chapter);
+            return ChapterDAO.Instance.UpdateChapterDao(chapter);
         }
 
-        public async Task<Chapter> UpdateChapter(Chapter chapter)
+        public Task DeleteChapter(string chapterId)
         {
-            return await _chapterDAO.UpdateChapter(chapter);
+            return ChapterDAO.Instance.DeleteChapterDao(chapterId);
         }
 
-        public async Task DeleteChapter(string chapterId)
+        public Task<List<Chapter>> GetChaptersByCourseId(string courseId)
         {
-            await _chapterDAO.DeleteChapter(chapterId);
-        }
-
-        public async Task<List<Chapter>> GetChaptersByCourseId(string courseId)
-        {
-            return await _chapterDAO.GetChaptersByCourseId(courseId);
+            return ChapterDAO.Instance.GetChaptersByCourseIdDao(courseId);
         }
     }
 }

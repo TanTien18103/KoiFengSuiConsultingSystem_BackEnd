@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
-using Services.Interface;
+using Services.Interfaces;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -16,47 +16,27 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _iKoiPondService = iKoiPondService;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Customer")]
         [HttpGet("recommend")]
         public async Task<ActionResult<object>> GetPondRecommendations()
         {
-            try
-            {
-                var result = await _iKoiPondService.GetPondRecommendations();
-                return Ok(result);
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, $"Lỗi server: {ex.Message}");
-            }
+            var res = await _iKoiPondService.GetPondRecommendations();
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpGet("get")]
         public async Task<ActionResult> GetPondById(string id)
         {
-            try
-            {
-                var result = await _iKoiPondService.GetKoiPondById(id);
-                return Ok(result);
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, $"Lỗi server: {ex.Message}");
-            }
+            var res = await _iKoiPondService.GetKoiPondById(id);
+            return StatusCode(res.StatusCode, res);
+
         }
 
         [HttpGet("get-all")]
         public async Task<ActionResult> GetAllPond()
         {
-            try
-            {
-                var result = await _iKoiPondService.GetAllKoiPonds();
-                return Ok(result);
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, $"Lỗi server: {ex.Message}");
-            }
+            var res = await _iKoiPondService.GetAllKoiPonds();
+            return StatusCode(res.StatusCode, res);
         }
     }
 } 

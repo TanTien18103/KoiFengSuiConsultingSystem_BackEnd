@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class ConsultationPackageRepo : IConsultationPackageRepo
     {
-        private readonly ConsultationPackageDAO _consultationPackageDAO;
-
-        public ConsultationPackageRepo(ConsultationPackageDAO consultationPackageDAO)
+        public Task<ConsultationPackage> GetConsultationPackageById(string consultationPackageId)
         {
-            _consultationPackageDAO = consultationPackageDAO;
+            return ConsultationPackageDAO.Instance.GetConsultationPackageByIdDao(consultationPackageId);
         }
 
-        public async Task<ConsultationPackage> GetConsultationPackageById(string consultationPackageId)
+        public Task<ConsultationPackage> CreateConsultationPackage(ConsultationPackage consultationPackage)
         {
-            return await _consultationPackageDAO.GetConsultationPackageById(consultationPackageId);
+            return ConsultationPackageDAO.Instance.CreateConsultationPackageDao(consultationPackage);
         }
 
-        public async Task<ConsultationPackage> CreateConsultationPackage(ConsultationPackage consultationPackage)
+        public Task<ConsultationPackage> UpdateConsultationPackage(ConsultationPackage consultationPackage)
         {
-            return await _consultationPackageDAO.CreateConsultationPackage(consultationPackage);
+            return ConsultationPackageDAO.Instance.UpdateConsultationPackageDao(consultationPackage);
         }
 
-        public async Task<ConsultationPackage> UpdateConsultationPackage(ConsultationPackage consultationPackage)
+        public Task DeleteConsultationPackage(string consultationPackageId)
         {
-            return await _consultationPackageDAO.UpdateConsultationPackage(consultationPackage);
+            return ConsultationPackageDAO.Instance.DeleteConsultationPackageDao(consultationPackageId);
         }
 
-        public async Task DeleteConsultationPackage(string consultationPackageId)
+        public Task<List<ConsultationPackage>> GetConsultationPackages()
         {
-            await _consultationPackageDAO.DeleteConsultationPackage(consultationPackageId);
-        }
-
-        public async Task<List<ConsultationPackage>> GetConsultationPackages()
-        {
-            return await _consultationPackageDAO.GetConsultationPackages();
+            return ConsultationPackageDAO.Instance.GetConsultationPackagesDao();
         }
     }
 }

@@ -14,24 +14,21 @@ using System.Threading.Tasks;
 
 namespace Repositories.Repository
 {
-    public class AccountRepository : IAccountRepository
+    public class AccountRepo : IAccountRepo
     {
-        private readonly AccountDAO _accountDAO;
-
-
-        public AccountRepository()
+        public Task AddAccount(Account account)
         {
-            _accountDAO = new AccountDAO();
+            return AccountDAO.Instance.AddAccountDao(account);
         }
 
-        public async Task AddAccountAsync(Account account)
+        public Task<Account?> GetAccountByEmail(string email)
         {
-            await _accountDAO.AddAccountAsync(account);
+            return AccountDAO.Instance.GetAccountByEmailDao(email);
         }
 
-        public async Task<Account?> GetAccountByEmailAsync(string email)
+        public Task<string> GetAccountIdFromToken(string token)
         {
-            return await _accountDAO.GetAccountByEmailAsync(email);
+            return AccountDAO.Instance.GetAccountIdFromTokenDao(token);
         }
     }
 }

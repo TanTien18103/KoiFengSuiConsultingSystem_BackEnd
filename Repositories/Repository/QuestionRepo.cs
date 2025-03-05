@@ -11,35 +11,29 @@ namespace Repositories.Repository
 {
     public class QuestionRepo : IQuestionRepo
     {
-        private readonly QuestionDAO _questionDAO;
 
-        public QuestionRepo(QuestionDAO questionDAO)
+        public Task<Question> GetQuestionById(string questionId)
         {
-            _questionDAO = questionDAO;
+            return QuestionDAO.Instance.GetQuestionByIdDao(questionId);
+        }
+        public Task<Question> CreateQuestion(Question question)
+        {
+            return QuestionDAO.Instance.CreateQuestionDao(question);
         }
 
-        public async Task<Question> GetQuestionById(string questionId)
+        public Task<Question> UpdateQuestion(Question question)
         {
-            return await _questionDAO.GetQuestionById(questionId);
-        }
-        public async Task<Question> CreateQuestion(Question question)
-        {
-            return await _questionDAO.CreateQuestion(question);
+            return QuestionDAO.Instance.UpdateQuestionDao(question);
         }
 
-        public async Task<Question> UpdateQuestion(Question question)
+        public Task DeleteQuestion(string questionId)
         {
-            return await _questionDAO.UpdateQuestion(question);
+            return QuestionDAO.Instance.DeleteQuestionDao(questionId);
         }
 
-        public async Task DeleteQuestion(string questionId)
+        public Task<List<Question>> GetQuestions()
         {
-            await _questionDAO.DeleteQuestion(questionId);
-        }
-
-        public async Task<List<Question>> GetQuestions()
-        {
-            return await _questionDAO.GetQuestions();
+            return QuestionDAO.Instance.GetQuestionsDao();
         }
     }
 }

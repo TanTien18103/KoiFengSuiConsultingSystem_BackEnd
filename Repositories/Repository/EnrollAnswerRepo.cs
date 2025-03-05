@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class EnrollAnswerRepo : IEnrollAnswerRepo
     {
-        private readonly EnrollAnswerDAO _enrollAnswerDAO;
-
-        public EnrollAnswerRepo(EnrollAnswerDAO enrollAnswerDAO)
+        public Task<EnrollAnswer> GetEnrollAnswerById(string enrollAnswerId)
         {
-            _enrollAnswerDAO = enrollAnswerDAO;
+            return EnrollAnswerDAO.Instance.GetEnrollAnswerByIdDao(enrollAnswerId);
         }
 
-        public async Task<EnrollAnswer> GetEnrollAnswerById(string enrollAnswerId)
+        public Task<EnrollAnswer> CreateEnrollAnswer(EnrollAnswer enrollAnswer)
         {
-            return await _enrollAnswerDAO.GetEnrollAnswerById(enrollAnswerId);
+            return EnrollAnswerDAO.Instance.CreateEnrollAnswerDao(enrollAnswer);
         }
 
-        public async Task<EnrollAnswer> CreateEnrollAnswer(EnrollAnswer enrollAnswer)
+        public Task<EnrollAnswer> UpdateEnrollAnswer(EnrollAnswer enrollAnswer)
         {
-            return await _enrollAnswerDAO.CreateEnrollAnswer(enrollAnswer);
+            return EnrollAnswerDAO.Instance.UpdateEnrollAnswerDao(enrollAnswer);
         }
 
-        public async Task<EnrollAnswer> UpdateEnrollAnswer(EnrollAnswer enrollAnswer)
+        public Task DeleteEnrollAnswer(string enrollAnswerId)
         {
-            return await _enrollAnswerDAO.UpdateEnrollAnswer(enrollAnswer);
+            return EnrollAnswerDAO.Instance.DeleteEnrollAnswerDao(enrollAnswerId);
         }
 
-        public async Task DeleteEnrollAnswer(string enrollAnswerId)
+        public Task<List<EnrollAnswer>> GetEnrollAnswers()
         {
-            await _enrollAnswerDAO.DeleteEnrollAnswer(enrollAnswerId);
-        }
-
-        public async Task<List<EnrollAnswer>> GetEnrollAnswers()
-        {
-            return await _enrollAnswerDAO.GetEnrollAnswers();
+            return EnrollAnswerDAO.Instance.GetEnrollAnswersDao();
         }
     }
 }

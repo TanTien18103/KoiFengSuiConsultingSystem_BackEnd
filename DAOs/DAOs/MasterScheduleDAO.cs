@@ -9,40 +9,52 @@ namespace DAOs.DAOs
 {
     public class MasterScheduleDAO
     {
+        public static MasterScheduleDAO instance = null;
         private readonly KoiFishPondContext _context;
 
-        public MasterScheduleDAO(KoiFishPondContext context)
+        public MasterScheduleDAO()
         {
-            _context = context;
+            _context = new KoiFishPondContext();
+        }
+        public static MasterScheduleDAO Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new MasterScheduleDAO();
+                }
+                return instance;
+            }
         }
 
-        public async Task<MasterSchedule> GetMasterScheduleById(string masterScheduleId)
+        public async Task<MasterSchedule> GetMasterScheduleByIdDao(string masterScheduleId)
         {
             return await _context.MasterSchedules.FindAsync(masterScheduleId);
         }
 
-        public async Task<List<MasterSchedule>> GetMasterSchedules()
+        public async Task<List<MasterSchedule>> GetMasterSchedulesDao()
         {
             return _context.MasterSchedules.ToList();
         }
 
-        public async Task<MasterSchedule> CreateMasterSchedule(MasterSchedule masterSchedule)
+        public async Task<MasterSchedule> CreateMasterScheduleDao(MasterSchedule masterSchedule)
         {
             _context.MasterSchedules.Add(masterSchedule);
             await _context.SaveChangesAsync();
             return masterSchedule;
         }
 
-        public async Task<MasterSchedule> UpdateMasterSchedule(MasterSchedule masterSchedule)
+        public async Task<MasterSchedule> UpdateMasterScheduleDao(MasterSchedule masterSchedule)
         {
             _context.MasterSchedules.Update(masterSchedule);
             await _context.SaveChangesAsync();
             return masterSchedule;
         }
 
-        public async Task DeleteMasterSchedule(string masterScheduleId)
+        public async Task DeleteMasterScheduleDao(string masterScheduleId)
         {
-            var masterSchedule = await GetMasterScheduleById(masterScheduleId);
+            var masterSchedule = await GetMasterScheduleByIdDao(masterScheduleId);
             _context.MasterSchedules.Remove(masterSchedule);
             await _context.SaveChangesAsync();
         }

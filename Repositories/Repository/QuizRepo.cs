@@ -11,35 +11,28 @@ namespace Repositories.Repository
 {
     public class QuizRepo : IQuizRepo
     {
-        private readonly QuizDAO _quizDAO;
-
-        public QuizRepo(QuizDAO quizDAO)
+        public Task<Quiz> GetQuizById(string quizId)
         {
-            _quizDAO = quizDAO;
+            return QuizDAO.Instance.GetQuizByIdDao(quizId);
+        }
+        public Task<Quiz> CreateQuiz(Quiz quiz)
+        {
+            return QuizDAO.Instance.CreateQuizDao(quiz);
         }
 
-        public async Task<Quiz> GetQuizById(string quizId)
+        public Task<Quiz> UpdateQuiz(Quiz quiz)
         {
-            return await _quizDAO.GetQuizById(quizId);
-        }
-        public async Task<Quiz> CreateQuiz(Quiz quiz)
-        {
-            return await _quizDAO.CreateQuiz(quiz);
+            return QuizDAO.Instance.UpdateQuizDao(quiz);
         }
 
-        public async Task<Quiz> UpdateQuiz(Quiz quiz)
+        public Task DeleteQuiz(string quizId)
         {
-            return await _quizDAO.UpdateQuiz(quiz);
+            return QuizDAO.Instance.DeleteQuizDao(quizId);
         }
 
-        public async Task DeleteQuiz(string quizId)
+        public Task<List<Quiz>> GetQuizzes()
         {
-            await _quizDAO.DeleteQuiz(quizId);
-        }
-
-        public async Task<List<Quiz>> GetQuizzes()
-        {
-            return await _quizDAO.GetQuizzes();
+            return QuizDAO.Instance.GetQuizzesDao();
         }
     }
 }

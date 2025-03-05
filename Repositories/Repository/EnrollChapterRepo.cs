@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class EnrollChapterRepo : IEnrollChapterRepo
     {
-        private readonly EnrollChapterDAO _enrollChapterDAO;
-
-        public EnrollChapterRepo(EnrollChapterDAO enrollChapterDAO)
+        public Task<EnrollChapter> GetEnrollChapterById(string enrollChapterId)
         {
-            _enrollChapterDAO = enrollChapterDAO;
+            return EnrollChapterDAO.Instance.GetEnrollChapterByIdDao(enrollChapterId);
         }
 
-        public async Task<EnrollChapter> GetEnrollChapterById(string enrollChapterId)
+        public Task<EnrollChapter> CreateEnrollChapter(EnrollChapter enrollChapter)
         {
-            return await _enrollChapterDAO.GetEnrollChapterById(enrollChapterId);
+            return EnrollChapterDAO.Instance.CreateEnrollChapterDao(enrollChapter);
         }
 
-        public async Task<EnrollChapter> CreateEnrollChapter(EnrollChapter enrollChapter)
+        public Task<EnrollChapter> UpdateEnrollChapter(EnrollChapter enrollChapter)
         {
-            return await _enrollChapterDAO.CreateEnrollChapter(enrollChapter);
+            return EnrollChapterDAO.Instance.UpdateEnrollChapterDao(enrollChapter);
         }
 
-        public async Task<EnrollChapter> UpdateEnrollChapter(EnrollChapter enrollChapter)
+        public Task DeleteEnrollChapter(string enrollChapterId)
         {
-            return await _enrollChapterDAO.UpdateEnrollChapter(enrollChapter);
+            return EnrollChapterDAO.Instance.DeleteEnrollChapterDao(enrollChapterId);
         }
 
-        public async Task DeleteEnrollChapter(string enrollChapterId)
+        public Task<List<EnrollChapter>> GetEnrollChapters()
         {
-            await _enrollChapterDAO.DeleteEnrollChapter(enrollChapterId);
-        }
-
-        public async Task<List<EnrollChapter>> GetEnrollChapters()
-        {
-            return await _enrollChapterDAO.GetEnrollChapters();
+            return EnrollChapterDAO.Instance.GetEnrollChaptersDao();
         }
     }
 }

@@ -9,40 +9,52 @@ namespace DAOs.DAOs
 {
     public class EnrollAnswerDAO
     {
+        public static EnrollAnswerDAO instance = null;
         private readonly KoiFishPondContext _context;
 
-        public EnrollAnswerDAO(KoiFishPondContext context)
+        public EnrollAnswerDAO()
         {
-            _context = context;
+            _context = new KoiFishPondContext();
+        }
+        public static EnrollAnswerDAO Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new EnrollAnswerDAO();
+                }
+                return instance;
+            }
         }
 
-        public async Task<EnrollAnswer> GetEnrollAnswerById(string enrollAnswerId)
+        public async Task<EnrollAnswer> GetEnrollAnswerByIdDao(string enrollAnswerId)
         {
             return await _context.EnrollAnswers.FindAsync(enrollAnswerId);
         }
 
-        public async Task<List<EnrollAnswer>> GetEnrollAnswers()
+        public async Task<List<EnrollAnswer>> GetEnrollAnswersDao()
         {
             return _context.EnrollAnswers.ToList();
         }
 
-        public async Task<EnrollAnswer> CreateEnrollAnswer(EnrollAnswer enrollAnswer)
+        public async Task<EnrollAnswer> CreateEnrollAnswerDao(EnrollAnswer enrollAnswer)
         {
             _context.EnrollAnswers.Add(enrollAnswer);
             await _context.SaveChangesAsync();
             return enrollAnswer;
         }
 
-        public async Task<EnrollAnswer> UpdateEnrollAnswer(EnrollAnswer enrollAnswer)
+        public async Task<EnrollAnswer> UpdateEnrollAnswerDao(EnrollAnswer enrollAnswer)
         {
             _context.EnrollAnswers.Update(enrollAnswer);
             await _context.SaveChangesAsync();
             return enrollAnswer;
         }
 
-        public async Task DeleteEnrollAnswer(string enrollAnswerId)
+        public async Task DeleteEnrollAnswerDao(string enrollAnswerId)
         {
-            var enrollAnswer = await GetEnrollAnswerById(enrollAnswerId);
+            var enrollAnswer = await GetEnrollAnswerByIdDao(enrollAnswerId);
             _context.EnrollAnswers.Remove(enrollAnswer);
             await _context.SaveChangesAsync();
         }

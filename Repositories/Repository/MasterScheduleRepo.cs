@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class MasterScheduleRepo : IMasterScheduleRepo
     {
-        private readonly MasterScheduleDAO _masterScheduleDAO;
-
-        public MasterScheduleRepo(MasterScheduleDAO masterScheduleDAO)
+        public Task<MasterSchedule> GetMasterScheduleById(string masterScheduleId)
         {
-            _masterScheduleDAO = masterScheduleDAO;
+            return MasterScheduleDAO.Instance.GetMasterScheduleByIdDao(masterScheduleId);
         }
 
-        public async Task<MasterSchedule> GetMasterScheduleById(string masterScheduleId)
+        public Task<MasterSchedule> CreateMasterSchedule(MasterSchedule masterSchedule)
         {
-            return await _masterScheduleDAO.GetMasterScheduleById(masterScheduleId);
+            return MasterScheduleDAO.Instance.CreateMasterScheduleDao(masterSchedule);
         }
 
-        public async Task<MasterSchedule> CreateMasterSchedule(MasterSchedule masterSchedule)
+        public Task<MasterSchedule> UpdateMasterSchedule(MasterSchedule masterSchedule)
         {
-            return await _masterScheduleDAO.CreateMasterSchedule(masterSchedule);
+            return MasterScheduleDAO.Instance.UpdateMasterScheduleDao(masterSchedule);
         }
 
-        public async Task<MasterSchedule> UpdateMasterSchedule(MasterSchedule masterSchedule)
+        public Task DeleteMasterSchedule(string masterScheduleId)
         {
-            return await _masterScheduleDAO.UpdateMasterSchedule(masterSchedule);
+            return MasterScheduleDAO.Instance.DeleteMasterScheduleDao(masterScheduleId);
         }
 
-        public async Task DeleteMasterSchedule(string masterScheduleId)
+        public Task<List<MasterSchedule>> GetMasterSchedules()
         {
-            await _masterScheduleDAO.DeleteMasterSchedule(masterScheduleId);
-        }
-
-        public async Task<List<MasterSchedule>> GetMasterSchedules()
-        {
-            return await _masterScheduleDAO.GetMasterSchedules();
+            return MasterScheduleDAO.Instance.GetMasterSchedulesDao();
         }
     }
 }

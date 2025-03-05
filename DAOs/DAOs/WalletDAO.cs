@@ -9,40 +9,52 @@ namespace DAOs.DAOs
 {
     public class WalletDAO
     {
+        public static WalletDAO instance = null;
         private readonly KoiFishPondContext _context;
 
-        public WalletDAO(KoiFishPondContext context)
+        public WalletDAO()
         {
-            _context = context;
+            _context = new KoiFishPondContext();
+        }
+        public static WalletDAO Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new WalletDAO();
+                }
+                return instance;
+            }
         }
 
-        public async Task<Wallet> GetWalletById(string walletId)
+        public async Task<Wallet> GetWalletByIdDao(string walletId)
         {
             return await _context.Wallets.FindAsync(walletId);
         }
 
-        public async Task<List<Wallet>> GetWallets()
+        public async Task<List<Wallet>> GetWalletsDao()
         {
             return _context.Wallets.ToList();
         }
 
-        public async Task<Wallet> CreateWallet(Wallet wallet)
+        public async Task<Wallet> CreateWalletDao(Wallet wallet)
         {
             _context.Wallets.Add(wallet);
             await _context.SaveChangesAsync();
             return wallet;
         }
 
-        public async Task<Wallet> UpdateWallet(Wallet wallet)
+        public async Task<Wallet> UpdateWalletDao(Wallet wallet)
         {
             _context.Wallets.Update(wallet);
             await _context.SaveChangesAsync();
             return wallet;
         }
 
-        public async Task DeleteWallet(string walletId)
+        public async Task DeleteWalletDao(string walletId)
         {
-            var wallet = await GetWalletById(walletId);
+            var wallet = await GetWalletByIdDao(walletId);
             _context.Wallets.Remove(wallet);
             await _context.SaveChangesAsync();
         }

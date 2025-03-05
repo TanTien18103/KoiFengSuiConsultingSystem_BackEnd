@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class RegisterCourseRepo : IRegisterCourseRepo
     {
-        private readonly RegisterCourseDAO _registerCourseDAO;
-
-        public RegisterCourseRepo(RegisterCourseDAO registerCourseDAO)
+        public Task<RegisterCourse> GetRegisterCourseById(string registerCourseId)
         {
-            _registerCourseDAO = registerCourseDAO;
+            return RegisterCourseDAO.Instance.GetRegisterCourseByIdDao(registerCourseId);
         }
 
-        public async Task<RegisterCourse> GetRegisterCourseById(string registerCourseId)
+        public Task<RegisterCourse> CreateRegisterCourse(RegisterCourse registerCourse)
         {
-            return await _registerCourseDAO.GetRegisterCourseById(registerCourseId);
+            return RegisterCourseDAO.Instance.CreateRegisterCourseDao(registerCourse);
         }
 
-        public async Task<RegisterCourse> CreateRegisterCourse(RegisterCourse registerCourse)
+        public Task<RegisterCourse> UpdateRegisterCourse(RegisterCourse registerCourse)
         {
-            return await _registerCourseDAO.CreateRegisterCourse(registerCourse);
+            return RegisterCourseDAO.Instance.UpdateRegisterCourseDao(registerCourse);
         }
 
-        public async Task<RegisterCourse> UpdateRegisterCourse(RegisterCourse registerCourse)
+        public Task DeleteRegisterCourse(string registerCourseId)
         {
-            return await _registerCourseDAO.UpdateRegisterCourse(registerCourse);
+            return RegisterCourseDAO.Instance.DeleteRegisterCourseDao(registerCourseId);
         }
 
-        public async Task DeleteRegisterCourse(string registerCourseId)
+        public Task<List<RegisterCourse>> GetRegisterCourses()
         {
-            await _registerCourseDAO.DeleteRegisterCourse(registerCourseId);
-        }
-
-        public async Task<List<RegisterCourse>> GetRegisterCourses()
-        {
-            return await _registerCourseDAO.GetRegisterCourses();
+            return RegisterCourseDAO.Instance.GetRegisterCoursesDao();
         }
     }
 }

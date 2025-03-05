@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Request
+namespace Services.ApiModels.Account
 {
     public class EditProfileRequest
     {

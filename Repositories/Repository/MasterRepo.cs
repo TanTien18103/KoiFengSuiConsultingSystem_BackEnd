@@ -10,36 +10,29 @@ namespace Repositories.Repository
 {
     public class MasterRepo : IMasterRepo
     {
-        private readonly MasterDAO _masterDAO;
-
-        public MasterRepo(MasterDAO masterDAO)
+        public Task<T> Create<T>(T entity) where T : class
         {
-            _masterDAO = masterDAO;
+            return MasterDAO.Instance.CreateDao(entity);
         }
 
-        public async Task<T> Create<T>(T entity) where T : class
+        public Task Delete<T>(string id) where T : class
         {
-            return await _masterDAO.Create(entity);
+            return MasterDAO.Instance.DeleteDao<T>(id);
         }
 
-        public async Task Delete<T>(string id) where T : class
+        public Task<List<T>> GetAll<T>() where T : class
         {
-            await _masterDAO.Delete<T>(id);
+            return MasterDAO.Instance.GetAllDao<T>();
         }
 
-        public async Task<List<T>> GetAll<T>() where T : class
+        public Task<T> GetById<T>(string id) where T : class
         {
-            return await _masterDAO.GetAll<T>();
+            return MasterDAO.Instance.GetByIdDao<T>(id);
         }
 
-        public async Task<T> GetById<T>(string id) where T : class
+        public Task<T> Update<T>(T entity) where T : class
         {
-            return await _masterDAO.GetById<T>(id);
-        }
-
-        public async Task<T> Update<T>(T entity) where T : class
-        {
-            return await _masterDAO.Update(entity);
+            return MasterDAO.Instance.UpdateDao(entity);
         }
     }
 }

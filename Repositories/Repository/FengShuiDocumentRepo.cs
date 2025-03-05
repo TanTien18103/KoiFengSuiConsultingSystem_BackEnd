@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class FengShuiDocumentRepo : IFengShuiDocumentRepo
     {
-        private readonly FengShuiDocumentDAO _fengShuiDocumentDAO;
-
-        public FengShuiDocumentRepo(FengShuiDocumentDAO fengShuiDocumentDAO)
+        public Task<FengShuiDocument> GetFengShuiDocumentById(string fengShuiDocumentId)
         {
-            _fengShuiDocumentDAO = fengShuiDocumentDAO;
+            return FengShuiDocumentDAO.Instance.GetFengShuiDocumentByIdDao(fengShuiDocumentId);
         }
 
-        public async Task<FengShuiDocument> GetFengShuiDocumentById(string fengShuiDocumentId)
+        public Task<FengShuiDocument> CreateFengShuiDocument(FengShuiDocument fengShuiDocument)
         {
-            return await _fengShuiDocumentDAO.GetFengShuiDocumentById(fengShuiDocumentId);
+            return FengShuiDocumentDAO.Instance.CreateFengShuiDocumentDao(fengShuiDocument);
         }
 
-        public async Task<FengShuiDocument> CreateFengShuiDocument(FengShuiDocument fengShuiDocument)
+        public Task<FengShuiDocument> UpdateFengShuiDocument(FengShuiDocument fengShuiDocument)
         {
-            return await _fengShuiDocumentDAO.CreateFengShuiDocument(fengShuiDocument);
+            return FengShuiDocumentDAO.Instance.UpdateFengShuiDocumentDao(fengShuiDocument);
         }
 
-        public async Task<FengShuiDocument> UpdateFengShuiDocument(FengShuiDocument fengShuiDocument)
+        public Task DeleteFengShuiDocument(string fengShuiDocumentId)
         {
-            return await _fengShuiDocumentDAO.UpdateFengShuiDocument(fengShuiDocument);
+            return FengShuiDocumentDAO.Instance.DeleteFengShuiDocumentDao(fengShuiDocumentId);
         }
 
-        public async Task DeleteFengShuiDocument(string fengShuiDocumentId)
+        public Task<List<FengShuiDocument>> GetFengShuiDocuments()
         {
-            await _fengShuiDocumentDAO.DeleteFengShuiDocument(fengShuiDocumentId);
-        }
-
-        public async Task<List<FengShuiDocument>> GetFengShuiDocuments()
-        {
-            return await _fengShuiDocumentDAO.GetFengShuiDocuments();
+            return FengShuiDocumentDAO.Instance.GetFengShuiDocumentsDao();
         }
     }
 }

@@ -11,36 +11,29 @@ namespace Repositories.Repository
 {
     public class WorkShopRepo : IWorkShopRepo
     {
-        private readonly WorkShopDAO _workShopDAO;
-
-        public WorkShopRepo(WorkShopDAO workShopDAO)
+        public Task<WorkShop> GetWorkShopById(string workShopId)
         {
-            _workShopDAO = workShopDAO;
+            return WorkShopDAO.Instance.GetWorkShopByIdDao(workShopId);
         }
 
-        public async Task<WorkShop> GetWorkShopById(string workShopId)
+        public Task<WorkShop> CreateWorkShop(WorkShop workShop)
         {
-            return await _workShopDAO.GetWorkShopById(workShopId);
+            return WorkShopDAO.Instance.CreateWorkShopDao(workShop);
         }
 
-        public async Task<WorkShop> CreateWorkShop(WorkShop workShop)
+        public Task<WorkShop> UpdateWorkShop(WorkShop workShop)
         {
-            return await _workShopDAO.CreateWorkShop(workShop);
+            return WorkShopDAO.Instance.UpdateWorkShopDao(workShop);
         }
 
-        public async Task<WorkShop> UpdateWorkShop(WorkShop workShop)
+        public Task DeleteWorkShop(string workShopId)
         {
-            return await _workShopDAO.UpdateWorkShop(workShop);
+            return WorkShopDAO.Instance.DeleteWorkShopDao(workShopId);
         }
 
-        public async Task DeleteWorkShop(string workShopId)
+        public Task<List<WorkShop>> GetWorkShops()
         {
-            await _workShopDAO.DeleteWorkShop(workShopId);
-        }
-
-        public async Task<List<WorkShop>> GetWorkShops()
-        {
-            return await _workShopDAO.GetWorkShops();
+            return WorkShopDAO.Instance.GetWorkShopsDao();
         }
     }
 }

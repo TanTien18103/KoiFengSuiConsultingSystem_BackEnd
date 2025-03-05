@@ -1,11 +1,10 @@
 ﻿using BusinessObjects.Models;
 using DAOs.DTOs;
-using KoiFengSuiConsultingSystem.Request;
-using KoiFengSuiConsultingSystem.Respone;
 using Microsoft.AspNetCore.Http;
 using Repositories.Interfaces;
 using Repositories.Repository;
-using Services.Interface;
+using Services.ApiModels;
+using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;

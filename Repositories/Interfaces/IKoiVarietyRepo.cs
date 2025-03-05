@@ -17,6 +17,6 @@ namespace Repositories.Interfaces
         Task DeleteKoiVariety(string koiVarietyId);
         Task<List<FishesWithColorsDTO>> GetKoiVarietyWithColors();
         Task<FishesWithColorsDTO> GetKoiVarietyWithColorsById(string id);
-
+        Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByElement(string element);
     }
 }

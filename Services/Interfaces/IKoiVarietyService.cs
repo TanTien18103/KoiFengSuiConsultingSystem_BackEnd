@@ -17,5 +17,9 @@ namespace Services.Interfaces
         Task DeleteKoiVarietyAsync(string koiVarietyId);
         Task<List<FishesWithColorsDTO>> GetKoiVarietyWithColorsAsync();
         Task<FishesWithColorsDTO> GetKoiVarietyWithColorsByIdAsync(string id);
+        Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByElementAsync(string element);
+        Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByCustomerElementAsync(Customer customer);
+
+
     }
 }

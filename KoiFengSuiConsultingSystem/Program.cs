@@ -19,8 +19,8 @@ builder.Services.AddScoped<ICustomerRepo, CustomerRepo>();
 builder.Services.AddScoped<IKoiVarietyRepo, KoiVarietyRepo>();
 
 // Register Services
-builder.Services.AddScoped<IKoiVarietyService, KoiVarietyService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IKoiVarietyService, KoiVarietyService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IKoiPondService, KoiPondService>();
 

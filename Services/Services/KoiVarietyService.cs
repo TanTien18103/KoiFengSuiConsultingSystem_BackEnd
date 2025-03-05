@@ -13,10 +13,12 @@ namespace Services.Services
     public class KoiVarietyService : IKoiVarietyService
     {
         private readonly IKoiVarietyRepo _koiVarietyRepo;
+        private readonly ICustomerRepo _customerRepo;
 
-        public KoiVarietyService(IKoiVarietyRepo koiVarietyRepo)
+        public KoiVarietyService(IKoiVarietyRepo koiVarietyRepo, ICustomerRepo customerRepo)
         {
             _koiVarietyRepo = koiVarietyRepo;
+            _customerRepo = customerRepo;
         }
 
         public async Task<KoiVariety> CreateKoiVarietyAsync(KoiVariety koiVariety)
@@ -53,6 +55,22 @@ namespace Services.Services
         public async Task<FishesWithColorsDTO> GetKoiVarietyWithColorsByIdAsync(string id)
         {
             return await _koiVarietyRepo.GetKoiVarietyWithColorsById(id);
+        }
+
+        public async Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByElementAsync(string element)
+        {
+            return await _koiVarietyRepo.GetKoiVarietiesByElement(element);
+        }
+
+        public async Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByCustomerElementAsync(Customer customer)
+        {
+            var customerElement = await _customerRepo.GetElementLifePalaceById(customer.CustomerId);
+            if (customerElement == null || string.IsNullOrEmpty(customerElement.Element))
+            {
+                return new List<KoiVarietyElementDTO>();
+            }
+
+            return await _koiVarietyRepo.GetKoiVarietiesByElement(customerElement.Element);
         }
     }
 }

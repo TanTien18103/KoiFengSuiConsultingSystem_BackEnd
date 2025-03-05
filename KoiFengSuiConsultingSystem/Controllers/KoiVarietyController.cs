@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BusinessObjects.Models;
+using DAOs.DTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
@@ -31,6 +33,16 @@ namespace KoiFengSuiConsultingSystem.Controllers
                 return NotFound($"Can not find: {id}");
 
             return Ok(result);
+        }
+        [HttpGet("match")]
+        public async Task<ActionResult<List<KoiVarietyElementDTO>>> GetMatchingKoiVarieties(Customer customer)
+        {
+            var matches = await _koiVarietyService.GetKoiVarietiesByCustomerElementAsync(customer);
+            if (!matches.Any())
+            {
+                return NotFound("No matching koi varieties found for your element.");
+            }
+            return Ok(matches);
         }
 
     }

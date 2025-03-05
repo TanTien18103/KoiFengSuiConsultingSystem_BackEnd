@@ -63,8 +63,8 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             try
             {
-                var loginResult = await _accountService.Login(request.Email, request.Password);
-                return Ok(loginResult);
+                var (accessToken, refreshToken) = await _accountService.Login(request.Email, request.Password);
+                return Ok(new { accessToken, refreshToken });
             }
             catch (Exception ex)
             {

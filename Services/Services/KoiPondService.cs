@@ -37,7 +37,7 @@ namespace Services.Services
                 {
                     res.IsSuccess = false;
                     res.Message = "Token xác thực không được cung cấp";
-                    res.StatusCode = 401;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
                     return res;
                 }
 
@@ -46,7 +46,7 @@ namespace Services.Services
                 {
                     res.IsSuccess = false;
                     res.Message = "Token không hợp lệ";
-                    res.StatusCode = 401;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
                     return res;
                 }
 
@@ -55,7 +55,7 @@ namespace Services.Services
                 {
                     res.IsSuccess = false;
                     res.Message = "Token không hợp lệ hoặc đã hết hạn";
-                    res.StatusCode = 401;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
                     return res;
                 }
 
@@ -66,11 +66,12 @@ namespace Services.Services
                 {
                     res.IsSuccess = false;
                     res.Message = "Không tìm thấy thông tin khách hàng";
-                    res.StatusCode = 404;
+                    res.StatusCode = StatusCodes.Status404NotFound;
                     return res;
                 }
 
                 res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
                 res.Data = customer.Element;
                 return res;
             }
@@ -78,7 +79,7 @@ namespace Services.Services
             {
                 res.IsSuccess = false;
                 res.Message = $"Lỗi khi lấy thông tin mệnh của khách hàng: {ex.Message}";
-                res.StatusCode = 500;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
                 return res;
             }
         }
@@ -107,7 +108,7 @@ namespace Services.Services
                 {
                     res.IsSuccess = false;
                     res.Message = $"Không tìm thấy hình dạng hồ phù hợp cho mệnh {customerElement}";
-                    res.StatusCode = 404;
+                    res.StatusCode = StatusCodes.Status404NotFound;
                     return res;
                 }
 
@@ -138,6 +139,8 @@ namespace Services.Services
                 };
 
                 res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = "Successfully";
                 res.Data = result;
                 return res;
             }
@@ -145,7 +148,7 @@ namespace Services.Services
             {
                 res.IsSuccess = false;
                 res.Message = $"Lỗi khi lấy gợi ý hồ cá: {ex.Message}";
-                res.StatusCode = 500;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
                 return res;
             }
         }
@@ -159,7 +162,7 @@ namespace Services.Services
                 {
                     res.IsSuccess = false;
                     res.Message = "Mệnh không được để trống";
-                    res.StatusCode = 400;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
                     return res;
                 }
 
@@ -208,11 +211,12 @@ namespace Services.Services
                 {
                     res.IsSuccess = false;
                     res.Message = $"Mệnh không hợp lệ: {element}";
-                    res.StatusCode = 400;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
                     return res;
                 }
 
                 res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
                 res.Data = fengShuiInfo;
                 return res;
             }
@@ -220,7 +224,7 @@ namespace Services.Services
             {
                 res.IsSuccess = false;
                 res.Message = $"Lỗi khi lấy thông tin phong thủy: {ex.Message}";
-                res.StatusCode = 500;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
                 return res;
             }
         }
@@ -234,6 +238,7 @@ namespace Services.Services
                 var response = _mapper.Map<List<KoiPondResponse>>(koiPonds);
 
                 res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
                 res.Data = response;
                 return res;
             }
@@ -241,7 +246,7 @@ namespace Services.Services
             {
                 res.IsSuccess = false;
                 res.Message = $"Lỗi khi lấy danh sách hồ cá: {ex.Message}";
-                res.StatusCode = 500;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
                 return res;
             }
         }
@@ -255,7 +260,7 @@ namespace Services.Services
                 {
                     res.IsSuccess = false;
                     res.Message = "ID hồ cá không được để trống";
-                    res.StatusCode = 400;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
                     return res;
                 }
 
@@ -264,12 +269,13 @@ namespace Services.Services
                 {
                     res.IsSuccess = false;
                     res.Message = $"Không tìm thấy hồ cá với ID: {id}";
-                    res.StatusCode = 404;
+                    res.StatusCode = StatusCodes.Status404NotFound;
                     return res;
                 }
 
                 var response = _mapper.Map<KoiPondResponse>(koiPond);
                 res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
                 res.Data = response;
                 return res;
             }
@@ -277,7 +283,7 @@ namespace Services.Services
             {
                 res.IsSuccess = false;
                 res.Message = $"Lỗi khi lấy thông tin hồ cá: {ex.Message}";
-                res.StatusCode = 500;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
                 return res;
             }
         }

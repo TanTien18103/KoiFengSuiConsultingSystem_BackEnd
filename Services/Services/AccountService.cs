@@ -99,7 +99,7 @@ namespace Services.Services
            };
         }
 
-        public async Task<object> Login(string email, string password)
+        public async Task<(string accessToken, string refreshToken)> Login(string email, string password)
         {
             var user = await _accountRepository.GetAccountByEmail(email);
             if (user == null)

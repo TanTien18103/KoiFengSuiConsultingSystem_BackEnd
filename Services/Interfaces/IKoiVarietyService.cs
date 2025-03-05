@@ -16,7 +16,12 @@ namespace Services.Interfaces
         Task<KoiVariety> CreateKoiVarietyAsync(KoiVariety koiVariety);
         Task<KoiVariety> UpdateKoiVarietyAsync(KoiVariety koiVariety);
         Task DeleteKoiVarietyAsync(string koiVarietyId);
+        Task<List<FishesWithColorsDTO>> GetKoiVarietyWithColorsAsync();
+        Task<FishesWithColorsDTO> GetKoiVarietyWithColorsByIdAsync(string id);
+        Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByElementAsync(string element);
+        Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByCustomerElementAsync(Customer customer);
         Task<ResultModel> GetKoiVarietyWithColorsAsync();
         Task<ResultModel> GetKoiVarietyWithColorsByIdAsync(string id);
+
     }
 }

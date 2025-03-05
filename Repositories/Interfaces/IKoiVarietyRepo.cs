@@ -14,6 +14,9 @@ namespace Repositories.Interfaces
         Task<KoiVariety> CreateKoiVariety(KoiVariety koiVariety);
         Task<KoiVariety> UpdateKoiVariety(KoiVariety koiVariety);
         Task DeleteKoiVariety(string koiVarietyId);
+        Task<List<FishesWithColorsDTO>> GetKoiVarietyWithColors();
+        Task<FishesWithColorsDTO> GetKoiVarietyWithColorsById(string id);
+        Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByElement(string element);
         Task<List<KoiVariety>> GetKoiVarietyWithColors();
         Task<KoiVariety> GetKoiVarietyWithColorsById(string id);
     }

@@ -44,5 +44,9 @@ namespace Repositories.Repository
         {
             return KoiVarietyDAO.Instance.GetAllKoiVarietiesWithColorsByIdDao(id);
         }
+        public Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByElement(string element)
+        {
+            return KoiVarietyDAO.Instance.GetKoiVarietiesByCustomerElementDao(element);
+        }
     }
 }

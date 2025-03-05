@@ -17,14 +17,16 @@ namespace Services.Services
     public class KoiVarietyService : IKoiVarietyService
     {
         private readonly IKoiVarietyRepo _koiVarietyRepo;
+        private readonly ICustomerRepo _customerRepo;
         private readonly IMapper _mapper;
-
-        public KoiVarietyService(IKoiVarietyRepo koiVarietyRepo, IMapper mapper)
+        
+        public KoiVarietyService(IKoiVarietyRepo koiVarietyRepo, ICustomerRepo customerRepo, IMapper mapper)
         {
             _koiVarietyRepo = koiVarietyRepo;
+            _customerRepo = customerRepo;
             _mapper = mapper;
         }
-
+        
         public async Task<KoiVariety> CreateKoiVarietyAsync(KoiVariety koiVariety)
         {
             return await _koiVarietyRepo.CreateKoiVariety(koiVariety);
@@ -149,6 +151,22 @@ namespace Services.Services
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 return res;
             }
+        }
+
+        public async Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByElementAsync(string element)
+        {
+            return await _koiVarietyRepo.GetKoiVarietiesByElement(element);
+        }
+
+        public async Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByCustomerElementAsync(Customer customer)
+        {
+            var customerElement = await _customerRepo.GetElementLifePalaceById(customer.CustomerId);
+            if (customerElement == null || string.IsNullOrEmpty(customerElement.Element))
+            {
+                return new List<KoiVarietyElementDTO>();
+            }
+
+            return await _koiVarietyRepo.GetKoiVarietiesByElement(customerElement.Element);
         }
     }
 }

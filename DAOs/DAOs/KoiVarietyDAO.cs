@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace DAOs.DAOs
 {
@@ -84,5 +85,22 @@ namespace DAOs.DAOs
                 .ThenInclude(vc => vc.Color)
                 .FirstOrDefaultAsync(k => k.KoiVarietyId == koiVarietyId);
         }
+
+        public async Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByCustomerElementDao(string element)
+        {
+            var query = from vc in _context.VarietyColors
+                        join kv in _context.KoiVarieties on vc.KoiVarietyId equals kv.KoiVarietyId
+                        join c in _context.Colors on vc.ColorId equals c.ColorId
+                        where c.Element == element
+                        group new { kv, c } by new { kv.VarietyName, c.Element } into g
+                        select new KoiVarietyElementDTO
+                        {
+                            VarietyName = g.Key.VarietyName,
+                            Element = g.Key.Element
+                        };
+
+            return await query.ToListAsync();
+        }
+
     }
 }

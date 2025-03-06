@@ -13,10 +13,9 @@ namespace Services.Interfaces
 {
     public interface IBookingOnlineService
     {
-        Task<ResultModel<BookingOnlineDetailResponeDTO>> GetBookingOnlineById(string bookingId);
-        Task<ResultModel<List<BookingOnlineHoverResponeDTO>>> GetBookingOnlines();
+        Task<ResultModel> GetBookingOnlineById(string bookingId);
+        Task<ResultModel> GetBookingOnlines();
 
-        Task<ResultModel> GetAllHistoryBookingOnlineAsync(BookingOnlineEnums? status);
-        Task<ResultModel> ViewDetailsHistoryBookingOnlineAsync(string id);
+        Task<ResultModel> GetBookingOnlineByStatusAsync(BookingOnlineEnums? status);
     }
 }

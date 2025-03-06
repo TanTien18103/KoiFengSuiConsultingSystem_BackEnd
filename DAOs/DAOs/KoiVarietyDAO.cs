@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.Enums;
+using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -86,11 +87,12 @@ namespace DAOs.DAOs
                 .FirstOrDefaultAsync(k => k.KoiVarietyId == koiVarietyId);
         }
 
-        public async Task<List<KoiVariety>> GetKoiVarietiesByCustomerElementDao(string element)
+        public async Task<List<KoiVariety>> GetKoiVarietiesByElementDao(string element)
         {
             return await _context.KoiVarieties
-                .Include(vc => vc.VarietyColors)
-                .ThenInclude(c => c.Color)
+                .Include(k => k.VarietyColors)
+                    .ThenInclude(vc => vc.Color)
+                .Where(k => k.VarietyColors.Any(vc => vc.Color.Element == element))
                 .ToListAsync();
         }
     }

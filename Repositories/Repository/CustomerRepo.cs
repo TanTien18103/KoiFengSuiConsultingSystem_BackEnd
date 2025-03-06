@@ -16,6 +16,11 @@ namespace Repositories.Repository
             return CustomerDAO.Instance.GetCustomerByIdDao(customerId);
         }
 
+        public Task<Customer> GetCustomerByAccountId(string id)
+        {
+            return CustomerDAO.Instance.GetCustomerByAccountIdDao(id);
+        }
+
         public Task<Customer> CreateCustomer(Customer customer)
         {
             return CustomerDAO.Instance.CreateCustomerDao(customer);

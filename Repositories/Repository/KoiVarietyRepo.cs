@@ -46,7 +46,7 @@ namespace Repositories.Repository
         }
         public Task<List<KoiVariety>> GetKoiVarietiesByElement(string element)
         {
-            return KoiVarietyDAO.Instance.GetKoiVarietiesByCustomerElementDao(element);
+            return KoiVarietyDAO.Instance.GetKoiVarietiesByElementDao(element);
         }
     }
 }

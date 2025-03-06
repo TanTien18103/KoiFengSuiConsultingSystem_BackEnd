@@ -10,7 +10,7 @@ namespace Repositories.Interfaces
     public interface ICustomerRepo
     {
         Task<Customer> GetCustomerById(string customerId);
-
+        Task<Customer> GetCustomerByAccountId(string id);
         Task<Customer> GetElementLifePalaceById(string accountId);
         Task<List<Customer>> GetCustomers();
         Task<Customer> CreateCustomer(Customer customer);

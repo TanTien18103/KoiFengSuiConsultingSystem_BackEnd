@@ -24,7 +24,6 @@
     <Folder Include="ApiModels\EnrollChapter\" />
     <Folder Include="ApiModels\EnrollQuiz\" />
     <Folder Include="ApiModels\FengShuiDocument\" />
-    <Folder Include="ApiModels\Master\" />
     <Folder Include="ApiModels\MasterSchedule\" />
     <Folder Include="ApiModels\Membership\" />
     <Folder Include="ApiModels\Workshop\" />

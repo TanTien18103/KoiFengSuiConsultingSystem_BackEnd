@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,16 +29,15 @@ namespace DAOs.DAOs
             }
         }
 
-        public async Task<T> GetByIdDao<T>(string id) where T : class
+        public async Task<Master> GetByMasterIdDao(string masterId)
         {
-            return await _context.Set<T>().FindAsync(id);
+            return await _context.Masters.FindAsync(masterId);
         }
 
-        public async Task<List<T>> GetAllDao<T>() where T : class
+        public async Task<List<Master>> GetAllMastersDAO() 
         {
-            return _context.Set<T>().ToList();
+            return await _context.Masters.ToListAsync();
         }
-
         public async Task<T> CreateDao<T>(T entity) where T : class
         {
             _context.Set<T>().Add(entity);
@@ -50,13 +50,6 @@ namespace DAOs.DAOs
             _context.Set<T>().Update(entity);
             await _context.SaveChangesAsync();
             return entity;
-        }
-
-        public async Task DeleteDao<T>(string id) where T : class
-        {
-            var entity = await GetByIdDao<T>(id);
-            _context.Set<T>().Remove(entity);
-            await _context.SaveChangesAsync();
         }
     }
 }

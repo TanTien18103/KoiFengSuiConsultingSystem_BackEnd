@@ -17,16 +17,19 @@ builder.Services.AddScoped<IKoiPondRepo, KoiPondRepo>();
 builder.Services.AddScoped<IShapeRepo, ShapeRepo>();
 builder.Services.AddScoped<ICustomerRepo, CustomerRepo>();
 builder.Services.AddScoped<IKoiVarietyRepo, KoiVarietyRepo>();
+builder.Services.AddScoped<IMasterRepo, MasterRepo>();
 
 // Register Services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IKoiVarietyService, KoiVarietyService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IKoiPondService, KoiPondService>();
+builder.Services.AddScoped<IMasterService, MasterService>();
 
 //Register Mapper
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));
 builder.Services.AddAutoMapper(typeof(KoiPondMappingProfile));
+builder.Services.AddAutoMapper(typeof(MasterMappingProfile));
 
 builder.Services.AddDistributedMemoryCache();
 

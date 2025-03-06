@@ -1,4 +1,4 @@
-﻿using BusinessObjects.Models;
+using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -33,18 +33,18 @@ namespace DAOs.DAOs
         public async Task<BookingOnline> GetBookingOnlineByIdDao(string bookingOnlineId)
         {
             return await _context.BookingOnlines
-                   .Include(b => b.Customer)
-                   .ThenInclude(c => c.Account)
-                   .FirstOrDefaultAsync(b => b.BookingOnlineId == bookingOnlineId);
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Include(x => x.Master).ThenInclude(x => x.Account)
+                .FirstOrDefaultAsync(x => x.BookingOnlineId == bookingOnlineId);
         }
 
         public async Task<List<BookingOnline>> GetBookingOnlinesDao()
         {
-            var bookings = await _context.BookingOnlines
-            .Include(b => b.Customer)
-            .ThenInclude(c => c.Account)
-            .ToListAsync();
-            return bookings;
+
+            return await _context.BookingOnlines
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Include(x => x.Master).ThenInclude(x => x.Account)
+                .ToListAsync();
         }
 
         public async Task<BookingOnline> CreateBookingOnlineDao(BookingOnline bookingOnline)

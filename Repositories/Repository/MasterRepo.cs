@@ -1,4 +1,5 @@
-﻿using DAOs.DAOs;
+﻿using BusinessObjects.Models;
+using DAOs.DAOs;
 using Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,19 +16,14 @@ namespace Repositories.Repository
             return MasterDAO.Instance.CreateDao(entity);
         }
 
-        public Task Delete<T>(string id) where T : class
+        public Task<List<Master>> GetAllMasters()
         {
-            return MasterDAO.Instance.DeleteDao<T>(id);
+            return MasterDAO.Instance.GetAllMastersDAO();
         }
 
-        public Task<List<T>> GetAll<T>() where T : class
+        public Task<Master> GetByMasterId(string masterId)
         {
-            return MasterDAO.Instance.GetAllDao<T>();
-        }
-
-        public Task<T> GetById<T>(string id) where T : class
-        {
-            return MasterDAO.Instance.GetByIdDao<T>(id);
+            return MasterDAO.instance.GetByMasterIdDao(masterId);
         }
 
         public Task<T> Update<T>(T entity) where T : class

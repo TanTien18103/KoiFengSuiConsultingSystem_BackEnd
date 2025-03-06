@@ -1,5 +1,4 @@
 ﻿using BusinessObjects.Models;
-using DAOs.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +9,13 @@ namespace Repositories.Interfaces
 {
     public interface IKoiVarietyRepo
     {
-        Task<KoiVariety> GetKoiVarietyById(string koiVarietyId);
+        Task<KoiVariety> GetKoiVarietyById(string id);
         Task<List<KoiVariety>> GetKoiVarieties();
         Task<KoiVariety> CreateKoiVariety(KoiVariety koiVariety);
         Task<KoiVariety> UpdateKoiVariety(KoiVariety koiVariety);
-        Task DeleteKoiVariety(string koiVarietyId);
-        Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByElement(string element);
+        Task DeleteKoiVariety(string id);
         Task<List<KoiVariety>> GetKoiVarietyWithColors();
         Task<KoiVariety> GetKoiVarietyWithColorsById(string id);
+        Task<List<KoiVariety>> GetKoiVarietiesByElement(string element);
     }
 }

@@ -29,10 +29,18 @@ namespace DAOs.DAOs
             }
         }
 
-        public async Task<Customer> GetCustomerByIdDao(string customerId)
+        public async Task<Customer?> GetCustomerByIdDao(string customerId)
         {
-            return await _context.Customers.FindAsync(customerId);
+            return await _context.Customers.FirstOrDefaultAsync(x => x.CustomerId == customerId);
         }
+
+        public async Task<Customer?> GetCustomerByAccountIdDao(string accountId)
+        {
+            return await _context.Customers
+                .Include(c => c.Account) 
+                .FirstOrDefaultAsync(x => x.Account.AccountId == accountId);
+        }
+
         public async Task<Customer> GetElementLifePalaceByIdDao(string accountId)
         {
             if (string.IsNullOrWhiteSpace(accountId))

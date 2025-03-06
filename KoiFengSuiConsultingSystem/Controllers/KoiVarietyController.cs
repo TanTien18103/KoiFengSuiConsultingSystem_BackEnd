@@ -1,8 +1,9 @@
 ﻿using BusinessObjects.Models;
-using DAOs.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
+using System.Xml.Linq;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -34,16 +35,20 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
             return Ok(result);
         }
-        [HttpGet("match")]
-        public async Task<ActionResult<List<KoiVarietyElementDTO>>> GetMatchingKoiVarieties(Customer customer)
+
+        [HttpGet("get-by-element")]
+        public async Task<IActionResult> GetKoiVarietiesByElement(string element)
         {
-            var matches = await _koiVarietyService.GetKoiVarietiesByCustomerElementAsync(customer);
-            if (!matches.Any())
-            {
-                return NotFound("No matching koi varieties found for your element.");
-            }
-            return Ok(matches);
+            var res = await _koiVarietyService.GetKoiVarietiesByElementAsync(element);
+            return StatusCode(res.StatusCode, res);
         }
 
+        [Authorize(Roles = "Customer")]
+        [HttpGet("get-koi-current-login")]
+        public async Task<IActionResult> GetRecommendedKoiVarieties()
+        {
+            var res = await _koiVarietyService.GetRecommendedKoiVarietiesAsync();
+            return StatusCode(res.StatusCode, res);
+        }
     }
 }

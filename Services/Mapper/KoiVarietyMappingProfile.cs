@@ -15,9 +15,17 @@ namespace Services.Mapper
         public KoiVarietyMappingProfile() 
         {
             CreateMap<KoiVariety, FishesWithColorsDTO>();
-            CreateMap<KoiVariety, KoiVarietyDto>();
-            CreateMap<KoiVarietyDto, KoiVariety>();
-        }
 
+            CreateMap<KoiVariety, KoiVarietyDto>().ReverseMap();
+
+            CreateMap<KoiVariety, KoiVarietyElementDTO>();
+
+            CreateMap<KoiVariety, KoiVarietyResponse>()
+            .ForMember(dest => dest.VarietyName, opt => opt.MapFrom(src => src.VarietyName))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.VarietyColors, opt => opt.MapFrom(src => src.VarietyColors));
+            CreateMap<VarietyColor, VarietyColorResponse>();
+            CreateMap<Color, ColorResponse>();
+        }
     }
 }

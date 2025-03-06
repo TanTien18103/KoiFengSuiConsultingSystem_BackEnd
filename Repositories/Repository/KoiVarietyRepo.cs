@@ -1,6 +1,5 @@
 ﻿using BusinessObjects.Models;
 using DAOs.DAOs;
-using DAOs.DTOs;
 using Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -45,9 +44,9 @@ namespace Repositories.Repository
         {
             return KoiVarietyDAO.Instance.GetAllKoiVarietiesWithColorsByIdDao(id);
         }
-        public Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByElement(string element)
+        public Task<List<KoiVariety>> GetKoiVarietiesByElement(string element)
         {
-            return KoiVarietyDAO.Instance.GetKoiVarietiesByCustomerElementDao(element);
+            return KoiVarietyDAO.Instance.GetKoiVarietiesByElementDao(element);
         }
     }
 }

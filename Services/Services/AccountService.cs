@@ -19,7 +19,6 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using RegisterRequest = Services.ApiModels.Account.RegisterRequest;
-using static System.Collections.Specialized.BitVector32;
 using Repositories.Helpers;
 using BusinessObjects.Enums;
 

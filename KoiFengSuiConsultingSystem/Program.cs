@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -11,8 +11,10 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
+
 //Email Service
-builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Register Repositories
 builder.Services.AddScoped<IAccountRepo, AccountRepo>();
@@ -24,6 +26,7 @@ builder.Services.AddScoped<IMasterRepo, MasterRepo>();
 builder.Services.AddScoped<IBookingOnlineRepo, BookingOnlineRepo>();
 
 // Register Services
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IKoiVarietyService, KoiVarietyService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -31,10 +34,12 @@ builder.Services.AddScoped<IKoiPondService, KoiPondService>();
 builder.Services.AddScoped<IMasterService, MasterService>();
 builder.Services.AddScoped<IBookingOnlineService, BookingOnlineService>();
 
+
 //Register Mapper
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));
 builder.Services.AddAutoMapper(typeof(KoiPondMappingProfile));
 builder.Services.AddAutoMapper(typeof(MasterMappingProfile));
+builder.Services.AddAutoMapper(typeof(BookingOnlineMappingProfile));
 
 builder.Services.AddDistributedMemoryCache();
 

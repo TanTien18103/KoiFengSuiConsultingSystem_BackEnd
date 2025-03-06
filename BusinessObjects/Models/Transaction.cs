@@ -14,4 +14,6 @@ public partial class Transaction
     public string DocNo { get; set; }
 
     public string TransactionName { get; set; }
+
+    public string Status { get; set; }
 }

@@ -25,6 +25,8 @@ public partial class BookingOffline
 
     public string Status { get; set; }
 
+    public string Description { get; set; }
+
     public virtual ConsultationPackage ConsultationPackage { get; set; }
 
     public virtual Contract Contract { get; set; }

@@ -21,6 +21,7 @@ builder.Services.AddScoped<IShapeRepo, ShapeRepo>();
 builder.Services.AddScoped<ICustomerRepo, CustomerRepo>();
 builder.Services.AddScoped<IKoiVarietyRepo, KoiVarietyRepo>();
 builder.Services.AddScoped<IMasterRepo, MasterRepo>();
+builder.Services.AddScoped<IBookingOnlineRepo, BookingOnlineRepo>();
 
 // Register Services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
@@ -28,6 +29,7 @@ builder.Services.AddScoped<IKoiVarietyService, KoiVarietyService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IKoiPondService, KoiPondService>();
 builder.Services.AddScoped<IMasterService, MasterService>();
+builder.Services.AddScoped<IBookingOnlineService, BookingOnlineService>();
 
 //Register Mapper
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));

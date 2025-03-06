@@ -21,15 +21,15 @@ namespace KoiFengSuiConsultingSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBookingOnlines()
         {
-            var result = await _bookingOnlineService.GetBookingOnlines();
-            return Ok(result);
+            var res = await _bookingOnlineService.GetBookingOnlines();
+            return StatusCode(res.StatusCode, res);
         }
 
-        [HttpGet("{bookingId}")]
-        public async Task<IActionResult> GetBookingOnlineById(string bookingId)
+        [HttpGet("get/{id}")]
+        public async Task<IActionResult> GetBookingOnlineById([FromRoute]string id)
         {
-            var result = await _bookingOnlineService.GetBookingOnlineById(bookingId);
-            return Ok(result);
+            var res = await _bookingOnlineService.GetBookingOnlineById(id);
+            return StatusCode(res.StatusCode, res);
         }
 
 
@@ -37,15 +37,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         //[Authorize(Roles = "Staff")]
         public async Task<IActionResult> GetHistoryBookingOnline([FromQuery] BookingOnlineEnums? status = null)
         {
-            var res = await _bookingOnlineService.GetAllHistoryBookingOnlineAsync(status);
-            return StatusCode(res.StatusCode, res);
-        }
-
-        [HttpGet("view/{id}")]
-        //[Authorize(Roles = "Staff")]
-        public async Task<IActionResult> ViewDetailsHistoryBookingOnline([FromRoute]string id)
-        {
-            var res = await _bookingOnlineService.ViewDetailsHistoryBookingOnlineAsync(id);
+            var res = await _bookingOnlineService.GetBookingOnlineByStatusAsync(status);
             return StatusCode(res.StatusCode, res);
         }
     }

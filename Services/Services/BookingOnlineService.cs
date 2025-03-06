@@ -31,9 +31,9 @@ namespace Services.Services
             _mapper = mapper;
         }
 
-        public async Task<ResultModel<BookingOnlineDetailResponeDTO>> GetBookingOnlineById(string bookingId)
+        public async Task<ResultModel> GetBookingOnlineById(string bookingId)
         {
-            var res = new ResultModel<BookingOnlineDetailResponeDTO>();
+            var res = new ResultModel();
             try
             {
                 if (string.IsNullOrEmpty(bookingId))
@@ -55,7 +55,7 @@ namespace Services.Services
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<BookingOnlineDetailResponeDTO>(booking);
+                res.Data = _mapper.Map<BookingOnlineDetailRespone>(booking);
                 return res;
             }
             catch (Exception ex)
@@ -69,7 +69,7 @@ namespace Services.Services
 
         }
         
-        public async Task<ResultModel> GetAllHistoryBookingOnlineAsync(BookingOnlineEnums? status)
+        public async Task<ResultModel> GetBookingOnlineByStatusAsync(BookingOnlineEnums? status)
         {
             var res = new ResultModel();
             try
@@ -92,7 +92,7 @@ namespace Services.Services
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<BookingOnlineResponse>>(filteredBookings);
+                res.Data = _mapper.Map<List<BookingOnlineDetailRespone>>(filteredBookings);
                 string statusMessage = status.HasValue ? $"với trạng thái {status}" : "";
                 res.Message = $"Lấy danh sách buổi tư vấn {statusMessage} thành công";
                 return res;
@@ -104,19 +104,17 @@ namespace Services.Services
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 return res;
             }
-
-
         }
 
-        public async Task<ResultModel<List<BookingOnlineHoverResponeDTO>>> GetBookingOnlines()
+        public async Task<ResultModel> GetBookingOnlines()
         {
-            var res = new ResultModel<List<BookingOnlineHoverResponeDTO>>();
+            var res = new ResultModel();
             try
             {
                 var bookings = await _repo.GetBookingOnlinesRepo();
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<BookingOnlineHoverResponeDTO>>(bookings);
+                res.Data = _mapper.Map<List<BookingOnlineHoverRespone>>(bookings);
                 return res;
             }
             catch (Exception ex)
@@ -124,35 +122,6 @@ namespace Services.Services
                 res.IsSuccess = false;
                 res.Message = $"Lỗi khi lấy danh sách booking: {ex.Message}";
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                return res;
-            }
-        }
-
-        public async Task<ResultModel> ViewDetailsHistoryBookingOnlineAsync(string id)
-        {
-            var res = new ResultModel();
-            try
-            {
-                var historyBooking = await _repo.GetBookingOnlineByIdRepo(id);
-                if (historyBooking == null)
-                {
-                    res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = "Không tìm thấy lịch sử các buổi tư vấn online";
-                    return res;
-                }
-
-                res.IsSuccess = true;
-                res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<BookingOnlineResponse>(historyBooking);
-                res.Message = "Get all history booking online successfully";
-                return res;
-            }
-            catch (Exception ex)
-            {
-                res.IsSuccess = false;
-                res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = ex.Message;
                 return res;
             }
         }

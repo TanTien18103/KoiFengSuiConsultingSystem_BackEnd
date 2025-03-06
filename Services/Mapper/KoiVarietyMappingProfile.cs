@@ -15,9 +15,8 @@ namespace Services.Mapper
         public KoiVarietyMappingProfile() 
         {
             CreateMap<KoiVariety, FishesWithColorsDTO>();
-            CreateMap<KoiVariety, KoiVarietyDto>();
-            CreateMap<KoiVarietyDto, KoiVariety>();
+            CreateMap<KoiVariety, KoiVarietyDto>().ReverseMap();
+            CreateMap<KoiVariety, KoiVarietyElementDTO>();
         }
-
     }
 }

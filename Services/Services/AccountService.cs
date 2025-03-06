@@ -19,7 +19,6 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using RegisterRequest = Services.ApiModels.Account.RegisterRequest;
-using static System.Collections.Specialized.BitVector32;
 using Repositories.Helpers;
 using BusinessObjects.Enums;
 
@@ -90,7 +89,7 @@ namespace Services.Services
                     UserName = name,
                     Email = email,
                     Password = string.Empty,
-                    Role = "Member"
+                    Role = "Customer"
                 };
 
                 await _accountRepository.AddAccount(newUser);
@@ -164,7 +163,7 @@ namespace Services.Services
                 PhoneNumber = registerRequest.PhoneNumber,
                 Gender = registerRequest.Gender,
                 Dob = DateOnly.FromDateTime(registerRequest.Dob), // Convert DateTime to DateOnly
-                Role = "Member",
+                Role = "Customer",
                 Customers = new List<Customer> { customer }
             };
 

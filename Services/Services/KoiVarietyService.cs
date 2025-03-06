@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects.Models;
-using DAOs.DTOs;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Interfaces;
 using Services.ApiModels;
 using Services.ApiModels.Color;
@@ -154,20 +154,37 @@ namespace Services.Services
             }
         }
 
-        public async Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByElementAsync(string element)
+        public async Task<ResultModel> GetKoiVarietiesByElementAsync(string element)
         {
-            return await _koiVarietyRepo.GetKoiVarietiesByElement(element);
-        }
-
-        public async Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByCustomerElementAsync(Customer customer)
-        {
-            var customerElement = await _customerRepo.GetElementLifePalaceById(customer.CustomerId);
-            if (customerElement == null || string.IsNullOrEmpty(customerElement.Element))
+            var res = new ResultModel();
+            try
             {
-                return new List<KoiVarietyElementDTO>();
-            }
+                var koi = await _koiVarietyRepo.GetKoiVarietiesByElement(element);
 
-            return await _koiVarietyRepo.GetKoiVarietiesByElement(customerElement.Element);
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = 
+                res.Message = "Lấy danh sách Koi Variety theo mệnh thành công";
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = $"Đã xảy ra lỗi khi lấy danh sách Koi Variety theo mệnh: {ex.Message}";
+                return res;
+            }
         }
+
+        //public async Task<List<KoiVarietyElementDTO>> GetKoiVarietiesByCustomerElementAsync(Customer customer)
+        //{
+        //    var customerElement = await _customerRepo.GetElementLifePalaceById(customer.CustomerId);
+        //    if (customerElement == null || string.IsNullOrEmpty(customerElement.Element))
+        //    {
+        //        return new List<KoiVarietyElementDTO>();
+        //    }
+
+        //    return await _koiVarietyRepo.GetKoiVarietiesByElement(customerElement.Element);
+        //}
     }
 }

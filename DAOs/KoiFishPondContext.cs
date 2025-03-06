@@ -2,11 +2,10 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace DAOs;
+namespace BusinessObjects.Models;
 
 public partial class KoiFishPondContext : DbContext
 {
@@ -87,6 +86,7 @@ public partial class KoiFishPondContext : DbContext
     public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
 
     public virtual DbSet<WorkShop> WorkShops { get; set; }
+
     public static string GetConnectionString(string connectionStringName)
     {
         var config = new ConfigurationBuilder()
@@ -98,6 +98,7 @@ public partial class KoiFishPondContext : DbContext
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
        => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"));
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -186,6 +187,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.DocumentId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -241,6 +243,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.LinkMeet).HasMaxLength(255);
             entity.Property(e => e.MasterId)
                 .IsRequired()

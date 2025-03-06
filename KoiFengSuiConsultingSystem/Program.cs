@@ -11,6 +11,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Email Service
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 // Register Repositories
 builder.Services.AddScoped<IAccountRepo, AccountRepo>();
 builder.Services.AddScoped<IKoiPondRepo, KoiPondRepo>();

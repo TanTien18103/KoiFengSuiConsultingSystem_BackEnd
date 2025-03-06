@@ -18,7 +18,6 @@ namespace Services.Interfaces
         void Logout();
         Task<ResultModel> EditProfile(EditProfileRequest request);
         Task<ResultModel> ChangePassword(ChangePasswordRequest request);
-        
-
+        Task<ResultModel> ForgotPassword(string email);
     }
 }

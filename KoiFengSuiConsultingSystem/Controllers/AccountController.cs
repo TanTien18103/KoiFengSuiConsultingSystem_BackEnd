@@ -6,6 +6,7 @@ using Services.Interfaces;
 using System.Security.Claims;
 using Services.ApiModels.Account;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -61,7 +62,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] Services.ApiModels.Account.LoginRequest request)
         {
             try
             {
@@ -76,7 +77,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
       
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
+        public async Task<IActionResult> Register([FromBody] Services.ApiModels.Account.RegisterRequest registerRequest)
         {
             try
             {
@@ -154,6 +155,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             var res = await _accountService.ChangePassword(request);
             return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] Services.ApiModels.Account.ForgotPasswordRequest forgotPasswordRequest)
+        {
+                var res = await _accountService.ForgotPassword(forgotPasswordRequest.Email);
+                return Ok(res);
         }
     }
 }

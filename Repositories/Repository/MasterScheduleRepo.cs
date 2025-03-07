@@ -31,9 +31,19 @@ namespace Repositories.Repository
             return MasterScheduleDAO.Instance.DeleteMasterScheduleDao(masterScheduleId);
         }
 
-        public Task<List<MasterSchedule>> GetMasterSchedules()
+        public Task<List<MasterSchedule>> GetAllSchedules()
         {
-            return MasterScheduleDAO.Instance.GetMasterSchedulesDao();
+            return MasterScheduleDAO.Instance.GetAllSchedulesAsync();
+        }
+
+        public Task<List<MasterSchedule>> GetSchedulesByMasterId(string masterId)
+        {
+            return MasterScheduleDAO.Instance.GetSchedulesByMasterIdAsync(masterId);
+        }
+
+        public Task<List<MasterSchedule>> GetSchedulesByMasterAndDate(string masterId, DateOnly date)
+        {
+            return MasterScheduleDAO.Instance.GetSchedulesByMasterAndDateAsync(masterId, date);
         }
     }
 }

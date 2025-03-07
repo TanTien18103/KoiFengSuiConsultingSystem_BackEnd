@@ -17,15 +17,22 @@ namespace KoiFengSuiConsultingSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllSchedules()
         {
-            var schedules = await _masterScheduleService.GetAllMasterSchedulesAsync();
-            return Ok(schedules);
+            var res = await _masterScheduleService.GetAllMasterSchedules();
+            return StatusCode(res.StatusCode, res); 
         }
 
         [HttpGet("{masterId}")]
-        public async Task<IActionResult> GetMasterSchedules(string masterId, [FromQuery] DateTime date)
+        public async Task<IActionResult> GetMasterSchedulesByMasterId(string masterId)
         {
-            var schedules = await _masterScheduleService.GetMasterSchedulesAsync(masterId, date);
-            return Ok(schedules);
+            var res = await _masterScheduleService.GetMasterSchedulesByMasterId(masterId);
+            return StatusCode(res.StatusCode, res);
         }
+        [HttpGet("{masterId}/{date}")]
+        public async Task<IActionResult> GetMasterSchedulesByMasterIdGetMasterSchedulesByMasterAndDate(string masterId, DateTime date)
+        {
+            var res = await _masterScheduleService.GetMasterSchedulesByMasterAndDate(masterId, date);
+            return StatusCode(res.StatusCode, res);
+        }
+
     }
 } 

@@ -63,6 +63,27 @@ namespace DAOs.DAOs
         {
             return await _context.MasterSchedules
                 .Include(x => x.Master)
+                .Include(x => x.BookingOnlines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Include(x => x.BookingOfflines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.StartTime)
+                .ToListAsync();
+        }
+        public async Task<List<MasterSchedule>> GetSchedulesByMasterIdAsync(string masterId)
+        {
+            return await _context.MasterSchedules
+                .Include(x => x.Master)
+                .Include(x => x.BookingOnlines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Include(x => x.BookingOfflines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Where(x => x.MasterId == masterId)
                 .OrderBy(x => x.Date)
                 .ThenBy(x => x.StartTime)
                 .ToListAsync();
@@ -71,9 +92,17 @@ namespace DAOs.DAOs
         {
             return await _context.MasterSchedules
                 .Include(x => x.Master)
-                .Where(x => x.MasterId == masterId && x.Date == date)
-                .OrderBy(x => x.StartTime)
+                .Include(x => x.BookingOnlines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Include(x => x.BookingOfflines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Where(x => x.MasterId == masterId)
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.StartTime)
                 .ToListAsync();
         }
+
     }
 }

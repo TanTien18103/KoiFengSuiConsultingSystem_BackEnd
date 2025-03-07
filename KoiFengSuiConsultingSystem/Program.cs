@@ -7,14 +7,10 @@ using Repositories.Repository;
 using Services.Interfaces;
 using Services.Mapper;
 using Services.Services;
+using Services.ServicesHelpers;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-
-
-//Email Service
 
 // Register Repositories
 builder.Services.AddScoped<IAccountRepo, AccountRepo>();
@@ -25,6 +21,9 @@ builder.Services.AddScoped<IKoiVarietyRepo, KoiVarietyRepo>();
 builder.Services.AddScoped<IMasterRepo, MasterRepo>();
 builder.Services.AddScoped<IBookingOnlineRepo, BookingOnlineRepo>();
 builder.Services.AddScoped<IMasterScheduleRepo, MasterScheduleRepo>();
+builder.Services.AddScoped<IBookingOfflineRepo, BookingOfflineRepo>();
+builder.Services.AddScoped<ICourseRepo, CourseRepo>();
+builder.Services.AddScoped<IWorkShopRepo, WorkShopRepo>();
 
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -35,6 +34,9 @@ builder.Services.AddScoped<IKoiPondService, KoiPondService>();
 builder.Services.AddScoped<IMasterService, MasterService>();
 builder.Services.AddScoped<IBookingOnlineService, BookingOnlineService>();
 builder.Services.AddScoped<IMasterScheduleService, MasterScheduleService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPriceService, PriceService>();
+builder.Services.AddScoped<IBookingTypeService, BookingTypeService>();
 
 
 //Register Mapper
@@ -43,6 +45,8 @@ builder.Services.AddAutoMapper(typeof(KoiPondMappingProfile));
 builder.Services.AddAutoMapper(typeof(MasterMappingProfile));
 builder.Services.AddAutoMapper(typeof(BookingOnlineMappingProfile));
 builder.Services.AddAutoMapper(typeof(MasterScheduleMappingProfile));
+
+builder.Services.AddHttpClient();
 
 builder.Services.AddDistributedMemoryCache();
 

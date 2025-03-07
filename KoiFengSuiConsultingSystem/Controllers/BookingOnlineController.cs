@@ -21,7 +21,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBookingOnlines()
         {
-            var res = await _bookingOnlineService.GetBookingOnlines();
+            var res = await _bookingOnlineService.GetBookingOnlinesHover();
             return StatusCode(res.StatusCode, res);
         }
 
@@ -35,9 +35,9 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
         [HttpGet("get-booking-online")]
         //[Authorize(Roles = "Staff")]
-        public async Task<IActionResult> GetHistoryBookingOnline([FromQuery] BookingOnlineEnums? status = null)
+        public async Task<IActionResult> GetBookingOnline([FromQuery] BookingOnlineEnums? status = null, [FromQuery] BookingTypeEnums? type = null)
         {
-            var res = await _bookingOnlineService.GetBookingOnlineByStatusAsync(status);
+            var res = await _bookingOnlineService.GetBookingByStatusAsync(status, type);
             return StatusCode(res.StatusCode, res);
         }
 

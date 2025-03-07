@@ -27,6 +27,8 @@ public partial class BookingOffline
 
     public string Description { get; set; }
 
+    public string MasterScheduleId { get; set; }
+
     public virtual ConsultationPackage ConsultationPackage { get; set; }
 
     public virtual Contract Contract { get; set; }
@@ -36,6 +38,8 @@ public partial class BookingOffline
     public virtual FengShuiDocument Document { get; set; }
 
     public virtual Master Master { get; set; }
+
+    public virtual MasterSchedule MasterSchedule { get; set; }
 
     public virtual Attachment Record { get; set; }
 }

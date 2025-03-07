@@ -21,5 +21,9 @@ public partial class MasterSchedule
 
     public string Status { get; set; }
 
+    public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
+
+    public virtual ICollection<BookingOnline> BookingOnlines { get; set; } = new List<BookingOnline>();
+
     public virtual Master Master { get; set; }
 }

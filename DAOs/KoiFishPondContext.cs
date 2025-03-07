@@ -9,6 +9,7 @@ namespace BusinessObjects.Models;
 
 public partial class KoiFishPondContext : DbContext
 {
+
     public KoiFishPondContext()
     {
     }
@@ -87,6 +88,7 @@ public partial class KoiFishPondContext : DbContext
     public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
 
     public virtual DbSet<WorkShop> WorkShops { get; set; }
+
     public static string GetConnectionString(string connectionStringName)
     {
         var config = new ConfigurationBuilder()
@@ -98,6 +100,7 @@ public partial class KoiFishPondContext : DbContext
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
        => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"));
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -253,7 +256,6 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.LinkMeet).HasMaxLength(255);
             entity.Property(e => e.MasterId)
-                .IsRequired()
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
@@ -274,7 +276,6 @@ public partial class KoiFishPondContext : DbContext
 
             entity.HasOne(d => d.Master).WithMany(p => p.BookingOnlines)
                 .HasForeignKey(d => d.MasterId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BookingOnline_Master");
 
             entity.HasOne(d => d.MasterSchedule).WithMany(p => p.BookingOnlines)

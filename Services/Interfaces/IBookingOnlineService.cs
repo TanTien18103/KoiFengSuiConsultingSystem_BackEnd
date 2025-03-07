@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BusinessObjects.Models;
 
 namespace Services.Interfaces
 {
@@ -17,5 +18,7 @@ namespace Services.Interfaces
         Task<ResultModel> GetBookingOnlines();
 
         Task<ResultModel> GetBookingOnlineByStatusAsync(BookingOnlineEnums? status);
+
+        Task<ResultModel> AssignMasterToBooking(string bookingId, string masterId);
     }
 }

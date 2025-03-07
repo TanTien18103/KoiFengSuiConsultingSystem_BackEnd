@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +58,50 @@ namespace DAOs.DAOs
             var masterSchedule = await GetMasterScheduleByIdDao(masterScheduleId);
             _context.MasterSchedules.Remove(masterSchedule);
             await _context.SaveChangesAsync();
+        }
+        public async Task<List<MasterSchedule>> GetAllSchedulesAsync()
+        {
+            return await _context.MasterSchedules
+                .Include(x => x.Master)
+                .Include(x => x.BookingOnlines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Include(x => x.BookingOfflines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.StartTime)
+                .ToListAsync();
+        }
+        public async Task<List<MasterSchedule>> GetSchedulesByMasterIdAsync(string masterId)
+        {
+            return await _context.MasterSchedules
+                .Include(x => x.Master)
+                .Include(x => x.BookingOnlines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Include(x => x.BookingOfflines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Where(x => x.MasterId == masterId)
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.StartTime)
+                .ToListAsync();
+        }
+        public async Task<List<MasterSchedule>> GetSchedulesByMasterAndDateAsync(string masterId, DateOnly date)
+        {
+            return await _context.MasterSchedules
+                .Include(x => x.Master)
+                .Include(x => x.BookingOnlines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Include(x => x.BookingOfflines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Where(x => x.MasterId == masterId)
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.StartTime)
+                .ToListAsync();
         }
 
     }

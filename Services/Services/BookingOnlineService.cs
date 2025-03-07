@@ -31,6 +31,64 @@ namespace Services.Services
             _mapper = mapper;
         }
 
+        public async Task<ResultModel> AssignMasterToBooking(string bookingId, string masterId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                if (string.IsNullOrEmpty(bookingId) || string.IsNullOrEmpty(masterId))
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        Message = "Booking ID và Master ID không được để trống",
+                        StatusCode = StatusCodes.Status400BadRequest
+                    };
+                }
+
+                var booking = await _repo.GetBookingOnlineByIdRepo(bookingId);
+                if (booking == null)
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        Message = $"Không tìm thấy booking với ID: {bookingId}",
+                        StatusCode = StatusCodes.Status404NotFound
+                    };
+                }
+
+                if (!string.IsNullOrEmpty(booking.MasterId))
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        Message = "Booking này đã có Master",
+                        StatusCode = StatusCodes.Status400BadRequest
+                    };
+                }
+
+                booking.MasterId = masterId;
+                await _repo.UpdateBookingOnlineRepo(booking);
+
+                return new ResultModel
+                {
+                    IsSuccess = true,
+                    Message = "Gán Master cho Booking thành công",
+                    StatusCode = StatusCodes.Status200OK
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    Message = $"Lỗi khi gán Master: {ex.Message}",
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+            }
+        }
+
+
         public async Task<ResultModel> GetBookingOnlineById(string bookingId)
         {
             var res = new ResultModel();
@@ -125,5 +183,7 @@ namespace Services.Services
                 return res;
             }
         }
+
+        
     }
 }

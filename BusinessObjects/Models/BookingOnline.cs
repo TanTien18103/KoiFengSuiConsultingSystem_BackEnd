@@ -19,7 +19,15 @@ public partial class BookingOnline
 
     public string Description { get; set; }
 
-    public virtual Customer Customer { get; set; }
+    public DateOnly? BookingDate { get; set; }
 
+    public TimeOnly? StartTime { get; set; }
+
+    public TimeOnly? EndTime { get; set; }
+
+    public string MasterNote { get; set; }
+
+    public virtual Customer Customer { get; set; }
+    
     public virtual Master Master { get; set; }
 }

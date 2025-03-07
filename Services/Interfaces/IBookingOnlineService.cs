@@ -15,10 +15,8 @@ namespace Services.Interfaces
     public interface IBookingOnlineService
     {
         Task<ResultModel> GetBookingOnlineById(string bookingId);
-        Task<ResultModel> GetBookingOnlines();
-
-        Task<ResultModel> GetBookingOnlineByStatusAsync(BookingOnlineEnums? status);
-
+        Task<ResultModel> GetBookingOnlinesHover();
+        Task<ResultModel> GetBookingByStatusAsync(BookingOnlineEnums? status, BookingTypeEnums? type);
         Task<ResultModel> AssignMasterToBooking(string bookingId, string masterId);
     }
 }

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.ApiModels.BookingOnline
+namespace Services.ApiModels.BookingOffline
 {
-    public class BookingOnlineDetailRespone
+    public class BookingOfflineResponse
     {
-        public string BookingOnlineId { get; set; }
+        public string BookingOfflineId { get; set; }
 
         public string Type { get; set; }
 
@@ -17,14 +17,11 @@ namespace Services.ApiModels.BookingOnline
         public string CustomerName { get; set; }
 
         public string MasterName { get; set; }
+        public string Location { get; set; }
 
         public string Description { get; set; }
 
         public DateOnly? BookingDate { get; set; }
-
-        public TimeOnly? StartTime { get; set; }
-
-        public TimeOnly? EndTime { get; set; }
 
         public string MasterNote { get; set; }
     }

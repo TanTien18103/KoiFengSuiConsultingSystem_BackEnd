@@ -13,7 +13,6 @@
   <ItemGroup>
     <Folder Include="ApiModels\Answer\" />
     <Folder Include="ApiModels\Attachment\" />
-    <Folder Include="ApiModels\BookingOffline\" />
     <Folder Include="ApiModels\Certificate\" />
     <Folder Include="ApiModels\Chapter\" />
     <Folder Include="ApiModels\ConsultationPackage\" />

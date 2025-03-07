@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using Services.Interfaces;
 
-namespace Services.Services
+namespace Services.ServicesHelpers
 {
     public class PriceService : IPriceService
     {
@@ -56,4 +56,4 @@ namespace Services.Services
             }
         }
     }
-} 
+}

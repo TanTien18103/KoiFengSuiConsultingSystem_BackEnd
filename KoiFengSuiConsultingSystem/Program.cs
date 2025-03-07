@@ -7,6 +7,7 @@ using Repositories.Repository;
 using Services.Interfaces;
 using Services.Mapper;
 using Services.Services;
+using Services.ServicesHelpers;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +34,7 @@ builder.Services.AddScoped<IMasterService, MasterService>();
 builder.Services.AddScoped<IBookingOnlineService, BookingOnlineService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPriceService, PriceService>();
+builder.Services.AddScoped<IBookingTypeService, BookingTypeService>();
 
 
 //Register Mapper

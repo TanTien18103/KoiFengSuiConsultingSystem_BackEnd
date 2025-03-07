@@ -35,5 +35,9 @@ namespace Repositories.Repository
         {
             return BookingOfflineDAO.Instance.GetBookingOfflinesByUserIdDao(userId);
         }
+        public Task<List<BookingOffline>> GetBookingOfflines()
+        {
+            return BookingOfflineDAO.Instance.GetBookingOfflinesDao();
+        }
     }
 }

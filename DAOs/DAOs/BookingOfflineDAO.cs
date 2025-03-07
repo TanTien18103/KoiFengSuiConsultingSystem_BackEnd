@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,6 +60,12 @@ namespace DAOs.DAOs
             await _context.SaveChangesAsync();
         }
 
-
+        public async Task<List<BookingOffline>> GetBookingOfflinesDao()
+        {
+            return await _context.BookingOfflines
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Include(x => x.Master).ThenInclude(x => x.Account)
+                .ToListAsync();
+        }
     }
 }

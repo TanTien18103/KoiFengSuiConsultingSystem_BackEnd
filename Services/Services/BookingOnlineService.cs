@@ -17,18 +17,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Repositories.Repository;
+using Services.ApiModels.BookingOffline;
 
 namespace Services.Services
 {
     public class BookingOnlineService : IBookingOnlineService
     {
-        private readonly IBookingOnlineRepo _repo;
+        private readonly IBookingOnlineRepo _onlineRepo;
+        private readonly IBookingOfflineRepo _offlineRepo;
         private readonly IMapper _mapper;
+        private readonly IBookingTypeService _bookingTypeService;
 
-        public BookingOnlineService(IBookingOnlineRepo repo, IMapper mapper)
+        public BookingOnlineService(IBookingOnlineRepo repo, IMapper mapper, IBookingTypeService bookingTypeService, IBookingOfflineRepo offlineRepo)
         {
-            _repo = repo;
+            _onlineRepo = repo;
             _mapper = mapper;
+            _bookingTypeService = bookingTypeService;
+            _offlineRepo = offlineRepo;
         }
 
         public async Task<ResultModel> AssignMasterToBooking(string bookingId, string masterId)
@@ -46,7 +52,7 @@ namespace Services.Services
                     };
                 }
 
-                var booking = await _repo.GetBookingOnlineByIdRepo(bookingId);
+                var booking = await _onlineRepo.GetBookingOnlineByIdRepo(bookingId);
                 if (booking == null)
                 {
                     return new ResultModel
@@ -68,7 +74,7 @@ namespace Services.Services
                 }
 
                 booking.MasterId = masterId;
-                await _repo.UpdateBookingOnlineRepo(booking);
+                await _onlineRepo.UpdateBookingOnlineRepo(booking);
 
                 return new ResultModel
                 {
@@ -88,7 +94,6 @@ namespace Services.Services
             }
         }
 
-
         public async Task<ResultModel> GetBookingOnlineById(string bookingId)
         {
             var res = new ResultModel();
@@ -102,7 +107,7 @@ namespace Services.Services
                     return res;
                 }
 
-                var booking = await _repo.GetBookingOnlineByIdRepo(bookingId);
+                var booking = await _onlineRepo.GetBookingOnlineByIdRepo(bookingId);
                 if (booking == null)
                 {
                     res.IsSuccess = false;
@@ -126,20 +131,35 @@ namespace Services.Services
 
 
         }
-        
-        public async Task<ResultModel> GetBookingOnlineByStatusAsync(BookingOnlineEnums? status)
+
+        public async Task<ResultModel> GetBookingByStatusAsync(BookingOnlineEnums? status = null, BookingTypeEnums? type = null)
         {
             var res = new ResultModel();
             try
             {
-                var bookingOnline = await _repo.GetBookingOnlinesRepo();
-                var filteredBookings = bookingOnline;
+                List<object> bookingList = new List<object>();
 
-                if (status.HasValue)
+                if (type == null || type == BookingTypeEnums.Online)
                 {
-                    filteredBookings = bookingOnline.Where(x => x.Status == status.ToString()).ToList();
+                    var bookingOnlineList = await _onlineRepo.GetBookingOnlinesRepo();
+                    var filteredBookings = bookingOnlineList;
+                    if (status.HasValue)
+                    {
+                        filteredBookings = filteredBookings.Where(x => x.Status == status.ToString()).ToList();
+                    }
 
-                    if (!filteredBookings.Any())
+                    if (filteredBookings.Any())
+                    {
+                        foreach (var booking in filteredBookings)
+                        {
+                            var calculateResult = await _bookingTypeService.Calculate(BookingTypeEnums.Online, booking.BookingOnlineId);
+                            if (calculateResult.IsSuccess && calculateResult.Data is BookingOnlineDetailRespone response)
+                            {
+                                bookingList.Add(response);
+                            }
+                        }
+                    }
+                    else if (status.HasValue && type == BookingTypeEnums.Online)
                     {
                         res.IsSuccess = false;
                         res.StatusCode = StatusCodes.Status404NotFound;
@@ -148,28 +168,71 @@ namespace Services.Services
                     }
                 }
 
+                if (type == null || type == BookingTypeEnums.Offline)
+                {
+                    var bookingOfflineList = await _offlineRepo.GetBookingOfflines();
+                    var filteredBookings = bookingOfflineList;
+                    if (status.HasValue)
+                    {
+                        filteredBookings = filteredBookings.Where(x => x.Status == status.ToString()).ToList();
+                    }
+
+                    if (filteredBookings.Any())
+                    {
+                        foreach (var booking in filteredBookings)
+                        {
+                            var calculateResult = await _bookingTypeService.Calculate(BookingTypeEnums.Offline, booking.BookingOfflineId);
+                            if (calculateResult.IsSuccess && calculateResult.Data is BookingOfflineResponse response)
+                            {
+                                bookingList.Add(response);
+                            }
+                        }
+                    }
+                    else if (status.HasValue && type == BookingTypeEnums.Offline)
+                    {
+                        res.IsSuccess = false;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.Message = $"Không tìm thấy các buổi tư vấn offline với trạng thái {status}";
+                        return res;
+                    }
+                }
+
+                if (!bookingList.Any())
+                {
+                    string typeMessage = type.HasValue ? (type == BookingTypeEnums.Online ? "online" : "offline") : "online và offline";
+                    string statusMessage = status.HasValue ? $"với trạng thái {status}" : "";
+
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = $"Không tìm thấy các buổi tư vấn {typeMessage} {statusMessage}";
+                    return res;
+                }
+
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<BookingOnlineDetailRespone>>(filteredBookings);
-                string statusMessage = status.HasValue ? $"với trạng thái {status}" : "";
-                res.Message = $"Lấy danh sách buổi tư vấn {statusMessage} thành công";
+                res.Data = bookingList;
+
+                string typeSuccessMessage = type.HasValue ? (type == BookingTypeEnums.Online ? "online" : "offline") : "online và offline";
+                string statusSuccessMessage = status.HasValue ? $"với trạng thái {status}" : "";
+
+                res.Message = $"Lấy danh sách buổi tư vấn {typeSuccessMessage} {statusSuccessMessage} thành công";
                 return res;
             }
             catch (Exception ex)
             {
                 res.IsSuccess = false;
-                res.Message =  ex.Message;
+                res.Message = ex.Message;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 return res;
             }
         }
 
-        public async Task<ResultModel> GetBookingOnlines()
+        public async Task<ResultModel> GetBookingOnlinesHover()
         {
             var res = new ResultModel();
             try
             {
-                var bookings = await _repo.GetBookingOnlinesRepo();
+                var bookings = await _onlineRepo.GetBookingOnlinesRepo();
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Data = _mapper.Map<List<BookingOnlineHoverRespone>>(bookings);
@@ -183,7 +246,5 @@ namespace Services.Services
                 return res;
             }
         }
-
-        
     }
 }

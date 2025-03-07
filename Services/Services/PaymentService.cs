@@ -17,20 +17,38 @@ namespace Services.Services
         private readonly string _apiKey;
         private readonly string _checksumKey;
         private readonly string _payosApiUrl;
+        private readonly IPriceService _priceService;
 
-        public PaymentService(IConfiguration configuration, HttpClient httpClient)
+        public PaymentService(
+            IConfiguration configuration, 
+            HttpClient httpClient,
+            IPriceService priceService)
         {
             _httpClient = httpClient;
             _clientId = configuration["PayOs:ClientId"];
             _apiKey = configuration["PayOs:ApiKey"];
             _checksumKey = configuration["PayOs:ChecksumKey"];
             _payosApiUrl = configuration["PayOs:ApiUrl"];
+            _priceService = priceService;
         }
 
         public async Task<PaymentResponse> CreatePaymentAsync(PaymentRequest request)
         {
             try
             {
+                // Validate and get price from service
+                var servicePrice = await _priceService.GetServicePrice(request.PaymentType, request.ServiceId.ToString());
+                if (!servicePrice.HasValue)
+                {
+                    throw new Exception("Service price not found");
+                }
+
+                // Validate that the requested amount matches the service price
+                if (request.Amount != servicePrice.Value)
+                {
+                    throw new Exception($"Invalid payment amount. Expected: {servicePrice.Value}, Received: {request.Amount}");
+                }
+
                 var paymentData = new
                 {
                     orderCode = request.OrderId,

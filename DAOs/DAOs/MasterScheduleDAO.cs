@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,6 +59,21 @@ namespace DAOs.DAOs
             _context.MasterSchedules.Remove(masterSchedule);
             await _context.SaveChangesAsync();
         }
-
+        public async Task<List<MasterSchedule>> GetAllSchedulesAsync()
+        {
+            return await _context.MasterSchedules
+                .Include(x => x.Master)
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.StartTime)
+                .ToListAsync();
+        }
+        public async Task<List<MasterSchedule>> GetSchedulesByMasterAndDateAsync(string masterId, DateOnly date)
+        {
+            return await _context.MasterSchedules
+                .Include(x => x.Master)
+                .Where(x => x.MasterId == masterId && x.Date == date)
+                .OrderBy(x => x.StartTime)
+                .ToListAsync();
+        }
     }
 }

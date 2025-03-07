@@ -36,8 +36,8 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return Ok(result);
         }
 
-        [HttpGet("get-by-element")]
-        public async Task<IActionResult> GetKoiVarietiesByElement(string element)
+        [HttpGet("get-by-element/{element}")]
+        public async Task<IActionResult> GetKoiVarietiesByElement([FromRoute]string element)
         {
             var res = await _koiVarietyService.GetKoiVarietiesByElementAsync(element);
             return StatusCode(res.StatusCode, res);

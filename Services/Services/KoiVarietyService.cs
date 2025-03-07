@@ -257,7 +257,6 @@ namespace Services.Services
             return totalPercentage > 0 ? score / totalPercentage : 0;
         }
 
-
         public async Task<ResultModel> GetKoiVarietiesByElementAsync(string element)
             {
             var res = new ResultModel();

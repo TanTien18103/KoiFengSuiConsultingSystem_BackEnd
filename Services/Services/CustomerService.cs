@@ -20,6 +20,7 @@ public class CustomerService : ICustomerService
     private readonly ICustomerRepo _customerRepo;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
+
     private static readonly Dictionary<string, Dictionary<string, double>> ElementColorPoints = new()
 {
     { "Metal", new() { { "White", 10 }, { "Yellow", 5 }, { "Blue", -5 }, { "Red", -10 }, { "Black", -8 } } },
@@ -244,7 +245,6 @@ public class CustomerService : ICustomerService
 
         return 0; 
     }
-
 
     private string GetCompatibilityMessage(double score)
     {

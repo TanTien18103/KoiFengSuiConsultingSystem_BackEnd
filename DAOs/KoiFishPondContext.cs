@@ -9,10 +9,10 @@ namespace BusinessObjects.Models;
 
 public partial class KoiFishPondContext : DbContext
 {
-
     public KoiFishPondContext()
     {
     }
+
     public KoiFishPondContext(DbContextOptions<KoiFishPondContext> options)
         : base(options)
     {
@@ -87,7 +87,6 @@ public partial class KoiFishPondContext : DbContext
     public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
 
     public virtual DbSet<WorkShop> WorkShops { get; set; }
-
     public static string GetConnectionString(string connectionStringName)
     {
         var config = new ConfigurationBuilder()
@@ -197,6 +196,10 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.MasterScheduleId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.RecordId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -222,6 +225,10 @@ public partial class KoiFishPondContext : DbContext
             entity.HasOne(d => d.Master).WithMany(p => p.BookingOfflines)
                 .HasForeignKey(d => d.MasterId)
                 .HasConstraintName("FK__BookingOf__Maste__656C112C");
+
+            entity.HasOne(d => d.MasterSchedule).WithMany(p => p.BookingOfflines)
+                .HasForeignKey(d => d.MasterScheduleId)
+                .HasConstraintName("FK_BookingOffline_MasterSchedule");
 
             entity.HasOne(d => d.Record).WithMany(p => p.BookingOfflines)
                 .HasForeignKey(d => d.RecordId)
@@ -251,6 +258,11 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.MasterNote).HasMaxLength(255);
+            entity.Property(e => e.MasterScheduleId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -264,6 +276,10 @@ public partial class KoiFishPondContext : DbContext
                 .HasForeignKey(d => d.MasterId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BookingOnline_Master");
+
+            entity.HasOne(d => d.MasterSchedule).WithMany(p => p.BookingOnlines)
+                .HasForeignKey(d => d.MasterScheduleId)
+                .HasConstraintName("FK_BookingOnline_MasterSchedule");
         });
 
         modelBuilder.Entity<Certificate>(entity =>
@@ -378,6 +394,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsFixedLength();
             entity.Property(e => e.CourseCategory).HasMaxLength(50);
             entity.Property(e => e.CourseName).HasMaxLength(100);
+            entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.QuizId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -929,6 +946,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Status).HasMaxLength(20);
             entity.Property(e => e.WorkshopName).HasMaxLength(100);
 

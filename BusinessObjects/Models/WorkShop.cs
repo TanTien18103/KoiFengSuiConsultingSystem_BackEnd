@@ -25,6 +25,8 @@ public partial class WorkShop
 
     public string Status { get; set; }
 
+    public decimal? Price { get; set; }
+
     public virtual Master Master { get; set; }
 
     public virtual ICollection<RegisterAttend> RegisterAttends { get; set; } = new List<RegisterAttend>();

@@ -23,6 +23,8 @@ public partial class Course
 
     public string QuizId { get; set; }
 
+    public decimal? Price { get; set; }
+
     public virtual Certificate Certificate { get; set; }
 
     public virtual ICollection<Chapter> Chapters { get; set; } = new List<Chapter>();

@@ -26,12 +26,12 @@
     <Folder Include="ApiModels\FengShuiDocument\" />
     <Folder Include="ApiModels\MasterSchedule\" />
     <Folder Include="ApiModels\Membership\" />
+    <Folder Include="ApiModels\Shape\" />
     <Folder Include="ApiModels\Workshop\" />
     <Folder Include="ApiModels\WalletTransaction\" />
     <Folder Include="ApiModels\Wallet\" />
     <Folder Include="ApiModels\VarietyColor\" />
     <Folder Include="ApiModels\Transaction\" />
-    <Folder Include="ApiModels\Shape\" />
     <Folder Include="ApiModels\RegisterCourse\" />
     <Folder Include="ApiModels\RegisterAttend\" />
     <Folder Include="ApiModels\Quiz\" />

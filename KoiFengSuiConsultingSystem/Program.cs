@@ -11,11 +11,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
-
-//Email Service
-
 // Register Repositories
 builder.Services.AddScoped<IAccountRepo, AccountRepo>();
 builder.Services.AddScoped<IKoiPondRepo, KoiPondRepo>();
@@ -33,6 +28,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IKoiPondService, KoiPondService>();
 builder.Services.AddScoped<IMasterService, MasterService>();
 builder.Services.AddScoped<IBookingOnlineService, BookingOnlineService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 
 //Register Mapper

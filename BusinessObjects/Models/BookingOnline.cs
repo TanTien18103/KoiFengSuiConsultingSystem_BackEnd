@@ -27,7 +27,13 @@ public partial class BookingOnline
 
     public string MasterNote { get; set; }
 
+    public string MasterScheduleId { get; set; }
+
+    public decimal? Price { get; set; }
+
     public virtual Customer Customer { get; set; }
-    
+
     public virtual Master Master { get; set; }
+
+    public virtual MasterSchedule MasterSchedule { get; set; }
 }

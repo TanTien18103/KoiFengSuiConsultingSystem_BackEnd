@@ -11,6 +11,7 @@ using Services.ApiModels.Payment;
 using Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Repositories.Interfaces;
 
 namespace Services.Services
 {
@@ -24,14 +25,23 @@ namespace Services.Services
         private readonly IPriceService _priceService;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ICustomerService _customerService;
+        private readonly ICustomerRepo _customerRepo;
+        private readonly ICourseRepo _courseRepo;
+        private readonly IBookingOnlineRepo _bookingOnlineRepo;
+        private readonly IBookingOfflineRepo _bookingOfflineRepo;
+        private readonly IWorkShopRepo _workShopRepo;
+
 
         public PaymentService(
             IConfiguration configuration, 
             HttpClient httpClient,
             IPriceService priceService,
             IHttpContextAccessor httpContextAccessor,
-            ICustomerService customerService)
+            ICustomerRepo customerRepo,
+            ICourseRepo courseRepo,
+            IBookingOnlineRepo bookingOnlineRepo,
+            IBookingOfflineRepo bookingOfflineRepo,
+            IWorkShopRepo workShopRepo)
         {
             _httpClient = httpClient;
             _configuration = configuration;
@@ -41,7 +51,11 @@ namespace Services.Services
             _payosApiUrl = configuration["PayOs:ApiUrl"];
             _priceService = priceService;
             _httpContextAccessor = httpContextAccessor;
-            _customerService = customerService;
+            _customerRepo = customerRepo;
+            _courseRepo = courseRepo;
+            _bookingOnlineRepo = bookingOnlineRepo;
+            _bookingOfflineRepo = bookingOfflineRepo;
+            _workShopRepo = workShopRepo;
         }
 
         public PaymentRequest CreateBookingOnlinePaymentRequest(BookingOnline bookingOnline)
@@ -249,7 +263,7 @@ namespace Services.Services
                 if (!string.IsNullOrEmpty(accountId))
                 {
                     // Lấy thông tin customer từ accountId
-                    var customer = await _customerService.GetCustomerById(accountId);
+                    var customer = await _customerRepo.GetCustomerById(accountId);
                     
                     if (customer != null && customer.Account != null)
                     {
@@ -284,19 +298,169 @@ namespace Services.Services
             {
                 // 1. Tự động điền thông tin khách hàng vào PaymentRequest (logic từ Controller)
                 request = await PopulateCustomerInfoForPaymentRequest(request);
-                
-                // 2. Xác thực và làm giàu thông tin request
-                //await EnrichPaymentRequest(request);
-                
-                //// 3. Xác thực số tiền thanh toán
-                //await ValidatePaymentAmount(request);
-                
+
+                //2.Xác thực và làm giàu thông tin request
+               await EnrichPaymentRequest(request);
+
+                // 3. Xác thực số tiền thanh toán
+                await ValidatePaymentAmount(request);
+
                 // 4. Tạo thanh toán (logic từ Controller)
                 return await CreatePaymentAsync(request);
             }
             catch (Exception ex)
             {
                 throw new Exception($"Lỗi xử lý thanh toán: {ex.Message}");
+            }
+        }
+
+        public async Task<PaymentResponse> CreatePaymentForService(PaymentTypeEnums serviceType, string serviceId)
+        {
+            try
+            {
+                // Tạo payment request dựa trên loại dịch vụ
+                PaymentRequest request = null;
+                
+                switch (serviceType)
+                {
+                    case PaymentTypeEnums.BookingOnline:
+                        var bookingOnline = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(serviceId);
+                        if (bookingOnline == null)
+                            throw new Exception("Không tìm thấy đặt phòng online");
+                        
+                        request = new PaymentRequest
+                        {
+                            OrderCode = $"BON{bookingOnline.BookingOnlineId}_{DateTime.Now.Ticks}",
+                            Amount = bookingOnline.Price ?? 0,
+                            Description = $"Thanh toán đặt phòng online #{bookingOnline.BookingOnlineId}",
+                            ReturnUrl = _configuration["Payment:ReturnUrl"],
+                            CancelUrl = _configuration["Payment:CancelUrl"],
+                            PaymentType = PaymentTypeEnums.BookingOnline,
+                            ServiceId = bookingOnline.BookingOnlineId
+                        };
+                        break;
+                        
+                    case PaymentTypeEnums.BookingOffline:
+                        var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
+                        if (bookingOffline == null)
+                            throw new Exception("Không tìm thấy đặt phòng offline");
+                        
+                        request = new PaymentRequest
+                        {
+                            OrderCode = $"BOF{bookingOffline.BookingOfflineId}_{DateTime.Now.Ticks}",
+                            Amount = bookingOffline.ConsultationPackage?.PackagePrice ?? 0,
+                            Description = $"Thanh toán đặt phòng offline #{bookingOffline.BookingOfflineId}",
+                            ReturnUrl = _configuration["Payment:ReturnUrl"],
+                            CancelUrl = _configuration["Payment:CancelUrl"],
+                            PaymentType = PaymentTypeEnums.BookingOffline,
+                            ServiceId = bookingOffline.BookingOfflineId
+                        };
+                        break;
+                        
+                    case PaymentTypeEnums.Course:
+                        var course = await _courseRepo.GetCourseById(serviceId);
+                        if (course == null)
+                            throw new Exception("Không tìm thấy khóa học");
+                        
+                        request = new PaymentRequest
+                        {
+                            OrderCode = $"CRS{course.CourseId}_{DateTime.Now.Ticks}",
+                            Amount = course.Price ?? 0,
+                            Description = $"Thanh toán khóa học {course.CourseName}",
+                            ReturnUrl = _configuration["Payment:ReturnUrl"],
+                            CancelUrl = _configuration["Payment:CancelUrl"],
+                            PaymentType = PaymentTypeEnums.Course,
+                            ServiceId = course.CourseId
+                        };
+                        break;
+                        
+                    case PaymentTypeEnums.Workshop:
+                        var workshop = await _workShopRepo.GetWorkShopById(serviceId);
+                        if (workshop == null)
+                            throw new Exception("Không tìm thấy workshop");
+                        
+                        request = new PaymentRequest
+                        {
+                            OrderCode = $"WS{workshop.WorkshopId}_{DateTime.Now.Ticks}",
+                            Amount = workshop.Price ?? 0,
+                            Description = $"Thanh toán workshop {workshop.WorkshopName}",
+                            ReturnUrl = _configuration["Payment:ReturnUrl"],
+                            CancelUrl = _configuration["Payment:CancelUrl"],
+                            PaymentType = PaymentTypeEnums.Workshop,
+                            ServiceId = workshop.WorkshopId
+                        };
+                        break;
+                        
+                    default:
+                        throw new Exception("Loại dịch vụ không hợp lệ");
+                }
+                
+                // Tự động điền thông tin khách hàng từ token
+                request = await PopulateCustomerInfoForPaymentRequest(request);
+                
+                // Xác thực và đảm bảo số tiền thanh toán khớp với giá dịch vụ
+                var servicePrice = await _priceService.GetServicePrice(request.PaymentType, request.ServiceId);
+                if (!servicePrice.HasValue)
+                {
+                    throw new Exception("Không tìm thấy giá dịch vụ");
+                }
+
+                if (request.Amount != servicePrice.Value)
+                {
+                    // Cập nhật số tiền để khớp với giá dịch vụ
+                    request.Amount = servicePrice.Value;
+                }
+                
+                // Tạo thanh toán
+                return await CreatePaymentAsync(request);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi xử lý thanh toán: {ex.Message}");
+            }
+        }
+
+        private async Task EnrichPaymentRequest(PaymentRequest request)
+        {
+            // Enrich the payment request with additional information if needed
+            // For example, ensure the order code is unique by adding a timestamp if not already present
+            if (!request.OrderCode.Contains("_"))
+            {
+                request.OrderCode = $"{request.OrderCode}_{DateTime.Now.Ticks}";
+            }
+            
+            // Ensure description is set
+            if (string.IsNullOrEmpty(request.Description))
+            {
+                request.Description = $"Thanh toán dịch vụ {request.PaymentType} #{request.ServiceId}";
+            }
+            
+            // Set default URLs if not provided
+            if (string.IsNullOrEmpty(request.ReturnUrl) || string.IsNullOrEmpty(request.CancelUrl))
+            {
+                var baseUrl = $"{_httpContextAccessor.HttpContext?.Request.Scheme}://{_httpContextAccessor.HttpContext?.Request.Host}";
+                request.ReturnUrl = request.ReturnUrl ?? $"{baseUrl}/api/payment/success";
+                request.CancelUrl = request.CancelUrl ?? $"{baseUrl}/api/payment/cancel";
+            }
+        }
+
+        private async Task ValidatePaymentAmount(PaymentRequest request)
+        {
+            // Validate that the payment amount matches the service price
+            var servicePrice = await _priceService.GetServicePrice(request.PaymentType, request.ServiceId);
+            
+            if (!servicePrice.HasValue)
+            {
+                throw new Exception("Không tìm thấy giá dịch vụ");
+            }
+
+            if (request.Amount != servicePrice.Value)
+            {
+                // Option 1: Throw an exception if amounts don't match
+                throw new Exception($"Số tiền thanh toán không khớp. Dự kiến: {servicePrice.Value}, Nhận được: {request.Amount}");
+                
+                // Option 2: Update the amount to match the service price (uncomment if preferred)
+                // request.Amount = servicePrice.Value;
             }
         }
     }

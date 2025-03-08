@@ -42,6 +42,7 @@ builder.Services.AddScoped<IPriceService, PriceService>();
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));
 builder.Services.AddAutoMapper(typeof(KoiPondMappingProfile));
 builder.Services.AddAutoMapper(typeof(MasterMappingProfile));
+builder.Services.AddAutoMapper(typeof(BookingMappingProfile));
 builder.Services.AddAutoMapper(typeof(MasterScheduleMappingProfile));
 
 builder.Services.AddHttpClient();

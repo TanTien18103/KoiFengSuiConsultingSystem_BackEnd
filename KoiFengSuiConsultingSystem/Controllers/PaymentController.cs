@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using BusinessObjects;
+using BusinessObjects.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
@@ -40,14 +41,39 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _bookingOnlineService = bookingOnlineService;
         }
 
+        [HttpPost("service/{serviceType}/{serviceId}")]
+        //[Authorize]
+        public async Task<ActionResult<PaymentResponse>> CreateServicePayment(string serviceType, string serviceId)
+        {
+            try
+            {
+                // Chuyển đổi serviceType từ string sang enum PaymentTypeEnums
+                if (!Enum.TryParse<PaymentTypeEnums>(serviceType, true, out var serviceTypeEnum))
+                {
+                    return BadRequest(new { message = "Loại dịch vụ không hợp lệ" });
+                }
+                
+                // Gọi phương thức duy nhất để xử lý thanh toán
+                var response = await _paymentService.CreatePaymentForService(serviceTypeEnum, serviceId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPost("create")]
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult<PaymentResponse>> CreatePayment([FromBody] PaymentRequest request)
         {
             try
             {
-                // Gọi phương thức duy nhất để xử lý thanh toán
-                var response = await _paymentService.ProcessPayment(request);
+                // Tự động điền thông tin khách hàng
+                request = await _paymentService.PopulateCustomerInfoForPaymentRequest(request);
+                
+                // Tạo thanh toán
+                var response = await _paymentService.CreatePaymentAsync(request);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -57,7 +83,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpGet("status/{orderId}")]
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult<PaymentResponse>> CheckPaymentStatus(string orderId)
         {
             try

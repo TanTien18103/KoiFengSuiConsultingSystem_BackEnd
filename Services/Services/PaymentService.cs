@@ -286,10 +286,10 @@ namespace Services.Services
                 request = await PopulateCustomerInfoForPaymentRequest(request);
                 
                 // 2. Xác thực và làm giàu thông tin request
-                await EnrichPaymentRequest(request);
+                //await EnrichPaymentRequest(request);
                 
-                // 3. Xác thực số tiền thanh toán
-                await ValidatePaymentAmount(request);
+                //// 3. Xác thực số tiền thanh toán
+                //await ValidatePaymentAmount(request);
                 
                 // 4. Tạo thanh toán (logic từ Controller)
                 return await CreatePaymentAsync(request);

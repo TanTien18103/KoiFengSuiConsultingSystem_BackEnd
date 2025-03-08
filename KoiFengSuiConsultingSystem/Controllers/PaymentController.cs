@@ -22,7 +22,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         private readonly IAccountService _accountService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration _configuration;
-        private readonly IBookingOnlineService _bookingOnlineService;
+        private readonly IBookingService _bookingOnlineService;
 
         public PaymentController(
             IPaymentService paymentService,
@@ -30,7 +30,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             IAccountService accountService,
             IHttpContextAccessor httpContextAccessor,
             IConfiguration configuration,
-            IBookingOnlineService bookingOnlineService)
+            IBookingService bookingOnlineService)
         {
             _paymentService = paymentService;
             _customerService = customerService;

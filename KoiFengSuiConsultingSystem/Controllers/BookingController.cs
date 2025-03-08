@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
+using Services.ApiModels.BookingOnline;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -11,17 +12,24 @@ namespace KoiFengSuiConsultingSystem.Controllers
     [ApiController]
     public class BookingController : ControllerBase
     {
-        private readonly IBookingService _bookingOnlineService;
+        private readonly IBookingService _bookingService;
 
-        public BookingController(IBookingService bookingOnlineService)
+        public BookingController(IBookingService bookingService)
         {
-            _bookingOnlineService = bookingOnlineService;
+            _bookingService = bookingService;
         }
 
-        [HttpGet("{id}")]
+        [HttpPost("create-booking-online")]
+        public async Task<IActionResult> CreateBookingOnline([FromBody] BookingOnlineRequest bookingOnlineRequest)
+        {
+            var res = await _bookingService.CreateBookingOnline(bookingOnlineRequest);
+            return Ok(res);
+        }
+
+            [HttpGet("{id}")]
         public async Task<IActionResult> GetBookingById([FromRoute] string id)
         {
-            var res = await _bookingOnlineService.GetBookingByIdAsync(id);
+            var res = await _bookingService.GetBookingByIdAsync(id);
             return StatusCode(res.StatusCode, res);
         }
 
@@ -29,14 +37,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
         //[Authorize(Roles = "Staff")]
         public async Task<IActionResult> GetBookingOnline([FromQuery] BookingOnlineEnums? status = null, [FromQuery] BookingTypeEnums? type = null)
         {
-            var res = await _bookingOnlineService.GetBookingByStatusAsync(status, type);
+            var res = await _bookingService.GetBookingByStatusAsync(status, type);
             return StatusCode(res.StatusCode, res);
         }
 
         [HttpGet("online-Hover")]
         public async Task<IActionResult> GetBookingOnlines()
         {
-            var res = await _bookingOnlineService.GetBookingOnlinesHoverAsync();
+            var res = await _bookingService.GetBookingOnlinesHoverAsync();
             return StatusCode(res.StatusCode, res);
         }
 
@@ -44,8 +52,10 @@ namespace KoiFengSuiConsultingSystem.Controllers
         //[Authorize(Roles = "Staff")]
         public async Task<IActionResult> AssignMaster([FromQuery] string bookingId, [FromQuery] string masterId)
         {
-            var result = await _bookingOnlineService.AssignMasterToBookingAsync(bookingId, masterId);
+            var result = await _bookingService.AssignMasterToBookingAsync(bookingId, masterId);
             return StatusCode(result.StatusCode, result);
         }
+
+
     }
 }

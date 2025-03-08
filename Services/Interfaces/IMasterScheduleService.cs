@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BusinessObjects.Models;
 
 namespace Services.Interfaces
 {
@@ -14,5 +15,6 @@ namespace Services.Interfaces
         Task<ResultModel> GetAllMasterSchedules();
         Task<ResultModel> GetMasterSchedulesByMasterId(string masterId);
         Task<ResultModel> GetMasterSchedulesByMasterAndDate(string masterId, DateTime date);
+        Task<MasterSchedule> CreateMasterSchedule(MasterSchedule schedule);
     }
 }

@@ -7,6 +7,8 @@ using BusinessObjects.Enums;
 using Services.Interfaces;
 using Services.ApiModels.BookingOffline;
 using Services.ApiModels.Booking;
+using BusinessObjects.Models;
+using Repositories.Repository;
 
 namespace Services.Services
 {
@@ -15,13 +17,125 @@ namespace Services.Services
         private readonly IBookingOnlineRepo _onlineRepo;
         private readonly IBookingOfflineRepo _offlineRepo;
         private readonly IMapper _mapper;
-
-        public BookingService(IBookingOnlineRepo repo, IMapper mapper, IBookingOfflineRepo offlineRepo)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ITransactionService _transactionService;
+        private readonly ICustomerRepo _customerRepo;
+        private readonly IAccountRepo _accountRepo;
+        private readonly IMasterScheduleService _masterScheduleService;
+        
+        public BookingService(
+            IBookingOnlineRepo onlineRepo,
+            IBookingOfflineRepo offlineRepo,
+            IMapper mapper,
+            IHttpContextAccessor httpContextAccessor,
+            ITransactionService transactionService,
+            ICustomerRepo customerRepo,
+            IAccountRepo accountRepo,
+            IMasterScheduleService masterScheduleService
+        )
         {
-            _onlineRepo = repo;
-            _mapper = mapper;
+            _onlineRepo = onlineRepo;
             _offlineRepo = offlineRepo;
+            _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
+            _transactionService = transactionService;
+            _customerRepo = customerRepo;
+            _accountRepo = accountRepo;
+            _masterScheduleService = masterScheduleService;
         }
+        public static string GenerateShortGuid()
+        {
+            Guid guid = Guid.NewGuid();
+            string base64 = Convert.ToBase64String(guid.ToByteArray());
+            return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
+        }
+
+        public async Task<ResultModel> CreateBookingOnline(BookingOnlineRequest bookingOnlineRequest)
+        {
+            var res = new ResultModel();
+            try
+            {
+                if (bookingOnlineRequest == null)
+                {
+                    res.IsSuccess = false;
+                    res.Message = "Dữ liệu booking không được để trống";
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    res.IsSuccess = false;
+                    res.Message = "Token xác thực không được cung cấp";
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var token = authHeader.Substring("Bearer ".Length);
+                var accountId = await _accountRepo.GetAccountIdFromToken(token);
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.Message = "Không thể xác thực tài khoản";
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var customer = await _customerRepo.GetCustomerByAccountId(accountId);
+                if (string.IsNullOrEmpty(customer.CustomerId))
+                {
+                    res.IsSuccess = false;
+                    res.Message = "Không tìm thấy thông tin khách hàng";
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                var booking = _mapper.Map<BookingOnline>(bookingOnlineRequest);
+                booking.BookingOnlineId = GenerateShortGuid();
+                booking.CustomerId = customer.CustomerId;
+                booking.Status = BookingOnlineEnums.Pending.ToString();
+                var createdBooking = await _onlineRepo.CreateBookingOnlineRepo(booking);
+
+                var masterSchedule = new MasterSchedule
+                {
+                    MasterScheduleId = GenerateShortGuid(),
+                    MasterId = bookingOnlineRequest.MasterId,
+                    Date = bookingOnlineRequest.BookingDate,
+                    StartTime = bookingOnlineRequest.StartTime,
+                    EndTime = bookingOnlineRequest.EndTime,
+                    Type = "Booking Online",
+                    Status = "Pending"
+                };
+
+                await _masterScheduleService.CreateMasterSchedule(masterSchedule);
+
+                // 🔹 Tạo giao dịch thanh toán
+                var transactionResult = await _transactionService.CreateTransactionWithDocNo(
+                    createdBooking.BookingOnlineId,
+                    bookingOnlineRequest.PaymentMethod,
+                    "Booking Online"
+                );
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status201Created;
+                res.Message = "Tạo booking thành công";
+                res.Data = new
+                {
+                    BookingOnline = _mapper.Map<BookingOnlineDetailResponse>(createdBooking),
+                    Transaction = transactionResult.Data
+                };
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.Message = $"Lỗi khi tạo booking: {ex.Message}";
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
 
         public async Task<ResultModel> GetBookingByIdAsync(string bookingId)
         {

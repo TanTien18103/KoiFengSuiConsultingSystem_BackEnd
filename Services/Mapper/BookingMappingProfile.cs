@@ -23,6 +23,8 @@ namespace Services.Mapper
                 .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null && src.Customer.Account != null ? src.Customer.Account.FullName : null))
                 .ForMember(dest => dest.CustomerEmail, opt => opt.MapFrom(src => src.Customer != null && src.Customer.Account != null ? src.Customer.Account.Email : null))
                 .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.Master != null && src.Master.Account != null ? src.Master.Account.FullName : null));
+            
+            CreateMap<BookingOnlineRequest, BookingOnline>();
 
             // Map from BookingOffline to BookingResponse
             CreateMap<BookingOffline, BookingResponse>()

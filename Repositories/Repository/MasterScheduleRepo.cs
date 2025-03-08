@@ -20,7 +20,10 @@ namespace Repositories.Repository
         {
             return MasterScheduleDAO.Instance.CreateMasterScheduleDao(masterSchedule);
         }
-
+        public Task<MasterSchedule> GetMasterSchedule(string masterId, DateOnly date, TimeOnly startTime)
+        {
+            return MasterScheduleDAO.Instance.GetMasterScheduleDao(masterId, date, startTime);
+        }
         public Task<MasterSchedule> UpdateMasterSchedule(MasterSchedule masterSchedule)
         {
             return MasterScheduleDAO.Instance.UpdateMasterScheduleDao(masterSchedule);

@@ -14,6 +14,6 @@ namespace Repositories.Interfaces
         Task<BookingOffline> CreateBookingOffline(BookingOffline bookingOffline);
         Task<BookingOffline> UpdateBookingOffline(BookingOffline bookingOffline);
         Task DeleteBookingOffline(string bookingOfflineId);
-
+        Task<List<BookingOffline>> GetBookingOfflines();
     }
 }

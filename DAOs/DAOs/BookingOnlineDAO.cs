@@ -44,6 +44,7 @@ namespace DAOs.DAOs
             return await _context.BookingOnlines
                 .Include(x => x.Customer).ThenInclude(x => x.Account)
                 .Include(x => x.Master).ThenInclude(x => x.Account)
+                .AsNoTracking()
                 .ToListAsync();
         }
 

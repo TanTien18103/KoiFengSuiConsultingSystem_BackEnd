@@ -8,7 +8,7 @@ namespace BusinessObjects
         public string OrderId { get; set; }  // Mã đơn hàng của bạn
         public decimal Amount { get; set; }  // Số tiền thanh toán
         public string Description { get; set; }  // Mô tả giao dịch
-        public string Status { get; set; }  // Trạng thái giao dịch: PENDING, COMPLETED, CONFIRMED, CANCELLED
+        public string Status { get; set; }  // Trạng thái giao dịch: PENDING, FAILED, SUCCESS
         public DateTime CreatedAt { get; set; }  // Thời gian tạo giao dịch
         public DateTime? PaidAt { get; set; }  // Thời gian thanh toán thành công
         public string PaymentUrl { get; set; }  // URL thanh toán

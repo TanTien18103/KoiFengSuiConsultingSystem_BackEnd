@@ -1,14 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.ApiModels.BookingOnline
+namespace Services.ApiModels.Booking
 {
-    public class BookingOnlineDetailRespone
+    public class BookingResponse
     {
-        public string BookingOnlineId { get; set; }
+        public string Id { get; set; }
 
         public string Type { get; set; }
 
@@ -16,16 +16,12 @@ namespace Services.ApiModels.BookingOnline
 
         public string CustomerName { get; set; }
 
+        public string CustomerEmail { get; set; }
+
         public string MasterName { get; set; }
 
         public string Description { get; set; }
 
         public DateOnly? BookingDate { get; set; }
-
-        public TimeOnly? StartTime { get; set; }
-
-        public TimeOnly? EndTime { get; set; }
-
-        public string MasterNote { get; set; }
     }
-}
+} 

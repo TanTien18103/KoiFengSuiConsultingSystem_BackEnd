@@ -7,6 +7,9 @@ using Services;
 using Services.ApiModels.Payment;
 using Services.Interfaces;
 using Services.Services;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -15,10 +18,26 @@ namespace KoiFengSuiConsultingSystem.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
+        private readonly ICustomerService _customerService;
+        private readonly IAccountService _accountService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IConfiguration _configuration;
+        private readonly IBookingService _bookingOnlineService;
 
-        public PaymentController(IPaymentService paymentService)
+        public PaymentController(
+            IPaymentService paymentService,
+            ICustomerService customerService,
+            IAccountService accountService,
+            IHttpContextAccessor httpContextAccessor,
+            IConfiguration configuration,
+            IBookingService bookingOnlineService)
         {
             _paymentService = paymentService;
+            _customerService = customerService;
+            _accountService = accountService;
+            _httpContextAccessor = httpContextAccessor;
+            _configuration = configuration;
+            _bookingOnlineService = bookingOnlineService;
         }
 
         [HttpPost("create")]
@@ -27,15 +46,8 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             try
             {
-                // Tạo OrderId duy nhất
-                request.OrderId = $"{request.PaymentType}_{request.ServiceId}_{DateTime.Now.Ticks}";
-                
-                // Thiết lập URL callback
-                var baseUrl = $"{Request.Scheme}://{Request.Host}";
-                request.ReturnUrl = $"{baseUrl}/api/payment/success";
-                request.CancelUrl = $"{baseUrl}/api/payment/cancel";
-
-                var response = await _paymentService.CreatePaymentAsync(request);
+                // Gọi phương thức duy nhất để xử lý thanh toán
+                var response = await _paymentService.ProcessPayment(request);
                 return Ok(response);
             }
             catch (Exception ex)

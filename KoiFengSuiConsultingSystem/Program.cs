@@ -32,18 +32,16 @@ builder.Services.AddScoped<IKoiVarietyService, KoiVarietyService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IKoiPondService, KoiPondService>();
 builder.Services.AddScoped<IMasterService, MasterService>();
-builder.Services.AddScoped<IBookingOnlineService, BookingOnlineService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IMasterScheduleService, MasterScheduleService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPriceService, PriceService>();
-builder.Services.AddScoped<IBookingTypeService, BookingTypeService>();
 
 
 //Register Mapper
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));
 builder.Services.AddAutoMapper(typeof(KoiPondMappingProfile));
 builder.Services.AddAutoMapper(typeof(MasterMappingProfile));
-builder.Services.AddAutoMapper(typeof(BookingOnlineMappingProfile));
 builder.Services.AddAutoMapper(typeof(MasterScheduleMappingProfile));
 
 builder.Services.AddHttpClient();

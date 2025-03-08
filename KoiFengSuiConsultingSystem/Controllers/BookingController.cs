@@ -9,29 +9,21 @@ namespace KoiFengSuiConsultingSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookingOnlineController : ControllerBase
+    public class BookingController : ControllerBase
     {
-        private readonly IBookingOnlineService _bookingOnlineService;
+        private readonly IBookingService _bookingOnlineService;
 
-        public BookingOnlineController(IBookingOnlineService bookingOnlineService)
+        public BookingController(IBookingService bookingOnlineService)
         {
             _bookingOnlineService = bookingOnlineService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetBookingOnlines()
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetBookingById([FromRoute] string id)
         {
-            var res = await _bookingOnlineService.GetBookingOnlinesHover();
+            var res = await _bookingOnlineService.GetBookingByIdAsync(id);
             return StatusCode(res.StatusCode, res);
         }
-
-        [HttpGet("get/{id}")]
-        public async Task<IActionResult> GetBookingOnlineById([FromRoute]string id)
-        {
-            var res = await _bookingOnlineService.GetBookingOnlineById(id);
-            return StatusCode(res.StatusCode, res);
-        }
-
 
         [HttpGet("get-booking-online")]
         //[Authorize(Roles = "Staff")]
@@ -41,15 +33,19 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
+        [HttpGet("online-Hover")]
+        public async Task<IActionResult> GetBookingOnlines()
+        {
+            var res = await _bookingOnlineService.GetBookingOnlinesHoverAsync();
+            return StatusCode(res.StatusCode, res);
+        }
 
         [HttpPut("assign-master")]
         //[Authorize(Roles = "Staff")]
         public async Task<IActionResult> AssignMaster([FromQuery] string bookingId, [FromQuery] string masterId)
         {
-            var result = await _bookingOnlineService.AssignMasterToBooking(bookingId, masterId);
+            var result = await _bookingOnlineService.AssignMasterToBookingAsync(bookingId, masterId);
             return StatusCode(result.StatusCode, result);
         }
-
-
     }
 }

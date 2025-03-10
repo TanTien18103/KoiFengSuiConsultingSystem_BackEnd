@@ -13,7 +13,7 @@ namespace Services.Interfaces
     public interface IMasterScheduleService
     {
         Task<ResultModel> GetAllMasterSchedules();
-        Task<ResultModel> GetMasterSchedulesByMasterId(string masterId);
+        Task<ResultModel> GetMasterSchedulesByCurrentMasterLogin();
         Task<ResultModel> GetMasterSchedulesByMasterAndDate(string masterId, DateTime date);
         Task<MasterSchedule> CreateMasterSchedule(MasterSchedule schedule);
     }

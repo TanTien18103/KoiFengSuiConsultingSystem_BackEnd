@@ -92,7 +92,7 @@ public class AccountService : IAccountService
                 UserName = name,
                 Email = email,
                 Password = string.Empty,
-                Role = "Member"
+                Role = "Customer"
             };
 
             await _accountRepository.AddAccount(newUser);
@@ -166,7 +166,7 @@ public class AccountService : IAccountService
             PhoneNumber = registerRequest.PhoneNumber,
             Gender = registerRequest.Gender,
             Dob = DateOnly.FromDateTime(registerRequest.Dob), // Convert DateTime to DateOnly
-            Role = "Member",
+            Role = "Customer",
             Customers = new List<Customer> { customer }
         };
 

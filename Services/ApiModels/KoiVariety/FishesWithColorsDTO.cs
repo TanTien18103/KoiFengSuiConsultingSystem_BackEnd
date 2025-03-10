@@ -6,6 +6,7 @@ namespace Services.ApiModels.KoiVariety
     {
         public string Id { get; set; }
         public string VarietyName { get; set; }
+        public string Description { get; set; }
         public List<ColorPercentageDto> Colors { get; set; } = new List<ColorPercentageDto>();
     }
 }

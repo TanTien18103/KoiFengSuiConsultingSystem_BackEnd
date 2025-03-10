@@ -96,35 +96,5 @@ namespace KoiFengSuiConsultingSystem.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-
-        [HttpGet("success")]
-        public async Task<IActionResult> PaymentSuccess([FromQuery] string orderId)
-        {
-            try
-            {
-                var paymentStatus = await _paymentService.CheckPaymentStatusAsync(orderId);
-                
-                if (paymentStatus.Status == "SUCCESS")
-                {
-                    // Xử lý cập nhật trạng thái đơn hàng tại đây
-                    // Có thể thêm logic để cập nhật trạng thái của Booking/Course/Workshop
-                    
-                    return Redirect("/payment-success"); // Redirect to success page
-                }
-                
-                return Redirect("/payment-failed");
-            }
-            catch (Exception)
-            {
-                return Redirect("/payment-failed");
-            }
-        }
-
-        [HttpGet("cancel")]
-        public IActionResult PaymentCancel([FromQuery] string orderId)
-        {
-            // Xử lý khi người dùng hủy thanh toán
-            return Redirect("/payment-cancelled");
-        }
     }
 } 

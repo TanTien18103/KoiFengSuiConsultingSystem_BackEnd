@@ -71,6 +71,7 @@ namespace Services.Services
                 {
                     Id = k.KoiVarietyId,
                     VarietyName = k.VarietyName,
+                    Description = k.Description,
                     Colors = k.VarietyColors
                         .Where(vc => vc.Color != null)
                         .Select(vc => new ColorPercentageDto

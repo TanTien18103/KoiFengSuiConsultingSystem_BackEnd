@@ -11,6 +11,7 @@ using Services.Services;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using System.Text.Json;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -41,59 +42,149 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _bookingOnlineService = bookingOnlineService;
         }
 
-        [HttpPost("service/{serviceType}/{serviceId}")]
-        //[Authorize]
-        public async Task<ActionResult<PaymentResponse>> CreateServicePayment(string serviceType, string serviceId)
+        /// <summary>
+        /// Tạo link thanh toán cho dịch vụ
+        /// </summary>
+        [HttpPost("create-payment-link")]
+        [Authorize]
+        public async Task<IActionResult> CreatePaymentLink(
+            [FromQuery] PaymentTypeEnums serviceType,
+            [FromQuery] string serviceId,
+            [FromQuery] decimal amount,
+            [FromQuery] string returnUrl = null,
+            [FromQuery] string cancelUrl = null)
         {
             try
             {
-                // Chuyển đổi serviceType từ string sang enum PaymentTypeEnums
-                if (!Enum.TryParse<PaymentTypeEnums>(serviceType, true, out var serviceTypeEnum))
+                var customerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(customerId))
                 {
-                    return BadRequest(new { message = "Loại dịch vụ không hợp lệ" });
+                    return Unauthorized("Không tìm thấy thông tin người dùng.");
                 }
-                
-                // Gọi phương thức duy nhất để xử lý thanh toán
-                var response = await _paymentService.CreatePaymentForService(serviceTypeEnum, serviceId);
-                return Ok(response);
+
+                // Kiểm tra các trường bắt buộc
+                if (string.IsNullOrEmpty(serviceId) || amount <= 0)
+                {
+                    return BadRequest("ServiceId và Amount là bắt buộc và Amount phải lớn hơn 0.");
+                }
+
+                // Tạo URL cho trang thành công và hủy
+                var baseUrl = $"{Request.Scheme}://{Request.Host}";
+                string fullReturnUrl = string.IsNullOrEmpty(returnUrl) ?
+                    $"{baseUrl}/payment/success" :
+                    (returnUrl.StartsWith("http") ? returnUrl : $"{baseUrl}/{returnUrl.TrimStart('/')}");
+
+                string fullCancelUrl = string.IsNullOrEmpty(cancelUrl) ?
+                    $"{baseUrl}/payment/cancel" :
+                    (cancelUrl.StartsWith("http") ? cancelUrl : $"{baseUrl}/{cancelUrl.TrimStart('/')}");
+
+                var paymentLink = await _paymentService.CreatePaymentLinkAsync(
+                    serviceType,
+                    serviceId,
+                    amount,
+                    customerId,
+                    fullReturnUrl,
+                    fullCancelUrl);
+
+                return Ok(new
+                {
+                    success = true,
+                    data = paymentLink
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"Lỗi khi tạo link thanh toán: {ex.Message}"
+                });
             }
         }
 
-        [HttpPost("create")]
-        //[Authorize]
-        public async Task<ActionResult<PaymentResponse>> CreatePayment([FromBody] PaymentRequest request)
+        /// <summary>
+        /// Webhook nhận thông báo kết quả thanh toán từ PayOS
+        /// </summary>
+        [HttpPost("webhook")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Webhook([FromBody] WebhookRequest request)
         {
             try
             {
-                // Tự động điền thông tin khách hàng
-                request = await _paymentService.PopulateCustomerInfoForPaymentRequest(request);
-                
-                // Tạo thanh toán
-                var response = await _paymentService.CreatePaymentAsync(request);
-                return Ok(response);
+                var result = await _paymentService.ProcessWebhookAsync(request);
+
+                if (result)
+                {
+                    return Ok(new { success = true });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = "Không thể xử lý webhook" });
+                }
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"Lỗi khi xử lý webhook: {ex.Message}"
+                });
             }
         }
 
-        [HttpGet("status/{orderId}")]
-        //[Authorize]
-        public async Task<ActionResult<PaymentResponse>> CheckPaymentStatus(string orderId)
+        /// <summary>
+        /// Đăng ký URL webhook với PayOS
+        /// </summary>
+        [HttpPost("register-webhook")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RegisterWebhook()
         {
             try
             {
-                var response = await _paymentService.CheckPaymentStatusAsync(orderId);
-                return Ok(response);
+                var webhookUrl = await _paymentService.RegisterWebhookUrl();
+
+                return Ok(new
+                {
+                    success = true,
+                    webhookUrl = webhookUrl
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"Lỗi khi đăng ký webhook: {ex.Message}"
+                });
+            }
+        }
+
+        /// <summary>
+        /// Kiểm tra trạng thái thanh toán của một đơn hàng
+        /// </summary>
+        [HttpGet("check-payment-status/{orderCode}")]
+        [Authorize]
+        public async Task<IActionResult> CheckPaymentStatus(string orderCode)
+        {
+            try
+            {
+                // Giả sử bạn có phương thức kiểm tra trạng thái thanh toán trong service
+                // var status = await _paymentService.CheckPaymentStatusAsync(orderCode);
+
+                // Tạm thời trả về NotImplemented
+                return StatusCode(501, new
+                {
+                    success = false,
+                    message = "Chức năng này chưa được triển khai"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"Lỗi khi kiểm tra trạng thái thanh toán: {ex.Message}"
+                });
             }
         }
     }

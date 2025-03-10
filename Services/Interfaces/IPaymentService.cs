@@ -12,9 +12,8 @@ namespace Services.Interfaces
 {
     public interface IPaymentService
     {
-        Task<PaymentResponse> CreatePaymentForService(PaymentTypeEnums serviceType, string serviceId);
-        Task<PaymentRequest> PopulateCustomerInfoForPaymentRequest(PaymentRequest request);
-        Task<PaymentResponse> CreatePaymentAsync(PaymentRequest request);
-        Task<PaymentResponse> CheckPaymentStatusAsync(string orderId);
+        Task<PaymentLinkResponse> CreatePaymentLinkAsync(PaymentTypeEnums serviceType, string serviceId, decimal amount, string customerId, string returnUrl, string cancelUrl);
+        Task<bool> ProcessWebhookAsync(WebhookRequest request);
+        Task<string> RegisterWebhookUrl();
     }
 }

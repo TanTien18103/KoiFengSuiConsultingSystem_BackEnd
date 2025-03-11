@@ -12,6 +12,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json;
+using Net.payOS.Types;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -20,172 +21,41 @@ namespace KoiFengSuiConsultingSystem.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
-        private readonly ICustomerService _customerService;
-        private readonly IAccountService _accountService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IConfiguration _configuration;
-        private readonly IBookingService _bookingOnlineService;
 
-        public PaymentController(
-            IPaymentService paymentService,
-            ICustomerService customerService,
-            IAccountService accountService,
-            IHttpContextAccessor httpContextAccessor,
-            IConfiguration configuration,
-            IBookingService bookingOnlineService)
+        public PaymentController(IPaymentService paymentService)
         {
             _paymentService = paymentService;
-            _customerService = customerService;
-            _accountService = accountService;
-            _httpContextAccessor = httpContextAccessor;
-            _configuration = configuration;
-            _bookingOnlineService = bookingOnlineService;
         }
 
-        /// <summary>
-        /// Tạo link thanh toán cho dịch vụ
-        /// </summary>
-        [HttpPost("create-payment-link")]
-        [Authorize]
-        public async Task<IActionResult> CreatePaymentLink(
-            [FromQuery] PaymentTypeEnums serviceType,
-            [FromQuery] string serviceId,
-            [FromQuery] decimal amount,
-            [FromQuery] string returnUrl = null,
-            [FromQuery] string cancelUrl = null)
+        [Authorize(Roles = "Customer")]
+        [HttpPost("payos/customer/payment-url")]
+        public async Task<IActionResult> GetPayOSPaymentUrl([FromBody] PayOSRequest request)
         {
-            try
-            {
-                var customerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(customerId))
-                {
-                    return Unauthorized("Không tìm thấy thông tin người dùng.");
-                }
-
-                // Kiểm tra các trường bắt buộc
-                if (string.IsNullOrEmpty(serviceId) || amount <= 0)
-                {
-                    return BadRequest("ServiceId và Amount là bắt buộc và Amount phải lớn hơn 0.");
-                }
-
-                // Tạo URL cho trang thành công và hủy
-                var baseUrl = $"{Request.Scheme}://{Request.Host}";
-                string fullReturnUrl = string.IsNullOrEmpty(returnUrl) ?
-                    $"{baseUrl}/payment/success" :
-                    (returnUrl.StartsWith("http") ? returnUrl : $"{baseUrl}/{returnUrl.TrimStart('/')}");
-
-                string fullCancelUrl = string.IsNullOrEmpty(cancelUrl) ?
-                    $"{baseUrl}/payment/cancel" :
-                    (cancelUrl.StartsWith("http") ? cancelUrl : $"{baseUrl}/{cancelUrl.TrimStart('/')}");
-
-                var paymentLink = await _paymentService.CreatePaymentLinkAsync(
-                    serviceType,
-                    serviceId,
-                    amount,
-                    customerId,
-                    fullReturnUrl,
-                    fullCancelUrl);
-
-                return Ok(new
-                {
-                    success = true,
-                    data = paymentLink
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = $"Lỗi khi tạo link thanh toán: {ex.Message}"
-                });
-            }
+            var response = await _paymentService.CreatePaymentLinkAsync(request);
+            return Ok(response);
         }
 
-        /// <summary>
-        /// Webhook nhận thông báo kết quả thanh toán từ PayOS
-        /// </summary>
-        [HttpPost("webhook")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Webhook([FromBody] WebhookRequest request)
+        [HttpPost("payos/transfer-handler")]
+        public IActionResult PayOSPaymentExecute([FromBody] WebhookType request)
         {
-            try
-            {
-                var result = await _paymentService.ProcessWebhookAsync(request);
-
-                if (result)
-                {
-                    return Ok(new { success = true });
-                }
-                else
-                {
-                    return BadRequest(new { success = false, message = "Không thể xử lý webhook" });
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = $"Lỗi khi xử lý webhook: {ex.Message}"
-                });
-            }
+            _paymentService.GetWebhookTypeAsync(request);
+            return Ok();
         }
 
-        /// <summary>
-        /// Đăng ký URL webhook với PayOS
-        /// </summary>
-        [HttpPost("register-webhook")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> RegisterWebhook()
+        [HttpGet("payos/admin/payment-info/{orderCode}")]
+        public async Task<IActionResult> GetPayOSPaymentInfo([FromRoute] long orderCode)
         {
-            try
-            {
-                var webhookUrl = await _paymentService.RegisterWebhookUrl();
-
-                return Ok(new
-                {
-                    success = true,
-                    webhookUrl = webhookUrl
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = $"Lỗi khi đăng ký webhook: {ex.Message}"
-                });
-            }
+            var response = await _paymentService.GetPaymentLinkInformationAsync(orderCode);
+            return Ok(response);
         }
 
-        /// <summary>
-        /// Kiểm tra trạng thái thanh toán của một đơn hàng
-        /// </summary>
-        [HttpGet("check-payment-status/{orderCode}")]
-        [Authorize]
-        public async Task<IActionResult> CheckPaymentStatus(string orderCode)
+        [Authorize(Roles = "Customer")]
+        [HttpGet("payos/customer/confirmation/{orderId}/{orderCode}")]
+        public async Task<IActionResult> PayOSConfirmPayment([FromRoute] string orderId, long orderCode)
         {
-            try
-            {
-                // Giả sử bạn có phương thức kiểm tra trạng thái thanh toán trong service
-                // var status = await _paymentService.CheckPaymentStatusAsync(orderCode);
-
-                // Tạm thời trả về NotImplemented
-                return StatusCode(501, new
-                {
-                    success = false,
-                    message = "Chức năng này chưa được triển khai"
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = $"Lỗi khi kiểm tra trạng thái thanh toán: {ex.Message}"
-                });
-            }
+            await _paymentService.ConfirmPayment(orderId, orderCode);
+            return Ok();
         }
     }
-} 
+}

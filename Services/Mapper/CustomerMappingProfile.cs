@@ -14,7 +14,10 @@ namespace Services.Mapper
     {
         public CustomerMappingProfile() 
         {
-            CreateMap<Customer, ElementLifePalaceDto>();
+            CreateMap<Customer, ElementLifePalaceDto>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Account.FullName))
+                .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => src.Account.Dob))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Account.Gender));
         }
     }
 }

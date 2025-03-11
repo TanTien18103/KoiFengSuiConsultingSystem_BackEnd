@@ -48,7 +48,7 @@ namespace DAOs.DAOs
                 return null;
             }
         
-            return await _context.Customers
+            return await _context.Customers.Include(x => x.Account)
                 .Where(c => c.AccountId == accountId)
                 .FirstOrDefaultAsync();
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Claims;
@@ -6,13 +6,18 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using BusinessObjects.Enums;
-using BusinessObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Repositories.Interfaces;
 using Services.ApiModels.Payment;
 using Services.Interfaces;
 using System.Security.Cryptography;
+using BusinessObjects.Models;
+using Repositories.Repository;
+using Net.payOS;
+using Net.payOS.Types;
+using Newtonsoft.Json;
+using WebhookData = Net.payOS.Types.WebhookData;
 
 public class PaymentService : IPaymentService
 {
@@ -30,6 +35,8 @@ public class PaymentService : IPaymentService
     private readonly IBookingOfflineRepo _bookingOfflineRepo;
     private readonly IWorkShopRepo _workShopRepo;
     private readonly IOrderRepo _orderRepo;
+    private readonly IAccountRepo _accountRepo;
+    private const string PAYMENT_DESCRIPTION = "BitKoi dich vu";
 
     public PaymentService(
         IConfiguration configuration,
@@ -41,7 +48,8 @@ public class PaymentService : IPaymentService
         IBookingOnlineRepo bookingOnlineRepo,
         IBookingOfflineRepo bookingOfflineRepo,
         IWorkShopRepo workShopRepo,
-        IOrderRepo orderRepo)
+        IOrderRepo orderRepo,
+        IAccountRepo accountRepo)
     {
         _httpClient = httpClient;
         _configuration = configuration;
@@ -57,315 +65,165 @@ public class PaymentService : IPaymentService
         _bookingOfflineRepo = bookingOfflineRepo;
         _workShopRepo = workShopRepo;
         _orderRepo = orderRepo;
+        _accountRepo = accountRepo;
+    }
+    public static string GenerateShortGuid()
+    {
+        Guid guid = Guid.NewGuid();
+        string base64 = Convert.ToBase64String(guid.ToByteArray());
+        return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
+    }
+    public async Task<CreatePaymentResult> CreatePaymentLinkAsync(PayOSRequest request)
+    {
+        var order = await _orderRepo.GetOrderById(request.OrderId);
+
+        var payOS = new PayOS(_clientId, _apiKey, _checksumKey);
+        // Create an item with the order ID and customer name
+        ItemData item = new ItemData($"{PAYMENT_DESCRIPTION} {order.Id} cho khach hang {order.Customer.Account.FullName}",
+            1, (int) /*order.Total/100000*/ 2000);
+        List<ItemData> items = new List<ItemData>();
+        items.Add(item);
+
+        // ConvertDateTimeToUnixTimestamp
+        var expiredAt = ConvertDateTimeToUnixTimestamp(DateTime.Now.AddMinutes(15));
+        int orderCode = int.Parse(DateTime.Now.ToString("ffffff"));
+
+        // Create a PaymentData object
+        PaymentData paymentData = new PaymentData(orderCode, (int) /*order.Total/100000*/ 2000, $"{PAYMENT_DESCRIPTION} {order.Id}",
+            items, request.CancelUrl, request.ReturnUrl, expiredAt: expiredAt);
+
+        // Create a signature for the payment data
+        var signature = CreateSignature(payOS, paymentData);
+        paymentData = paymentData with { signature = signature };
+
+        CreatePaymentResult createPayment = await payOS.createPaymentLink(paymentData);
+
+        // update order
+        order.Note = orderCode.ToString();
+        order.Status = PaymentStatusEnums.Pending.ToString();
+        await _orderRepo.UpdateOrder(order);
+        return createPayment;
     }
 
-    public async Task<PaymentLinkResponse> CreatePaymentLinkAsync(PaymentTypeEnums serviceType, string serviceId, decimal amount, string customerId, string returnUrl, string cancelUrl)
+    private string CreateSignature(PayOS payOs, PaymentData paymentData)
     {
-        try
+        // Prepare data by extracting properties from the PaymentData object, sorted by property name
+        var properties = paymentData.GetType().GetProperties()
+            .OrderBy(p => p.Name)
+            // Ensure value is not null
+            .Where(p => p.GetValue(paymentData) != null);
+
+        StringBuilder sb = new StringBuilder();
+
+        // Build the query string (key1=value1&key2=value2...)
+        foreach (var property in properties)
         {
-            // Tạo mã đơn hàng
-            string prefix = GetServicePrefix(serviceType);
-            string orderCode = $"{prefix}{serviceId}_{DateTime.Now.Ticks}";
-
-            // Tạo Order mới
-            var order = new Order
+            var value = property.GetValue(paymentData)?.ToString();
+            // Skip if the value is an empty string
+            if (!string.IsNullOrEmpty(value))
             {
-                CustomerId = customerId,
-                ServiceId = serviceId,
-                ServiceType = serviceType,
-                Amount = amount,
-                OrderCode = orderCode,
-                Status = PaymentStatusEnums.Pending,
-                CreatedDate = DateTime.Now,
-                Description = $"Thanh toán cho {serviceType} - {serviceId}",
-                ReturnUrl = returnUrl,
-                CancelUrl = cancelUrl
-            };
-
-            await _orderRepo.CreateOrderAsync(order);
-
-            // Tạo các thông tin cho PayOS
-            var baseUrl = GetBaseUrl();
-            var paymentData = new
-            {
-                orderCode = orderCode,
-                amount = (int)(amount * 100), // Chuyển đổi sang đơn vị nhỏ nhất (ví dụ: đồng thay vì nghìn đồng)
-                description = order.Description,
-                returnUrl = returnUrl,
-                cancelUrl = cancelUrl,
-                // Các thông tin khác theo yêu cầu của PayOS
-            };
-
-            // Gọi API của PayOS để tạo payment link
-            var content = new StringContent(
-                JsonSerializer.Serialize(paymentData),
-                Encoding.UTF8,
-                "application/json");
-
-            _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.Add("x-client-id", _clientId);
-            _httpClient.DefaultRequestHeaders.Add("x-api-key", _apiKey);
-
-            var response = await _httpClient.PostAsync($"{_payosApiUrl}/v2/payment-requests", content);
-            var responseContent = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception($"Lỗi tạo payment link: {responseContent}");
-            }
-
-            var paymentLinkResponse = JsonSerializer.Deserialize<PaymentLinkResponse>(responseContent);
-
-            // Cập nhật PaymentUrl vào Order
-            order.PaymentUrl = paymentLinkResponse.CheckoutUrl;
-            await _orderRepo.UpdateOrderAsync(order);
-
-            return paymentLinkResponse;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception($"Không thể tạo link thanh toán: {ex.Message}", ex);
-        }
-    }
-
-    private string GetServicePrefix(PaymentTypeEnums serviceType)
-    {
-        switch (serviceType)
-        {
-            case PaymentTypeEnums.BookingOnline:
-                return "BON";
-            case PaymentTypeEnums.BookingOffline:
-                return "BOF";
-            case PaymentTypeEnums.Course:
-                return "CRS";
-            case PaymentTypeEnums.Workshop:
-                return "WS";
-            default:
-                throw new ArgumentException($"Invalid service type: {serviceType}");
-        }
-    }
-
-    public async Task<bool> ProcessWebhookAsync(WebhookRequest request)
-    {
-        try
-        {
-            // Kiểm tra tính hợp lệ của webhook
-            if (request == null || request.Data == null)
-            {
-                Console.WriteLine("Webhook request data is null");
-                return false;
-            }
-
-            // Xác minh chữ ký webhook
-            bool isValid = VerifyWebhookSignature(request);
-            if (!isValid)
-            {
-                Console.WriteLine("Invalid webhook signature");
-                return false;
-            }
-
-            // Lấy mã đơn hàng
-            var orderCode = request.Data.OrderCode;
-            Console.WriteLine($"Processing webhook for order code: {orderCode}");
-
-            // Kiểm tra trạng thái thanh toán
-            if (request.Code == "00") // Mã thành công từ PayOS
-            {
-                // Tìm order tương ứng với orderCode
-                var order = await _orderRepo.GetOrderByOrderCodeAsync(orderCode);
-                if (order == null)
-                {
-                    Console.WriteLine($"Order not found for code: {orderCode}");
-                    return false;
-                }
-
-                // Cập nhật thông tin thanh toán
-                order.Status = PaymentStatusEnums.Paid;
-                order.PaymentDate = DateTime.Now;
-                order.PaymentReference = orderCode;
-
-                await _orderRepo.UpdateOrderAsync(order);
-
-                // Cập nhật trạng thái trong bảng dịch vụ tương ứng
-                await UpdateServicePaymentStatusAsync(order);
-
-                return true;
-            }
-            else
-            {
-                Console.WriteLine($"Payment failed with code: {request.Code} for order: {orderCode}");
-                return false;
+                sb.Append($"{property.Name}={value}&");
             }
         }
-        catch (Exception ex)
+
+        // Remove the last '&' if it exists
+        if (sb.Length > 0)
         {
-            Console.WriteLine($"Error processing webhook: {ex.Message}");
-            return false;
+            // Efficient way to remove the trailing '&'
+            sb.Length--;
+        }
+
+        // Encrypt the resulting string using HMAC-SHA256
+        using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_checksumKey)))
+        {
+            byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(sb.ToString()));
+            // Convert hash to lowercase hexadecimal
+            return BitConverter.ToString(hash).Replace("-", "").ToLower();
         }
     }
 
-    // Phương thức xác minh chữ ký webhook
-    private bool VerifyWebhookSignature(WebhookRequest request)
+    private int ConvertDateTimeToUnixTimestamp(DateTimeOffset dateTime)
     {
-        try
+        return (int)dateTime.ToUnixTimeSeconds();
+    }
+
+    public async Task GetWebhookTypeAsync(WebhookType request)
+    {
+        var orderCode = request.data.orderCode;
+        var payOs = new PayOS(_clientId, _apiKey, _checksumKey);
+        WebhookData data = payOs.verifyPaymentWebhookData(request);
+        if (data == null)
         {
-            // Lấy chữ ký từ request
-            string signature = request.Signature;
-
-            // Tạo chữ ký từ dữ liệu
-            string dataJson = JsonSerializer.Serialize(request.Data);
-            string rawSignature = $"{_checksumKey}{dataJson}";
-
-            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_checksumKey)))
-            {
-                byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(rawSignature));
-                string computedSignature = BitConverter.ToString(hash).Replace("-", "").ToLower();
-
-                // So sánh chữ ký
-                return signature.Equals(computedSignature, StringComparison.OrdinalIgnoreCase);
-            }
+            throw new Exception("Webhook data not found");
         }
-        catch (Exception ex)
+
+        var orderId = request.data.description.Split(" ").Last();
+
+        // valid data & change status of order
+        var order = await _orderRepo.GetOrderById(orderId);
+        if (order == null)
         {
-            Console.WriteLine($"Error verifying webhook signature: {ex.Message}");
-            return false;
+            throw new Exception($"Order {orderId} not found");
+        }
+
+        // if status == "00" change status of order to success
+        if (request.code == "00")
+        {
+            await UpdateOrderPayment(order, data.orderCode);
+        }
+        else
+        {
+            throw new Exception($"Request failed for order {orderId}");
         }
     }
 
-    // Phương thức cập nhật trạng thái thanh toán trong bảng dịch vụ
-    private async Task<bool> UpdateServicePaymentStatusAsync(Order order)
+    public async Task<PaymentLinkInformation> GetPaymentLinkInformationAsync(long orderCode)
     {
-        try
+        var client = new HttpClient();
+        client.DefaultRequestHeaders.Add("x-client-id", _clientId);
+        client.DefaultRequestHeaders.Add("x-api-key", _apiKey);
+        var response = await client.GetAsync($"https://api-merchant.payos.vn/v2/payment-requests/{orderCode}");
+        if (response.IsSuccessStatusCode)
         {
-            switch (order.ServiceType)
-            {
-                case PaymentTypeEnums.BookingOnline:
-                    var bookingOnline = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(order.ServiceId);
-                    if (bookingOnline != null)
-                    {
-                        bookingOnline.Status = PaymentStatusEnums.Paid.ToString();
-                        bookingOnline.PaymentReference = order.PaymentReference;
-                        bookingOnline.PaymentDate = order.PaymentDate;
-                        await _bookingOnlineRepo.UpdateBookingOnlineRepo(bookingOnline);
-                        return true;
-                    }
-                    break;
-
-                case PaymentTypeEnums.BookingOffline:
-                    var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(order.ServiceId);
-                    if (bookingOffline != null)
-                    {
-                        bookingOffline.Status = PaymentStatusEnums.Paid.ToString();
-                        bookingOffline.PaymentReference = order.PaymentReference;
-                        bookingOffline.PaymentDate = order.PaymentDate;
-                        await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
-                        return true;
-                    }
-                    break;
-
-                case PaymentTypeEnums.Course:
-                    // Cập nhật trạng thái đăng ký khóa học
-                    var courseRegistration = new CourseRegistration
-                    {
-                        CourseId = order.ServiceId,
-                        CustomerId = order.CustomerId,
-                        RegistrationDate = DateTime.Now,
-                        PaymentStatus = "Paid",
-                        PaymentReference = order.PaymentReference
-                    };
-                    // Lưu vào cơ sở dữ liệu
-                    // await _courseRegistrationRepo.Add(courseRegistration);
-                    return true;
-
-                case PaymentTypeEnums.Workshop:
-                    // Tương tự như với Course
-                    var workshopRegistration = new WorkshopRegistration
-                    {
-                        WorkshopId = order.ServiceId,
-                        CustomerId = order.CustomerId,
-                        RegistrationDate = DateTime.Now,
-                        PaymentStatus = "Paid",
-                        PaymentReference = order.PaymentReference
-                    };
-                    // await _workshopRegistrationRepo.Add(workshopRegistration);
-                    return true;
-
-                default:
-                    Console.WriteLine($"Unknown service type: {order.ServiceType}");
-                    return false;
-            }
-
-            Console.WriteLine($"Service not found - Type: {order.ServiceType}, ID: {order.ServiceId}");
-            return false;
+            string content = await response.Content.ReadAsStringAsync();
+            var payOsResponse = JsonConvert.DeserializeObject<PayOSResponse>(content);
+            return payOsResponse.Data;
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error updating service payment status: {ex.Message}");
-            return false;
-        }
+        throw new Exception("Không tìm thấy dịch vụ cần thanh toán");
     }
 
-    public async Task<string> RegisterWebhookUrl()
+    public async Task ConfirmPayment(string orderId, long orderCode)
     {
-        try
+        var order = await _orderRepo.GetOrderById(orderId);
+        if (order.Status == PaymentStatusEnums.Paid.ToString())
         {
-            var baseUrl = GetBaseUrl();
-            var webhookUrl = $"{baseUrl}/api/payment/webhook";
-
-            var data = new
-            {
-                webhookUrl = webhookUrl
-            };
-
-            var content = new StringContent(
-                JsonSerializer.Serialize(data),
-                Encoding.UTF8,
-                "application/json");
-
-            _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.Add("x-client-id", _clientId);
-            _httpClient.DefaultRequestHeaders.Add("x-api-key", _apiKey);
-
-            var response = await _httpClient.PostAsync($"{_payosApiUrl}/v2/webhooks", content);
-            var responseContent = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception($"Lỗi đăng ký webhook: {responseContent}");
-            }
-
-            return webhookUrl;
+            throw new Exception("Đã thanh toán");
         }
-        catch (Exception ex)
+
+        var payment = await GetPaymentLinkInformationAsync(orderCode);
+        if (payment == null)
         {
-            throw new Exception($"Không thể đăng ký webhook: {ex.Message}", ex);
+            throw new Exception("Không tìm thấy dịch vụ cần thanh toán");
         }
+
+        if (payment.status != "PAID")
+        {
+            throw new Exception("Chưa thanh toán");
+        }
+        await UpdateOrderPayment(order, orderCode);
     }
 
-    // Helper method to get base URL
-    private string GetBaseUrl()
+    private async Task UpdateOrderPayment(Order order, long orderCode)
     {
-        var request = _httpContextAccessor.HttpContext.Request;
-        return $"{request.Scheme}://{request.Host}";
+        order.Status = PaymentStatusEnums.Paid.ToString();
+        order.PaymentDate = DateTime.Now;
+        order.PaymentId = orderCode.ToString();
+        await _orderRepo.UpdateOrder(order);
     }
 
-    // Phương thức lấy thông tin khách hàng hiện tại
-    private async Task<object> GetCurrentCustomerInfo()
+    public async Task<string> ConfirmWebhook(string webhookUrl)
     {
-        // Implement method to get current customer info
-        // ...
-        return null;
-    }
-
-    // Phương thức lấy ID của khách hàng hiện tại
-    private async Task<string> GetCurrentCustomerId()
-    {
-        var customerInfo = await GetCurrentCustomerInfo();
-        if (customerInfo != null && customerInfo is Dictionary<string, object> customerDict)
-        {
-            if (customerDict.TryGetValue("id", out var idObj))
-                return idObj?.ToString();
-        }
-        return null;
+        var payOs = new PayOS(_clientId, _apiKey, _checksumKey);
+        return await payOs.confirmWebhook(webhookUrl);
     }
 }

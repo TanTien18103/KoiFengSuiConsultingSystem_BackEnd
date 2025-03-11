@@ -46,6 +46,12 @@ namespace DAOs.DAOs
             return masterSchedule;
         }
 
+        public async Task<MasterSchedule> GetMasterScheduleDao(string masterId, DateOnly date, TimeOnly startTime)
+        {
+            return await _context.MasterSchedules
+                .FirstOrDefaultAsync(ms => ms.MasterId == masterId && ms.Date == date && ms.StartTime == startTime);
+        }
+
         public async Task<MasterSchedule> UpdateMasterScheduleDao(MasterSchedule masterSchedule)
         {
             _context.MasterSchedules.Update(masterSchedule);

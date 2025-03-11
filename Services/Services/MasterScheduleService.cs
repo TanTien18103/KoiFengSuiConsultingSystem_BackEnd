@@ -28,6 +28,17 @@ namespace Services.Services
             _mapper = mapper;
         }
 
+        public async Task<MasterSchedule> CreateMasterSchedule(MasterSchedule schedule)
+        {
+            var existingSchedule = await _masterScheduleRepo.GetMasterSchedule(schedule.MasterId, schedule.Date.Value, schedule.StartTime.Value);
+            if (existingSchedule != null)
+            {
+                throw new Exception("Lịch này đã tồn tại!");
+            }
+
+            return await _masterScheduleRepo.CreateMasterSchedule(schedule);
+        }
+
         public async Task<ResultModel> GetAllMasterSchedules()
         {
             var res = new ResultModel();

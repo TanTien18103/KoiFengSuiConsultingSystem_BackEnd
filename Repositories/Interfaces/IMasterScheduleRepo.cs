@@ -16,5 +16,6 @@ namespace Repositories.Interfaces
         Task<List<MasterSchedule>> GetAllSchedules();
         Task<List<MasterSchedule>> GetSchedulesByMasterId(string masterId);
         Task<List<MasterSchedule>> GetSchedulesByMasterAndDate(string masterId, DateOnly date);
+        Task<MasterSchedule> GetMasterSchedule(string masterId, DateOnly date, TimeOnly startTime);
     }
 }

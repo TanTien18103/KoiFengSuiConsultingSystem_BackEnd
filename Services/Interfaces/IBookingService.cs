@@ -1,5 +1,6 @@
 using Services.ApiModels;
 ﻿using BusinessObjects.Enums;
+using Services.ApiModels.BookingOnline;
 
 namespace Services.Interfaces
 {
@@ -9,5 +10,6 @@ namespace Services.Interfaces
         Task<ResultModel> GetBookingByStatusAsync(BookingOnlineEnums? status, BookingTypeEnums? type);
         Task<ResultModel> GetBookingOnlinesHoverAsync();
         Task<ResultModel> AssignMasterToBookingAsync(string bookingId, string masterId);
+        Task<ResultModel> CreateBookingOnline(BookingOnlineRequest bookingOnlineRequest);
     }
 }

@@ -25,6 +25,7 @@ builder.Services.AddScoped<IBookingOfflineRepo, BookingOfflineRepo>();
 builder.Services.AddScoped<ICourseRepo, CourseRepo>();
 builder.Services.AddScoped<IWorkShopRepo, WorkShopRepo>();
 builder.Services.AddScoped<ITransactionRepo, TransactionRepo>();
+builder.Services.AddScoped<IOrderRepo, OrderRepo>();
 
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -44,6 +45,7 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));
 builder.Services.AddAutoMapper(typeof(KoiPondMappingProfile));
 builder.Services.AddAutoMapper(typeof(MasterMappingProfile));
+builder.Services.AddAutoMapper(typeof(BookingMappingProfile));
 builder.Services.AddAutoMapper(typeof(MasterScheduleMappingProfile));
 builder.Services.AddAutoMapper(typeof(BookingMappingProfile));
 
@@ -118,6 +120,11 @@ builder.Services.AddAuthentication(options =>
     googleOptions.ClientId = builder.Configuration["Google:ClientId"];
     googleOptions.ClientSecret = builder.Configuration["Google:ClientSecret"];
     googleOptions.CallbackPath = "/signin-google";
+});
+
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(5261);
 });
 
 // CORS Policy

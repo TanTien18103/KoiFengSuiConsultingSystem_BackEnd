@@ -33,7 +33,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [HttpGet("get-booking-online")]
+        [HttpGet("get-booking")]
         //[Authorize(Roles = "Staff")]
         public async Task<IActionResult> GetBookingOnline([FromQuery] BookingOnlineEnums? status = null, [FromQuery] BookingTypeEnums? type = null)
         {

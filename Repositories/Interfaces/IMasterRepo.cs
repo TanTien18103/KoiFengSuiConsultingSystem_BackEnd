@@ -11,6 +11,7 @@ namespace Repositories.Interfaces
     {
         Task<T> Create<T>(T entity) where T : class;
         Task<List<Master>> GetAllMasters();
+        Task<Master> GetMasterByAccountId(string accountId);
         Task<Master> GetByMasterId(string masterId);
         Task<T> Update<T>(T entity) where T : class;
     }

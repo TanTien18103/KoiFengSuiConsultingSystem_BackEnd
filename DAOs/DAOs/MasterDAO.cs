@@ -34,6 +34,15 @@ namespace DAOs.DAOs
             return await _context.Masters.FindAsync(masterId);
         }
 
+        public async Task<Master> GetMasterByAccountIdDao(string accountId)
+        {
+            return await _context.Masters
+                .Include(x => x.MasterSchedules)
+                .Include(x => x.Account)
+                .Where(x => x.AccountId == accountId)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<List<Master>> GetAllMastersDAO() 
         {
             return await _context.Masters.ToListAsync();

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
@@ -21,10 +22,11 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res); 
         }
 
-        [HttpGet("{masterId}")]
-        public async Task<IActionResult> GetMasterSchedulesByMasterId(string masterId)
+        [Authorize(Roles = "Master")]
+        [HttpGet("get-schedule-by-current-master")]
+        public async Task<IActionResult> GetMasterSchedulesByMasterId()
         {
-            var res = await _masterScheduleService.GetMasterSchedulesByMasterId(masterId);
+            var res = await _masterScheduleService.GetMasterSchedulesByCurrentMasterLogin();
             return StatusCode(res.StatusCode, res);
         }
         [HttpGet("{masterId}/{date}")]

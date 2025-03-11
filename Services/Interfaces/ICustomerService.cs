@@ -11,7 +11,7 @@ namespace Services.Interfaces
     public interface ICustomerService
     {
         Task<Customer> GetCustomerById(string customerId);
-        Task<ResultModel> GetElementLifePalaceById();
+        Task<ResultModel> GetCurrentCustomerElement();
         Task<List<Customer>> GetCustomers();
         Task<Customer> CreateCustomer(Customer customer);
         Task<Customer> UpdateCustomer(Customer customer);

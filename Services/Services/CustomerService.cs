@@ -227,7 +227,6 @@ public class CustomerService : ICustomerService
         return res;
     }
 
-
     private double CalculateFishCountBonus(int fishCount, string userElement)
     {
         int modFishCount = fishCount % 10;

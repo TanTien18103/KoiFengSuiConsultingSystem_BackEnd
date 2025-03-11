@@ -100,7 +100,7 @@ public class CustomerService : ICustomerService
         return await _customerRepo.GetCustomers();
     }
 
-    public async Task<ResultModel> GetElementLifePalaceById()
+    public async Task<ResultModel> GetCurrentCustomerElement()
     {
         var res = new ResultModel();
         try
@@ -159,7 +159,7 @@ public class CustomerService : ICustomerService
         var res = new ResultModel();
         double compatibilityScore = 0;
 
-        var result = await GetElementLifePalaceById();
+        var result = await GetCurrentCustomerElement();
         if (!result.IsSuccess || result.Data == null)
         {
             res.IsSuccess = false;
@@ -226,7 +226,6 @@ public class CustomerService : ICustomerService
             };
         return res;
     }
-
 
     private double CalculateFishCountBonus(int fishCount, string userElement)
     {

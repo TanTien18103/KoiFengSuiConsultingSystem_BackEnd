@@ -22,7 +22,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         [HttpGet("current-customer-element-palace")]
         public async Task<IActionResult> GetCurrentCustomerElementPalace()
         {
-            var result = await _customerService.GetElementLifePalaceById();
+            var result = await _customerService.GetCurrentCustomerElement();
             
             if (result == null)
                 return Unauthorized(new { message = "Customer is not logged in or does not exist." });

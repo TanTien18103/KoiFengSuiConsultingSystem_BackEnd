@@ -37,4 +37,8 @@
     <Folder Include="ApiModels\Question\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="payOS" Version="1.0.6" />
+  </ItemGroup>
+
 </Project>

@@ -136,7 +136,6 @@ namespace Services.Services
             }
         }
 
-
         public async Task<ResultModel> GetBookingByIdAsync(string bookingId)
         {
             var res = new ResultModel();

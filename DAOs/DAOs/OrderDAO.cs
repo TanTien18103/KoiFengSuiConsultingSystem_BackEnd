@@ -1,0 +1,85 @@
+﻿using BusinessObjects.Enums;
+using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DAOs.DAOs
+{
+    public class OrderDAO
+    {
+        public static OrderDAO instance = null;
+        private readonly KoiFishPondContext _context;
+
+        public OrderDAO()
+        {
+            _context = new KoiFishPondContext();
+        }
+        public static OrderDAO Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new OrderDAO();
+                }
+                return instance;
+            }
+        }
+        public async Task<Order> CreateOrderDao(Order order)
+        {
+            await _context.Orders.AddAsync(order);
+            await _context.SaveChangesAsync();
+            return order;
+        }
+
+        public async Task<Order> GetOrderByIdDao(string id)
+        {
+            return await _context.Orders
+                .Include(o => o.Customer)
+                .FirstOrDefaultAsync(o => o.Id == id);
+        }
+
+        public async Task<Order> GetOrderByOrderCodeDao(string orderCode)
+        {
+            return await _context.Orders
+                .Include(o => o.Customer)
+                .FirstOrDefaultAsync(o => o.OrderCode == orderCode);
+        }
+
+        public async Task<List<Order>> GetOrdersByCustomerIdDao(string customerId)
+        {
+            return await _context.Orders
+                .Where(o => o.CustomerId == customerId)
+                .OrderByDescending(o => o.CreatedDate)
+                .ToListAsync();
+        }
+
+        public async Task<List<Order>> GetOrdersByServiceDao(string serviceId, PaymentTypeEnums serviceType)
+        {
+            return await _context.Orders
+                .Where(o => o.ServiceId == serviceId && o.ServiceType == serviceType.ToString())
+                .OrderByDescending(o => o.CreatedDate)
+                .ToListAsync();
+        }
+
+        public async Task<bool> UpdateOrderDao(Order order)
+        {
+            _context.Orders.Update(order);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> DeleteOrderDao(string id)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+                return false;
+
+            _context.Orders.Remove(order);
+            return await _context.SaveChangesAsync() > 0;
+        }
+    }
+}

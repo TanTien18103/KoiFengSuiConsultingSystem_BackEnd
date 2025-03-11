@@ -30,5 +30,10 @@ namespace Repositories.Repository
         {
             return MasterDAO.Instance.UpdateDao(entity);
         }
+
+        public Task<Master> GetMasterByAccountId(string accountId)
+        {
+            return MasterDAO.Instance.GetMasterByAccountIdDao(accountId);
+        }
     }
 }

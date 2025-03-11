@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using BusinessObjects;
+using BusinessObjects.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
@@ -10,6 +11,8 @@ using Services.Services;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using System.Text.Json;
+using Net.payOS.Types;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -18,87 +21,41 @@ namespace KoiFengSuiConsultingSystem.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
-        private readonly ICustomerService _customerService;
-        private readonly IAccountService _accountService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IConfiguration _configuration;
-        private readonly IBookingService _bookingOnlineService;
 
-        public PaymentController(
-            IPaymentService paymentService,
-            ICustomerService customerService,
-            IAccountService accountService,
-            IHttpContextAccessor httpContextAccessor,
-            IConfiguration configuration,
-            IBookingService bookingOnlineService)
+        public PaymentController(IPaymentService paymentService)
         {
             _paymentService = paymentService;
-            _customerService = customerService;
-            _accountService = accountService;
-            _httpContextAccessor = httpContextAccessor;
-            _configuration = configuration;
-            _bookingOnlineService = bookingOnlineService;
         }
 
-        [HttpPost("create")]
-        [Authorize]
-        public async Task<ActionResult<PaymentResponse>> CreatePayment([FromBody] PaymentRequest request)
+        [Authorize(Roles = "Customer")]
+        [HttpPost("payos/customer/payment-url")]
+        public async Task<IActionResult> GetPayOSPaymentUrl([FromBody] PayOSRequest request)
         {
-            try
-            {
-                // Gọi phương thức duy nhất để xử lý thanh toán
-                var response = await _paymentService.ProcessPayment(request);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var response = await _paymentService.CreatePaymentLinkAsync(request);
+            return Ok(response);
         }
 
-        [HttpGet("status/{orderId}")]
-        [Authorize]
-        public async Task<ActionResult<PaymentResponse>> CheckPaymentStatus(string orderId)
+        [HttpPost("payos/transfer-handler")]
+        public IActionResult PayOSPaymentExecute([FromBody] WebhookType request)
         {
-            try
-            {
-                var response = await _paymentService.CheckPaymentStatusAsync(orderId);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            _paymentService.GetWebhookTypeAsync(request);
+            return Ok();
         }
 
-        [HttpGet("success")]
-        public async Task<IActionResult> PaymentSuccess([FromQuery] string orderId)
+        [Authorize(Roles = "Admin")]
+        [HttpGet("payos/admin/payment-info/{orderCode}")]
+        public async Task<IActionResult> GetPayOSPaymentInfo([FromRoute] long orderCode)
         {
-            try
-            {
-                var paymentStatus = await _paymentService.CheckPaymentStatusAsync(orderId);
-                
-                if (paymentStatus.Status == "SUCCESS")
-                {
-                    // Xử lý cập nhật trạng thái đơn hàng tại đây
-                    // Có thể thêm logic để cập nhật trạng thái của Booking/Course/Workshop
-                    
-                    return Redirect("/payment-success"); // Redirect to success page
-                }
-                
-                return Redirect("/payment-failed");
-            }
-            catch (Exception)
-            {
-                return Redirect("/payment-failed");
-            }
+            var response = await _paymentService.GetPaymentLinkInformationAsync(orderCode);
+            return Ok(response);
         }
 
-        [HttpGet("cancel")]
-        public IActionResult PaymentCancel([FromQuery] string orderId)
+        [Authorize(Roles = "Customer")]
+        [HttpGet("payos/customer/confirmation/{orderId}/{orderCode}")]
+        public async Task<IActionResult> PayOSConfirmPayment([FromRoute] string orderId, long orderCode)
         {
-            // Xử lý khi người dùng hủy thanh toán
-            return Redirect("/payment-cancelled");
+            await _paymentService.ConfirmPayment(orderId, orderCode);
+            return Ok();
         }
     }
-} 
+}

@@ -11,7 +11,7 @@ public partial class BookingOnline
 
     public string? Status { get; set; }
 
-    public string MasterId { get; set; } = null!;
+    public string? MasterId { get; set; }
 
     public string CustomerId { get; set; } = null!;
 
@@ -31,7 +31,7 @@ public partial class BookingOnline
 
     public virtual Customer Customer { get; set; } = null!;
 
-    public virtual Master Master { get; set; } = null!;
+    public virtual Master? Master { get; set; }
 
     public virtual MasterSchedule? MasterSchedule { get; set; }
 }

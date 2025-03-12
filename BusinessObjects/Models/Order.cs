@@ -5,7 +5,7 @@ namespace BusinessObjects.Models;
 
 public partial class Order
 {
-    public string Id { get; set; } = null!;
+    public string OrderId { get; set; } = null!;
 
     public string? CustomerId { get; set; }
 

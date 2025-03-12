@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,15 @@ namespace DAOs.DAOs
 
         public async Task<List<WorkShop>> GetWorkShopsDao()
         {
-            return _context.WorkShops.ToList();
+            return await _context.WorkShops.Include(x => x.Master).ToListAsync();
+        }
+
+        public async Task<List<WorkShop>> SortingWorkshopByCreatedDateDao()
+        {
+            return await _context.WorkShops
+                .Include(x => x.Master)
+                .OrderByDescending(x => x.CreatedDate)
+                .ToListAsync();
         }
 
         public async Task<WorkShop> CreateWorkShopDao(WorkShop workShop)

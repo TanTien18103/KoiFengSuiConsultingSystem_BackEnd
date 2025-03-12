@@ -79,7 +79,7 @@ public class PaymentService : IPaymentService
 
         var payOS = new PayOS(_clientId, _apiKey, _checksumKey);
         // Create an item with the order ID and customer name
-        ItemData item = new ItemData($"{PAYMENT_DESCRIPTION} {order.Id} cho khach hang {order.Customer.Account.FullName}",
+        ItemData item = new ItemData($"{PAYMENT_DESCRIPTION} {order.OrderId} cho khach hang {order.Customer.Account.FullName}",
             1, (int) /*order.Total/100000*/ 2000);
         List<ItemData> items = new List<ItemData>();
         items.Add(item);
@@ -89,7 +89,7 @@ public class PaymentService : IPaymentService
         int orderCode = int.Parse(DateTime.Now.ToString("ffffff"));
 
         // Create a PaymentData object
-        PaymentData paymentData = new PaymentData(orderCode, (int) /*order.Total/100000*/ 2000, $"{PAYMENT_DESCRIPTION} {order.Id}",
+        PaymentData paymentData = new PaymentData(orderCode, (int) /*order.Total/100000*/ 2000, $"{PAYMENT_DESCRIPTION} {order.OrderId}",
             items, request.CancelUrl, request.ReturnUrl, expiredAt: expiredAt);
 
         // Create a signature for the payment data

@@ -13,8 +13,6 @@ public partial class WorkShop
 
     public string? Location { get; set; }
 
-    public decimal? EntryFee { get; set; }
-
     public string? Description { get; set; }
 
     public string? MasterId { get; set; }
@@ -24,6 +22,10 @@ public partial class WorkShop
     public string? Status { get; set; }
 
     public decimal? Price { get; set; }
+
+    public bool? Trending { get; set; }
+
+    public DateTime? CreatedDate { get; set; }
 
     public virtual Master? Master { get; set; }
 

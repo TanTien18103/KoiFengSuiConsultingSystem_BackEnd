@@ -11,6 +11,7 @@ namespace Repositories.Interfaces
     {
         Task<WorkShop> GetWorkShopById(string workShopId);
         Task<List<WorkShop>> GetWorkShops();
+        Task<List<WorkShop>> SortingWorkshopByCreatedDate();
         Task<WorkShop> CreateWorkShop(WorkShop workShop);
         Task<WorkShop> UpdateWorkShop(WorkShop workShop);
         Task DeleteWorkShop(string workShopId);

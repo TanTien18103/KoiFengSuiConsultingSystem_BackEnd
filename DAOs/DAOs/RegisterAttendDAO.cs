@@ -62,5 +62,29 @@ namespace DAOs.DAOs
             _context.RegisterAttends.Remove(registerAttend);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<RegisterAttend>> GetRegisterAttendsByCustomerIdDao(string customerId)
+        {
+            return await _context.RegisterAttends
+                .Include(x => x.Workshop)
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Where(x => x.CustomerId == customerId)
+                .ToListAsync();
+        }
+
+        public async Task<string> GetCustomerIdByAccountIdDao(string accountId)
+        {
+            var customer = await _context.Customers.FirstOrDefaultAsync(x => x.AccountId == accountId);
+            return customer.CustomerId;
+        }
+
+        public async Task<List<RegisterAttend>> GetRegisterAttendsByWorkshopIdDao(string workshopId)
+        {
+            return await _context.RegisterAttends
+                .Include(x => x.Workshop)
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Where(x => x.WorkshopId == workshopId)
+                .ToListAsync();
+        }
     }
 }

@@ -35,5 +35,20 @@ namespace Repositories.Repository
         {
             return RegisterAttendDAO.Instance.GetRegisterAttendsDao();
         }
+
+        public Task<List<RegisterAttend>> GetRegisterAttendByCustomerId(string customerId)
+        {
+            return RegisterAttendDAO.Instance.GetRegisterAttendsByCustomerIdDao(customerId);
+        }
+
+        public Task<string> GetCustomerIdByAccountId(string accountId)
+        {
+            return RegisterAttendDAO.Instance.GetCustomerIdByAccountIdDao(accountId);
+        }
+
+        public Task<List<RegisterAttend>> GetRegisterAttendsByWorkShopId(string workShopId)
+        {
+            return RegisterAttendDAO.Instance.GetRegisterAttendsByWorkshopIdDao(workShopId);
+        }
     }
 }

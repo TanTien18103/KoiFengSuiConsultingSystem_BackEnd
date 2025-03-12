@@ -40,5 +40,10 @@ namespace Repositories.Repository
         {
             return WorkShopDAO.Instance.SortingWorkshopByCreatedDateDao();
         }
+
+        public Task<string> GetMasterIdByAccountId(string accountId)
+        {
+            return WorkShopDAO.Instance.GetMasterIdByAccountIdDao(accountId);
+        }
     }
 }

@@ -11,5 +11,11 @@ namespace Services.Interfaces
     public interface IRegisterAttendService
     {
         Task<ResultModel> GetRegisterAttends(RegisterAttendStatusEnums? status = null);
+
+        Task<ResultModel> GetRegisterAttendById(string registerAttendId);
+        Task<ResultModel> GetRegisterAttends();
+        Task<ResultModel> GetRegisterAttendByCustomerId();
+        Task<ResultModel> GetRegisterAttendByWorkshopId(string id);
+
     }
 }

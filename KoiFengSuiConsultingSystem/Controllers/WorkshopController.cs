@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Services.ApiModels.Workshop;
 using Services.Interfaces;
 
 namespace KoiFengSuiConsultingSystem.Controllers
@@ -41,6 +42,41 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             var res = await _workshopService.RejectedWorkshop(id);
             return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetWorkshops()
+        {
+            var result = await _workshopService.GetWorkshop();
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetWorkshopById(string id)
+        {
+            var result = await _workshopService.GetWorkshopById(id);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateWorkshop([FromBody] WorkshopRequest request)
+        {
+            var result = await _workshopService.CreateWorkshop(request);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateWorkshop(string id, [FromBody] WorkshopRequest request)
+        {
+            var result = await _workshopService.UpdateWorkshop(id, request);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteWorkshop(string id)
+        {
+            var result = await _workshopService.DeleteWorkshop(id);
+            return StatusCode(result.StatusCode, result);
         }
 
     }

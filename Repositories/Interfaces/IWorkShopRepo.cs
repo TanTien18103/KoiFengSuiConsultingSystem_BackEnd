@@ -15,5 +15,6 @@ namespace Repositories.Interfaces
         Task<WorkShop> CreateWorkShop(WorkShop workShop);
         Task<WorkShop> UpdateWorkShop(WorkShop workShop);
         Task DeleteWorkShop(string workShopId);
+        Task<string> GetMasterIdByAccountId(string accountId);
     }
 }

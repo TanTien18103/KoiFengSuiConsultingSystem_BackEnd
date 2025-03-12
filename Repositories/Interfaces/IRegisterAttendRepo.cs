@@ -14,5 +14,8 @@ namespace Repositories.Interfaces
         Task<RegisterAttend> CreateRegisterAttend(RegisterAttend registerAttend);
         Task<RegisterAttend> UpdateRegisterAttend(RegisterAttend registerAttend);
         Task DeleteRegisterAttend(string registerAttendId);
+        Task<List<RegisterAttend>> GetRegisterAttendByCustomerId(string customerId);
+        Task<string> GetCustomerIdByAccountId(string accountId);
+        Task<List<RegisterAttend>> GetRegisterAttendsByWorkShopId(string workShopId);
     }
 }

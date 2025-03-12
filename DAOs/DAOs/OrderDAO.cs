@@ -40,7 +40,7 @@ namespace DAOs.DAOs
         {
             return await _context.Orders
                 .Include(o => o.Customer)
-                .FirstOrDefaultAsync(o => o.Id == id);
+                .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
         public async Task<Order> GetOrderByOrderCodeDao(string orderCode)

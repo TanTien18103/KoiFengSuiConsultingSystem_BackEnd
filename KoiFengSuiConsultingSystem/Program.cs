@@ -26,6 +26,7 @@ builder.Services.AddScoped<ICourseRepo, CourseRepo>();
 builder.Services.AddScoped<IWorkShopRepo, WorkShopRepo>();
 builder.Services.AddScoped<ITransactionRepo, TransactionRepo>();
 builder.Services.AddScoped<IOrderRepo, OrderRepo>();
+builder.Services.AddScoped<IRegisterAttendRepo, RegisterAttendRepo>();
 
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -39,6 +40,8 @@ builder.Services.AddScoped<IMasterScheduleService, MasterScheduleService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPriceService, PriceService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IWorkshopService, WorkshopService>();
+builder.Services.AddScoped<IRegisterAttendService, RegisterAttendService>();
 
 
 //Register Mapper
@@ -48,6 +51,8 @@ builder.Services.AddAutoMapper(typeof(MasterMappingProfile));
 builder.Services.AddAutoMapper(typeof(BookingMappingProfile));
 builder.Services.AddAutoMapper(typeof(MasterScheduleMappingProfile));
 builder.Services.AddAutoMapper(typeof(BookingMappingProfile));
+builder.Services.AddAutoMapper(typeof(RegisterAttendMappingProfile));
+builder.Services.AddAutoMapper(typeof(WorkshopMappingProfile));
 
 
 builder.Services.AddHttpClient();

@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using BusinessObjects.Models;
+using Services.ApiModels.MasterSchedule;
+using Services.ApiModels.Workshop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +12,10 @@ namespace Services.Mapper
 {
     public class WorkshopMappingProfile : Profile
     {
+        public WorkshopMappingProfile() 
+        {
+            CreateMap<WorkShop, WorkshopResponse>()
+                .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.Master.MasterName));
+        }
     }
 }

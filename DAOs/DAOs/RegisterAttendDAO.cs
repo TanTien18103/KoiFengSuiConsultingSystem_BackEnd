@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,10 @@ namespace DAOs.DAOs
 
         public async Task<List<RegisterAttend>> GetRegisterAttendsDao()
         {
-            return _context.RegisterAttends.ToList();
+            return await _context.RegisterAttends
+                .Include(x => x.Workshop)
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .ToListAsync();
         }
 
         public async Task<RegisterAttend> CreateRegisterAttendDao(RegisterAttend registerAttend)

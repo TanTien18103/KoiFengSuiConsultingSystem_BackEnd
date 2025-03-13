@@ -183,12 +183,12 @@ namespace Services.Services
             }
         }
 
-        public async Task<ResultModel> GetConsultingDetailByIdAsync(string consultingId)
+        public async Task<ResultModel> GetConsultingDetailByMasterScheduleIdAsync(string masterScheduleId)
         {
             var res = new ResultModel();
             try
             {
-                if (string.IsNullOrEmpty(consultingId))
+                if (string.IsNullOrEmpty(masterScheduleId))
                 {
                     res.IsSuccess = false;
                     res.StatusCode = StatusCodes.Status400BadRequest;
@@ -196,7 +196,7 @@ namespace Services.Services
                     return res;
                 }
 
-                var onlineBooking = await _onlineRepo.GetBookingOnlineByIdRepo(consultingId);
+                var onlineBooking = await _onlineRepo.GetConsultingOnlineByMasterScheduleIdRepo(masterScheduleId);
                 if (onlineBooking != null)
                 {
                     res.IsSuccess = true;
@@ -206,7 +206,7 @@ namespace Services.Services
                     return res;
                 }
 
-                var offlineBooking = await _offlineRepo.GetBookingOfflineById(consultingId);
+                var offlineBooking = await _offlineRepo.GetConsultingOfflineByMasterScheduleIdRepo(masterScheduleId);
                 if (offlineBooking != null)
                 {
                     res.IsSuccess = true;
@@ -218,7 +218,7 @@ namespace Services.Services
 
                 res.IsSuccess = false;
                 res.StatusCode = StatusCodes.Status404NotFound;
-                res.Message = $"Không tìm thấy consulting nào với ID: {consultingId}";
+                res.Message = $"Không tìm thấy consulting nào với ID masterSchedule: {masterScheduleId}";
                 return res;
             }
             catch (Exception ex)

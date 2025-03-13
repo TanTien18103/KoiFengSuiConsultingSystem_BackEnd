@@ -30,7 +30,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [HttpPut("aprove-workshop")]
+        [HttpPut("approve-workshop")]
         public async Task<IActionResult> ApprovedWorkshop(string id)
         {
             var res = await _workshopService.ApprovedWorkshop(id);

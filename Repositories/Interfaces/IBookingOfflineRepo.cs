@@ -10,6 +10,7 @@ namespace Repositories.Interfaces
     public interface IBookingOfflineRepo
     {
         Task<BookingOffline> GetBookingOfflineById(string bookingOfflineId);
+        Task<BookingOffline> GetConsultingOfflineByMasterScheduleIdRepo(string masterScheduleId);
         Task<List<BookingOffline>> GetBookingOfflinesByUserId(string userId);
         Task<BookingOffline> CreateBookingOffline(BookingOffline bookingOffline);
         Task<BookingOffline> UpdateBookingOffline(BookingOffline bookingOffline);

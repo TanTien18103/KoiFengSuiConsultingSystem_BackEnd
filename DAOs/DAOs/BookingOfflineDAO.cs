@@ -37,6 +37,14 @@ namespace DAOs.DAOs
                 .FirstOrDefaultAsync(x => x.BookingOfflineId == bookingOfflineId);
         }
 
+        public async Task<BookingOffline> GetConsultingOfflineByMasterScheduleIdDao(string masterScheduleId)
+        {
+            return await _context.BookingOfflines
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Include(x => x.Master).ThenInclude(x => x.Account)
+                .FirstOrDefaultAsync(x => x.MasterScheduleId == masterScheduleId);
+        }
+
         public async Task<List<BookingOffline>> GetBookingOfflinesByUserIdDao(string userId)
         {
             return _context.BookingOfflines.Where(b => b.CustomerId == userId).ToList();

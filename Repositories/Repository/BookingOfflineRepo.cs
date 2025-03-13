@@ -16,6 +16,11 @@ namespace Repositories.Repository
             return BookingOfflineDAO.Instance.GetBookingOfflineByIdDao(bookingOfflineId);
         }
 
+        public Task<BookingOffline> GetConsultingOfflineByMasterScheduleIdRepo(string masterScheduleId)
+        {
+            return BookingOfflineDAO.Instance.GetConsultingOfflineByMasterScheduleIdDao(masterScheduleId);
+        }
+
         public Task<BookingOffline> CreateBookingOffline(BookingOffline bookingOffline)
         {
             return BookingOfflineDAO.Instance.CreateBookingOfflineDao(bookingOffline);

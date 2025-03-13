@@ -33,6 +33,11 @@ namespace Repositories.Repository
             return await _bookingOnlineDAO.GetBookingOnlineByIdDao(bookingOnlineId);
         }
 
+        public Task<BookingOnline> GetConsultingOnlineByMasterScheduleIdRepo(string masterScheduleId)
+        {
+            return BookingOnlineDAO.Instance.GetConsultingOnlineByMasterScheduleIdDao(masterScheduleId);
+        }
+
         public async Task<List<BookingOnline>> GetBookingOnlinesRepo()
         {
             return await _bookingOnlineDAO.GetBookingOnlinesDao();

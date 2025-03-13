@@ -33,10 +33,10 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [HttpGet("consulting-{id}")]
-        public async Task<IActionResult> GetConsultingById([FromRoute] string id)
+        [HttpGet("consulting-by-masterSchedule-{id}")]
+        public async Task<IActionResult> GetConsultingDetailByMasterScheduleId([FromRoute] string id)
         {
-            var res = await _bookingService.GetConsultingDetailByIdAsync(id);
+            var res = await _bookingService.GetConsultingDetailByMasterScheduleIdAsync(id);
             return StatusCode(res.StatusCode, res);
         }
 

@@ -11,6 +11,8 @@ namespace Repositories.Interfaces
     {
         Task<BookingOnline> GetBookingOnlineByIdRepo(string bookingOnlineId);
 
+        Task<BookingOnline> GetConsultingOnlineByMasterScheduleIdRepo(string masterScheduleId);
+
         Task<List<BookingOnline>> GetBookingOnlinesRepo();
 
         Task<BookingOnline> CreateBookingOnlineRepo(BookingOnline bookingOnline);

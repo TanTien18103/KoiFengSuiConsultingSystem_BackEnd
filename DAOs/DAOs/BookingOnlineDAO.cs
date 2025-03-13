@@ -38,6 +38,14 @@ namespace DAOs.DAOs
                 .FirstOrDefaultAsync(x => x.BookingOnlineId == bookingOnlineId);
         }
 
+        public async Task<BookingOnline> GetConsultingOnlineByMasterScheduleIdDao(string masterScheduleId)
+        {
+            return await _context.BookingOnlines
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Include(x => x.Master).ThenInclude(x => x.Account)
+                .FirstOrDefaultAsync(x => x.MasterScheduleId == masterScheduleId);
+        }
+
         public async Task<List<BookingOnline>> GetBookingOnlinesDao()
         {
 

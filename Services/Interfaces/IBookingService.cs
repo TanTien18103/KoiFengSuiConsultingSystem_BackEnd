@@ -7,6 +7,7 @@ namespace Services.Interfaces
     public interface IBookingService
     {
         Task<ResultModel> GetBookingByIdAsync(string bookingId);
+        Task<ResultModel> GetConsultingDetailByIdAsync(string consultingId);
         Task<ResultModel> GetBookingByStatusAsync(BookingOnlineEnums? status, BookingTypeEnums? type);
         Task<ResultModel> GetBookingOnlinesHoverAsync();
         Task<ResultModel> AssignMasterToBookingAsync(string bookingId, string masterId);

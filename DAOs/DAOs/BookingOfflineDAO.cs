@@ -31,7 +31,10 @@ namespace DAOs.DAOs
 
         public async Task<BookingOffline> GetBookingOfflineByIdDao(string bookingOfflineId)
         {
-            return await _context.BookingOfflines.FindAsync(bookingOfflineId);
+            return await _context.BookingOfflines
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Include(x => x.Master).ThenInclude(x => x.Account)
+                .FirstOrDefaultAsync(x => x.BookingOfflineId == bookingOfflineId);
         }
 
         public async Task<List<BookingOffline>> GetBookingOfflinesByUserIdDao(string userId)

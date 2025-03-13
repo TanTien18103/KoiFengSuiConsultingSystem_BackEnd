@@ -183,6 +183,53 @@ namespace Services.Services
             }
         }
 
+        public async Task<ResultModel> GetConsultingDetailByIdAsync(string consultingId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                if (string.IsNullOrEmpty(consultingId))
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = "ID consulting không được để trống";
+                    return res;
+                }
+
+                var onlineBooking = await _onlineRepo.GetBookingOnlineByIdRepo(consultingId);
+                if (onlineBooking != null)
+                {
+                    res.IsSuccess = true;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.Data = _mapper.Map<ConsultingOnlineDetailResponse>(onlineBooking);
+                    res.Message = "Lấy thông tin booking online thành công";
+                    return res;
+                }
+
+                var offlineBooking = await _offlineRepo.GetBookingOfflineById(consultingId);
+                if (offlineBooking != null)
+                {
+                    res.IsSuccess = true;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.Data = _mapper.Map<ConsultingOfflineDetailResponse>(offlineBooking);
+                    res.Message = "Lấy thông tin booking offline thành công";
+                    return res;
+                }
+
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status404NotFound;
+                res.Message = $"Không tìm thấy consulting nào với ID: {consultingId}";
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.Message = $"Lỗi khi lấy thông tin consulting: {ex.Message}";
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
         public async Task<ResultModel> GetBookingByStatusAsync(BookingOnlineEnums? status = null, BookingTypeEnums? type = null)
         {
             var res = new ResultModel();

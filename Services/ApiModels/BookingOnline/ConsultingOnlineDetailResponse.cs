@@ -1,20 +1,20 @@
-﻿namespace Services.ApiModels.BookingOnline
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Services.ApiModels.BookingOnline
 {
-    public class BookingOnlineDetailResponse
+    public class ConsultingOnlineDetailResponse
     {
-        public string BookingOnlineId { get; set; }
+        public string ConsultingId { get; set; }
 
         public string Type { get; set; }
 
         public string LinkMeet { get; set; }
 
-        public string Status { get; set; }
-
         public string CustomerName { get; set; }
-
-        public string CustomerEmail { get; set; }
-
-        public string MasterName { get; set; }
 
         public string Description { get; set; }
 

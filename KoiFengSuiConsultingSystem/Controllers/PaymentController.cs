@@ -29,10 +29,10 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
         [Authorize(Roles = "Customer")]
         [HttpPost("payos/customer/payment-url")]
-        public async Task<IActionResult> GetPayOSPaymentUrl([FromBody] PayOSRequest request)
+        public async Task<IActionResult> GetPayOSPaymentUrl(PaymentTypeEnums serviceType, string serviceId, string cancelUrl, string returnUrl)
         {
-            var response = await _paymentService.CreatePaymentLinkAsync(request);
-            return Ok(response);
+            var res = await _paymentService.CreateServicePaymentLinkAsync(serviceType, serviceId, cancelUrl, returnUrl);
+            return Ok(res);
         }
 
         [HttpPost("payos/transfer-handler")]

@@ -47,6 +47,16 @@ namespace Services.Mapper
                 .ForMember(dest => dest.CustomerEmail, opt => opt.MapFrom(src => src.Customer != null && src.Customer.Account != null ? src.Customer.Account.Email : null))
                 .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.Master != null && src.Master.Account != null ? src.Master.Account.FullName : null));
 
+            CreateMap<BookingOnline, ConsultingOnlineDetailResponse>()
+                .ForMember(dest => dest.ConsultingId, opt => opt.MapFrom(src => src.BookingOnlineId))
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null && src.Customer.Account != null ? src.Customer.Account.FullName : null))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => BookingTypeEnums.Online.ToString()));
+
+            CreateMap<BookingOffline, ConsultingOfflineDetailResponse>()
+                .ForMember(dest => dest.ConsultingId, opt => opt.MapFrom(src => src.BookingOfflineId))
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null && src.Customer.Account != null ? src.Customer.Account.FullName : null))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => BookingTypeEnums.Offline.ToString()));
+
             CreateMap<BookingOnline, BookingOnlineHoverRespone>()
                 .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Account.FullName))
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Customer.Account.PhoneNumber))

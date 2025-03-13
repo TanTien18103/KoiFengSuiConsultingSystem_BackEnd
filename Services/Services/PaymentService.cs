@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Claims;
@@ -73,35 +73,100 @@ public class PaymentService : IPaymentService
         string base64 = Convert.ToBase64String(guid.ToByteArray());
         return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
     }
-    public async Task<CreatePaymentResult> CreatePaymentLinkAsync(PayOSRequest request)
+    public async Task<CreatePaymentResult> CreateServicePaymentLinkAsync(PaymentTypeEnums serviceType, string serviceId, string cancelUrl, string returnUrl)
     {
-        var order = await _orderRepo.GetOrderById(request.OrderId);
+        // Lấy thông tin giá từ PriceService
+        var price = await _priceService.GetServicePrice(serviceType, serviceId);
+        if (price == null || price <= 0)
+        {
+            throw new Exception("Không tìm thấy thông tin giá dịch vụ hoặc giá không hợp lệ");
+        }
 
+        // Tạo mô tả dịch vụ dựa trên loại dịch vụ
+        string description = PAYMENT_DESCRIPTION;
+        string customerName = "";
+        
+        switch (serviceType)
+        {
+            case PaymentTypeEnums.BookingOnline:
+                var bookingOnline = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(serviceId);
+                if (bookingOnline == null)
+                    throw new Exception("Không tìm thấy đặt lịch trực tuyến");
+                    
+                description = $"Thanh toán đặt lịch trực tuyến ngày {bookingOnline.BookingDate?.ToString("dd/MM/yyyy")}, {bookingOnline.StartTime?.ToString("HH:mm")} - {bookingOnline.EndTime?.ToString("HH:mm")}";
+                customerName = bookingOnline.Customer?.Account?.FullName ?? "Khách hàng";
+                break;
+                
+            case PaymentTypeEnums.BookingOffline:
+                var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
+                if (bookingOffline == null)
+                    throw new Exception("Không tìm thấy đặt lịch trực tiếp");
+                    
+                description = $"Thanh toán đặt lịch trực tiếp tại {bookingOffline.Location}, gói tư vấn: {bookingOffline.ConsultationPackage?.PackageName}";
+                customerName = bookingOffline.Customer?.Account?.FullName ?? "Khách hàng";
+                break;
+                
+            case PaymentTypeEnums.Course:
+                var course = await _courseRepo.GetCourseById(serviceId);
+                if (course == null)
+                    throw new Exception("Không tìm thấy khóa học");
+                    
+                description = $"Thanh toán khóa học: {course.CourseName}";
+                // Vì không có thông tin về khách hàng trực tiếp trong bảng Course
+                customerName = "Khách hàng";
+                break;
+                
+            case PaymentTypeEnums.Workshop:
+                var workshop = await _workShopRepo.GetWorkShopById(serviceId);
+                if (workshop == null)
+                    throw new Exception("Không tìm thấy workshop");
+                    
+                description = $"Thanh toán workshop: {workshop.WorkshopName}, ngày {workshop.StartDate?.ToString("dd/MM/yyyy")} tại {workshop.Location}";
+                // Vì không có thông tin về khách hàng trực tiếp trong bảng Workshop
+                customerName = "Khách hàng";
+                break;
+                
+            default:
+                throw new Exception("Loại dịch vụ không hợp lệ");
+        }
+        
+        // Tạo mã đơn hàng tạm thời
+        string tempOrderId = GenerateShortGuid();
+        
         var payOS = new PayOS(_clientId, _apiKey, _checksumKey);
-        // Create an item with the order ID and customer name
-        ItemData item = new ItemData($"{PAYMENT_DESCRIPTION} {order.OrderId} cho khach hang {order.Customer.Account.FullName}",
-            1, (int) /*order.Total/100000*/ 2000);
+        // Tạo item cho thanh toán
+        ItemData item = new ItemData(
+            $"{description} cho {customerName}",
+            1, 
+            (int)price
+        );
         List<ItemData> items = new List<ItemData>();
         items.Add(item);
 
-        // ConvertDateTimeToUnixTimestamp
+        // Thời gian hết hạn thanh toán (15 phút)
         var expiredAt = ConvertDateTimeToUnixTimestamp(DateTime.Now.AddMinutes(15));
         int orderCode = int.Parse(DateTime.Now.ToString("ffffff"));
 
-        // Create a PaymentData object
-        PaymentData paymentData = new PaymentData(orderCode, (int) /*order.Total/100000*/ 2000, $"{PAYMENT_DESCRIPTION} {order.OrderId}",
-            items, request.CancelUrl, request.ReturnUrl, expiredAt: expiredAt);
+        // Tạo dữ liệu thanh toán với thông tin chi tiết
+        PaymentData paymentData = new PaymentData(
+            orderCode, 
+            (int)price, 
+            $"{description} - {serviceType} - {serviceId}",
+            items, 
+            cancelUrl, 
+            returnUrl, 
+            expiredAt: expiredAt
+        );
 
-        // Create a signature for the payment data
+        // Tạo chữ ký cho dữ liệu thanh toán
         var signature = CreateSignature(payOS, paymentData);
         paymentData = paymentData with { signature = signature };
 
+        // Tạo liên kết thanh toán
         CreatePaymentResult createPayment = await payOS.createPaymentLink(paymentData);
-
-        // update order
-        order.Note = orderCode.ToString();
-        order.Status = PaymentStatusEnums.Pending.ToString();
-        await _orderRepo.UpdateOrder(order);
+        
+        // Có thể lưu thông tin tạm thời vào cơ sở dữ liệu nếu cần
+        // Ví dụ: lưu vào bảng Order hoặc một bảng trung gian PaymentRequest
         return createPayment;
     }
 

@@ -210,7 +210,9 @@ namespace BusinessObjects.Constants
         public const string WORKSHOP_REJECTED = "Buổi hội thảo bị từ chối";
         public const string WORKSHOP_INFO_FOUND = "Lấy thông tin buổi hội thảo thành công";
         public const string WORKSHOP_INFO_INVALID = "Dữ liệu sự kiện không hợp lệ";
-        public const string NOTFOUND_MASTERID_CORRESPONDING_TO_ACCOUNT= "Không tìm thấy MasterId tương ứng với tài khoản";
+        public const string NOTFOUND_MASTERID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy MasterId tương ứng với tài khoản";
+        public const string REGISTER_NOT_FOUND = "Không tìm thấy thông tin vé";
+        public const string CHECK_IN_SUCCESS = "Check-in thành công";
     }
 
     public class ResponseMessageConstrantsCourse

@@ -15,7 +15,5 @@ namespace Services.ApiModels.BookingOnline
         public TimeOnly? StartTime { get; set; }
 
         public TimeOnly? EndTime { get; set; }
-
-
     }
 }

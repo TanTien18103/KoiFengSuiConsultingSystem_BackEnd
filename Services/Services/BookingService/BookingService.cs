@@ -13,6 +13,7 @@ using Repositories.Repositories.BookingOfflineRepository;
 using Repositories.Repositories.BookingOnlineRepository;
 using Repositories.Repositories.CustomerRepository;
 using BusinessObjects.Constants;
+using System.Security.Claims;
 
 namespace Services.Services.BookingService
 {
@@ -96,12 +97,6 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                var booking = _mapper.Map<BookingOnline>(bookingOnlineRequest);
-                booking.BookingOnlineId = GenerateShortGuid();
-                booking.CustomerId = customer.CustomerId;
-                booking.Status = BookingOnlineEnums.Pending.ToString();
-                var createdBooking = await _onlineRepo.CreateBookingOnlineRepo(booking);
-
                 var masterSchedule = new MasterSchedule
                 {
                     MasterScheduleId = GenerateShortGuid(),
@@ -112,20 +107,21 @@ namespace Services.Services.BookingService
                     Type = "Booking Online",
                     Status = "Pending"
                 };
-
                 await _masterScheduleService.CreateMasterSchedule(masterSchedule);
 
-                // 🔹 Tạo giao dịch thanh toán
-                
+                var booking = _mapper.Map<BookingOnline>(bookingOnlineRequest);
+                booking.BookingOnlineId = GenerateShortGuid();
+                booking.CustomerId = customer.CustomerId;
+                booking.Status = BookingOnlineEnums.Pending.ToString();
+                booking.MasterScheduleId = masterSchedule.MasterScheduleId;
+                var createdBooking = await _onlineRepo.CreateBookingOnlineRepo(booking);
+                var bookingResponse = await _onlineRepo.GetBookingOnlineByIdRepo(createdBooking.BookingOnlineId);
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status201Created;
                 res.Message = ResponseMessageConstrantsBooking.BOOKING_CREATED;
-                res.Data = new
-                {
-                    BookingOnline = _mapper.Map<BookingOnlineDetailResponse>(createdBooking),
-                };
+                res.Data = _mapper.Map<BookingOnlineDetailResponse>(bookingResponse);
                 return res;
             }
             catch (Exception ex)
@@ -328,6 +324,8 @@ namespace Services.Services.BookingService
             var res = new ResultModel();
             try
             {
+
+
                 var bookings = await _onlineRepo.GetBookingOnlinesRepo();
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
@@ -348,6 +346,27 @@ namespace Services.Services.BookingService
             var res = new ResultModel();
             try
             {
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
                 var booking = await _onlineRepo.GetBookingOnlineByIdRepo(bookingId);
                 if (booking == null)
                 {
@@ -369,6 +388,7 @@ namespace Services.Services.BookingService
                 }
 
                 booking.MasterId = masterId;
+                booking.AssignStaffId = accountId;
                 await _onlineRepo.UpdateBookingOnlineRepo(booking);
 
                 res.IsSuccess = true;

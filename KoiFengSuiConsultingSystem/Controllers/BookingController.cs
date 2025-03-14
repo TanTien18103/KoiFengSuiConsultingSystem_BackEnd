@@ -3,8 +3,8 @@ using BusinessObjects.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Services.Interfaces;
 using Services.ApiModels.BookingOnline;
+using Services.Services.BookingService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -19,14 +19,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _bookingService = bookingService;
         }
 
-        [HttpPost("create-booking-online")]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateBookingOnline([FromBody] BookingOnlineRequest bookingOnlineRequest)
         {
             var res = await _bookingService.CreateBookingOnline(bookingOnlineRequest);
-            return Ok(res);
+            return StatusCode(res.StatusCode, res);
         }
 
-        [HttpGet("booking-{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetBookingById([FromRoute] string id)
         {
             var res = await _bookingService.GetBookingByIdAsync(id);
@@ -40,7 +40,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [HttpGet("get-booking")]
+        [HttpGet("status-type")]
         //[Authorize(Roles = "Staff")]
         public async Task<IActionResult> GetBookingOnline([FromQuery] BookingOnlineEnums? status = null, [FromQuery] BookingTypeEnums? type = null)
         {
@@ -55,9 +55,9 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [HttpPut("assign-master")]
+        [HttpPut("assign-master-{bookingId}-{masterId}")]
         //[Authorize(Roles = "Staff")]
-        public async Task<IActionResult> AssignMaster([FromQuery] string bookingId, [FromQuery] string masterId)
+        public async Task<IActionResult> AssignMaster([FromRoute] string bookingId, [FromRoute] string masterId)
         {
             var result = await _bookingService.AssignMasterToBookingAsync(bookingId, masterId);
             return StatusCode(result.StatusCode, result);

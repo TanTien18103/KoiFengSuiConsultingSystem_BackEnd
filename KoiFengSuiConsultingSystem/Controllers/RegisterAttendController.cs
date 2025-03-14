@@ -1,7 +1,7 @@
 ﻿using BusinessObjects.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Services.Interfaces;
+using Services.Services.RegisterAttendService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -15,14 +15,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _registerAttendService = registerAttendService;
         }
 
-        [HttpGet("get-register-attend")]
+        [HttpGet("get-by-status")]
         public async Task<IActionResult> GetRegisterAttends([FromQuery] RegisterAttendStatusEnums? status = null)
         {
             var res = await _registerAttendService.GetRegisterAttends(status);
             return StatusCode(res.StatusCode, res);
         }
-
-
       
         [HttpGet("customer")]
         public async Task<IActionResult> GetRegisterAttendByCustomerId()
@@ -30,16 +28,15 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _registerAttendService.GetRegisterAttendByCustomerId();
             return StatusCode(result.StatusCode, result);
         }
-
         
         [HttpGet("{registerAttendId}")]
-        public async Task<IActionResult> GetRegisterAttendById(string registerAttendId)
+        public async Task<IActionResult> GetRegisterAttendById([FromRoute] string registerAttendId)
         {
             var result = await _registerAttendService.GetRegisterAttendById(registerAttendId);
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetRegisterAttends()
         {
             var result = await _registerAttendService.GetRegisterAttends();
@@ -48,7 +45,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
       
         [HttpGet("workshop/{id}")]
-        public async Task<IActionResult> GetRegisterAttendByWorkshopId(string id)
+        public async Task<IActionResult> GetRegisterAttendByWorkshopId([FromRoute] string id)
         {
             var result = await _registerAttendService.GetRegisterAttendByWorkshopId(id);
             return StatusCode(result.StatusCode, result);

@@ -59,7 +59,5 @@ namespace DAOs.DAOs
             _context.Transactions.Remove(transaction);
             await _context.SaveChangesAsync();
         }
-         
-
     }
 }

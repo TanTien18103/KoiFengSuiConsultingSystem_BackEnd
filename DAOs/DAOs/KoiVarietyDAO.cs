@@ -47,30 +47,6 @@ namespace DAOs.DAOs
                 .ToListAsync();
         }
 
-        public async Task<KoiVariety> CreateKoiVarietyDao(KoiVariety koiVariety)
-        {
-            _context.KoiVarieties.Add(koiVariety);
-            await _context.SaveChangesAsync();
-            return koiVariety;
-        }
-
-        public async Task<KoiVariety> UpdateKoiVarietyDao(KoiVariety koiVariety)
-        {
-            _context.KoiVarieties.Update(koiVariety);
-            await _context.SaveChangesAsync();
-            return koiVariety;
-        }
-
-        public async Task DeleteKoiVarietyDao(string koiVarietyId)
-        {
-            var koiVariety = await GetKoiVarietyByIdDao(koiVarietyId);
-            if (koiVariety != null)
-            {
-                _context.KoiVarieties.Remove(koiVariety);
-                await _context.SaveChangesAsync();
-            }
-        }
-
         public async Task<List<KoiVariety>> GetAllKoiVarietiesWithColorsDao()
         {
             return await _context.KoiVarieties
@@ -94,6 +70,30 @@ namespace DAOs.DAOs
                     .ThenInclude(vc => vc.Color)
                 .Where(k => k.VarietyColors.Any(vc => vc.Color.Element == element))
                 .ToListAsync();
+        }
+
+        public async Task<KoiVariety> CreateKoiVarietyDao(KoiVariety koiVariety)
+        {
+            _context.KoiVarieties.Add(koiVariety);
+            await _context.SaveChangesAsync();
+            return koiVariety;
+        }
+
+        public async Task<KoiVariety> UpdateKoiVarietyDao(KoiVariety koiVariety)
+        {
+            _context.KoiVarieties.Update(koiVariety);
+            await _context.SaveChangesAsync();
+            return koiVariety;
+        }
+
+        public async Task DeleteKoiVarietyDao(string koiVarietyId)
+        {
+            var koiVariety = await GetKoiVarietyByIdDao(koiVarietyId);
+            if (koiVariety != null)
+            {
+                _context.KoiVarieties.Remove(koiVariety);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

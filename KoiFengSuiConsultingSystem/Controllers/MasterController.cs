@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Services.Interfaces;
 using Services.Services;
+using Services.Services.MasterService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -14,18 +14,17 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _iMasterService = iMasterService;
         }
 
-        [HttpGet("get-all-masters")]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAllMasters()
         {
             var res = await _iMasterService.GetAllMasters();
             return StatusCode(res.StatusCode, res);
         }
-        [HttpGet("get-master")]
-        public async Task<IActionResult> GetMasterById(string id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetMasterById([FromRoute]string id)
         {
             var res = await _iMasterService.GetMasterById(id);
             return StatusCode(res.StatusCode, res);
-
         }
     }
-    }
+}

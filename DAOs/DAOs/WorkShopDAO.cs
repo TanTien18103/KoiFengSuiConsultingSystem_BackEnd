@@ -39,6 +39,12 @@ namespace DAOs.DAOs
             return await _context.WorkShops.Include(x => x.Master).ToListAsync();
         }
 
+        public async Task<string> GetMasterIdByAccountIdDao(string accountId)
+        {
+            var master = await _context.Masters.FirstOrDefaultAsync(x => x.AccountId == accountId);
+            return master?.MasterId; 
+        }
+
         public async Task<List<WorkShop>> SortingWorkshopByCreatedDateDao()
         {
             return await _context.WorkShops
@@ -46,6 +52,7 @@ namespace DAOs.DAOs
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
         }
+
         public async Task<WorkShop> CreateWorkShopDao(WorkShop workShop)
         {
             _context.WorkShops.Add(workShop);
@@ -66,13 +73,5 @@ namespace DAOs.DAOs
             _context.WorkShops.Remove(workShop);
             await _context.SaveChangesAsync();
         }
-
-        public async Task<string> GetMasterIdByAccountIdDao(string accountId)
-        {
-            var master = await _context.Masters.FirstOrDefaultAsync(x => x.AccountId == accountId);
-            return master?.MasterId; 
-        }
-
-
     }
 }

@@ -37,6 +37,14 @@ namespace DAOs.DAOs
                 .FirstOrDefaultAsync(x => x.BookingOfflineId == bookingOfflineId);
         }
 
+        public async Task<List<BookingOffline>> GetBookingOfflinesDao()
+        {
+            return await _context.BookingOfflines
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Include(x => x.Master).ThenInclude(x => x.Account)
+                .ToListAsync();
+        }
+
         public async Task<BookingOffline> GetConsultingOfflineByMasterScheduleIdDao(string masterScheduleId)
         {
             return await _context.BookingOfflines
@@ -69,14 +77,6 @@ namespace DAOs.DAOs
             var bookingOffline = await GetBookingOfflineByIdDao(bookingOfflineId);
             _context.BookingOfflines.Remove(bookingOffline);
             await _context.SaveChangesAsync();
-        }
-
-        public async Task<List<BookingOffline>> GetBookingOfflinesDao()
-        {
-            return await _context.BookingOfflines
-                .Include(x => x.Customer).ThenInclude(x => x.Account)
-                .Include(x => x.Master).ThenInclude(x => x.Account)
-                .ToListAsync();
         }
     }
 }

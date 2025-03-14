@@ -59,6 +59,5 @@ namespace DAOs.DAOs
             _context.ConsultationPackages.Remove(consultationPackage);
             await _context.SaveChangesAsync();
         }
-
     }
 }

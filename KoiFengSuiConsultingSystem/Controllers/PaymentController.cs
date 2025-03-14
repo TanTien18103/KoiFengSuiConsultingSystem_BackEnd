@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 using Services.ApiModels.Payment;
-using Services.Interfaces;
 using Services.Services;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 using Net.payOS.Types;
+using Services.Services.PaymentService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {

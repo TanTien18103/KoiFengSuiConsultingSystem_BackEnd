@@ -58,6 +58,5 @@ namespace DAOs.DAOs
             _context.FengShuiDocuments.Remove(fengShuiDocument);
             await _context.SaveChangesAsync();
         }
-
     }
 }

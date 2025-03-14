@@ -63,6 +63,5 @@ namespace DAOs.DAOs
         {
             return _context.EnrollChapters.Where(ec => ec.ChapterId == chapterId).ToList();
         }
-
     }
 }

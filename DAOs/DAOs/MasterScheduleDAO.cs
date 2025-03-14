@@ -39,32 +39,6 @@ namespace DAOs.DAOs
             return _context.MasterSchedules.ToList();
         }
 
-        public async Task<MasterSchedule> CreateMasterScheduleDao(MasterSchedule masterSchedule)
-        {
-            _context.MasterSchedules.Add(masterSchedule);
-            await _context.SaveChangesAsync();
-            return masterSchedule;
-        }
-
-        public async Task<MasterSchedule> GetMasterScheduleDao(string masterId, DateOnly date, TimeOnly startTime)
-        {
-            return await _context.MasterSchedules
-                .FirstOrDefaultAsync(ms => ms.MasterId == masterId && ms.Date == date && ms.StartTime == startTime);
-        }
-
-        public async Task<MasterSchedule> UpdateMasterScheduleDao(MasterSchedule masterSchedule)
-        {
-            _context.MasterSchedules.Update(masterSchedule);
-            await _context.SaveChangesAsync();
-            return masterSchedule;
-        }
-
-        public async Task DeleteMasterScheduleDao(string masterScheduleId)
-        {
-            var masterSchedule = await GetMasterScheduleByIdDao(masterScheduleId);
-            _context.MasterSchedules.Remove(masterSchedule);
-            await _context.SaveChangesAsync();
-        }
         public async Task<List<MasterSchedule>> GetAllSchedulesAsync()
         {
             return await _context.MasterSchedules
@@ -79,6 +53,7 @@ namespace DAOs.DAOs
                 .ThenBy(x => x.StartTime)
                 .ToListAsync();
         }
+
         public async Task<List<MasterSchedule>> GetSchedulesByMasterIdAsync(string masterId)
         {
             return await _context.MasterSchedules
@@ -94,6 +69,7 @@ namespace DAOs.DAOs
                 .ThenBy(x => x.StartTime)
                 .ToListAsync();
         }
+
         public async Task<List<MasterSchedule>> GetSchedulesByMasterAndDateAsync(string masterId, DateOnly date)
         {
             return await _context.MasterSchedules
@@ -110,5 +86,31 @@ namespace DAOs.DAOs
                 .ToListAsync();
         }
 
+        public async Task<MasterSchedule> GetMasterScheduleDao(string masterId, DateOnly date, TimeOnly startTime)
+        {
+            return await _context.MasterSchedules
+                .FirstOrDefaultAsync(ms => ms.MasterId == masterId && ms.Date == date && ms.StartTime == startTime);
+        }
+
+        public async Task<MasterSchedule> CreateMasterScheduleDao(MasterSchedule masterSchedule)
+        {
+            _context.MasterSchedules.Add(masterSchedule);
+            await _context.SaveChangesAsync();
+            return masterSchedule;
+        }
+
+        public async Task<MasterSchedule> UpdateMasterScheduleDao(MasterSchedule masterSchedule)
+        {
+            _context.MasterSchedules.Update(masterSchedule);
+            await _context.SaveChangesAsync();
+            return masterSchedule;
+        }
+
+        public async Task DeleteMasterScheduleDao(string masterScheduleId)
+        {
+            var masterSchedule = await GetMasterScheduleByIdDao(masterScheduleId);
+            _context.MasterSchedules.Remove(masterSchedule);
+            await _context.SaveChangesAsync();
+        }
     }
 }

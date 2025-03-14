@@ -58,6 +58,5 @@ namespace DAOs.DAOs
             _context.Colors.Remove(color);
             await _context.SaveChangesAsync();
         }
-
     }
 }

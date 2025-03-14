@@ -58,7 +58,5 @@ namespace DAOs.DAOs
             _context.Memberships.Remove(membership);
             await _context.SaveChangesAsync();
         }
-
-
     }
 }

@@ -58,6 +58,5 @@ namespace DAOs.DAOs
             _context.Contracts.Remove(contract);
             await _context.SaveChangesAsync();
         }
-
     }
 }

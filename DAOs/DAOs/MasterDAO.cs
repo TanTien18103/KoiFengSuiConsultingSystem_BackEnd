@@ -47,6 +47,7 @@ namespace DAOs.DAOs
         {
             return await _context.Masters.ToListAsync();
         }
+
         public async Task<T> CreateDao<T>(T entity) where T : class
         {
             _context.Set<T>().Add(entity);

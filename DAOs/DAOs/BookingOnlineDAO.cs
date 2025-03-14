@@ -76,8 +76,5 @@ namespace DAOs.DAOs
             _context.BookingOnlines.Remove(bookingOnline);
             await _context.SaveChangesAsync();
         }
-
-
-
     }
 }

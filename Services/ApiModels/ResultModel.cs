@@ -9,6 +9,7 @@ namespace Services.ApiModels
     public class ResultModel<T>
     {
         public bool IsSuccess { get; set; }
+        public string? ResponseCode { get; set; }
         public int StatusCode { get; set; }
         public T? Data { get; set; }
         public string? Message { get; set; }
@@ -17,6 +18,7 @@ namespace Services.ApiModels
     public class ResultModel
     {
         public bool IsSuccess { get; set; }
+        public string? ResponseCode { get; set; }
         public int StatusCode { get; set; }
         public object? Data { get; set; }
         public string? Message { get; set; }

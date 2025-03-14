@@ -10,8 +10,4 @@
     <ProjectReference Include="..\DAOs\DAOs.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Infrastructure\" />
-  </ItemGroup>
-
 </Project>

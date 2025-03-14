@@ -58,6 +58,5 @@ namespace DAOs.DAOs
             _context.EnrollAnswers.Remove(enrollAnswer);
             await _context.SaveChangesAsync();
         }
-
     }
 }

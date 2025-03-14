@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
-using Services.Interfaces;
+using Services.Services.KoiPondService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -18,14 +18,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
         [Authorize(Roles = "Customer")]
         [HttpGet("recommend")]
-        public async Task<ActionResult<object>> GetPondRecommendations()
+        public async Task<IActionResult> GetPondRecommendations()
         {
             var res = await _iKoiPondService.GetPondRecommendations();
             return StatusCode(res.StatusCode, res);
         }
 
-        [HttpGet("get")]
-        public async Task<IActionResult> GetPondById(string id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPondById([FromRoute]string id)
         {
             var res = await _iKoiPondService.GetKoiPondById(id);
             return StatusCode(res.StatusCode, res);

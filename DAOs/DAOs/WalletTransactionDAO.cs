@@ -38,6 +38,11 @@ namespace DAOs.DAOs
             return _context.WalletTransactions.ToList();
         }
 
+        public async Task<List<WalletTransaction>> GetWalletTransactionsByWalletIdDao(string walletId)
+        {
+            return _context.WalletTransactions.Where(wt => wt.WalletId == walletId).ToList();
+        }
+
         public async Task<WalletTransaction> CreateWalletTransactionDao(WalletTransaction walletTransaction)
         {
             _context.WalletTransactions.Add(walletTransaction);
@@ -57,11 +62,6 @@ namespace DAOs.DAOs
             var walletTransaction = await GetWalletTransactionByIdDao(walletTransactionId);
             _context.WalletTransactions.Remove(walletTransaction);
             await _context.SaveChangesAsync();
-        }
-
-        public async Task<List<WalletTransaction>> GetWalletTransactionsByWalletIdDao(string walletId)
-        {
-            return _context.WalletTransactions.Where(wt => wt.WalletId == walletId).ToList();
         }
     }
 }

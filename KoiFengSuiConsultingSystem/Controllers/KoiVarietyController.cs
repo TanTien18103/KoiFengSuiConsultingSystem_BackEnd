@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Services.Interfaces;
+using Services.Services.KoiVarietyService;
 using System.Xml.Linq;
 
 namespace KoiFengSuiConsultingSystem.Controllers
@@ -18,25 +18,21 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _koiVarietyService = koiVarietyService;
         }
 
-        [HttpGet]
+        [HttpGet("get-with-color")]
         public async Task<IActionResult> GetAllKoiVarieties()
         {
-            var result = await _koiVarietyService.GetKoiVarietyWithColorsAsync();
-            return Ok(result);
+            var res = await _koiVarietyService.GetKoiVarietyWithColorsAsync();
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetKoiVarietyById(string id)
+        public async Task<IActionResult> GetKoiVarietyById([FromRoute] string id)
         {
-            var result = await _koiVarietyService.GetKoiVarietyWithColorsByIdAsync(id);
-
-            if (result == null)
-                return NotFound($"Can not find: {id}");
-
-            return Ok(result);
+            var res = await _koiVarietyService.GetKoiVarietyWithColorsByIdAsync(id);
+            return StatusCode(res.StatusCode, res);
         }
 
-        [HttpGet("get-by-element/{element}")]
+        [HttpGet("get-by-{element}")]
         public async Task<IActionResult> GetKoiVarietiesByElement([FromRoute]string element)
         {
             var res = await _koiVarietyService.GetKoiVarietiesByElementAsync(element);

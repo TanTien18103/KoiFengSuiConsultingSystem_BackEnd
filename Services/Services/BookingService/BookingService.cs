@@ -8,7 +8,6 @@ using Services.ApiModels.Booking;
 using BusinessObjects.Models;
 using Repositories.Repositories;
 using Services.Services.MasterScheduleService;
-using Services.Services.TransactionService;
 using Repositories.Repositories.AccountRepository;
 using Repositories.Repositories.BookingOfflineRepository;
 using Repositories.Repositories.BookingOnlineRepository;
@@ -23,7 +22,6 @@ namespace Services.Services.BookingService
         private readonly IBookingOfflineRepo _offlineRepo;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ITransactionService _transactionService;
         private readonly ICustomerRepo _customerRepo;
         private readonly IAccountRepo _accountRepo;
         private readonly IMasterScheduleService _masterScheduleService;
@@ -33,7 +31,6 @@ namespace Services.Services.BookingService
             IBookingOfflineRepo offlineRepo,
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
-            ITransactionService transactionService,
             ICustomerRepo customerRepo,
             IAccountRepo accountRepo,
             IMasterScheduleService masterScheduleService
@@ -43,7 +40,6 @@ namespace Services.Services.BookingService
             _offlineRepo = offlineRepo;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
-            _transactionService = transactionService;
             _customerRepo = customerRepo;
             _accountRepo = accountRepo;
             _masterScheduleService = masterScheduleService;
@@ -120,11 +116,7 @@ namespace Services.Services.BookingService
                 await _masterScheduleService.CreateMasterSchedule(masterSchedule);
 
                 // 🔹 Tạo giao dịch thanh toán
-                var transactionResult = await _transactionService.CreateTransactionWithDocNo(
-                    createdBooking.BookingOnlineId,
-                    bookingOnlineRequest.PaymentMethod,
-                    "Booking Online"
-                );
+                
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
@@ -133,7 +125,6 @@ namespace Services.Services.BookingService
                 res.Data = new
                 {
                     BookingOnline = _mapper.Map<BookingOnlineDetailResponse>(createdBooking),
-                    Transaction = transactionResult.Data
                 };
                 return res;
             }

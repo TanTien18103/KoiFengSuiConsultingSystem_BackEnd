@@ -31,6 +31,10 @@ public partial class BookingOnline
 
     public decimal? Price { get; set; }
 
+    public string AssignStaffId { get; set; }
+
+    public virtual Account AssignStaff { get; set; }
+
     public virtual Customer Customer { get; set; }
 
     public virtual Master Master { get; set; }

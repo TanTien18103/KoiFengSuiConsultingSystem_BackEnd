@@ -22,9 +22,10 @@ namespace KoiFengSuiConsultingSystem.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateBookingOnline([FromBody] BookingOnlineRequest bookingOnlineRequest)
         {
-            var res = await _bookingService.CreateBookingOnline(bookingOnlineRequest);
-            return StatusCode(res.StatusCode, res);
+            var result = await _bookingService.CreateBookingOnline(bookingOnlineRequest);
+            return StatusCode(result.StatusCode, result);
         }
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBookingById([FromRoute] string id)

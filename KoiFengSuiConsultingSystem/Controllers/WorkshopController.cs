@@ -72,5 +72,11 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        [HttpPut("check-in")]
+        public async Task<IActionResult> CheckIn( string workshopId, string registerId)
+        {
+            var result = await _workshopService.CheckIn(workshopId, registerId);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

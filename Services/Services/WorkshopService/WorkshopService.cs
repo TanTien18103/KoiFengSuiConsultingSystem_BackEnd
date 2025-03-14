@@ -13,6 +13,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessObjects.Constants;
+using Repositories.Repositories.RegisterAttendRepository;
 
 namespace Services.Services.WorkshopService
 {
@@ -21,12 +22,14 @@ namespace Services.Services.WorkshopService
         private readonly IWorkShopRepo _workShopRepo;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IRegisterAttendRepo _registerAttendRepo;
 
-        public WorkshopService(IWorkShopRepo workShopRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public WorkshopService(IWorkShopRepo workShopRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IRegisterAttendRepo registerAttendRepo)
         {
             _workShopRepo = workShopRepo;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _registerAttendRepo = registerAttendRepo;
         }
 
 
@@ -350,5 +353,48 @@ namespace Services.Services.WorkshopService
             }
         }
 
+        public async Task<ResultModel> CheckIn(string workshopId, string registerId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var workshop = await _workShopRepo.GetWorkShopById(workshopId);
+                if (workshop == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND;
+                    return res;
+                }
+
+                var register = await _registerAttendRepo.GetRegisterAttendById(registerId);
+                if (register == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsWorkshop.REGISTER_NOT_FOUND;
+                    return res;
+                }
+
+                register.Status = RegisterAttendStatusEnums.Confirmed.ToString(); 
+                await _registerAttendRepo.UpdateRegisterAttend(register);
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsWorkshop.CHECK_IN_SUCCESS;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
     }
 }

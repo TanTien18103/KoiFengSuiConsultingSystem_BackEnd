@@ -18,6 +18,7 @@ namespace Services.Services.WorkshopService
         Task<ResultModel> CreateWorkshop(WorkshopRequest workshopRequest);
         Task<ResultModel> UpdateWorkshop(string id, WorkshopRequest workshopRequest);
         Task<ResultModel> DeleteWorkshop(string id);
+        Task<ResultModel> CheckIn(string workshopId, string registerId);
 
     }
 }

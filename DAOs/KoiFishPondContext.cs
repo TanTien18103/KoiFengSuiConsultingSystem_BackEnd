@@ -12,7 +12,6 @@ public partial class KoiFishPondContext : DbContext
     public KoiFishPondContext()
     {
     }
-
     public KoiFishPondContext(DbContextOptions<KoiFishPondContext> options)
         : base(options)
     {
@@ -80,8 +79,6 @@ public partial class KoiFishPondContext : DbContext
 
     public virtual DbSet<Shape> Shapes { get; set; }
 
-    public virtual DbSet<Transaction> Transactions { get; set; }
-
     public virtual DbSet<VarietyColor> VarietyColors { get; set; }
 
     public virtual DbSet<Wallet> Wallets { get; set; }
@@ -101,6 +98,8 @@ public partial class KoiFishPondContext : DbContext
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
        => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"));
+
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -879,24 +878,6 @@ public partial class KoiFishPondContext : DbContext
                 .IsFixedLength();
             entity.Property(e => e.Element).HasMaxLength(20);
             entity.Property(e => e.ShapeName).HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<Transaction>(entity =>
-        {
-            entity.HasKey(e => e.TransactionId).HasName("PK__Transact__55433A6B6370CEEE");
-
-            entity.ToTable("Transaction");
-
-            entity.Property(e => e.TransactionId)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .IsFixedLength();
-            entity.Property(e => e.DocNo)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Status).HasMaxLength(50);
-            entity.Property(e => e.TransactionName).HasMaxLength(100);
-            entity.Property(e => e.TransactionType).HasMaxLength(50);
         });
 
         modelBuilder.Entity<VarietyColor>(entity =>

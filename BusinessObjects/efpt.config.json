@@ -139,10 +139,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[Transaction]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[VarietyColor]",
          "ObjectType": 0
       },

@@ -1,0 +1,301 @@
+using AutoMapper;
+using BusinessObjects.Constants;
+using BusinessObjects.Enums;
+using BusinessObjects.Models;
+using Microsoft.AspNetCore.Http;
+using Repositories.Repositories.AccountRepository;
+using Repositories.Repositories.CustomerRepository;
+using Repositories.Repositories.KoiPondRepository;
+using Repositories.Repositories.ShapeRepository;
+using Services.ApiModels;
+using Services.ApiModels.KoiPond;
+
+namespace Services.Services.KoiPondService
+{
+    public class KoiPondService : IKoiPondService
+    {
+        private readonly IKoiPondRepo _koiPondRepo;
+        private readonly IShapeRepo _shapeRepo;
+        private readonly ICustomerRepo _customerRepo;
+        private readonly IAccountRepo _accountRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
+
+        public KoiPondService(IKoiPondRepo koiPondRepo, IShapeRepo shapeRepo, ICustomerRepo customerRepo, IAccountRepo accountRepository, IHttpContextAccessor httpContextAccessor, IMapper mapper)
+        {
+            _koiPondRepo = koiPondRepo;
+            _shapeRepo = shapeRepo;
+            _customerRepo = customerRepo;
+            _accountRepository = accountRepository;
+            _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
+        }
+
+        private async Task<ResultModel> GetCustomerElement()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_NOT_SEND;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var token = authHeader.Substring("Bearer ".Length);
+                if (string.IsNullOrEmpty(token))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var accountId = await _accountRepository.GetAccountIdFromToken(token);
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var customer = (await _customerRepo.GetCustomers())
+                    .FirstOrDefault(c => c.AccountId == accountId);
+
+                if (customer == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.CUSTOMER_INFO_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = customer.Element;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Lỗi khi lấy thông tin mệnh của khách hàng: {ex.Message}";
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetPondRecommendations()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var elementResult = await GetCustomerElement();
+                if (!elementResult.IsSuccess)
+                {
+                    res.IsSuccess = false;
+                    res.Message = elementResult.Message;
+                    res.StatusCode = elementResult.StatusCode;
+                    return res;
+                }
+
+                var customerElement = elementResult.Data.ToString().ToLower();
+
+                var suitableShapes = (await _shapeRepo.GetShapes())
+                    .Where(s => s.Element.Equals(customerElement, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (!suitableShapes.Any())
+                {
+                    res.IsSuccess = false;
+                    res.Message = $"Không tìm thấy hình dạng hồ phù hợp cho mệnh {customerElement}";
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                var suitablePonds = new List<KoiPondResponse>();
+                foreach (var shape in suitableShapes)
+                {
+                    var ponds = (await _koiPondRepo.GetKoiPonds())
+                        .Where(p => p.ShapeId == shape.ShapeId)
+                        .ToList();
+
+                    var pondResponses = _mapper.Map<List<KoiPondResponse>>(ponds);
+                    suitablePonds.AddRange(pondResponses);
+                }
+
+                var fengShuiInfo = GetFengShuiInfo(customerElement);
+                if (!fengShuiInfo.IsSuccess)
+                {
+                    res.IsSuccess = false;
+                    res.Message = fengShuiInfo.Message;
+                    res.StatusCode = fengShuiInfo.StatusCode;
+                    return res;
+                }
+
+                var result = new
+                {
+                    Ponds = suitablePonds,
+                    FengShuiInfo = fengShuiInfo.Data
+                };
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = "Successfully";
+                res.Data = result;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.Message = $"Lỗi khi lấy gợi ý hồ cá: {ex.Message}";
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
+        private ResultModel GetFengShuiInfo(string element)
+        {
+            var res = new ResultModel();
+            try
+            {
+                element = element.ToLower();
+                var fengShuiInfo = element switch
+                {
+                    var e when e == NguHanh.Kim.ToString().ToLower() => new
+                    {
+                        SuitableDirections = new[] { "Tây", "Tây Bắc", "Bắc" },
+                        RecommendedFishCount = new[] { 4, 9 },
+                        SuitableFishColors = new[] { "Trắng", "Bạc", "Xám", "Vàng", "Nâu" },
+                        Description = "Hồ cá phù hợp với người mệnh Kim nên đặt ở hướng Tây hoặc Tây Bắc (hành Kim) hoặc Bắc (hành Thủy - tương sinh với Kim). Hình dạng hồ nên là hình tròn hoặc oval."
+                    },
+                    var e when e == NguHanh.Moc.ToString().ToLower() => new
+                    {
+                        SuitableDirections = new[] { "Đông", "Đông Nam" },
+                        RecommendedFishCount = new[] { 3, 8 },
+                        SuitableFishColors = new[] { "Xanh lá", "Đen", "Xanh dương" },
+                        Description = "Hồ cá phù hợp với người mệnh Mộc nên đặt ở hướng Đông hoặc Đông Nam. Hình dạng hồ nên uốn lượn tự nhiên hoặc hình chữ nhật."
+                    },
+                    var e when e == NguHanh.Thuy.ToString().ToLower() => new
+                    {
+                        SuitableDirections = new[] { "Bắc", "Tây", "Tây Bắc" },
+                        RecommendedFishCount = new[] { 1, 6 },
+                        SuitableFishColors = new[] { "Đen", "Xanh dương", "Trắng", "Bạc" },
+                        Description = "Hồ cá phù hợp với người mệnh Thủy nên đặt ở hướng Bắc hoặc Tây, Tây Bắc. Hình dạng hồ nên là hình tròn, oval hoặc dạng lượn sóng."
+                    },
+                    var e when e == NguHanh.Hoa.ToString().ToLower() => new
+                    {
+                        SuitableDirections = new[] { "Nam" },
+                        RecommendedFishCount = new[] { 2, 7 },
+                        SuitableFishColors = new[] { "Đỏ", "Cam", "Xanh lá" },
+                        Description = "Hồ cá phù hợp với người mệnh Hỏa nên đặt ở hướng Nam, nhưng cần có thác nước để cân bằng. Hình dạng hồ nên là hình tam giác hoặc có thác nước."
+                    },
+                    var e when e == NguHanh.Tho.ToString().ToLower() => new
+                    {
+                        SuitableDirections = new[] { "Tây Nam", "Đông Bắc" },
+                        RecommendedFishCount = new[] { 5, 10 },
+                        SuitableFishColors = new[] { "Vàng", "Nâu", "Đỏ", "Cam" },
+                        Description = "Hồ cá phù hợp với người mệnh Thổ nên đặt ở hướng Tây Nam hoặc Đông Bắc. Hình dạng hồ nên là hình vuông."
+                    },
+                    _ => null
+                };
+
+                if (fengShuiInfo == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsCompatibility.DESTINY_INVALID + element;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = fengShuiInfo;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Lỗi khi lấy thông tin phong thủy: {ex.Message}";
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetAllKoiPonds()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var koiPonds = await _koiPondRepo.GetKoiPonds();
+                if(koiPonds == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_FOUND;
+                res.Data = _mapper.Map<List<KoiPondResponse>>(koiPonds); ;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Lỗi khi lấy danh sách hồ cá: {ex.Message}";
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetKoiPondById(string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var koiPond = await _koiPondRepo.GetKoiPondById(id);
+                if (koiPond == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_FOUND;
+                res.Data = _mapper.Map<KoiPondResponse>(koiPond); ;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Lỗi khi lấy thông tin hồ cá: {ex.Message}";
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+    }
+}

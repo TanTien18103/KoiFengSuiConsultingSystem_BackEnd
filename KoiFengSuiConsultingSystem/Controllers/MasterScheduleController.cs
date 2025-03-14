@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Services.Interfaces;
+using Services.Services.MasterScheduleService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -15,7 +15,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _masterScheduleService = masterScheduleService;
         }
 
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAllSchedules()
         {
             var res = await _masterScheduleService.GetAllMasterSchedules();
@@ -30,11 +30,10 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
         [HttpGet("{masterId}/{date}")]
-        public async Task<IActionResult> GetMasterSchedulesByMasterIdGetMasterSchedulesByMasterAndDate(string masterId, DateTime date)
+        public async Task<IActionResult> GetMasterSchedulesByMasterIdGetMasterSchedulesByMasterAndDate([FromRoute]string masterId, [FromRoute] DateTime date)
         {
             var res = await _masterScheduleService.GetMasterSchedulesByMasterAndDate(masterId, date);
             return StatusCode(res.StatusCode, res);
         }
-
     }
 } 

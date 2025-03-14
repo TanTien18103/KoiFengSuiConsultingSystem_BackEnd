@@ -33,12 +33,6 @@ namespace DAOs.DAOs
             return await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);
         }
 
-        public async Task AddAccountDao(Account account)
-        {
-            _context.Accounts.Add(account);
-            await _context.SaveChangesAsync();
-        }
-
         public async Task<Account?> GetAccountByIdDao(string accountId)
         {
             return await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId == accountId);
@@ -58,6 +52,13 @@ namespace DAOs.DAOs
                 return string.Empty;
             }
         }
+
+        public async Task AddAccountDao(Account account)
+        {
+            _context.Accounts.Add(account);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<Account> UpdateAccountDao(Account account)
         {
             _context.Accounts.Update(account);

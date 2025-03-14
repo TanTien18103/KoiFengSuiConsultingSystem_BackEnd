@@ -8,8 +8,12 @@ namespace Services.ApiModels.Payment
 {
     public class PayOSRequest
     {
-        public string OrderId { get; set; }
-        public string CancelUrl { get; set; }
-        public string ReturnUrl { get; set; }
+        public int OrderId { get; set; }
+        public int PaymentId { get; set; }
+        public decimal Amount { get; set; }
+        public string SubName { get; set; }
+        public string RedirectUrl { get; set; }
+        public string CancleUrl { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 }

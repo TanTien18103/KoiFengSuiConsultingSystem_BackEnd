@@ -58,6 +58,5 @@ namespace DAOs.DAOs
             _context.Questions.Remove(question);
             await _context.SaveChangesAsync();
         }
-
     }
 }

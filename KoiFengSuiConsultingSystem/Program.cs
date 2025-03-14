@@ -2,12 +2,34 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Repositories.Interfaces;
-using Repositories.Repository;
-using Services.Interfaces;
+using Repositories.Repositories.AccountRepository;
+using Repositories.Repositories.BookingOfflineRepository;
+using Repositories.Repositories.BookingOnlineRepository;
+using Repositories.Repositories.CourseRepository;
+using Repositories.Repositories.CustomerRepository;
+using Repositories.Repositories.KoiPondRepository;
+using Repositories.Repositories.KoiVarietyRepository;
+using Repositories.Repositories.MasterRepository;
+using Repositories.Repositories.MasterScheduleRepository;
+using Repositories.Repositories.OrderRepository;
+using Repositories.Repositories.RegisterAttendRepository;
+using Repositories.Repositories.ShapeRepository;
+using Repositories.Repositories.TransactionRepository;
+using Repositories.Repositories.WorkShopRepository;
 using Services.Mapper;
-using Services.Services;
-using Services.ServicesHelpers;
+using Services.Services.AccountService;
+using Services.Services.BookingService;
+using Services.Services.CustomerService;
+using Services.Services.EmailService;
+using Services.Services.KoiPondService;
+using Services.Services.KoiVarietyService;
+using Services.Services.MasterService;
+using Services.Services.MasterScheduleService;
+using Services.Services.PaymentService;
+using Services.Services.RegisterAttendService;
+using Services.Services.TransactionService;
+using Services.Services.WorkshopService;
+using Services.ServicesHelpers.PriceService;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +64,7 @@ builder.Services.AddScoped<IPriceService, PriceService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IWorkshopService, WorkshopService>();
 builder.Services.AddScoped<IRegisterAttendService, RegisterAttendService>();
+builder.Services.AddScoped<IPayOSService, PayOSService>();
 
 
 //Register Mapper

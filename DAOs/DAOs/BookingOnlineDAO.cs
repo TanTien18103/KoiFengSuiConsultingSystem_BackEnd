@@ -10,32 +10,41 @@ namespace DAOs.DAOs
 {
     public class BookingOnlineDAO
     {
-        public static BookingOnlineDAO instance = null;
-
+        private static volatile BookingOnlineDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public BookingOnlineDAO()
+        private BookingOnlineDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static BookingOnlineDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new BookingOnlineDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new BookingOnlineDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 
         public async Task<BookingOnline> GetBookingOnlineByIdDao(string bookingOnlineId)
         {
-            return await _context.BookingOnlines
+            var booking = await _context.BookingOnlines
                 .Include(x => x.Customer).ThenInclude(x => x.Account)
                 .Include(x => x.Master).ThenInclude(x => x.Account)
-                .FirstOrDefaultAsync(x => x.BookingOnlineId == bookingOnlineId);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.BookingOnlineId.Equals(bookingOnlineId));
+            return booking;
         }
 
         public async Task<BookingOnline> GetConsultingOnlineByMasterScheduleIdDao(string masterScheduleId)

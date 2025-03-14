@@ -9,22 +9,30 @@ namespace DAOs.DAOs
 {
     public class AttachmentDAO
     {
-        public static AttachmentDAO instance = null;
+        private static volatile AttachmentDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public AttachmentDAO()
+        private AttachmentDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static AttachmentDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new AttachmentDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new AttachmentDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

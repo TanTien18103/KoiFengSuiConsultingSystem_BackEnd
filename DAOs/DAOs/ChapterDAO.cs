@@ -9,22 +9,30 @@ namespace DAOs.DAOs
 {
     public class ChapterDAO
     {
-        public static ChapterDAO instance = null;
+        private static volatile ChapterDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public ChapterDAO()
+        private ChapterDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static ChapterDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new ChapterDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new ChapterDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

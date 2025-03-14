@@ -47,7 +47,6 @@ namespace Services.Services.PaymentService
         private readonly IOrderRepo _orderRepo;
         private readonly IAccountRepo _accountRepo;
         private readonly IPayOSService _payOSService;
-        private const string PAYMENT_DESCRIPTION = "BitKoi dich vu";
 
         public PaymentService(
             IConfiguration configuration,
@@ -117,7 +116,7 @@ namespace Services.Services.PaymentService
             }
 
             // Tạo mô tả dịch vụ dựa trên loại dịch vụ
-            string description = PAYMENT_DESCRIPTION;
+            string description = "";
             string customerName = "";
 
             switch (serviceType)
@@ -136,7 +135,7 @@ namespace Services.Services.PaymentService
                     if (bookingOffline == null)
                         throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE, StatusCodes.Status404NotFound);
 
-                    description = $"{bookingOffline.ConsultationPackage?.PackageName}";
+                    description = $"Gói tư vấn: {bookingOffline.ConsultationPackage?.PackageName}";
                     customerName = curCustomer.Account.FullName ?? "Khách hàng";
                     break;
 
@@ -145,7 +144,7 @@ namespace Services.Services.PaymentService
                     if (course == null)
                         throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsCourse.COURSE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-                    description = $"{course.CourseName}";
+                    description = $"Khóa học: {course.CourseName}";
                     // Vì không có thông tin về khách hàng trực tiếp trong bảng Course
                     customerName = curCustomer.Account.FullName ?? "Khách hàng";
                     break;
@@ -155,7 +154,7 @@ namespace Services.Services.PaymentService
                     if (workshop == null)
                         throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND, StatusCodes.Status404NotFound);
 
-                    description = $"{workshop.WorkshopName}";
+                    description = $"Sự kiện: {workshop.WorkshopName}";
                     // Vì không có thông tin về khách hàng trực tiếp trong bảng Workshop
                     customerName = curCustomer.Account.FullName ?? "Khách hàng";
                     break;
@@ -199,8 +198,27 @@ namespace Services.Services.PaymentService
             // Tạo liên kết thanh toán
             CreatePaymentResult createPayment = await payOS.createPaymentLink(paymentData);
 
-            // Có thể lưu thông tin tạm thời vào cơ sở dữ liệu nếu cần
-            // Ví dụ: lưu vào bảng Order hoặc một bảng trung gian PaymentRequest
+            // Tạo Order mới với trạng thái Pending
+            var order = new Order
+            {
+                OrderId = tempOrderId,
+                CustomerId = curCustomer.CustomerId,
+                ServiceId = serviceId,
+                ServiceType = serviceType.ToString(),
+                Amount = price,
+                OrderCode = orderCode.ToString(),
+                PaymentReference = createPayment.checkoutUrl,
+                Status = PaymentStatusEnums.Pending.ToString(),
+                CreatedDate = DateTime.Now,
+                Description = description,
+                PaymentId = GenerateShortGuid(),
+                Note = $"Thanh toán cho {description}"
+            };
+
+            // Lưu Order vào database
+            await _orderRepo.CreateOrder(order);
+
+            // Trả về kết quả link thanh toán
             return createPayment;
         }
 

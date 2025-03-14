@@ -9,22 +9,30 @@ namespace DAOs.DAOs
 {
     public class WalletDAO
     {
-        public static WalletDAO instance = null;
+        private static volatile WalletDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public WalletDAO()
+        private WalletDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static WalletDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new WalletDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new WalletDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

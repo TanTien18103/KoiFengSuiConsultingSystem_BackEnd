@@ -9,22 +9,30 @@ namespace DAOs.DAOs
 {
     public class FengShuiDocumentDAO
     {
-        public static FengShuiDocumentDAO instance = null;
+        private static volatile FengShuiDocumentDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public FengShuiDocumentDAO()
+        private FengShuiDocumentDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static FengShuiDocumentDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new FengShuiDocumentDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new FengShuiDocumentDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

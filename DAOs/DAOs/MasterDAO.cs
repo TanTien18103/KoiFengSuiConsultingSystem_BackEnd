@@ -10,22 +10,30 @@ namespace DAOs.DAOs
 {
     public class MasterDAO
     {
-        public static MasterDAO instance = null;
+        private static volatile MasterDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public MasterDAO()
+        private MasterDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static MasterDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new MasterDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new MasterDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

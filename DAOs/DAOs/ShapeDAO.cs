@@ -10,22 +10,30 @@ namespace DAOs.DAOs
 {
     public class ShapeDAO
     {
-        public static ShapeDAO instance = null;
+        private static volatile ShapeDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public ShapeDAO()
+        private ShapeDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static ShapeDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new ShapeDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new ShapeDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

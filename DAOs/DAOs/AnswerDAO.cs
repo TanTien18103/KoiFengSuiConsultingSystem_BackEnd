@@ -10,10 +10,11 @@ namespace DAOs.DAOs
 {
     public class AnswerDAO
     {
-        public static AnswerDAO instance = null;
+        private static volatile AnswerDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public AnswerDAO()
+        private AnswerDAO()
         {
             _context = new KoiFishPondContext();
         }
@@ -22,11 +23,17 @@ namespace DAOs.DAOs
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new AnswerDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new AnswerDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

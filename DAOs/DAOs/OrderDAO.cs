@@ -11,22 +11,30 @@ namespace DAOs.DAOs
 {
     public class OrderDAO
     {
-        public static OrderDAO instance = null;
+        private static volatile OrderDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public OrderDAO()
+        private OrderDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static OrderDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new OrderDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new OrderDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
         public async Task<Order> CreateOrderDao(Order order)

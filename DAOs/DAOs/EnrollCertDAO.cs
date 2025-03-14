@@ -9,22 +9,30 @@ namespace DAOs.DAOs
 {
     public class EnrollCertDAO
     {
-        public static EnrollCertDAO instance = null;
+        private static volatile EnrollCertDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public EnrollCertDAO()
+        private EnrollCertDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static EnrollCertDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new EnrollCertDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new EnrollCertDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
         public async Task<EnrollCert> GetEnrollCertByIdDao(string enrollCertId)

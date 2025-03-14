@@ -9,22 +9,30 @@ namespace DAOs.DAOs
 {
     public class AccountDAO
     {
-        public static AccountDAO instance = null;
+        private static volatile AccountDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public AccountDAO()
+        private AccountDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static AccountDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null) 
                 {
-                    instance = new AccountDAO();
+                    lock (_lock) 
+                    {
+                        if (_instance == null) 
+                        {
+                            _instance = new AccountDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

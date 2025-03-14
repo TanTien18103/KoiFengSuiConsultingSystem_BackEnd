@@ -9,10 +9,11 @@ namespace DAOs.DAOs
 {
     public class ConsultationPackageDAO
     {
-        public static ConsultationPackageDAO instance = null;
+        private static volatile ConsultationPackageDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public ConsultationPackageDAO()
+        private ConsultationPackageDAO()
         {
             _context = new KoiFishPondContext();
         }
@@ -21,11 +22,17 @@ namespace DAOs.DAOs
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new ConsultationPackageDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new ConsultationPackageDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

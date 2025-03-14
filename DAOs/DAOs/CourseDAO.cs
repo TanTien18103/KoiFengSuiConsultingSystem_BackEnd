@@ -9,22 +9,30 @@ namespace DAOs.DAOs
 {
     public class CourseDAO
     {
-        public static CourseDAO instance = null;
+        private static volatile CourseDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public CourseDAO()
+        private CourseDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static CourseDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new CourseDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new CourseDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

@@ -10,22 +10,30 @@ namespace DAOs.DAOs
 {
     public class BookingOfflineDAO
     {
-        public static BookingOfflineDAO instance = null;
+        private static volatile BookingOfflineDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public BookingOfflineDAO()
+        private BookingOfflineDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static BookingOfflineDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new BookingOfflineDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new BookingOfflineDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

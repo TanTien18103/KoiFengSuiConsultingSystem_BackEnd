@@ -10,22 +10,30 @@ namespace DAOs.DAOs
 {
     public class CertificateDAO
     {
-        public static CertificateDAO instance = null;
+        private static volatile CertificateDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public CertificateDAO()
+        private CertificateDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static CertificateDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new CertificateDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new CertificateDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

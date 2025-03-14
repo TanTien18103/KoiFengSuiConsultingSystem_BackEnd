@@ -10,22 +10,30 @@ namespace DAOs.DAOs
 {
     public class WorkShopDAO
     {
-        public static WorkShopDAO instance = null;
+        private static volatile WorkShopDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public WorkShopDAO()
+        private WorkShopDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static WorkShopDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new WorkShopDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new WorkShopDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

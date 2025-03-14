@@ -10,22 +10,30 @@ namespace DAOs.DAOs
 {
     public class RegisterAttendDAO
     {
-        public static RegisterAttendDAO instance = null;
+        private static volatile RegisterAttendDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public RegisterAttendDAO()
+        private RegisterAttendDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static RegisterAttendDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new RegisterAttendDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new RegisterAttendDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

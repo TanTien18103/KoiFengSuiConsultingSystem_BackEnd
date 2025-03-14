@@ -9,22 +9,30 @@ namespace DAOs.DAOs
 {
     public class ColorDAO
     {
-        public static ColorDAO instance = null;
+        private static volatile ColorDAO _instance;
+        private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        public ColorDAO()
+        private ColorDAO()
         {
             _context = new KoiFishPondContext();
         }
+
         public static ColorDAO Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new ColorDAO();
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new ColorDAO();
+                        }
+                    }
                 }
-                return instance;
+                return _instance;
             }
         }
 

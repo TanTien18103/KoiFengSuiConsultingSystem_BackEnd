@@ -31,14 +31,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPut("approve-workshop")]
-        public async Task<IActionResult> ApprovedWorkshop([FromRoute] string id)
+        public async Task<IActionResult> ApprovedWorkshop(string id)
         {
             var res = await _workshopService.ApprovedWorkshop(id);
             return StatusCode(res.StatusCode, res);
         }
 
         [HttpPut("reject-workshop")]
-        public async Task<IActionResult> RejectedWorkshop([FromRoute] string id)
+        public async Task<IActionResult> RejectedWorkshop(string id)
         {
             var res = await _workshopService.RejectedWorkshop(id);
             return StatusCode(res.StatusCode, res);

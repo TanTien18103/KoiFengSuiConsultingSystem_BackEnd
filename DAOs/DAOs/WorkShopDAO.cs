@@ -56,7 +56,7 @@ namespace DAOs.DAOs
         public async Task<List<WorkShop>> SortingWorkshopByCreatedDateDao()
         {
             return await _context.WorkShops
-                .Include(x => x.Master)
+                .Include(x => x.Master).ThenInclude(x => x.Account)
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
         }

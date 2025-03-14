@@ -20,7 +20,7 @@ namespace Repositories.Repositories.MasterRepository
         }
         public Task<Master> GetByMasterId(string masterId)
         {
-            return MasterDAO.instance.GetByMasterIdDao(masterId);
+            return MasterDAO.Instance.GetByMasterIdDao(masterId);
         }
         public Task<T> Create<T>(T entity) where T : class
         {

@@ -22,6 +22,18 @@ namespace Repositories.Repositories.WorkShopRepository
         {
             return WorkShopDAO.Instance.GetMasterIdByAccountIdDao(accountId);
         }
+        public Task<WorkShop> GetWorkshopByMasterLocationAndDate(string masterId, string location, DateTime? startDate)
+        {
+            return WorkShopDAO.Instance.GetWorkshopByMasterLocationAndDateDao(masterId, location, startDate);
+        }
+        public Task<WorkShop> GetWorkshopByLocationAndDate(string location, DateTime? startDate)
+        {
+            return WorkShopDAO.Instance.GetWorkshopByLocationAndDate(location, startDate);
+        }
+        public Task<List<WorkShop>> GetWorkshopsByMaster(string accountId)
+        {
+            return WorkShopDAO.Instance.GetWorkshopsByMasterDao(accountId);
+        }
         public Task<List<WorkShop>> SortingWorkshopByCreatedDate()
         {
             return WorkShopDAO.Instance.SortingWorkshopByCreatedDateDao();

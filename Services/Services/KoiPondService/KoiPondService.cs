@@ -117,6 +117,7 @@ namespace Services.Services.KoiPondService
                 if (!suitableShapes.Any())
                 {
                     res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
                     res.Message = $"Không tìm thấy hình dạng hồ phù hợp cho mệnh {customerElement}";
                     res.StatusCode = StatusCodes.Status404NotFound;
                     return res;
@@ -149,14 +150,16 @@ namespace Services.Services.KoiPondService
                 };
 
                 res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Message = "Successfully";
+                res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_DESTINY_FOUND;
                 res.Data = result;
                 return res;
             }
             catch (Exception ex)
             {
                 res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.Message = $"Lỗi khi lấy gợi ý hồ cá: {ex.Message}";
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 return res;

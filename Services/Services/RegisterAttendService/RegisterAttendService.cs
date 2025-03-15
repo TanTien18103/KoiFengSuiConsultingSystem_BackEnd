@@ -193,20 +193,23 @@ namespace Services.Services.RegisterAttendService
                 if (registerAttends == null || !registerAttends.Any())
                 {
                     res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
                     res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = "Không tìm thấy vé tham dự sự kiện";
+                    res.Message = ResponseMessageConstrantsRegisterAttend.REGISTERATTEND_NOT_FOUND;
                     return res;
                 }
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.Data = _mapper.Map<List<RegisterAttendResponse>>(registerAttends);
-                res.Message = "Lấy danh sách vé tham dự sự kiện thành công";
+                res.Message = ResponseMessageConstrantsRegisterAttend.REGISTERATTEND_FOUND;
                 return res;
             }
             catch (Exception ex)
             {
                 res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.Message = ex.Message;
                 return res;

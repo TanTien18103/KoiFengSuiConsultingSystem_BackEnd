@@ -21,6 +21,8 @@ using Repositories.Helpers;
 using BusinessObjects.Enums;
 using Services.Services.EmailService;
 using Repositories.Repositories.AccountRepository;
+using BusinessObjects.Exceptions;
+using BusinessObjects.Constants;
 
 namespace Services.Services.AccountService;
 
@@ -92,7 +94,7 @@ public class AccountService : IAccountService
                 UserName = name,
                 Email = email,
                 Password = string.Empty,
-                Role = "Customer"
+                Role = RoleEnums.Customer.ToString(),
             };
 
             await _accountRepository.AddAccount(newUser);
@@ -105,8 +107,8 @@ public class AccountService : IAccountService
     {
         return _accountRepository.GetAccountByEmail(email).Result switch
         {
-            null => throw new Exception("Account not found"),
-            var user => VerifyPassword(password, user.Password) ? CreateToken(user) : throw new Exception("Invalid password")
+            null => throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageIdentity.INCORRECT_EMAIL, StatusCodes.Status404NotFound),
+            var user => VerifyPassword(password, user.Password) ? CreateToken(user) : throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageIdentity.PASSWORD_INVALID, StatusCodes.Status400BadRequest)
         };
     }
 
@@ -114,11 +116,10 @@ public class AccountService : IAccountService
     {
         var user = await _accountRepository.GetAccountByEmail(email);
         if (user == null)
-            throw new KeyNotFoundException("USER IS NOT FOUND");
+            throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstantsUser.USER_NOT_FOUND, StatusCodes.Status404NotFound);
 
         if (!VerifyPassword(password, user.Password))
-            throw new UnauthorizedAccessException("INVALID PASSWORD");
-
+            throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageIdentity.PASSWORD_INVALID, StatusCodes.Status400BadRequest);
         string accessToken = CreateToken(user);
         string refreshToken = GenerateRefreshToken();
 
@@ -136,10 +137,10 @@ public class AccountService : IAccountService
     {
         var existingUser = await _accountRepository.GetAccountByEmail(registerRequest.Email);
         if (existingUser != null)
-            throw new Exception("Email is already in use.");
+            throw new AppException(ResponseCodeConstants.EXISTED, ResponseMessageIdentity.EXISTED_EMAIL, StatusCodes.Status400BadRequest);
 
         if (!registerRequest.Gender.HasValue)
-            throw new ArgumentException("Gender is required.");
+            throw new AppException(ResponseCodeConstants.REQUIRED_INPUT, ResponseMessageIdentity.GENDER_REQUIRED, StatusCodes.Status400BadRequest);
 
         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
 
@@ -166,7 +167,7 @@ public class AccountService : IAccountService
             PhoneNumber = registerRequest.PhoneNumber,
             Gender = registerRequest.Gender,
             Dob = DateOnly.FromDateTime(registerRequest.Dob), // Convert DateTime to DateOnly
-            Role = "Customer",
+            Role = RoleEnums.Customer.ToString(),
             Customers = new List<Customer> { customer }
         };
 
@@ -190,18 +191,18 @@ public class AccountService : IAccountService
     public async Task<string> RefreshAccessToken()
     {
         if (_httpContextAccessor.HttpContext == null)
-            throw new UnauthorizedAccessException("Session is not available.");
+            throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageIdentity.SESSION_NOT_FOUND, StatusCodes.Status404NotFound);
 
         var session = _httpContextAccessor.HttpContext.Session;
         string? refreshToken = session.GetString("RefreshToken");
         string? email = session.GetString("Email");
 
         if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(email))
-            throw new UnauthorizedAccessException("Invalid session. Please log in again.");
+            throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageIdentity.SESSION_INVALID, StatusCodes.Status400BadRequest);
 
         var user = await _accountRepository.GetAccountByEmail(email);
         if (user == null)
-            throw new KeyNotFoundException("User not found.");
+            throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstantsUser.USER_NOT_FOUND, StatusCodes.Status404NotFound);
 
         return CreateToken(user);
     }
@@ -220,7 +221,8 @@ public class AccountService : IAccountService
             if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
             {
                 res.IsSuccess = false;
-                res.Message = "Token xác thực không được cung cấp";
+                res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                res.Message = ResponseMessageIdentity.TOKEN_NOT_SEND;
                 res.StatusCode = StatusCodes.Status401Unauthorized;
                 return res;
             }
@@ -229,7 +231,8 @@ public class AccountService : IAccountService
             if (string.IsNullOrEmpty(token))
             {
                 res.IsSuccess = false;
-                res.Message = "Token không hợp lệ";
+                res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                res.Message = ResponseMessageIdentity.TOKEN_INVALID;
                 res.StatusCode = StatusCodes.Status401Unauthorized;
                 return res;
             }
@@ -238,7 +241,8 @@ public class AccountService : IAccountService
             if (string.IsNullOrEmpty(accountId))
             {
                 res.IsSuccess = false;
-                res.Message = "Token không hợp lệ hoặc đã hết hạn";
+                res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
                 res.StatusCode = StatusCodes.Status401Unauthorized;
                 return res;
             }
@@ -247,7 +251,8 @@ public class AccountService : IAccountService
             if (existingAccount == null)
             {
                 res.IsSuccess = false;
-                res.Message = "Không tìm thấy tài khoản";
+                res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                res.Message = ResponseMessageIdentity.ACCOUNT_NOT_FOUND;
                 res.StatusCode = StatusCodes.Status404NotFound;
                 return res;
             }
@@ -255,7 +260,8 @@ public class AccountService : IAccountService
             if (existingAccount.AccountId != accountId)
             {
                 res.IsSuccess = false;
-                res.Message = "Không có quyền chỉnh sửa tài khoản này";
+                res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
+                res.Message = ResponseMessageIdentity.USER_NOT_ALLOWED;
                 res.StatusCode = StatusCodes.Status403Forbidden;
                 return res;
             }
@@ -265,13 +271,15 @@ public class AccountService : IAccountService
             await _accountRepository.UpdateAccount(existingAccount);
 
             res.IsSuccess = true;
-            res.Message = "Cập nhật thông tin thành công";
+            res.ResponseCode = ResponseCodeConstants.SUCCESS;
+            res.Message = ResponseMessageIdentitySuccess.UPDATE_USER_SUCCESS;
             res.StatusCode = StatusCodes.Status200OK;
             return res;
         }
         catch (Exception ex)
         {
             res.IsSuccess = false;
+            res.ResponseCode = ResponseCodeConstants.FAILED;
             res.Message = $"Lỗi khi cập nhật thông tin: {ex.Message}";
             res.StatusCode = StatusCodes.Status500InternalServerError;
             return res;
@@ -289,7 +297,8 @@ public class AccountService : IAccountService
                 return new ResultModel
                 {
                     IsSuccess = false,
-                    Message = "Token xác thực không được cung cấp",
+                    ResponseCode = ResponseCodeConstants.UNAUTHORIZED,
+                    Message = ResponseMessageIdentity.TOKEN_NOT_SEND,
                     StatusCode = StatusCodes.Status401Unauthorized
                 };
             }
@@ -301,7 +310,8 @@ public class AccountService : IAccountService
                 return new ResultModel
                 {
                     IsSuccess = false,
-                    Message = "Token không hợp lệ hoặc đã hết hạn",
+                    ResponseCode = ResponseCodeConstants.UNAUTHORIZED,
+                    Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED,
                     StatusCode = StatusCodes.Status401Unauthorized
                 };
             }
@@ -312,7 +322,8 @@ public class AccountService : IAccountService
                 return new ResultModel
                 {
                     IsSuccess = false,
-                    Message = "Không tìm thấy tài khoản",
+                    ResponseCode = ResponseCodeConstants.NOT_FOUND,
+                    Message = ResponseMessageIdentity.ACCOUNT_NOT_FOUND,
                     StatusCode = StatusCodes.Status404NotFound
                 };
             }
@@ -322,7 +333,8 @@ public class AccountService : IAccountService
                 return new ResultModel
                 {
                     IsSuccess = false,
-                    Message = "Mật khẩu cũ không chính xác",
+                    ResponseCode = ResponseCodeConstants.BAD_REQUEST,
+                    Message = ResponseMessageIdentity.OLD_PASSWORD_WRONG,
                     StatusCode = StatusCodes.Status400BadRequest
                 };
             }
@@ -332,7 +344,8 @@ public class AccountService : IAccountService
                 return new ResultModel
                 {
                     IsSuccess = false,
-                    Message = "Mật khẩu mới không được trùng với mật khẩu cũ",
+                    ResponseCode = ResponseCodeConstants.BAD_REQUEST,
+                    Message = ResponseMessageIdentity.NEW_PASSWORD_CANNOT_MATCH,
                     StatusCode = StatusCodes.Status400BadRequest
                 };
             }
@@ -343,7 +356,8 @@ public class AccountService : IAccountService
             return new ResultModel
             {
                 IsSuccess = true,
-                Message = "Đổi mật khẩu thành công",
+                ResponseCode = ResponseCodeConstants.SUCCESS,
+                Message = ResponseMessageIdentitySuccess.CHANGE_PASSWORD_SUCCESS,
                 StatusCode = StatusCodes.Status200OK
             };
         }
@@ -352,6 +366,7 @@ public class AccountService : IAccountService
             return new ResultModel
             {
                 IsSuccess = false,
+                ResponseCode = ResponseCodeConstants.FAILED,
                 Message = $"Lỗi khi đổi mật khẩu: {ex.Message}",
                 StatusCode = StatusCodes.Status500InternalServerError
             };
@@ -361,28 +376,41 @@ public class AccountService : IAccountService
     public async Task<ResultModel> ForgotPassword(string email)
     {
         var res = new ResultModel();
-        var user = await _accountRepository.GetAccountByEmail(email);
-        if (user == null)
+        try
         {
-            res.IsSuccess = false;
-            res.Message = "Email không tồn tại";
-            res.StatusCode = StatusCodes.Status404NotFound;
+            var user = await _accountRepository.GetAccountByEmail(email);
+            if (user == null)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                res.Message = ResponseMessageIdentity.INCORRECT_EMAIL;
+                res.StatusCode = StatusCodes.Status404NotFound;
+                return res;
+            }
+            var newPassword = GenerateShortGuid();
+
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+            user.Password = hashedPassword;
+            await _accountRepository.UpdateAccount(user);
+
+            string subject = "Mật khẩu mới của bạn";
+            string body = $"Mật khẩu mới của bạn là: <b>{newPassword}</b>. Hãy đăng nhập và đổi mật khẩu ngay.";
+            await _emailService.SendEmail(email, subject, body);
+
+            res.IsSuccess = true;
+            res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+            res.Message = ResponseMessageIdentitySuccess.FORGOT_PASSWORD_SUCCESS;
+            res.StatusCode = StatusCodes.Status200OK;
             return res;
         }
-        var newPassword = GenerateShortGuid();
-
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword);
-
-        user.Password = hashedPassword;
-        await _accountRepository.UpdateAccount(user);
-
-        string subject = "Mật khẩu mới của bạn";
-        string body = $"Mật khẩu mới của bạn là: <b>{newPassword}</b>. Hãy đăng nhập và đổi mật khẩu ngay.";
-        await _emailService.SendEmail(email, subject, body);
-
-        res.IsSuccess = true;
-        res.Message = "Mật khẩu mới đã được gửi đến email của bạn";
-        res.StatusCode = StatusCodes.Status200OK;
-        return res;
+        catch (Exception ex)
+        {
+            res.IsSuccess = false;
+            res.ResponseCode = ResponseCodeConstants.FAILED;
+            res.Message = ex.Message;
+            res.StatusCode = StatusCodes.Status500InternalServerError;
+            return res;
+        }
     }
 }

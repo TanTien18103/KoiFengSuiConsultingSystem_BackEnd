@@ -49,7 +49,10 @@ namespace BusinessObjects.Constants
         public const string UNAUTHENTICATED = "Không xác thực.";
         public const string UNAUTHENTICATED_OR_UNAUTHORIZED = "Người dùng chưa xác thực hoặc không có quyền truy cập.";
         public const string PASSWORD_NOT_MATCH = "Mật khẩu không giống nhau.";
+        public const string NEW_PASSWORD_CANNOT_MATCH = "Mật khẩu mới không được trùng với mật khẩu cũ.";
         public const string PASSWORD_WRONG = "Mật khẩu không đúng.";
+        public const string OLD_PASSWORD_WRONG = "Mật khẩu cũ không đúng.";
+        public const string PASSWORD_INVALID = "Mật khẩu không hợp lệ.";
         public const string EXISTED_USER = "Người dùng đã tồn tại.";
         public const string EXISTED_EMAIL = "Email đã tồn tại.";
         public const string EXISTED_PHONE = "Số điện thoại đã tồn tại.";
@@ -62,9 +65,12 @@ namespace BusinessObjects.Constants
         public const string ROLE_INVALID = "Role không xác thực.";
         public const string CLAIM_NOTFOUND = "Không tìm thấy claim.";
         public const string EXISTED_ROLE = "Role đã tồn tại.";
+        public const string INCORRECT_EMAIL = "Email Không tìm thấy";
+        public const string ACCOUNT_NOT_FOUND= "Tài khoản Không tìm thấy";
 
         public const string USERNAME_REQUIRED = "Tên người dùng không được để trống.";
         public const string NAME_REQUIRED = "Tên không được để trống.";
+        public const string GENDER_REQUIRED = "Giới tính không được để trống.";
         public const string USERCODE_REQUIRED = "Mã người dùng không được để trống.";
         public const string PASSWORD_REQUIRED = "Mật khẩu không được để trống.";
         public const string PASSSWORD_LENGTH = "Mật khẩu phải có ít nhất 8 ký tự.";
@@ -75,6 +81,8 @@ namespace BusinessObjects.Constants
         public const string PHONENUMBER_LENGTH = "Số điện thoại phải có chính xác 10 số.";
         public const string ROLES_REQUIRED = "Role không được để trống.";
         public const string USER_NOT_ALLOWED = "Bạn không có quyền truy cập vào mục này.";
+        public const string SESSION_NOT_FOUND = "Không tìm thấy session.";
+        public const string SESSION_INVALID = "Session không hợp lệ, hãy đăng nhập lại.";
         public const string EMAIL_VALIDATION_REQUIRED = "Vui lòng nhập mã OTP được gửi đến email của bạn để kích hoạt tài khoản.";
     }
 
@@ -95,7 +103,7 @@ namespace BusinessObjects.Constants
         public const string DELETE_ROLE_SUCCESS = "Xóa role thành công!";
     }
 
-    //For User (0-1-0)
+    //For User (0-1-0)  
     public class ResponseMessageConstantsUser
     {
         public const string GET_USER_INFO_SUCCESS = "Lấy thông tin người dùng thành công";
@@ -159,6 +167,7 @@ namespace BusinessObjects.Constants
     {
         public const string KOIPOND_NOT_FOUND = "Không tìm thấy hồ cá!";
         public const string KOIPOND_FOUND = "Lấy danh sách hồ cá thành công!";
+        public const string KOIPOND_DESTINY_FOUND = "Lấy danh sách hồ cá phù hợp với mệnh thành công!";
     }
 
     public class ResponseMessageConstrantsKoiVariety
@@ -213,6 +222,11 @@ namespace BusinessObjects.Constants
         public const string NOTFOUND_MASTERID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy MasterId tương ứng với tài khoản";
         public const string REGISTER_NOT_FOUND = "Không tìm thấy thông tin vé";
         public const string CHECK_IN_SUCCESS = "Check-in thành công";
+        public const string WORKSHOP_DUPLICATE_LOCATION_DATE_SAME_MASTER = "Bạn đã có một hội thảo với cùng địa điểm và ngày bắt đầu.";
+        public const string WORKSHOP_DUPLICATE_LOCATION_DATE_OTHER_MASTER = "Đã có một hội thảo khác được tổ chức tại địa điểm và thời gian này.";
+        public const string WORKSHOP_MINIMUM_HOURS_DIFFERENCE = "Khoảng cách giữa hai hội thảo ở hai địa điểm khác nhau phải tối thiểu 5 giờ.";
+        public const string WORKSHOP_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa workshop này.";
+        public const string WORKSHOP_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật workshop này.";
     }
 
     public class ResponseMessageConstrantsCourse

@@ -324,8 +324,6 @@ namespace Services.Services.BookingService
             var res = new ResultModel();
             try
             {
-
-
                 var bookings = await _onlineRepo.GetBookingOnlinesRepo();
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;

@@ -222,7 +222,6 @@ namespace Services.Services.WorkshopService
 
             try
             {
-                // Validate request
                 if (request == null)
                 {
                     res.IsSuccess = false;
@@ -242,11 +241,58 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
+                var masterId = await _workShopRepo.GetMasterIdByAccountId(accountId);
+                if (masterId == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsWorkshop.NOTFOUND_MASTERID_CORRESPONDING_TO_ACCOUNT;
+                    return res;
+                }
+
+                var existingWorkshop = await _workShopRepo.GetWorkshopByMasterLocationAndDate(masterId, request.Location, request.StartDate);
+                if (existingWorkshop != null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.EXISTED;
+                    res.StatusCode = StatusCodes.Status409Conflict;
+                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_DUPLICATE_LOCATION_DATE_SAME_MASTER;
+                    return res;
+                }
+
+                var existingWorkshopOtherMaster = await _workShopRepo.GetWorkshopByLocationAndDate(request.Location, request.StartDate);
+                if (existingWorkshopOtherMaster != null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.EXISTED;
+                    res.StatusCode = StatusCodes.Status409Conflict;
+                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_DUPLICATE_LOCATION_DATE_OTHER_MASTER;
+                    return res;
+                }
+
+                var workshopsByMaster = await _workShopRepo.GetWorkshopsByMaster(masterId);
+                foreach (var ws in workshopsByMaster)
+                {
+                    if (ws.Location != request.Location && request.StartDate.HasValue && ws.StartDate.HasValue)
+                    {
+                        var timeDifference = (request.StartDate.Value - ws.StartDate.Value).TotalHours;
+                        if (Math.Abs(timeDifference) < 5)
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.EXISTED;
+                            res.StatusCode = StatusCodes.Status409Conflict;
+                            res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_MINIMUM_HOURS_DIFFERENCE;
+                            return res;
+                        }
+                    }
+                }
+
                 var newWorkshop = _mapper.Map<WorkShop>(request);
                 newWorkshop.WorkshopId = GenerateShortGuid();
                 newWorkshop.CreatedDate = DateTime.UtcNow;
                 newWorkshop.Status = WorkshopStatusEnums.Pending.ToString();
-                newWorkshop.MasterId = await _workShopRepo.GetMasterIdByAccountId(accountId);
+                newWorkshop.MasterId = masterId;
 
                 if (newWorkshop.MasterId == null)
                 {
@@ -299,6 +345,26 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
+                var accountId = GetAuthenticatedAccountId();
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    return res;
+                }
+
+                var masterId = await _workShopRepo.GetMasterIdByAccountId(accountId);
+                if (masterId == null || masterId != workshop.MasterId)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
+                    res.StatusCode = StatusCodes.Status403Forbidden;
+                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_UPDATE_NOT_ALLOWED;
+                    return res;
+                }
+
                 _mapper.Map(request, workshop);
 
                 await _workShopRepo.UpdateWorkShop(workshop);
@@ -332,6 +398,26 @@ namespace Services.Services.WorkshopService
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
                     res.StatusCode = StatusCodes.Status404NotFound;
                     res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND;
+                    return res;
+                }
+
+                var accountId = GetAuthenticatedAccountId();
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    return res;
+                }
+
+                var masterId = await _workShopRepo.GetMasterIdByAccountId(accountId);
+                if (masterId == null || masterId != workshop.MasterId)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
+                    res.StatusCode = StatusCodes.Status403Forbidden;
+                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_DELETE_NOT_ALLOWED;
                     return res;
                 }
 

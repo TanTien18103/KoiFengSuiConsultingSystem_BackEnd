@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Services.ApiModels.KoiVariety;
 using Services.Services.KoiVarietyService;
 using System.Xml.Linq;
 
@@ -45,6 +46,29 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             var res = await _koiVarietyService.GetRecommendedKoiVarietiesAsync();
             return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateKoiVariety([FromBody] KoiVarietyRequest request)
+        { 
+
+            var result = await _koiVarietyService.CreateKoiVarietyAsync(request);
+            return StatusCode(result.StatusCode, result);
+        }
+
+      
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateKoiVariety(string id, [FromBody] KoiVarietyRequest request)
+        {
+            var result = await _koiVarietyService.UpdateKoiVarietyAsync(id, request);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteKoiVariety(string id)
+        {
+            var result = await _koiVarietyService.DeleteKoiVarietyAsync(id);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

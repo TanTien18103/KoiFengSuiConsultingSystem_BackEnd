@@ -5,9 +5,12 @@ using BusinessObjects.Exceptions;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Repositories.AccountRepository;
+using Repositories.Repositories.ColorRepository;
 using Repositories.Repositories.CustomerRepository;
 using Repositories.Repositories.KoiVarietyRepository;
+using Repositories.Repositories.VarietyColorRepository;
 using Services.ApiModels;
 using Services.ApiModels.Color;
 using Services.ApiModels.KoiVariety;
@@ -28,15 +31,20 @@ namespace Services.Services.KoiVarietyService
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAccountRepo _accountRepo;
+        private readonly IVarietyColorRepo _varietyColorRepo;
+        private readonly IColorRepo _colorRepo;
 
-        public KoiVarietyService(IKoiVarietyRepo koiVarietyRepo, ICustomerRepo customerRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo)
+        public KoiVarietyService(IKoiVarietyRepo koiVarietyRepo, ICustomerRepo customerRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo, IVarietyColorRepo varietyColorRepo, IColorRepo colorRepo)
         {
             _koiVarietyRepo = koiVarietyRepo;
             _customerRepo = customerRepo;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _accountRepo = accountRepo;
+            _varietyColorRepo = varietyColorRepo;
+            _colorRepo = colorRepo;
         }
+
 
         public static string GenerateShortGuid()
         {
@@ -522,7 +530,6 @@ namespace Services.Services.KoiVarietyService
             var res = new ResultModel();
             try
             {
-
                 var newKoiVariety = new KoiVariety
                 {
                     KoiVarietyId = GenerateShortGuid(),
@@ -530,7 +537,18 @@ namespace Services.Services.KoiVarietyService
                     Description = koiVariety.Description
                 };
 
+                foreach (var varietyColor in koiVariety.VarietyColors)
+                {
+                    newKoiVariety.VarietyColors.Add(new VarietyColor
+                    {
+                        KoiVarietyId = newKoiVariety.KoiVarietyId,
+                        ColorId = varietyColor.ColorId,
+                        Percentage = varietyColor.Percentage
+                    });
+                }
+
                 var createdKoiVariety = await _koiVarietyRepo.CreateKoiVariety(newKoiVariety);
+
                 if (createdKoiVariety == null)
                 {
                     res.IsSuccess = false;
@@ -540,11 +558,13 @@ namespace Services.Services.KoiVarietyService
                     return res;
                 }
 
+                var KoiVarietyresponse = await _koiVarietyRepo.GetKoiVarietyById(createdKoiVariety.KoiVarietyId);
+
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status201Created;
                 res.Message = ResponseMessageConstrantsKoiVariety.CREATE_KOIVARIETY_SUCCESS;
-                res.Data = _mapper.Map<KoiVariety>(createdKoiVariety);
+                res.Data = _mapper.Map<KoiVarietyResponse>(KoiVarietyresponse);
                 return res;
             }
             catch (Exception ex)
@@ -556,6 +576,7 @@ namespace Services.Services.KoiVarietyService
                 return res;
             }
         }
+
 
         public async Task<ResultModel> UpdateKoiVarietyAsync(string id, KoiVarietyRequest koiVariety)
         {
@@ -575,7 +596,21 @@ namespace Services.Services.KoiVarietyService
                 existingKoiVariety.VarietyName = koiVariety.VarietyName;
                 existingKoiVariety.Description = koiVariety.Description;
 
+                existingKoiVariety.VarietyColors.Clear();
+
+                foreach (var varietyColor in koiVariety.VarietyColors)
+                {
+                    existingKoiVariety.VarietyColors.Add(new VarietyColor
+                    {
+                        KoiVarietyId = existingKoiVariety.KoiVarietyId,
+                        ColorId = varietyColor.ColorId,
+                        Percentage = varietyColor.Percentage
+                    });
+                }
+
                 var updatedKoiVariety = await _koiVarietyRepo.UpdateKoiVariety(existingKoiVariety);
+                var KoiVarietyresponse = await _koiVarietyRepo.GetKoiVarietyById(updatedKoiVariety.KoiVarietyId);
+
                 if (updatedKoiVariety == null)
                 {
                     res.IsSuccess = false;
@@ -589,7 +624,7 @@ namespace Services.Services.KoiVarietyService
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Message = ResponseMessageConstrantsKoiVariety.UPDATE_KOIVARIETY_SUCCESS;
-                res.Data = _mapper.Map<KoiVarietyDto>(updatedKoiVariety);
+                res.Data = _mapper.Map<KoiVarietyResponse>(KoiVarietyresponse);
                 return res;
             }
             catch (Exception ex)

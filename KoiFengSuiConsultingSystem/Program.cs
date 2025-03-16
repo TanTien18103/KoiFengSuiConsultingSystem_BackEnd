@@ -29,6 +29,8 @@ using Services.Services.RegisterAttendService;
 using Services.Services.WorkshopService;
 using Services.ServicesHelpers.PriceService;
 using System.Text;
+using Repositories.Repositories.VarietyColorRepository;
+using Repositories.Repositories.ColorRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +40,7 @@ builder.Services.AddScoped<IKoiPondRepo, KoiPondRepo>();
 builder.Services.AddScoped<IShapeRepo, ShapeRepo>();
 builder.Services.AddScoped<ICustomerRepo, CustomerRepo>();
 builder.Services.AddScoped<IKoiVarietyRepo, KoiVarietyRepo>();
+builder.Services.AddScoped<IVarietyColorRepo, VarietyColorRepo>();
 builder.Services.AddScoped<IMasterRepo, MasterRepo>();
 builder.Services.AddScoped<IBookingOnlineRepo, BookingOnlineRepo>();
 builder.Services.AddScoped<IMasterScheduleRepo, MasterScheduleRepo>();
@@ -46,6 +49,7 @@ builder.Services.AddScoped<ICourseRepo, CourseRepo>();
 builder.Services.AddScoped<IWorkShopRepo, WorkShopRepo>();
 builder.Services.AddScoped<IOrderRepo, OrderRepo>();
 builder.Services.AddScoped<IRegisterAttendRepo, RegisterAttendRepo>();
+builder.Services.AddScoped<IColorRepo, ColorRepo>(); 
 
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -63,6 +67,7 @@ builder.Services.AddScoped<IRegisterAttendService, RegisterAttendService>();
 builder.Services.AddScoped<IPayOSService, PayOSService>();
 
 
+
 //Register Mapper
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));
 builder.Services.AddAutoMapper(typeof(KoiPondMappingProfile));
@@ -72,6 +77,7 @@ builder.Services.AddAutoMapper(typeof(MasterScheduleMappingProfile));
 builder.Services.AddAutoMapper(typeof(BookingMappingProfile));
 builder.Services.AddAutoMapper(typeof(RegisterAttendMappingProfile));
 builder.Services.AddAutoMapper(typeof(WorkshopMappingProfile));
+
 
 
 builder.Services.AddHttpClient();

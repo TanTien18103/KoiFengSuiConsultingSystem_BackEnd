@@ -30,7 +30,12 @@ namespace Services.Services.KoiPondService
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
         }
-
+        public static string GenerateShortGuid()
+        {
+            Guid guid = Guid.NewGuid();
+            string base64 = Convert.ToBase64String(guid.ToByteArray());
+            return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
+        }
         private async Task<ResultModel> GetCustomerElement()
         {
             var res = new ResultModel();
@@ -117,6 +122,7 @@ namespace Services.Services.KoiPondService
                 if (!suitableShapes.Any())
                 {
                     res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
                     res.Message = $"Không tìm thấy hình dạng hồ phù hợp cho mệnh {customerElement}";
                     res.StatusCode = StatusCodes.Status404NotFound;
                     return res;
@@ -149,14 +155,16 @@ namespace Services.Services.KoiPondService
                 };
 
                 res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Message = "Successfully";
+                res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_DESTINY_FOUND;
                 res.Data = result;
                 return res;
             }
             catch (Exception ex)
             {
                 res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.Message = $"Lỗi khi lấy gợi ý hồ cá: {ex.Message}";
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 return res;
@@ -240,7 +248,7 @@ namespace Services.Services.KoiPondService
             try
             {
                 var koiPonds = await _koiPondRepo.GetKoiPonds();
-                if(koiPonds == null)
+                if (koiPonds == null)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -297,5 +305,155 @@ namespace Services.Services.KoiPondService
                 return res;
             }
         }
+
+        public async Task<ResultModel> CreateKoiPond(KoiPondRequest koiPond)
+        {
+            var res = new ResultModel();
+            try
+            {
+                if (koiPond == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_INVALID;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var koiPondModel = _mapper.Map<KoiPond>(koiPond);
+                koiPondModel.KoiPondId = GenerateShortGuid();
+                var createdKoiPond = await _koiPondRepo.CreateKoiPond(koiPondModel);
+                if (createdKoiPond == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_CREATE_FAILED;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+                var shape = await _shapeRepo.GetShapeById(createdKoiPond.ShapeId);
+                if(shape == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsKoiPond.SHAPE_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status201Created;
+                res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_CREATED;
+                res.Data = _mapper.Map<KoiPondResponse>(createdKoiPond);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Lỗi khi tạo hồ cá: {ex.Message}";
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> UpdateKoiPond(string id, KoiPondRequest koiPond)
+        {
+            var res = new ResultModel();
+            try
+            {
+                if (koiPond == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_INVALID;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var existingKoiPond = await _koiPondRepo.GetKoiPondById(id);
+                if (existingKoiPond == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                // Cập nhật thuộc tính của existingKoiPond thay vì tạo một instance mới
+                _mapper.Map(koiPond, existingKoiPond);
+
+                var updatedKoiPond = await _koiPondRepo.UpdateKoiPond(existingKoiPond);
+                if (updatedKoiPond == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_UPDATE_FAILED;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_UPDATED;
+                res.Data = _mapper.Map<KoiPondResponse>(updatedKoiPond);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Lỗi khi cập nhật hồ cá: {ex.Message}";
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
+    public async Task<ResultModel> DeleteKoiPond(string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = "ID hồ cá không hợp lệ.";
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var existingKoiPond = await _koiPondRepo.GetKoiPondById(id);
+                if (existingKoiPond == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = "Hồ cá không tồn tại.";
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                await _koiPondRepo.DeleteKoiPond(id);
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_DELETED;
+                return res;
+            }
+            catch (Exception ex)
+            {
+
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Lỗi khi xóa hồ cá: {ex.Message}";
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
     }
 }

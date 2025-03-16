@@ -5,9 +5,12 @@ using BusinessObjects.Exceptions;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Repositories.AccountRepository;
+using Repositories.Repositories.ColorRepository;
 using Repositories.Repositories.CustomerRepository;
 using Repositories.Repositories.KoiVarietyRepository;
+using Repositories.Repositories.VarietyColorRepository;
 using Services.ApiModels;
 using Services.ApiModels.Color;
 using Services.ApiModels.KoiVariety;
@@ -17,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 
 namespace Services.Services.KoiVarietyService
 {
@@ -27,25 +31,28 @@ namespace Services.Services.KoiVarietyService
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAccountRepo _accountRepo;
+        private readonly IVarietyColorRepo _varietyColorRepo;
+        private readonly IColorRepo _colorRepo;
 
-        public KoiVarietyService(IKoiVarietyRepo koiVarietyRepo, ICustomerRepo customerRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo)
+        public KoiVarietyService(IKoiVarietyRepo koiVarietyRepo, ICustomerRepo customerRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo, IVarietyColorRepo varietyColorRepo, IColorRepo colorRepo)
         {
             _koiVarietyRepo = koiVarietyRepo;
             _customerRepo = customerRepo;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _accountRepo = accountRepo;
+            _varietyColorRepo = varietyColorRepo;
+            _colorRepo = colorRepo;
         }
 
-        public async Task<KoiVariety> CreateKoiVarietyAsync(KoiVariety koiVariety)
+
+        public static string GenerateShortGuid()
         {
-            return await _koiVarietyRepo.CreateKoiVariety(koiVariety);
+            Guid guid = Guid.NewGuid();
+            string base64 = Convert.ToBase64String(guid.ToByteArray());
+            return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
         }
 
-        public async Task DeleteKoiVarietyAsync(string koiVarietyId)
-        {
-            await _koiVarietyRepo.DeleteKoiVariety(koiVarietyId);
-        }
 
         public async Task<List<KoiVariety>> GetKoiVarietiesAsync()
         {
@@ -57,10 +64,7 @@ namespace Services.Services.KoiVarietyService
             return await _koiVarietyRepo.GetKoiVarietyById(koiVarietyId);
         }
 
-        public async Task<KoiVariety> UpdateKoiVarietyAsync(KoiVariety koiVariety)
-        {
-            return await _koiVarietyRepo.UpdateKoiVariety(koiVariety);
-        }
+
 
         public async Task<ResultModel> GetKoiVarietyWithColorsAsync()
         {
@@ -517,6 +521,151 @@ namespace Services.Services.KoiVarietyService
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.Message = $"Đã xảy ra lỗi khi lấy danh sách Koi Variety phù hợp với mệnh: {ex.Message}";
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> CreateKoiVarietyAsync(KoiVarietyRequest koiVariety)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var newKoiVariety = new KoiVariety
+                {
+                    KoiVarietyId = GenerateShortGuid(),
+                    VarietyName = koiVariety.VarietyName,
+                    Description = koiVariety.Description
+                };
+
+                foreach (var varietyColor in koiVariety.VarietyColors)
+                {
+                    newKoiVariety.VarietyColors.Add(new VarietyColor
+                    {
+                        KoiVarietyId = newKoiVariety.KoiVarietyId,
+                        ColorId = varietyColor.ColorId,
+                        Percentage = varietyColor.Percentage
+                    });
+                }
+
+                var createdKoiVariety = await _koiVarietyRepo.CreateKoiVariety(newKoiVariety);
+
+                if (createdKoiVariety == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.Message = ResponseMessageConstrantsKoiVariety.CREATE_KOIVARIETY_FAILED;
+                    return res;
+                }
+
+                var KoiVarietyresponse = await _koiVarietyRepo.GetKoiVarietyById(createdKoiVariety.KoiVarietyId);
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status201Created;
+                res.Message = ResponseMessageConstrantsKoiVariety.CREATE_KOIVARIETY_SUCCESS;
+                res.Data = _mapper.Map<KoiVarietyResponse>(KoiVarietyresponse);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = $"Đã xảy ra lỗi khi tạo Koi Variety: {ex.Message}";
+                return res;
+            }
+        }
+
+
+        public async Task<ResultModel> UpdateKoiVarietyAsync(string id, KoiVarietyRequest koiVariety)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var existingKoiVariety = await _koiVarietyRepo.GetKoiVarietyById(id);
+                if (existingKoiVariety == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
+                    return res;
+                }
+
+                existingKoiVariety.VarietyName = koiVariety.VarietyName;
+                existingKoiVariety.Description = koiVariety.Description;
+
+                existingKoiVariety.VarietyColors.Clear();
+
+                foreach (var varietyColor in koiVariety.VarietyColors)
+                {
+                    existingKoiVariety.VarietyColors.Add(new VarietyColor
+                    {
+                        KoiVarietyId = existingKoiVariety.KoiVarietyId,
+                        ColorId = varietyColor.ColorId,
+                        Percentage = varietyColor.Percentage
+                    });
+                }
+
+                var updatedKoiVariety = await _koiVarietyRepo.UpdateKoiVariety(existingKoiVariety);
+                var KoiVarietyresponse = await _koiVarietyRepo.GetKoiVarietyById(updatedKoiVariety.KoiVarietyId);
+
+                if (updatedKoiVariety == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.Message = ResponseMessageConstrantsKoiVariety.UPDATE_KOIVARIETY_FAILED;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiVariety.UPDATE_KOIVARIETY_SUCCESS;
+                res.Data = _mapper.Map<KoiVarietyResponse>(KoiVarietyresponse);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = $"Đã xảy ra lỗi khi cập nhật Koi Variety: {ex.Message}";
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> DeleteKoiVarietyAsync(string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var existingKoiVariety = await _koiVarietyRepo.GetKoiVarietyById(id);
+                if (existingKoiVariety == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
+                    return res;
+                }
+
+                await _koiVarietyRepo.DeleteKoiVariety(id);
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiVariety.DELETE_KOIVARIETY_SUCCESS;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = $"Đã xảy ra lỗi khi xóa Koi Variety: {ex.Message}";
                 return res;
             }
         }

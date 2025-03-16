@@ -29,6 +29,10 @@ public partial class BookingOffline
 
     public string MasterScheduleId { get; set; }
 
+    public string AssignStaffId { get; set; }
+
+    public virtual Account AssignStaff { get; set; }
+
     public virtual ConsultationPackage ConsultationPackage { get; set; }
 
     public virtual Contract Contract { get; set; }

@@ -53,10 +53,25 @@ namespace DAOs.DAOs
             return master?.MasterId; 
         }
 
+        public async Task<WorkShop> GetWorkshopByMasterLocationAndDateDao(string masterId, string location, DateTime? startDate)
+        {
+            return await _context.WorkShops.FirstOrDefaultAsync(w => w.MasterId == masterId && w.Location == location && w.StartDate == startDate);
+        }
+
+        public async Task<WorkShop> GetWorkshopByLocationAndDate(string location, DateTime? startDate)
+        {
+            return await _context.WorkShops.FirstOrDefaultAsync(w => w.Location == location && w.StartDate == startDate);
+        }
+
+        public async Task<List<WorkShop>> GetWorkshopsByMasterDao(string masterId)
+        {
+            return await _context.WorkShops.Where(w => w.MasterId == masterId).ToListAsync();
+        }
+
         public async Task<List<WorkShop>> SortingWorkshopByCreatedDateDao()
         {
             return await _context.WorkShops
-                .Include(x => x.Master)
+                .Include(x => x.Master).ThenInclude(x => x.Account)
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
         }

@@ -25,6 +25,10 @@ public partial class Account
 
     public string Role { get; set; }
 
+    public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
+
+    public virtual ICollection<BookingOnline> BookingOnlines { get; set; } = new List<BookingOnline>();
+
     public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
 
     public virtual ICollection<Master> Masters { get; set; } = new List<Master>();

@@ -49,7 +49,10 @@ namespace BusinessObjects.Constants
         public const string UNAUTHENTICATED = "Không xác thực.";
         public const string UNAUTHENTICATED_OR_UNAUTHORIZED = "Người dùng chưa xác thực hoặc không có quyền truy cập.";
         public const string PASSWORD_NOT_MATCH = "Mật khẩu không giống nhau.";
+        public const string NEW_PASSWORD_CANNOT_MATCH = "Mật khẩu mới không được trùng với mật khẩu cũ.";
         public const string PASSWORD_WRONG = "Mật khẩu không đúng.";
+        public const string OLD_PASSWORD_WRONG = "Mật khẩu cũ không đúng.";
+        public const string PASSWORD_INVALID = "Mật khẩu không hợp lệ.";
         public const string EXISTED_USER = "Người dùng đã tồn tại.";
         public const string EXISTED_EMAIL = "Email đã tồn tại.";
         public const string EXISTED_PHONE = "Số điện thoại đã tồn tại.";
@@ -62,9 +65,12 @@ namespace BusinessObjects.Constants
         public const string ROLE_INVALID = "Role không xác thực.";
         public const string CLAIM_NOTFOUND = "Không tìm thấy claim.";
         public const string EXISTED_ROLE = "Role đã tồn tại.";
+        public const string INCORRECT_EMAIL = "Email Không tìm thấy";
+        public const string ACCOUNT_NOT_FOUND = "Tài khoản Không tìm thấy";
 
         public const string USERNAME_REQUIRED = "Tên người dùng không được để trống.";
         public const string NAME_REQUIRED = "Tên không được để trống.";
+        public const string GENDER_REQUIRED = "Giới tính không được để trống.";
         public const string USERCODE_REQUIRED = "Mã người dùng không được để trống.";
         public const string PASSWORD_REQUIRED = "Mật khẩu không được để trống.";
         public const string PASSSWORD_LENGTH = "Mật khẩu phải có ít nhất 8 ký tự.";
@@ -75,6 +81,8 @@ namespace BusinessObjects.Constants
         public const string PHONENUMBER_LENGTH = "Số điện thoại phải có chính xác 10 số.";
         public const string ROLES_REQUIRED = "Role không được để trống.";
         public const string USER_NOT_ALLOWED = "Bạn không có quyền truy cập vào mục này.";
+        public const string SESSION_NOT_FOUND = "Không tìm thấy session.";
+        public const string SESSION_INVALID = "Session không hợp lệ, hãy đăng nhập lại.";
         public const string EMAIL_VALIDATION_REQUIRED = "Vui lòng nhập mã OTP được gửi đến email của bạn để kích hoạt tài khoản.";
     }
 
@@ -95,7 +103,7 @@ namespace BusinessObjects.Constants
         public const string DELETE_ROLE_SUCCESS = "Xóa role thành công!";
     }
 
-    //For User (0-1-0)
+    //For User (0-1-0)  
     public class ResponseMessageConstantsUser
     {
         public const string GET_USER_INFO_SUCCESS = "Lấy thông tin người dùng thành công";
@@ -159,77 +167,97 @@ namespace BusinessObjects.Constants
     {
         public const string KOIPOND_NOT_FOUND = "Không tìm thấy hồ cá!";
         public const string KOIPOND_FOUND = "Lấy danh sách hồ cá thành công!";
-    }
+        public const string KOIPOND_DESTINY_FOUND = "Lấy danh sách hồ cá phù hợp với mệnh thành công!";
+        public const string KOIPOND_CREATED = "Tạo hồ cá thành công!";
+        public const string KOIPOND_CREATE_FAILED = "Tạo hồ cá thất bại!";
+        public const string KOIPOND_UPDATE_FAILED = "Cập nhật hồ cá thất bại!";
+        public const string KOIPOND_UPDATED = "Cập nhật hồ cá thành công!";
+        public const string KOIPOND_DELETED = "Xóa hồ cá thành công!";
+        public const string KOIPOND_INVALID = "Dữ liệu hồ cá không hợp lệ";
+        public const string SHAPE_NOT_FOUND = "Không tìm thấy hình dạng hồ cá!";
 
-    public class ResponseMessageConstrantsKoiVariety
-    {
-        public const string KOIVARIETY_NOT_FOUND = "Không tìm thấy cá Koi!";
-        public const string KOIVARIETY_FOUND = "Tìm thấy cá Koi thành công!";
-        public const string KOIVARIETY_INFO_FOUND = "Lấy thông tin thành công ";
-        public const string KOIVARIETY_COLOR_INFO_NOT_FOUND = "không có thông tin màu sắc ";
-        public const string NO_MATCHES_KOIVARIETY = "Không tìm thấy Koi Variety phù hợp với mệnh của bạn";
-        public const string LOW_MATCHES_KOIVARIETY = "Chỉ tìm thấy Koi Variety có độ tương hợp thấp với mệnh của bạn";
-        public const string GET_MATCHES_KOIVARIETY = "Lấy danh sách Koi Variety phù hợp với mệnh của bạn thành công";
-    }
+        public class ResponseMessageConstrantsKoiVariety
+        {
+            public const string KOIVARIETY_NOT_FOUND = "Không tìm thấy cá Koi!";
+            public const string KOIVARIETY_FOUND = "Tìm thấy cá Koi thành công!";
+            public const string KOIVARIETY_INFO_FOUND = "Lấy thông tin thành công ";
+            public const string KOIVARIETY_COLOR_INFO_NOT_FOUND = "không có thông tin màu sắc ";
+            public const string NO_MATCHES_KOIVARIETY = "Không tìm thấy Koi Variety phù hợp với mệnh của bạn";
+            public const string LOW_MATCHES_KOIVARIETY = "Chỉ tìm thấy Koi Variety có độ tương hợp thấp với mệnh của bạn";
+            public const string GET_MATCHES_KOIVARIETY = "Lấy danh sách Koi Variety phù hợp với mệnh của bạn thành công";
+            public const string CREATE_KOIVARIETY_FAILED = "Tạo cá Koi thất bại!";
+            public const string CREATE_KOIVARIETY_SUCCESS = "Tạo cá Koi thành công!";
+            public const string UPDATE_KOIVARIETY_FAILED = "Cập nhật cá Koi thất bại!";
+            public const string UPDATE_KOIVARIETY_SUCCESS = "Cập nhật cá Koi thành công!";
+            public const string DELETE_KOIVARIETY_SUCCESS = "Xóa cá Koi thành công!";
+        }
 
-    public class ResponseMessageConstrantsMasterSchedule
-    {
-        public const string MASTERSCHEDULE_NOT_FOUND = "Không tìm thấy thời gian biểu của Master!";
-        public const string MASTERSCHEDULE_FOUND = "Lấy danh sách thời gian biểu của Master thành công!";
-    }
+        public class ResponseMessageConstrantsMasterSchedule
+        {
+            public const string MASTERSCHEDULE_NOT_FOUND = "Không tìm thấy thời gian biểu của Master!";
+            public const string MASTERSCHEDULE_FOUND = "Lấy danh sách thời gian biểu của Master thành công!";
+        }
 
-    public class ResponseMessageConstrantsMaster
-    {
-        public const string MASTER_NOT_FOUND = "Không tìm thấy Master!";
-        public const string MASTER_INFO_NOT_FOUND = "Không tìm thấy thông tin Master!";
-        public const string MASTER_FOUND = "Lấy danh sách Master thành công!";
-    }
+        public class ResponseMessageConstrantsMaster
+        {
+            public const string MASTER_NOT_FOUND = "Không tìm thấy Master!";
+            public const string MASTER_INFO_NOT_FOUND = "Không tìm thấy thông tin Master!";
+            public const string MASTER_FOUND = "Lấy danh sách Master thành công!";
+        }
 
-    public class ResponseMessageConstrantsRegisterAttend
-    {
-        public const string REGISTERATTEND_NOT_FOUND = "Không tìm thấy vé dự sự kiện!";
-        public const string REGISTERATTEND_FOUND = "Lấy danh sách vé dự sự kiện thành công!";
-    }
+        public class ResponseMessageConstrantsRegisterAttend
+        {
+            public const string REGISTERATTEND_NOT_FOUND = "Không tìm thấy vé dự sự kiện!";
+            public const string REGISTERATTEND_FOUND = "Lấy danh sách vé dự sự kiện thành công!";
+        }
 
-    public class ResponseMessageConstrantsTransaction
-    {
-        public const string TRANSACTION_CREATED_SUCCESS = "Tạo giao dịch thành công!";
-        public const string TRANSACTION_NOT_FOUND = "Không tìm thấy giao dịch!";
-        public const string TRANSACTION_FOUND = "Lấy danh sách giao dịch thành công!";
-    }
+        public class ResponseMessageConstrantsTransaction
+        {
+            public const string TRANSACTION_CREATED_SUCCESS = "Tạo giao dịch thành công!";
+            public const string TRANSACTION_NOT_FOUND = "Không tìm thấy giao dịch!";
+            public const string TRANSACTION_FOUND = "Lấy danh sách giao dịch thành công!";
+        }
 
-    public class ResponseMessageConstrantsWorkshop
-    {
-        public const string WORKSHOP_CREATED_SUCCESS = "Tạo sự kiện thành công!";
-        public const string WORKSHOP_UPDATED_SUCCESS = "Cập nhật sự kiện thành công!";
-        public const string WORKSHOP_DELETED_SUCCESS = "Xóa sự kiện thành công!";
-        public const string WORKSHOP_FOUND = "Lấy danh sách sự kiện thành công!";
-        public const string WORKSHOP_NOT_FOUND = "Không tìm thấy sự kiện!";
-        public const string WORKSHOP_PENDING_NOT_FOUND = "Không tìm thấy buổi hội thảo đang chờ được cập nhật";
-        public const string WORKSHOP_APPROVED = "Buổi hội thảo được phê duyệt";
-        public const string WORKSHOP_REJECTED = "Buổi hội thảo bị từ chối";
-        public const string WORKSHOP_INFO_FOUND = "Lấy thông tin buổi hội thảo thành công";
-        public const string WORKSHOP_INFO_INVALID = "Dữ liệu sự kiện không hợp lệ";
-        public const string NOTFOUND_MASTERID_CORRESPONDING_TO_ACCOUNT= "Không tìm thấy MasterId tương ứng với tài khoản";
-    }
+        public class ResponseMessageConstrantsWorkshop
+        {
+            public const string WORKSHOP_CREATED_SUCCESS = "Tạo sự kiện thành công!";
+            public const string WORKSHOP_UPDATED_SUCCESS = "Cập nhật sự kiện thành công!";
+            public const string WORKSHOP_DELETED_SUCCESS = "Xóa sự kiện thành công!";
+            public const string WORKSHOP_FOUND = "Lấy danh sách sự kiện thành công!";
+            public const string WORKSHOP_NOT_FOUND = "Không tìm thấy sự kiện!";
+            public const string WORKSHOP_PENDING_NOT_FOUND = "Không tìm thấy buổi hội thảo đang chờ được cập nhật";
+            public const string WORKSHOP_APPROVED = "Buổi hội thảo được phê duyệt";
+            public const string WORKSHOP_REJECTED = "Buổi hội thảo bị từ chối";
+            public const string WORKSHOP_INFO_FOUND = "Lấy thông tin buổi hội thảo thành công";
+            public const string WORKSHOP_INFO_INVALID = "Dữ liệu sự kiện không hợp lệ";
+            public const string NOTFOUND_MASTERID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy MasterId tương ứng với tài khoản";
+            public const string REGISTER_NOT_FOUND = "Không tìm thấy thông tin vé";
+            public const string CHECK_IN_SUCCESS = "Check-in thành công";
+            public const string WORKSHOP_DUPLICATE_LOCATION_DATE_SAME_MASTER = "Bạn đã có một hội thảo với cùng địa điểm và ngày bắt đầu.";
+            public const string WORKSHOP_DUPLICATE_LOCATION_DATE_OTHER_MASTER = "Đã có một hội thảo khác được tổ chức tại địa điểm và thời gian này.";
+            public const string WORKSHOP_MINIMUM_HOURS_DIFFERENCE = "Khoảng cách giữa hai hội thảo ở hai địa điểm khác nhau phải tối thiểu 5 giờ.";
+            public const string WORKSHOP_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa workshop này.";
+            public const string WORKSHOP_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật workshop này.";
+        }
 
-    public class ResponseMessageConstrantsCourse
-    {
-        public const string COURSE_CREATED_SUCCESS = "Tạo khóa học thành công!";
-        public const string COURSE_UPDATED_SUCCESS = "Cập nhật khóa học thành công!";
-        public const string COURSE_DELETED_SUCCESS = "Xóa khóa học thành công!";
-        public const string COURSE_FOUND = "Lấy danh sách khóa học thành công!";
-        public const string COURSE_NOT_FOUND = "Không tìm thấy khóa học!";
-        public const string COURSE_INFO_FOUND = "Lấy thông tin khóa học thành công";
-        public const string COURSE_INFO_INVALID = "Dữ liệu khóa học không hợp lệ";
-    }
+        public class ResponseMessageConstrantsCourse
+        {
+            public const string COURSE_CREATED_SUCCESS = "Tạo khóa học thành công!";
+            public const string COURSE_UPDATED_SUCCESS = "Cập nhật khóa học thành công!";
+            public const string COURSE_DELETED_SUCCESS = "Xóa khóa học thành công!";
+            public const string COURSE_FOUND = "Lấy danh sách khóa học thành công!";
+            public const string COURSE_NOT_FOUND = "Không tìm thấy khóa học!";
+            public const string COURSE_INFO_FOUND = "Lấy thông tin khóa học thành công";
+            public const string COURSE_INFO_INVALID = "Dữ liệu khóa học không hợp lệ";
+        }
 
-    //Image
-    public class ResponseMessageImage
-    {
-        public const string INVALID_IMAGE = "Hình ảnh không hợp lệ. ";
-        public const string INVALID_SIZE = "Kích thước hình ảnh không hợp lệ. ";
-        public const string INVALID_FORMAT = "Định dạng hình ảnh không hợp lệ. ";
-        public const string INVALID_URL = "Đường dẫn hình ảnh không hợp lệ. ";
+        //Image
+        public class ResponseMessageImage
+        {
+            public const string INVALID_IMAGE = "Hình ảnh không hợp lệ. ";
+            public const string INVALID_SIZE = "Kích thước hình ảnh không hợp lệ. ";
+            public const string INVALID_FORMAT = "Định dạng hình ảnh không hợp lệ. ";
+            public const string INVALID_URL = "Đường dẫn hình ảnh không hợp lệ. ";
+        }
     }
 }

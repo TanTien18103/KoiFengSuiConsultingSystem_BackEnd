@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +44,7 @@ namespace DAOs.DAOs
 
         public async Task<List<Color>> GetColorsDao()
         {
-            return _context.Colors.ToList();
+            return await  _context.Colors.ToListAsync();
         }
 
         public async Task<Color> CreateColorDao(Color color)

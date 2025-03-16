@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace BusinessObjects.Enums
 {
-    public enum RegisterAttendStatusEnums
+    public enum RoleEnums
     {
-        Pending,
-        Confirmed
-        
+        Admin,
+        Manager,
+        Staff, 
+        Customer,
+        User,
     }
 }

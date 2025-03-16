@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BusinessObjects.Constants;
 using Repositories.Repositories.RegisterAttendRepository;
+using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 
 namespace Services.Services.WorkshopService
 {

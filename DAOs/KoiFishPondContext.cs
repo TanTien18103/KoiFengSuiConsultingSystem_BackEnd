@@ -9,6 +9,7 @@ namespace BusinessObjects.Models;
 
 public partial class KoiFishPondContext : DbContext
 {
+
     public KoiFishPondContext()
     {
     }
@@ -86,7 +87,6 @@ public partial class KoiFishPondContext : DbContext
     public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
 
     public virtual DbSet<WorkShop> WorkShops { get; set; }
-
     public static string GetConnectionString(string connectionStringName)
     {
         var config = new ConfigurationBuilder()
@@ -98,9 +98,6 @@ public partial class KoiFishPondContext : DbContext
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
        => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"));
-
-
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -176,6 +173,10 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.AssignStaffId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.ConsultationPackageId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -207,6 +208,10 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.Status).HasMaxLength(20);
+
+            entity.HasOne(d => d.AssignStaff).WithMany(p => p.BookingOfflines)
+                .HasForeignKey(d => d.AssignStaffId)
+                .HasConstraintName("FK_BookingOffline_AssignStaff");
 
             entity.HasOne(d => d.ConsultationPackage).WithMany(p => p.BookingOfflines)
                 .HasForeignKey(d => d.ConsultationPackageId)
@@ -247,6 +252,10 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.AssignStaffId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.CustomerId)
                 .IsRequired()
                 .HasMaxLength(20)
@@ -267,6 +276,10 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.AssignStaff).WithMany(p => p.BookingOnlines)
+                .HasForeignKey(d => d.AssignStaffId)
+                .HasConstraintName("FK_BookingOnline_AssignStaff");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.BookingOnlines)
                 .HasForeignKey(d => d.CustomerId)

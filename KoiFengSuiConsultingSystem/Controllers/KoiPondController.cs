@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
 using Services.Services.KoiPondService;
+using Services.ApiModels.KoiPond;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -37,6 +38,27 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             var res = await _iKoiPondService.GetAllKoiPonds();
             return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateKoiPond([FromBody] KoiPondRequest koiPond)
+        {
+            var result = await _iKoiPondService.CreateKoiPond(koiPond);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateKoiPond(string id, [FromBody] KoiPondRequest koiPond)
+        {
+            var result = await _iKoiPondService.UpdateKoiPond(id, koiPond);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteKoiPond(string id)
+        {
+            var result = await _iKoiPondService.DeleteKoiPond(id);
+            return StatusCode(result.StatusCode, result);
         }
     }
 } 

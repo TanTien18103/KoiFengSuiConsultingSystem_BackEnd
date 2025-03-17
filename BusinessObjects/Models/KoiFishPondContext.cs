@@ -9,9 +9,11 @@ namespace BusinessObjects.Models;
 
 public partial class KoiFishPondContext : DbContext
 {
+
     public KoiFishPondContext()
     {
     }
+
 
     public KoiFishPondContext(DbContextOptions<KoiFishPondContext> options)
         : base(options)
@@ -114,6 +116,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsFixedLength();
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.FullName).HasMaxLength(100);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)

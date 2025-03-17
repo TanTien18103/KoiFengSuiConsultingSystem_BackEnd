@@ -39,7 +39,10 @@ namespace DAOs.DAOs
 
         public async Task<RegisterAttend> GetRegisterAttendByIdDao(string registerAttendId)
         {
-            return await _context.RegisterAttends.FindAsync(registerAttendId);
+            return await _context.RegisterAttends
+                .Include(x => x.Workshop)
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .FirstOrDefaultAsync(x => x.AttendId == registerAttendId);
         }
 
         public async Task<List<RegisterAttend>> GetRegisterAttendsDao()

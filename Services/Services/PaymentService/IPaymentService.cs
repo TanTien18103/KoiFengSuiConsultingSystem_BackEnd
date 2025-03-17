@@ -13,6 +13,7 @@ namespace Services.Services.PaymentService
 {
     public interface IPaymentService
     {
+        Task<ResultModel> Payment(string serviceId, PaymentTypeEnums serviceType);
         Task<CreatePaymentResult> CreateServicePaymentLinkAsync(PaymentTypeEnums serviceType, string serviceId, string cancelUrl, string returnUrl);
         Task GetWebhookTypeAsync(WebhookType request);
         Task<PaymentLinkInformation> GetPaymentLinkInformationAsync(long orderCode);

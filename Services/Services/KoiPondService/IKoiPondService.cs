@@ -1,6 +1,7 @@
 using BusinessObjects.Models;
 using Services.ApiModels;
 using Services.ApiModels.KoiPond;
+using Services.ApiModels.KoiVariety;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,9 +13,10 @@ namespace Services.Services.KoiPondService
         Task<ResultModel> GetKoiPondById(string id);
         Task<ResultModel> GetPondRecommendations();
         Task<ResultModel> CreateKoiPond(KoiPondRequest koiPond);
-
         Task<ResultModel> UpdateKoiPond(string id, KoiPondRequest koiPond);
-
         Task<ResultModel> DeleteKoiPond(string id);
+        
+       
+
     }
 }

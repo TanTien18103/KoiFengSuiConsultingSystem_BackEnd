@@ -70,5 +70,40 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _koiVarietyService.DeleteKoiVarietyAsync(id);
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpGet("get-color-by-id/{id}")]
+        public async Task<IActionResult> GetColorById(string id)
+        {
+            var result = await _koiVarietyService.GetColorById(id);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("get-colors")]
+        public async Task<IActionResult> GetColors()
+        {
+            var result = await _koiVarietyService.GetColors();
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPost("create-color")]
+        public async Task<IActionResult> CreateColor([FromBody] ColorRequest colorRequest)
+        {
+            var result = await _koiVarietyService.CreateColors(colorRequest);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("update-color/{id}")]
+        public async Task<IActionResult> UpdateColor(string id, [FromBody] ColorRequest colorRequest)
+        {
+            var result = await _koiVarietyService.UpdateColors(id, colorRequest);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpDelete("delete-color/{id}")]
+        public async Task<IActionResult> DeleteColor(string id)
+        {
+            var result = await  _koiVarietyService.DeleteColors(id);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

@@ -190,6 +190,13 @@ namespace BusinessObjects.Constants
             public const string UPDATE_KOIVARIETY_FAILED = "Cập nhật cá Koi thất bại!";
             public const string UPDATE_KOIVARIETY_SUCCESS = "Cập nhật cá Koi thành công!";
             public const string DELETE_KOIVARIETY_SUCCESS = "Xóa cá Koi thành công!";
+            public const string COLOR_NOT_FOUND = "Không tìm thấy màu sắc!";
+            public const string COLOR_FOUND = "Lấy danh sách màu sắc thành công!";
+            public const string CREATE_COLOR_FAILED = "Tạo màu sắc thất bại!";
+            public const string CREATE_COLOR_SUCCESS = "Tạo màu sắc thành công!";
+            public const string UPDATE_COLOR_SUCCESS = "Cập nhật màu sắc thành công!";
+            public const string UPDATE_COLOR_FAILED = "Cập nhật màu sắc thất bại!";
+            public const string DELETE_COLOR_SUCCESS = "Xóa màu sắc thành công!";
         }
 
         public class ResponseMessageConstrantsMasterSchedule

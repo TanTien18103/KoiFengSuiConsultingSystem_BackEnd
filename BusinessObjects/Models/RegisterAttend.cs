@@ -11,13 +11,13 @@ public partial class RegisterAttend
 
     public string WorkshopId { get; set; }
 
-    public string AttendName { get; set; }
-
-    public string PhoneNumber { get; set; }
-
     public string CustomerId { get; set; }
 
     public string Status { get; set; }
+
+    public DateTime CreatedDate { get; set; }
+
+    public string GroupId { get; set; }
 
     public virtual Customer Customer { get; set; }
 

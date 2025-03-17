@@ -2,6 +2,7 @@
 using BusinessObjects.Models;
 using Services.ApiModels.Account;
 using Services.ApiModels.Color;
+using Services.ApiModels.KoiVariety;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace Services.Mapper
         public ColorMappingProfile() 
         {
             CreateMap<Color, ColorPercentageDto>();
+
+            CreateMap<Color, ColorRequest>();
         }
     }
 }

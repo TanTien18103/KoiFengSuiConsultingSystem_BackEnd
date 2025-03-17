@@ -669,5 +669,193 @@ namespace Services.Services.KoiVarietyService
                 return res;
             }
         }
+
+        public async Task<ResultModel> GetColorById(string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var color = await _colorRepo.GetColorById(id);
+                if (color == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsKoiVariety.COLOR_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiVariety.COLOR_FOUND;
+                res.Data = _mapper.Map<ColorResponse>(color);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = $"Đã xảy ra lỗi khi lấy thông tin màu: {ex.Message}";
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetColors()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var colors = await _colorRepo.GetColors();
+                if (colors == null || !colors.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsKoiVariety.COLOR_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiVariety.COLOR_FOUND;
+                res.Data = _mapper.Map<List<ColorResponse>>(colors);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = $"Đã xảy ra lỗi khi lấy danh sách màu: {ex.Message}";
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> CreateColors(ColorRequest color)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var newColor = new Color
+                {
+                    ColorId = GenerateShortGuid(),
+                    ColorName = color.ColorName,
+                    ColorCode = color.ColorCode,
+                    Element = color.Element
+                };
+
+                var createdColor = await _colorRepo.CreateColor(newColor);
+
+                if (createdColor == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.Message = ResponseMessageConstrantsKoiVariety.CREATE_COLOR_FAILED;
+                    return res;
+                }
+
+                var colorResponse = await _colorRepo.GetColorById(createdColor.ColorId);
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status201Created;
+                res.Message = ResponseMessageConstrantsKoiVariety.CREATE_COLOR_SUCCESS;
+                res.Data = _mapper.Map<ColorResponse>(colorResponse);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = $"Đã xảy ra lỗi khi tạo màu: {ex.Message}";
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> UpdateColors(string id, ColorRequest color)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var existingColor = await _colorRepo.GetColorById(id);
+                if (existingColor == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsKoiVariety.COLOR_NOT_FOUND;
+                    return res;
+                }
+
+                existingColor.ColorName = color.ColorName;
+                existingColor.ColorCode = color.ColorCode;
+                existingColor.Element = color.Element;
+
+                var updatedColor = await _colorRepo.UpdateColor(existingColor);
+                var colorResponse = await _colorRepo.GetColorById(updatedColor.ColorId);
+
+                if (updatedColor == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.Message = ResponseMessageConstrantsKoiVariety.UPDATE_COLOR_FAILED;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiVariety.UPDATE_COLOR_SUCCESS;
+                res.Data = _mapper.Map<ColorResponse>(colorResponse);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = $"Đã xảy ra lỗi khi cập nhật màu: {ex.Message}";
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> DeleteColors(string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var existingColor = await _colorRepo.GetColorById(id);
+                if (existingColor == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsKoiVariety.COLOR_NOT_FOUND;
+                    return res;
+                }
+
+                await _colorRepo.DeleteColor(id);
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiVariety.DELETE_COLOR_SUCCESS;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = $"Đã xảy ra lỗi khi xóa màu: {ex.Message}";
+                return res;
+            }
+        }
     }
 }

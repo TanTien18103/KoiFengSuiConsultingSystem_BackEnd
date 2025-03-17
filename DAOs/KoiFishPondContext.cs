@@ -9,10 +9,10 @@ namespace BusinessObjects.Models;
 
 public partial class KoiFishPondContext : DbContext
 {
-
     public KoiFishPondContext()
     {
     }
+
     public KoiFishPondContext(DbContextOptions<KoiFishPondContext> options)
         : base(options)
     {
@@ -87,6 +87,7 @@ public partial class KoiFishPondContext : DbContext
     public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
 
     public virtual DbSet<WorkShop> WorkShops { get; set; }
+
     public static string GetConnectionString(string connectionStringName)
     {
         var config = new ConfigurationBuilder()
@@ -98,6 +99,7 @@ public partial class KoiFishPondContext : DbContext
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
        => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"));
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -810,14 +812,17 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
-            entity.Property(e => e.AttendName).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.CustomerId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
-            entity.Property(e => e.PhoneNumber)
+            entity.Property(e => e.GroupId)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.Status).HasMaxLength(20);
             entity.Property(e => e.WorkshopId)
                 .HasMaxLength(20)

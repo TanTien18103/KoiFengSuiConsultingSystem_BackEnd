@@ -27,6 +27,10 @@ namespace Repositories.Repositories.OrderRepository
         {
             return OrderDAO.Instance.GetOrdersByServiceDao(serviceId, serviceType);
         }
+        public Task<Order> GetOrderByServiceId(string serviceId)
+        {
+            return OrderDAO.Instance.GetOrdersByServiceIdDao(serviceId);
+        }
         public Task<Order> CreateOrder(Order order)
         {
             return OrderDAO.Instance.CreateOrderDao(order);
@@ -38,6 +42,10 @@ namespace Repositories.Repositories.OrderRepository
         public Task<bool> DeleteOrder(string id)
         {
             return OrderDAO.Instance.DeleteOrderDao(id);
+        }
+        public Task<List<Order>> GetOrdersByCustomerAndService(string cutomerId, PaymentTypeEnums serviceType)
+        {
+            return OrderDAO.Instance.GetOrdersByCustomerAndServiceDao(cutomerId, serviceType);
         }
     }
 }

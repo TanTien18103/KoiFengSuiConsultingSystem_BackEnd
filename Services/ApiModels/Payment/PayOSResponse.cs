@@ -9,9 +9,10 @@ namespace Services.ApiModels.Payment
 {
     public class PayOSResponse
     {
-        public String? Code { get; set; }
-        public String? Desc { get; set; }
-        public PaymentLinkInformation? Data { get; set; }
-        public String? Signature { get; set; }
+        public string OrderId { get; set; }
+        public string Status { get; set; }
+        public string CheckoutUrl { get; set; }
+        public string QrCode { get; set; }
+        public PaymentLinkInformation Data { get; set; }
     }
 }

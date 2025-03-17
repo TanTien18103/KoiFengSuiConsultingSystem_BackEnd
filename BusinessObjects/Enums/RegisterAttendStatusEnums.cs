@@ -9,7 +9,7 @@ namespace BusinessObjects.Enums
     public enum RegisterAttendStatusEnums
     {
         Pending,
+        Paid,
         Confirmed
-        
     }
 }

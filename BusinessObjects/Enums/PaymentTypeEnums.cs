@@ -11,6 +11,6 @@ namespace BusinessObjects.Enums
         BookingOnline,
         BookingOffline,
         Course,
-        Workshop
+        RegisterAttend
     }
 }

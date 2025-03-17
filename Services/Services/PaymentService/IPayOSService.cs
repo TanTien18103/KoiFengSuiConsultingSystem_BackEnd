@@ -10,6 +10,6 @@ namespace Services.Services.PaymentService
 {
     public interface IPayOSService
     {
-        Task<CreatePaymentResult> CreatePaymentUrl(PayOSRequest payOSReqModel);
+        Task<PayOSResponse> CreatePaymentUrl(PayOSRequest request);
     }
 }

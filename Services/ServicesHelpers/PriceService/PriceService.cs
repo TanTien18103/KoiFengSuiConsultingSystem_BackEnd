@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Repositories.Repositories.BookingOfflineRepository;
 using Repositories.Repositories.BookingOnlineRepository;
 using Repositories.Repositories.CourseRepository;
+using Repositories.Repositories.RegisterAttendRepository;
 using Repositories.Repositories.WorkShopRepository;
 
 namespace Services.ServicesHelpers.PriceService
@@ -12,18 +13,18 @@ namespace Services.ServicesHelpers.PriceService
         private readonly IBookingOnlineRepo _bookingOnlineRepo;
         private readonly IBookingOfflineRepo _bookingOfflineRepo;
         private readonly ICourseRepo _courseRepo;
-        private readonly IWorkShopRepo _workshopRepo;
+        private readonly IRegisterAttendRepo _registerAttendRepo;
 
         public PriceService(
             IBookingOnlineRepo bookingOnlineRepo,
             IBookingOfflineRepo bookingOfflineRepo,
             ICourseRepo courseRepo,
-            IWorkShopRepo workshopRepo)
+            IRegisterAttendRepo registerAttendRepo)
         {
             _bookingOnlineRepo = bookingOnlineRepo;
             _bookingOfflineRepo = bookingOfflineRepo;
             _courseRepo = courseRepo;
-            _workshopRepo = workshopRepo;
+            _registerAttendRepo = registerAttendRepo;
         }
 
         public async Task<decimal?> GetServicePrice(PaymentTypeEnums serviceType, string serviceId)
@@ -44,10 +45,13 @@ namespace Services.ServicesHelpers.PriceService
                         var course = await _courseRepo.GetCourseById(serviceId);
                         return course?.Price;
 
-                    case PaymentTypeEnums.Workshop:
-                        var workshop = await _workshopRepo.GetWorkShopById(serviceId);
-                        return workshop?.Price;
-
+                    case PaymentTypeEnums.RegisterAttend:
+                        var registerAttends = await _registerAttendRepo.GetRegisterAttendsByGroupId(serviceId);
+                        if (registerAttends != null && registerAttends.Any() && registerAttends.First().Workshop != null)
+                        {
+                            return registerAttends.First().Workshop.Price;
+                        }
+                        return null;
                     default:
                         throw new ArgumentException("Invalid service type");
                 }

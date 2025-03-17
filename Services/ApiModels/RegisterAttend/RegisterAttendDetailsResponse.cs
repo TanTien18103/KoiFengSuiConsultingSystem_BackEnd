@@ -12,7 +12,7 @@ namespace Services.ApiModels.RegisterAttend
 
         public string WorkshopName { get; set; }
 
-        public DateTime? StartDate { get; set; }
+        public DateTime StartDate { get; set; }
 
         public string Location { get; set; }
 

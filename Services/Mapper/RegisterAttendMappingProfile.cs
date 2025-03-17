@@ -37,8 +37,8 @@ namespace Services.Mapper
                 .ForMember(dest => dest.WorkshopName, opt => opt.MapFrom(src => src.Workshop.WorkshopName))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.Workshop.StartDate))
                 .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Workshop.Location))
-                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Account.FullName))
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Customer.Account.PhoneNumber))
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Account.FullName))
                 .ForMember(dest => dest.CustomerEmail, opt => opt.MapFrom(src => src.Customer.Account.Email))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
         }

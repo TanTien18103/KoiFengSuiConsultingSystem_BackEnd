@@ -57,7 +57,6 @@ namespace Services.Services.PaymentService
         private readonly IPayOSService _payOSService;
         private readonly IRegisterAttendRepo _registerAttendRepo;
         private readonly IMapper _mapper;
-        private readonly IMemoryCache _cache;
         private readonly ILogger<PaymentService> _logger;
 
         public PaymentService(
@@ -75,7 +74,6 @@ namespace Services.Services.PaymentService
             IPayOSService payOSService,
             IRegisterAttendRepo registerAttendRepo,
             IMapper mapper,
-            IMemoryCache cache,
             ILogger<PaymentService> logger)
         {
             _httpClient = httpClient;
@@ -96,7 +94,6 @@ namespace Services.Services.PaymentService
             _payOSService = payOSService;
             _registerAttendRepo = registerAttendRepo;
             _mapper = mapper;
-            _cache = cache;
             _logger = logger;
         }
 
@@ -111,6 +108,11 @@ namespace Services.Services.PaymentService
                     throw new AppException(ResponseCodeConstants.UNAUTHORIZED, "Unauthorized", StatusCodes.Status401Unauthorized);
                 }
 
+                // Thêm kiểm tra thanh toán pending
+                await CheckPendingPayments(curCustomer.CustomerId, serviceType);
+
+                string cancelUrl = "https://yourdomain.com/cancel";
+                string returnUrl = "https://yourdomain.com/return";
                 string description = "";
                 string customerName = "";
                 decimal price = 0;
@@ -118,28 +120,14 @@ namespace Services.Services.PaymentService
                 switch (serviceType)
                 {
                     case PaymentTypeEnums.RegisterAttend:
-                        // Validate groupId
-                        if (string.IsNullOrEmpty(serviceId))
-                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, "GroupId không được để trống", StatusCodes.Status400BadRequest);
-
                         // Lấy danh sách RegisterAttend theo GroupId
                         var registerAttends = await _registerAttendRepo.GetRegisterAttendsByGroupId(serviceId);
                         if (!registerAttends.Any())
                             throw new AppException(ResponseCodeConstants.NOT_FOUND, "Không tìm thấy thông tin đăng ký", StatusCodes.Status404NotFound);
-
-                        // Kiểm tra quyền thanh toán
-                        if (registerAttends.First().CustomerId != curCustomer.CustomerId)
-                            throw new AppException(ResponseCodeConstants.UNAUTHORIZED, "Bạn không có quyền thanh toán vé này", StatusCodes.Status401Unauthorized);
-
-                        // Kiểm tra trạng thái của các vé
-                        if (registerAttends.Any(x => x.Status != RegisterAttendStatusEnums.Pending.ToString()))
-                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Một số vé không ở trạng thái chờ thanh toán", StatusCodes.Status400BadRequest);
-
                         // Lấy thông tin workshop
                         var workshop = await _workShopRepo.GetWorkShopById(registerAttends.First().WorkshopId);
                         if (workshop == null)
                             throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND, StatusCodes.Status404NotFound);
-
                         // Kiểm tra workshop đã bắt đầu chưa
                         if (workshop.StartDate <= DateTime.Now)
                             throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Workshop đã bắt đầu, không thể thanh toán", StatusCodes.Status400BadRequest);
@@ -147,31 +135,19 @@ namespace Services.Services.PaymentService
                         var totalTickets = registerAttends.Count;
                         var totalAmount = workshop.Price * totalTickets;
 
-                        description = $"Sự kiện: {workshop.WorkshopName} (x{totalTickets} vé)";
+                        description = "Thanh toán vé tham dự";
                         customerName = curCustomer.Account.FullName ?? "Khách hàng";
-                        price = totalAmount;
-
-                        // Tạo URL thanh toán
-                        var paymentUrl = await CreatePaymentUrl(serviceId, description, customerName, price);
-
-                        // Nếu tạo URL thành công, cập nhật trạng thái các vé
-                        if (paymentUrl.IsSuccess)
-                        {
-                            foreach (var attend in registerAttends)
-                            {
-                                attend.Status = RegisterAttendStatusEnums.Paid.ToString();
-                                await _registerAttendRepo.UpdateRegisterAttend(attend);
-                            }
-                        }
-
-                        return paymentUrl;
+                        price = (decimal)totalAmount;
+                        break;
 
                     case PaymentTypeEnums.BookingOnline:
                         var bookingOnline = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(serviceId);
+                        if (bookingOnline.BookingDate <= DateOnly.FromDateTime(DateTime.Now) && bookingOnline.StartTime <= TimeOnly.FromDateTime(DateTime.Now))
+                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Buổi tư vấn đã bắt đầu, không thể thanh toán", StatusCodes.Status400BadRequest);
                         if (bookingOnline == null)
                             throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE, StatusCodes.Status404NotFound);
 
-                        description = $"Thanh toán đặt lịch trực tuyến";
+                        description = "Thanh toán đặt lịch trực tuyến";
                         customerName = curCustomer.Account.FullName ?? "Khách hàng";
                         price = await _priceService.GetServicePrice(serviceType, serviceId) ?? 0;
                         break;
@@ -181,7 +157,7 @@ namespace Services.Services.PaymentService
                         if (bookingOffline == null)
                             throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE, StatusCodes.Status404NotFound);
 
-                        description = $"Gói tư vấn: {bookingOffline.ConsultationPackage?.PackageName}";
+                        description = "Thanh toán gói tư vấn";
                         customerName = curCustomer.Account.FullName ?? "Khách hàng";
                         price = await _priceService.GetServicePrice(serviceType, serviceId) ?? 0;
                         break;
@@ -191,7 +167,7 @@ namespace Services.Services.PaymentService
                         if (course == null)
                             throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsCourse.COURSE_NOT_FOUND, StatusCodes.Status404NotFound);
 
-                        description = $"Khóa học: {course.CourseName}";
+                        description = "Thanh toán khóa học";
                         customerName = curCustomer.Account.FullName ?? "Khách hàng";
                         price = await _priceService.GetServicePrice(serviceType, serviceId) ?? 0;
                         break;
@@ -223,7 +199,7 @@ namespace Services.Services.PaymentService
                     (int)price,
                     description,
                     items,
-                    cancelUrl,
+                    cancelUrl, 
                     returnUrl,
                     expiredAt: expiredAt
                 );
@@ -308,11 +284,6 @@ namespace Services.Services.PaymentService
                 // Convert hash to lowercase hexadecimal
                 return BitConverter.ToString(hash).Replace("-", "").ToLower();
             }
-        }
-
-        private int ConvertDateTimeToUnixTimestamp(DateTimeOffset dateTime)
-        {
-            return (int)dateTime.ToUnixTimeSeconds();
         }
 
         public async Task GetWebhookTypeAsync(WebhookType request)
@@ -436,60 +407,6 @@ namespace Services.Services.PaymentService
             }
         }
 
-        private async Task<ResultModel> CreatePaymentUrl(string serviceId, string description, string customerName, decimal price)
-        {
-            var res = new ResultModel();
-            try
-            {
-                // Tạo mã đơn hàng tạm thời
-                string tempOrderId = GenerateShortGuid();
-
-                var payOS = new PayOS(_clientId, _apiKey, _checksumKey);
-                
-                // Tạo item cho thanh toán
-                ItemData item = new ItemData(
-                    $"{description} cho {customerName}",
-                    1,
-                    (int)price
-                );
-                List<ItemData> items = new List<ItemData>();
-                items.Add(item);
-
-                // Thời gian hết hạn thanh toán (15 phút)
-                var expiredAt = ConvertDateTimeToUnixTimestamp(DateTime.Now.AddMinutes(15));
-                int orderCode = int.Parse(DateTime.Now.ToString("ffffff"));
-
-                // Tạo dữ liệu thanh toán với thông tin chi tiết
-                PaymentData paymentData = new PaymentData(
-                    orderCode,
-                    (int)price,
-                    description,
-                    items,
-                    cancelUrl,
-                    returnUrl,
-                    expiredAt: expiredAt
-                );
-
-                // Tạo URL thanh toán
-                var paymentResult = await payOS.createPaymentLink(paymentData);
-
-                res.IsSuccess = true;
-                res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                res.StatusCode = StatusCodes.Status200OK;
-                res.Data = new { PaymentUrl = paymentResult.checkoutUrl };
-                res.Message = "Tạo URL thanh toán thành công";
-                return res;
-            }
-            catch (Exception ex)
-            {
-                res.IsSuccess = false;
-                res.ResponseCode = ResponseCodeConstants.FAILED;
-                res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = ex.Message;
-                return res;
-            }
-        }
-
         private string GenerateShortGuid()
         {
             return Guid.NewGuid().ToString("N").Substring(0, 16);
@@ -499,6 +416,21 @@ namespace Services.Services.PaymentService
         {
             var dateTimeOffset = new DateTimeOffset(date);
             return (int)dateTimeOffset.ToUnixTimeSeconds();
+        }
+
+        private async Task CheckPendingPayments(string customerId, PaymentTypeEnums serviceType)
+        {
+            var pendingOrders = await _orderRepo.GetOrdersByCustomerAndService(customerId, serviceType);
+            var hasPendingPayment = pendingOrders.Any(o => o.Status == PaymentStatusEnums.Pending.ToString());
+            
+            if (hasPendingPayment)
+            {
+                throw new AppException(
+                    ResponseCodeConstants.BAD_REQUEST, 
+                    $"Bạn có đơn hàng {serviceType.ToString()} chưa thanh toán. Vui lòng thanh toán trước khi đặt dịch vụ mới.", 
+                    StatusCodes.Status400BadRequest
+                );
+            }
         }
     }
 }

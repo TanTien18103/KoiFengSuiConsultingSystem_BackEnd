@@ -148,6 +148,7 @@ namespace BusinessObjects.Constants
         public const string INVALID_DATA = "Dữ liệu lịch tư vấn không hợp lệ";
         public const string NOT_FOUND_ONLINE = "Không tìm thấy đặt lịch trực tuyến";
         public const string NOT_FOUND_OFFLINE = "Không tìm thấy lịch tư vấn";
+        public const string NOT_FOUND_REGISTERATTEND = "Không tìm thấy vé";
 
     }
 
@@ -215,7 +216,12 @@ namespace BusinessObjects.Constants
         public class ResponseMessageConstrantsRegisterAttend
         {
             public const string REGISTERATTEND_NOT_FOUND = "Không tìm thấy vé dự sự kiện!";
+            public const string INVALID_TICKET_NUMBER = "Số lượng vé phải lớn hơn 0!";
             public const string REGISTERATTEND_FOUND = "Lấy danh sách vé dự sự kiện thành công!";
+            public const string REGISTERATTEND_CREATED_SUCCESS = "Tạo vé cho buổi sự kiện thành công!";
+            public const string REGISTERATTEND_UPDATED_SUCCESS = "Cập nhật số lượng vé thành công!";
+            public const string TICKET_NOT_PAID = "Vui lòng cập nhật số lượng vé. Số vé bạn chưa thanh toán cho workshop này là ";
+            public const string PENDING_NOT_FOUND = "Không tìm thấy vé chưa thanh toán";
         }
 
         public class ResponseMessageConstrantsTransaction
@@ -245,6 +251,8 @@ namespace BusinessObjects.Constants
             public const string WORKSHOP_MINIMUM_HOURS_DIFFERENCE = "Khoảng cách giữa hai hội thảo ở hai địa điểm khác nhau phải tối thiểu 5 giờ.";
             public const string WORKSHOP_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa workshop này.";
             public const string WORKSHOP_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật workshop này.";
+            public const string ALREADY_STARTED = "Workshop đã bắt đầu, không thể đăng ký hay chỉnh sửa.";
+            public const string CAPACITY_LEFT = "Vé còn trống cho workshop này là ";
         }
 
         public class ResponseMessageConstrantsCourse

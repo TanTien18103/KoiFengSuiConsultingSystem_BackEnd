@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.Enums;
+using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -41,7 +42,8 @@ namespace DAOs.DAOs
         {
             return await _context.RegisterAttends
                 .Include(x => x.Workshop)
-                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Include(x => x.Customer)
+                    .ThenInclude(c => c.Account)
                 .FirstOrDefaultAsync(x => x.AttendId == registerAttendId);
         }
 
@@ -49,7 +51,8 @@ namespace DAOs.DAOs
         {
             return await _context.RegisterAttends
                 .Include(x => x.Workshop)
-                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Include(x => x.Customer)
+                    .ThenInclude(c => c.Account)
                 .ToListAsync();
         }
 
@@ -95,6 +98,26 @@ namespace DAOs.DAOs
                 .Include(x => x.Workshop)
                 .Include(x => x.Customer).ThenInclude(x => x.Account)
                 .Where(x => x.WorkshopId == workshopId)
+                .ToListAsync();
+        }
+
+        public async Task<List<RegisterAttend>> GetRegisterAttendsByGroupIdDao(string groupId)
+        {
+            return await _context.RegisterAttends
+                .Include(x => x.Workshop)
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Where(x => x.GroupId == groupId)
+                .ToListAsync();
+        }
+
+        public async Task<List<RegisterAttend>> GetPendingTicketsDao(string workshopId, string customerId)
+        {
+            return await _context.RegisterAttends
+                .AsNoTracking() 
+                .Where(x => 
+                    x.WorkshopId == workshopId && 
+                    x.CustomerId == customerId && 
+                    x.Status == RegisterAttendStatusEnums.Pending.ToString())
                 .ToListAsync();
         }
     }

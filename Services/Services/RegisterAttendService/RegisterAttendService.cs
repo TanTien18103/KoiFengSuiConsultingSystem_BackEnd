@@ -3,6 +3,7 @@ using BusinessObjects.Constants;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
+using Repositories.Repositories.OrderRepository;
 using Repositories.Repositories.RegisterAttendRepository;
 using Repositories.Repositories.WorkShopRepository;
 using Services.ApiModels;
@@ -23,17 +24,20 @@ namespace Services.Services.RegisterAttendService
         private readonly IWorkShopRepo _workShopRepo;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IOrderRepo _orderRepo;
 
         public RegisterAttendService(
             IRegisterAttendRepo registerAttendRepo,
             IWorkShopRepo workShopRepo,
             IMapper mapper,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IOrderRepo orderRepo)
         {
             _registerAttendRepo = registerAttendRepo;
             _workShopRepo = workShopRepo;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _orderRepo = orderRepo;
         }
 
         private string GetAuthenticatedAccountId()
@@ -229,107 +233,105 @@ namespace Services.Services.RegisterAttendService
             var res = new ResultModel();
             try
             {
-                // Validate request
                 if (request == null || request.NumberOfTicket <= 0)
                 {
                     res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
                     res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
-                    res.Message = "Số lượng vé phải lớn hơn 0";
+                    res.Message = ResponseMessageConstrantsRegisterAttend.INVALID_TICKET_NUMBER;
                     return res;
                 }
-
                 var accountId = GetAuthenticatedAccountId();
                 if (string.IsNullOrEmpty(accountId))
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
                     res.StatusCode = StatusCodes.Status401Unauthorized;
-                    res.Message = "Unauthorized";
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
                     return res;
                 }
-
                 var customerId = await _registerAttendRepo.GetCustomerIdByAccountId(accountId);
-
-                // Kiểm tra workshop tồn tại và capacity
                 var workshop = await _workShopRepo.GetWorkShopById(request.WorkshopId);
                 if (workshop == null)
                 {
                     res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.Message = "Workshop không tồn tại";
+                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND;
                     return res;
                 }
-
-                // Kiểm tra workshop đã bắt đầu chưa
                 if (workshop.StartDate <= DateTime.Now)
                 {
                     res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
                     res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
-                    res.Message = "Workshop đã bắt đầu, không thể đăng ký";
+                    res.Message = ResponseMessageConstrantsWorkshop.ALREADY_STARTED;
                     return res;
                 }
 
-                // Kiểm tra xem customer có vé pending không
-                var existingPendingTickets = await _registerAttendRepo.GetRegisterAttendsByWorkShopId(request.WorkshopId);
-                var pendingTickets = existingPendingTickets.Where(x => 
-                    x.CustomerId == customerId && 
-                    x.Status == RegisterAttendStatusEnums.Pending.ToString()
-                ).ToList();
-
-                if (pendingTickets.Any())
+                // Kiểm tra tất cả RegisterAttend của customer
+                var allCustomerAttends = await _registerAttendRepo.GetRegisterAttendByCustomerId(customerId);
+                
+                if (allCustomerAttends.Any())
                 {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
-                    res.Message = $"Bạn đang có {pendingTickets.Count} vé chưa thanh toán cho workshop này. Vui lòng sử dụng chức năng cập nhật số lượng vé.";
-                    res.Data = new
+                    // Lấy RegisterAttend gần nhất của customer
+                    var latestRegisterAttend = allCustomerAttends.OrderByDescending(x => x.CreatedDate).First();
+                    
+                    // Kiểm tra Order của RegisterAttend gần nhất
+                    var order = await _orderRepo.GetOrderByServiceId(latestRegisterAttend.GroupId);
+
+                    // Nếu chưa tạo Order hoặc Order chưa thanh toán
+                    if (order == null || order.Status != PaymentStatusEnums.Paid.ToString())
                     {
-                        PendingGroupId = pendingTickets.First().GroupId,
-                        CurrentTickets = pendingTickets.Count
-                    };
-                    return res;
+                        res.IsSuccess = false;
+                        res.StatusCode = StatusCodes.Status400BadRequest;
+                        res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                        res.Message = "Vui lòng hoàn tất thanh toán cho đăng ký workshop trước đó trước khi đăng ký thêm";
+                        return res;
+                    }
                 }
 
-                // Kiểm tra số lượng vé còn lại
                 if (workshop.Capacity < request.NumberOfTicket)
                 {
                     res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
                     res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
-                    res.Message = $"Chỉ còn {workshop.Capacity} vé cho workshop này";
+                    res.Message = ResponseMessageConstrantsWorkshop.CAPACITY_LEFT + workshop.Capacity;
                     return res;
                 }
-
                 var registerAttends = new List<RegisterAttend>();
                 var createdDate = DateTime.Now;
-                var groupId = Guid.NewGuid().ToString();
-
+                var groupId = GenerateShortGuid();
                 for (int i = 0; i < request.NumberOfTicket; i++)
                 {
                     var registerAttend = new RegisterAttend
                     {
-                        AttendId = Guid.NewGuid().ToString(),
+                        AttendId = GenerateShortGuid(),
                         CustomerId = customerId,
                         WorkshopId = request.WorkshopId,
                         Status = RegisterAttendStatusEnums.Pending.ToString(),
                         CreatedDate = createdDate,
-                        GroupId = groupId
+                        GroupId = groupId,
                     };
                     var result = await _registerAttendRepo.CreateRegisterAttend(registerAttend);
                     registerAttends.Add(result);
                 }
-
-                // Cập nhật capacity của workshop
                 workshop.Capacity -= request.NumberOfTicket;
                 await _workShopRepo.UpdateWorkShop(workshop);
+
+                // Sau khi tạo xong tất cả vé
+                var createdTickets = await _registerAttendRepo.GetRegisterAttendsByGroupId(groupId);
+                var mappedTickets = createdTickets.Select(ticket => _mapper.Map<RegisterAttendDetailsResponse>(ticket)).ToList();
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status201Created;
                 res.Data = new
                 {
-                    GroupId = groupId,
-                    RegisterAttends = registerAttends.Select(x => _mapper.Map<RegisterAttendDetailsResponse>(x))
+                    groupId,
+                    registerAttends = mappedTickets
                 };
-                res.Message = "Đăng ký tham gia workshop thành công!";
+                res.Message = ResponseMessageConstrantsRegisterAttend.REGISTERATTEND_CREATED_SUCCESS;
                 return res;
             }
             catch (Exception ex)
@@ -350,8 +352,9 @@ namespace Services.Services.RegisterAttendService
                 if (newNumberOfTickets <= 0)
                 {
                     res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
                     res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
-                    res.Message = "Số lượng vé phải lớn hơn 0";
+                    res.Message = ResponseMessageConstrantsRegisterAttend.INVALID_TICKET_NUMBER;
                     return res;
                 }
 
@@ -361,7 +364,7 @@ namespace Services.Services.RegisterAttendService
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
                     res.StatusCode = StatusCodes.Status401Unauthorized;
-                    res.Message = "Unauthorized";
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
                     return res;
                 }
 
@@ -372,8 +375,9 @@ namespace Services.Services.RegisterAttendService
                 if (workshop == null)
                 {
                     res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.Message = "Workshop không tồn tại";
+                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND;
                     return res;
                 }
 
@@ -381,23 +385,19 @@ namespace Services.Services.RegisterAttendService
                 if (workshop.StartDate <= DateTime.Now)
                 {
                     res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
                     res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
-                    res.Message = "Workshop đã bắt đầu, không thể cập nhật vé";
+                    res.Message = ResponseMessageConstrantsWorkshop.ALREADY_STARTED;
                     return res;
                 }
 
-                // Lấy các vé pending hiện tại
-                var pendingTickets = await _registerAttendRepo.GetRegisterAttendsByWorkShopId(workshopId);
-                pendingTickets = pendingTickets.Where(x => 
-                    x.CustomerId == customerId && 
-                    x.Status == RegisterAttendStatusEnums.Pending.ToString()
-                ).ToList();
-
+                var pendingTickets = await _registerAttendRepo.GetPendingTickets(workshopId, customerId);  
                 if (!pendingTickets.Any())
                 {
                     res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.Message = "Không tìm thấy vé chưa thanh toán";
+                    res.Message = ResponseMessageConstrantsRegisterAttend.PENDING_NOT_FOUND;
                     return res;
                 }
 
@@ -408,8 +408,9 @@ namespace Services.Services.RegisterAttendService
                 if (ticketDifference > 0 && workshop.Capacity < ticketDifference)
                 {
                     res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
                     res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
-                    res.Message = $"Chỉ còn {workshop.Capacity} vé cho workshop này";
+                    res.Message = ResponseMessageConstrantsWorkshop.CAPACITY_LEFT + workshop.Capacity;
                     return res;
                 }
 
@@ -427,7 +428,7 @@ namespace Services.Services.RegisterAttendService
                             WorkshopId = workshopId,
                             Status = RegisterAttendStatusEnums.Pending.ToString(),
                             CreatedDate = DateTime.Now,
-                            GroupId = groupId
+                            GroupId = groupId,
                         };
                         await _registerAttendRepo.CreateRegisterAttend(newTicket);
                     }
@@ -449,7 +450,7 @@ namespace Services.Services.RegisterAttendService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Message = "Cập nhật số lượng vé thành công";
+                res.Message = ResponseMessageConstrantsRegisterAttend.REGISTERATTEND_UPDATED_SUCCESS;
                 return res;
             }
             catch (Exception ex)
@@ -460,6 +461,13 @@ namespace Services.Services.RegisterAttendService
                 res.Message = ex.Message;
                 return res;
             }
+        }
+
+        public static string GenerateShortGuid()
+        {
+            Guid guid = Guid.NewGuid();
+            string base64 = Convert.ToBase64String(guid.ToByteArray());
+            return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Services.ApiModels.RegisterAttend
         public string AttendId { get; set; }
 
         public string WorkshopName { get; set; }
-
+        public string PhoneNumber { get; set; }
 
         public string CustomerName { get; set; }
 

@@ -29,6 +29,10 @@ public partial class WorkShop
 
     public DateTime? CreatedDate { get; set; }
 
+    public string CreateBy { get; set; }
+
+    public DateTime? UpdateAt { get; set; }
+
     public virtual Master Master { get; set; }
 
     public virtual ICollection<RegisterAttend> RegisterAttends { get; set; } = new List<RegisterAttend>();

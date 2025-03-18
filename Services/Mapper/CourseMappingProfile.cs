@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using BusinessObjects.Models;
+using Services.ApiModels.Course;
+using Services.ApiModels.Workshop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +12,13 @@ namespace Services.Mapper
 {
     public class CourseMappingProfile : Profile
     {
+        public CourseMappingProfile()
+        {
+            CreateMap<Course, CourseRespone>()
+                .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.CreateBy));
+
+            CreateMap<CourseRequest, Course>()
+                .ForMember(dest => dest.CourseId, opt => opt.Ignore());
+        }
     }
 }

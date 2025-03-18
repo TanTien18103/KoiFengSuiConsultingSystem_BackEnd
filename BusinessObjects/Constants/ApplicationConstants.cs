@@ -264,6 +264,7 @@ namespace BusinessObjects.Constants
             public const string COURSE_NOT_FOUND = "Không tìm thấy khóa học!";
             public const string COURSE_INFO_FOUND = "Lấy thông tin khóa học thành công";
             public const string COURSE_INFO_INVALID = "Dữ liệu khóa học không hợp lệ";
+            public const string NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy AccountId tương ứng với tài khoản";
         }
 
         //Image

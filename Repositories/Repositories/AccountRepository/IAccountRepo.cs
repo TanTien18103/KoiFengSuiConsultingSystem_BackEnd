@@ -9,6 +9,7 @@ namespace Repositories.Repositories.AccountRepository
 {
     public interface IAccountRepo
     {
+        Task<List<Account>> GetAccountsByIds(List<string> accountIds);
         Task<Account?> GetAccountByEmail(string email);
         Task<string> GetAccountIdFromToken(string token);
         Task<Account> GetAccountById(string accountId);

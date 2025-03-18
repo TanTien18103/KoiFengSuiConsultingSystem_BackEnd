@@ -25,6 +25,14 @@ public partial class Course
 
     public decimal? Price { get; set; }
 
+    public DateTime CreateAt { get; set; }
+
+    public string CreateBy { get; set; }
+
+    public DateTime? UpdateAt { get; set; }
+
+    public string Description { get; set; }
+
     public virtual Certificate Certificate { get; set; }
 
     public virtual ICollection<Chapter> Chapters { get; set; } = new List<Chapter>();

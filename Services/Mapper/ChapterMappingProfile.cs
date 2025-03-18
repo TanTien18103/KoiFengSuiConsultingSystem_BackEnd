@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using BusinessObjects.Models;
+using Services.ApiModels.Chapter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +11,10 @@ namespace Services.Mapper
 {
     public class ChapterMappingProfile : Profile
     {
+        public ChapterMappingProfile()
+        {
+            CreateMap<Chapter, ChapterRespone>();
+            CreateMap<ChapterRequest, Chapter>();
+        }
     }
 }

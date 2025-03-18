@@ -1,39 +1,35 @@
 ﻿using AutoMapper;
+using BusinessObjects.Constants;
+using BusinessObjects.Enums;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
+using Repositories.Repositories.ChapterRepository;
 using Repositories.Repositories.CourseRepository;
 using Services.ApiModels;
+using Services.ApiModels.Chapter;
 using Services.ApiModels.Course;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BusinessObjects.Constants;
-using Services.ApiModels.Workshop;
 using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
-using System.Security.Claims;
-using BusinessObjects.Enums;
-using BusinessObjects.Models;
-using Repositories.Repositories.AccountRepository;
 
-namespace Services.Services.CourseService
+namespace Services.Services.ChapterService
 {
-    public class CourseService : ICourseService
+    public class ChapterService : IChapterService
     {
-        private readonly ICourseRepo _courseRepo;
+        private readonly IChapterRepo _chapterRepo;
         private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IAccountRepo _accountRepo;
+        private readonly ICourseRepo _courseRepo;
 
-
-        public CourseService(ICourseRepo courseRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo)
+        public ChapterService(IChapterRepo chapterRepo, IMapper mapper, ICourseRepo courseRepo)
         {
-            _courseRepo = courseRepo;
+            _chapterRepo = chapterRepo;
             _mapper = mapper;
-            _httpContextAccessor = httpContextAccessor;
-            _accountRepo = accountRepo;
+            _courseRepo = courseRepo;
         }
-       
+
 
         public static string GenerateShortGuid()
         {
@@ -42,43 +38,27 @@ namespace Services.Services.CourseService
             return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
         }
 
-        private string GetAuthenticatedAccountId()
-        {
-            var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
-            if (identity == null || !identity.IsAuthenticated) return null;
-
-            return identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-        }
-
-        private string GetAuthenticatedName()
-        {
-            var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
-            if (identity == null || !identity.IsAuthenticated) return null;
-
-            return identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value;
-        }
-
-        public async Task<ResultModel> GetCourseById(string courseId)
+        public async Task<ResultModel> GetChapterById(string chapterId)
         {
             var res = new ResultModel();
 
             try
             {
-                var course = await _courseRepo.GetCourseById(courseId);
-                if (course == null)
+                var chapter = await _chapterRepo.GetChapterById(chapterId);
+                if (chapter == null)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
                     res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = ResponseMessageConstrantsCourse.COURSE_NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsChapter.CHAPTER_NOT_FOUND;
                     return res;
                 }
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<CourseRespone>(course);
-                res.Message = ResponseMessageConstrantsCourse.COURSE_INFO_FOUND;
+                res.Data = _mapper.Map<ChapterRespone>(chapter);
+                res.Message = ResponseMessageConstrantsChapter.CHAPTER_INFO_FOUND;
                 return res;
             }
             catch (Exception ex)
@@ -91,26 +71,26 @@ namespace Services.Services.CourseService
             }
         }
 
-        public async Task<ResultModel> GetCourses()
+        public async Task<ResultModel> GetChaptersByCourseId(string courseId)
         {
             var res = new ResultModel();
             try
             {
-                var courses = await _courseRepo.GetCourses();
-                if (courses == null)
+                var chapters = await _chapterRepo.GetChaptersByCourseId(courseId);
+                if (chapters == null || chapters.Count == 0)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
                     res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = ResponseMessageConstrantsCourse.COURSE_NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsChapter.CHAPTER_NOT_FOUND;
                     return res;
                 }
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<CourseRespone>>(courses);
-                res.Message = ResponseMessageConstrantsCourse.COURSE_INFO_FOUND;
+                res.Data = _mapper.Map<List<ChapterRespone>>(chapters);
+                res.Message = ResponseMessageConstrantsChapter.CHAPTER_INFO_FOUND;
                 return res;
             }
             catch (Exception ex)
@@ -122,7 +102,7 @@ namespace Services.Services.CourseService
                 return res;
             }
         }
-        public async Task<ResultModel> CreateCourse(CourseRequest request)
+        public async Task<ResultModel> CreateChapter(ChapterRequest request)
         {
             var res = new ResultModel();
 
@@ -133,42 +113,39 @@ namespace Services.Services.CourseService
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
                     res.StatusCode = StatusCodes.Status400BadRequest;
-                    res.Message = ResponseMessageConstrantsCourse.COURSE_INFO_INVALID;
+                    res.Message = ResponseMessageConstrantsChapter.CHAPTER_INFO_INVALID;
                     return res;
                 }
 
-                var accountId = GetAuthenticatedAccountId();
-                if (string.IsNullOrEmpty(accountId))
+                if (string.IsNullOrEmpty(request.CourseId))
                 {
                     res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
-                    res.StatusCode = StatusCodes.Status401Unauthorized;
-                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsChapter.COURSE_ID_REQUIRED;
                     return res;
                 }
 
-                var course = _mapper.Map<Course>(request);
-                course.CourseId = GenerateShortGuid();
-                course.CreateAt = DateTime.UtcNow;
-                course.Status = CourseStatusEnum.Inactive.ToString();
-                course.CreateBy = accountId;
-
-                if (course.CreateBy == null)
+                var course = await _courseRepo.GetCourseById(request.CourseId);
+                if (course == null)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
                     res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = ResponseMessageConstrantsCourse.NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT;
+                    res.Message = ResponseMessageConstrantsCourse.COURSE_NOT_FOUND;
                     return res;
                 }
 
-                await _courseRepo.CreateCourse(course);
+
+                var chapter = _mapper.Map<Chapter>(request);
+                chapter.ChapterId = GenerateShortGuid();
+                await _chapterRepo.CreateChapter(chapter);
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status201Created;
-                res.Data = _mapper.Map<CourseRespone>(course);
-                res.Message = ResponseMessageConstrantsCourse.COURSE_CREATED_SUCCESS;
+                res.Data = _mapper.Map<ChapterRespone>(chapter);
+                res.Message = ResponseMessageConstrantsChapter.CHAPTER_CREATED_SUCCESS;
                 return res;
             }
             catch (Exception ex)
@@ -176,16 +153,36 @@ namespace Services.Services.CourseService
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = $"Đã xảy ra lỗi khi tạo khóa học: {ex.Message}";
+                res.Message = $"Đã xảy ra lỗi khi tạo chương học: {ex.Message}";
                 return res;
             }
         }
-        public async Task<ResultModel> UpdateCourse(string id, CourseRequest request)
+        public async Task<ResultModel> UpdateChapter(string chapterId, ChapterRequest chapter)
         {
             var res = new ResultModel();
+
             try
             {
-                var course = await _courseRepo.GetCourseById(id);
+                if (chapter == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsChapter.CHAPTER_INFO_INVALID;
+                    return res;
+                }
+
+                var chapterInfo = await _chapterRepo.GetChapterById(chapterId);
+                if (chapterInfo == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsChapter.CHAPTER_NOT_FOUND;
+                    return res;
+                }
+
+                var course = await _courseRepo.GetCourseById(chapter.CourseId);
                 if (course == null)
                 {
                     res.IsSuccess = false;
@@ -195,25 +192,15 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                var accountId = GetAuthenticatedAccountId();
-                if (string.IsNullOrEmpty(accountId))
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
-                    res.StatusCode = StatusCodes.Status401Unauthorized;
-                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
-                    return res;
-                }
+                _mapper.Map(chapter, chapterInfo);
 
-                _mapper.Map(request, course);
-                course.UpdateAt = DateTime.UtcNow;
-                await _courseRepo.UpdateCourse(course);
+                await _chapterRepo.UpdateChapter(chapterInfo);
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<CourseRespone>(course);
-                res.Message = ResponseMessageConstrantsCourse.COURSE_UPDATED_SUCCESS;
+                res.Data = _mapper.Map<ChapterRespone>(chapterInfo);
+                res.Message = ResponseMessageConstrantsChapter.CHAPTER_UPDATED_SUCCESS;
                 return res;
             }
             catch (Exception ex)
@@ -221,42 +208,49 @@ namespace Services.Services.CourseService
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = ex.Message;
+                res.Message = $"Đã xảy ra lỗi khi cập nhật chương học: {ex.Message}";
                 return res;
             }
         }
 
-        public async Task<ResultModel> DeleteCourse(string courseId)
+        public async Task<ResultModel> DeleteChapter(string chapterId)
         {
             var res = new ResultModel();
+
             try
             {
-                var course = await _courseRepo.GetCourseById(courseId);
-                if (course == null)
+                var chapter = await _chapterRepo.GetChapterById(chapterId);
+                if (chapter == null)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
                     res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = ResponseMessageConstrantsCourse.COURSE_NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsChapter.CHAPTER_NOT_FOUND;
                     return res;
                 }
 
-                await _courseRepo.DeleteCourse(courseId);
+                await _chapterRepo.DeleteChapter(chapterId);
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Message = ResponseMessageConstrantsCourse.COURSE_DELETED_SUCCESS;
+                res.Message = ResponseMessageConstrantsChapter.CHAPTER_DELETED_SUCCESS;
                 return res;
             }
             catch (Exception ex)
             {
+                var innerException = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = $"Đã xảy ra lỗi khi xóa khóa học: {ex.Message}";
+                res.Message = $"Đã xảy ra lỗi khi xóa chương học: {innerException}";
+
+                Console.WriteLine($"[ERROR] {ex}"); // Log full error
                 return res;
             }
+
+
         }
     }
 }

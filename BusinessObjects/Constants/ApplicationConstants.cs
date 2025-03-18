@@ -275,5 +275,19 @@ namespace BusinessObjects.Constants
             public const string INVALID_FORMAT = "Định dạng hình ảnh không hợp lệ. ";
             public const string INVALID_URL = "Đường dẫn hình ảnh không hợp lệ. ";
         }
+
+        public class ResponseMessageConstrantsChapter
+        {
+            public const string CHAPTER_CREATED_SUCCESS = "Tạo chương học thành công!";
+            public const string CHAPTER_UPDATED_SUCCESS = "Cập nhật chương học thành công!";
+            public const string CHAPTER_DELETED_SUCCESS = "Xóa chương học thành công!";
+            public const string CHAPTER_FOUND = "Lấy danh sách chương học thành công!";
+            public const string CHAPTER_NOT_FOUND = "Không tìm thấy chương học!";
+            public const string CHAPTER_INFO_FOUND = "Lấy thông tin chương học thành công";
+            public const string CHAPTER_INFO_INVALID = "Dữ liệu chương học không hợp lệ";
+
+            public static string? COURSE_ID_REQUIRED { get; set; }
+        }
     }
 }
+

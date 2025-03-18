@@ -32,6 +32,8 @@ using System.Text;
 using Repositories.Repositories.VarietyColorRepository;
 using Repositories.Repositories.ColorRepository;
 using Services.Services.CourseService;
+using Repositories.Repositories.ChapterRepository;
+using Services.Services.ChapterService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +54,9 @@ builder.Services.AddScoped<IOrderRepo, OrderRepo>();
 builder.Services.AddScoped<IRegisterAttendRepo, RegisterAttendRepo>();
 builder.Services.AddScoped<IColorRepo, ColorRepo>(); 
 builder.Services.AddScoped<ICourseRepo, CourseRepo>();
+builder.Services.AddScoped<IChapterRepo, ChapterRepo>();
+
+
 
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -68,6 +73,7 @@ builder.Services.AddScoped<IWorkshopService, WorkshopService>();
 builder.Services.AddScoped<IRegisterAttendService, RegisterAttendService>();
 builder.Services.AddScoped<IPayOSService, PayOSService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IChapterService, ChapterService>();
 
 
 
@@ -81,6 +87,7 @@ builder.Services.AddAutoMapper(typeof(BookingMappingProfile));
 builder.Services.AddAutoMapper(typeof(RegisterAttendMappingProfile));
 builder.Services.AddAutoMapper(typeof(WorkshopMappingProfile));
 builder.Services.AddAutoMapper(typeof(CourseMappingProfile));
+builder.Services.AddAutoMapper(typeof(ChapterMappingProfile));
 
 builder.Services.AddHttpClient();
 

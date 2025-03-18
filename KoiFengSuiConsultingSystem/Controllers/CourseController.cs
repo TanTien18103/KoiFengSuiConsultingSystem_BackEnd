@@ -33,22 +33,22 @@ namespace KoiFengSuiConsultingSystem.Controllers
         [HttpPost("create-course")]
         public async Task<IActionResult> CreateCourse([FromBody] CourseRequest courseRequest)
         {
-            await _courseService.CreateCourse(courseRequest);
-            return Ok();
+            var result = await _courseService.CreateCourse(courseRequest);
+            return Ok(result);
         }
 
         [HttpPut("update-course/{id}")]
         public async Task<IActionResult> UpdateCourse(string id, [FromBody] CourseRequest courseRequest)
         {
-            await _courseService.UpdateCourse(id, courseRequest);
-            return Ok();
+            var result = await _courseService.UpdateCourse(id, courseRequest);
+            return Ok(result);
         }
 
         [HttpDelete("delete-course/{id}")]
         public async Task<IActionResult> DeleteCourse(string id)
         {
-            await _courseService.DeleteCourse(id);
-            return Ok();
+            var result = await _courseService.DeleteCourse(id);
+            return Ok(result);
         }
     }
 }

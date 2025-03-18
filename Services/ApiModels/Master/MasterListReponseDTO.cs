@@ -13,5 +13,13 @@ namespace Services.ApiModels.Master
         public string MasterName { get; set; }
 
         public byte? Rating { get; set; }
+
+        public string Title { get; set; }
+
+        public string Expertise { get; set; }
+
+        public string Experience { get; set; }
+
+        public string Biography { get; set; }
     }
 }

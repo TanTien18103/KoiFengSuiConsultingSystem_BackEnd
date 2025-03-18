@@ -7,6 +7,8 @@ using Services.ApiModels.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Services.Services.AccountService;
+using Microsoft.EntityFrameworkCore;
+using Repositories.Repositories.AccountRepository;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -15,10 +17,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IAccountRepo _accountRepo;
 
-        public AccountController(IAccountService accountService)
+        public AccountController(IAccountService accountService, IAccountRepo accountRepo)
         {
             _accountService = accountService;
+            _accountRepo = accountRepo;
         }
 
         [HttpGet("google-response")]
@@ -106,7 +110,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpGet("current-user")]
-        public IActionResult GetCurrentUser()
+        public async Task<IActionResult> GetCurrentUser()
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             if (identity != null)
@@ -116,17 +120,34 @@ namespace KoiFengSuiConsultingSystem.Controllers
                 var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 var role = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
+                var user = await _accountRepo.GetAccountById(accountId);
+
+                if (user != null)
+                {
+                    return Ok(new
+                    {
+                        AccountId = accountId,
+                        Email = email,
+                        Role = role,
+                        PhoneNumber = user.PhoneNumber,
+                        FullName = user.FullName
+                    });
+                }
+
                 return Ok(new
                 {
                     AccountId = accountId,
                     Email = email,
-                    Role = role
+                    Role = role,
+                    PhoneNumber = (string)null,
+                    FullName = (string)null
                 });
             }
+
             return Unauthorized(new { message = "User is not logged in." });
         }
 
-     
+
         [HttpPost("logout")]
         public IActionResult Logout()
         {

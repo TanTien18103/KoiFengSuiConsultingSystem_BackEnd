@@ -15,6 +15,7 @@ namespace Services.Services.RegisterAttendService
         Task<ResultModel> GetRegisterAttendById(string registerAttendId);
         Task<ResultModel> GetRegisterAttends();
         Task<ResultModel> GetRegisterAttendByCustomerId();
+        Task<ResultModel> GetRegisterAttendByGroupId(string groupId);
         Task<ResultModel> GetRegisterAttendByWorkshopId(string id);
         Task<ResultModel> CreateRegisterAttend(RegisterAttendRequest request);
         Task<ResultModel> UpdatePendingTickets(string workshopId, int newNumberOfTickets);

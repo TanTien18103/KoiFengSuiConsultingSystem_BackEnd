@@ -39,7 +39,8 @@ namespace DAOs.DAOs
 
         public async Task<WorkShop> GetWorkShopByIdDao(string workShopId)
         {
-            return await _context.WorkShops.FindAsync(workShopId);
+            return await _context.WorkShops.Include(x => x.Master).ThenInclude(x => x.Account)
+                .FirstOrDefaultAsync(x => x.WorkshopId == workShopId);
         }
 
         public async Task<List<WorkShop>> GetWorkShopsDao()

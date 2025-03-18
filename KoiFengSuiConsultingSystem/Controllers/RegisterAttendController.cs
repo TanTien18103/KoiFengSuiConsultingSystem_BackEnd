@@ -52,6 +52,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        [HttpGet("register-by-group/{id}")]
+        public async Task<IActionResult> GetRegisterAttendByGroupId([FromRoute] string id)
+        {
+            var result = await _registerAttendService.GetRegisterAttendByGroupId(id);
+            return StatusCode(result.StatusCode, result);
+        }
+
         [HttpPost("create")]
         public async Task<IActionResult> CreateRegisterAttend([FromBody] RegisterAttendRequest request)
         {

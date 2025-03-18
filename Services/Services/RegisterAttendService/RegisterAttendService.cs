@@ -163,6 +163,39 @@ namespace Services.Services.RegisterAttendService
                 return res;
             }
         }
+
+        public async Task<ResultModel> GetRegisterAttendByGroupId(string groupId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var registerAttend = await _registerAttendRepo.GetRegisterAttendsByGroupId(groupId);
+                if (registerAttend == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsRegisterAttend.REGISTERATTEND_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<List<RegisterAttendDetailsResponse>>(registerAttend);
+                res.Message = ResponseMessageConstrantsRegisterAttend.REGISTERATTEND_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
         public async Task<ResultModel> GetRegisterAttends()
         {
             var res = new ResultModel();

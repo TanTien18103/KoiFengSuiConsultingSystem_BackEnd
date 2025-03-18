@@ -25,6 +25,8 @@ public partial class Account
 
     public string Role { get; set; }
 
+    public bool IsActive { get; set; }
+
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 
     public virtual ICollection<BookingOnline> BookingOnlines { get; set; } = new List<BookingOnline>();

@@ -48,12 +48,6 @@ namespace DAOs.DAOs
             return await _context.WorkShops.Include(x => x.Master).ToListAsync();
         }
 
-        public async Task<string> GetMasterIdByAccountIdDao(string accountId)
-        {
-            var master = await _context.Masters.FirstOrDefaultAsync(x => x.AccountId == accountId);
-            return master?.MasterId; 
-        }
-
         public async Task<WorkShop> GetWorkshopByMasterLocationAndDateDao(string masterId, string location, DateTime? startDate)
         {
             return await _context.WorkShops.FirstOrDefaultAsync(w => w.MasterId == masterId && w.Location == location && w.StartDate == startDate);

@@ -36,6 +36,14 @@ namespace DAOs.DAOs
             }
         }
 
+        public async Task<Account> GetAccountByUniqueFieldsDao(string userName, string email, string phoneNumber, int bankId, string accountNo, string currentAccountId)
+        {
+            return await _context.Accounts
+                .Where(a => (a.UserName == userName || a.Email == email || a.PhoneNumber == phoneNumber ||
+                             (a.BankId == bankId && a.AccountNo == accountNo))
+                            && a.AccountId != currentAccountId)
+                .FirstOrDefaultAsync();
+        }
 
         public async Task<List<Account>> GetAccountsByIds(List<string> accountIds)
         {

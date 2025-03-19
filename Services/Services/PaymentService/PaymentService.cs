@@ -225,7 +225,7 @@ namespace Services.Services.PaymentService
                     CreatedDate = DateTime.Now,
                     Description = description,
                     PaymentId = GenerateShortGuid(),
-                    Note = $"Thanh toán cho {description}"
+                    Note = $"{description}"
                 };
 
                 // Lưu Order vào database
@@ -235,7 +235,7 @@ namespace Services.Services.PaymentService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = new { PaymentUrl = createPayment.checkoutUrl };
+                res.Data = new { PaymentUrl = createPayment.checkoutUrl, OrderId = tempOrderId};
                 res.Message = "Tạo URL thanh toán thành công";
                 return res;
             }
@@ -284,86 +284,6 @@ namespace Services.Services.PaymentService
                 // Convert hash to lowercase hexadecimal
                 return BitConverter.ToString(hash).Replace("-", "").ToLower();
             }
-        }
-
-        public async Task GetWebhookTypeAsync(WebhookType request)
-        {
-            var orderCode = request.data.orderCode;
-            var payOs = new PayOS(_clientId, _apiKey, _checksumKey);
-            WebhookData data = payOs.verifyPaymentWebhookData(request);
-            if (data == null)
-            {
-                throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsOrder.WEBHOOK_NOT_FOUND, StatusCodes.Status404NotFound);
-            }
-
-            var orderId = request.data.description.Split(" ").Last();
-
-            // valid data & change status of order
-            var order = await _orderRepo.GetOrderById(orderId);
-            if (order == null)
-            {
-                throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsOrder.NOT_FOUND + orderId, StatusCodes.Status404NotFound);
-            }
-
-            // if status == "00" change status of order to success
-            if (request.code == "00")
-            {
-                await UpdateOrderPayment(order, data.orderCode);
-            }
-            else
-            {
-                throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsOrder.REQUEST_FAILED_ORDER + orderId, StatusCodes.Status400BadRequest);
-            }
-        }
-
-        public async Task<PaymentLinkInformation> GetPaymentLinkInformationAsync(long orderCode)
-        {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("x-client-id", _clientId);
-            client.DefaultRequestHeaders.Add("x-api-key", _apiKey);
-            var response = await client.GetAsync($"https://api-merchant.payos.vn/v2/payment-requests/{orderCode}");
-            if (response.IsSuccessStatusCode)
-            {
-                string content = await response.Content.ReadAsStringAsync();
-                var payOsResponse = JsonConvert.DeserializeObject<PayOSResponse>(content);
-                return payOsResponse.Data;
-            }
-            throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsOrder.NEED_TO_PAY_SERVICE_NOT_FOUND, StatusCodes.Status404NotFound);
-        }
-
-        public async Task ConfirmPayment(string orderId, long orderCode)
-        {
-            var order = await _orderRepo.GetOrderById(orderId);
-            if (order.Status == PaymentStatusEnums.Paid.ToString())
-            {
-                throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsOrder.ALREADY_PAID, StatusCodes.Status400BadRequest);
-            }
-
-            var payment = await GetPaymentLinkInformationAsync(orderCode);
-            if (payment == null)
-            {
-                throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsOrder.NEED_TO_PAY_SERVICE_NOT_FOUND, StatusCodes.Status404NotFound);
-            }
-
-            if (payment.status != "PAID")
-            {
-                throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsOrder.NOT_PAID, StatusCodes.Status400BadRequest);
-            }
-            await UpdateOrderPayment(order, orderCode);
-        }
-
-        private async Task UpdateOrderPayment(Order order, long orderCode)
-        {
-            order.Status = PaymentStatusEnums.Paid.ToString();
-            order.PaymentDate = DateTime.Now;
-            order.PaymentId = orderCode.ToString();
-            await _orderRepo.UpdateOrder(order);
-        }
-
-        public async Task<string> ConfirmWebhook(string webhookUrl)
-        {
-            var payOs = new PayOS(_clientId, _apiKey, _checksumKey);
-            return await payOs.confirmWebhook(webhookUrl);
         }
 
         private string GetAuthenticatedAccountId()
@@ -420,16 +340,96 @@ namespace Services.Services.PaymentService
 
         private async Task CheckPendingPayments(string customerId, PaymentTypeEnums serviceType)
         {
-            var pendingOrders = await _orderRepo.GetOrdersByCustomerAndService(customerId, serviceType);
-            var hasPendingPayment = pendingOrders.Any(o => o.Status == PaymentStatusEnums.Pending.ToString());
+            var pendingOrders = await _orderRepo.GetPendingOrdersByCustomerId(customerId);
             
-            if (hasPendingPayment)
+            var hasPendingPaymentForServiceType = pendingOrders
+                .Any(o => o.ServiceType == serviceType.ToString());
+            
+            if (hasPendingPaymentForServiceType)
             {
                 throw new AppException(
                     ResponseCodeConstants.BAD_REQUEST, 
-                    $"Bạn có đơn hàng {serviceType.ToString()} chưa thanh toán. Vui lòng thanh toán trước khi đặt dịch vụ mới.", 
+                    $"Bạn đã có một đơn hàng {serviceType.ToString()} đang chờ thanh toán. Vui lòng thanh toán hoặc chọn dịch vụ khác.", 
                     StatusCodes.Status400BadRequest
                 );
+            }
+        }
+
+
+
+        public async Task<string> ConfirmWebhook(string webhookUrl)
+        {
+            var payOs = new PayOS(_clientId, _apiKey, _checksumKey);
+            return await payOs.confirmWebhook(webhookUrl);
+        }
+        public async Task<PaymentLinkInformation> GetPaymentLinkInformationAsync(long orderCode)
+        {
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("x-client-id", _clientId);
+            client.DefaultRequestHeaders.Add("x-api-key", _apiKey);
+            var response = await client.GetAsync($"https://api-merchant.payos.vn/v2/payment-requests/{orderCode}");
+            if (response.IsSuccessStatusCode)
+            {
+                string content = await response.Content.ReadAsStringAsync();
+                var payOsResponse = JsonConvert.DeserializeObject<PayOSResponse>(content);
+                return payOsResponse.Data;
+            }
+            throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsOrder.NEED_TO_PAY_SERVICE_NOT_FOUND, StatusCodes.Status404NotFound);
+        }
+        private async Task UpdateOrderPayment(Order order, long orderCode)
+        {
+            order.Status = PaymentStatusEnums.Paid.ToString();
+            order.PaymentDate = DateTime.Now;
+            order.PaymentId = orderCode.ToString();
+            await _orderRepo.UpdateOrder(order);
+        }
+        public async Task ConfirmPayment(string orderId, long orderCode)
+        {
+            var order = await _orderRepo.GetOrderById(orderId);
+            if (order.Status == PaymentStatusEnums.Paid.ToString())
+            {
+                throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsOrder.ALREADY_PAID, StatusCodes.Status400BadRequest);
+            }
+
+            var payment = await GetPaymentLinkInformationAsync(orderCode);
+            if (payment == null)
+            {
+                throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsOrder.NEED_TO_PAY_SERVICE_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+
+            if (payment.status != "PAID")
+            {
+                throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsOrder.NOT_PAID, StatusCodes.Status400BadRequest);
+            }
+            await UpdateOrderPayment(order, orderCode);
+        }
+        public async Task GetWebhookTypeAsync(WebhookType request)
+        {
+            var orderCode = request.data.orderCode;
+            var payOs = new PayOS(_clientId, _apiKey, _checksumKey);
+            WebhookData data = payOs.verifyPaymentWebhookData(request);
+            if (data == null)
+            {
+                throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsOrder.WEBHOOK_NOT_FOUND, StatusCodes.Status404NotFound);
+            }
+
+            var orderId = request.data.description.Split(" ").Last();
+
+            // valid data & change status of order
+            var order = await _orderRepo.GetOrderById(orderId);
+            if (order == null)
+            {
+                throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsOrder.NOT_FOUND + orderId, StatusCodes.Status404NotFound);
+            }
+
+            // if status == "00" change status of order to success
+            if (request.code == "00")
+            {
+                await UpdateOrderPayment(order, data.orderCode);
+            }
+            else
+            {
+                throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsOrder.REQUEST_FAILED_ORDER + orderId, StatusCodes.Status400BadRequest);
             }
         }
     }

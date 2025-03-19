@@ -12,6 +12,7 @@ namespace Repositories.Repositories.MasterRepository
         Task<List<Master>> GetAllMasters();
         Task<Master> GetMasterByAccountId(string accountId);
         Task<Master> GetByMasterId(string masterId);
+        Task<string> GetMasterIdByAccountId(string accountId);
         Task<T> Create<T>(T entity) where T : class;
         Task<T> Update<T>(T entity) where T : class;
     }

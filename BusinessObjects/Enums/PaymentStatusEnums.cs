@@ -9,7 +9,9 @@ namespace BusinessObjects.Enums
     public enum PaymentStatusEnums
     {
         Pending = 1,
+        PendingConfirm,
         Paid,
-        Cancelled,
+        Canceled,
+        Expired
     }
 }

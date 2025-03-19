@@ -43,9 +43,17 @@ namespace Repositories.Repositories.OrderRepository
         {
             return OrderDAO.Instance.DeleteOrderDao(id);
         }
-        public Task<List<Order>> GetOrdersByCustomerAndService(string cutomerId, PaymentTypeEnums serviceType)
+        public Task<List<Order>> GetPendingOrdersByCustomerId(string customerId)
         {
-            return OrderDAO.Instance.GetOrdersByCustomerAndServiceDao(cutomerId, serviceType);
+            return OrderDAO.Instance.GetPendingOrdersByCustomerIdDao(customerId);
+        }
+        public Task<List<Order>> GetAllOrders()
+        {
+            return OrderDAO.Instance.GetAllOrdersDao();
+        }
+        public Task<List<Order>> GetOrdersByStatusAndCustomer(string status, string accountId)
+        {
+            return OrderDAO.Instance.GetOrdersByStatusAndCustomerDao(status, accountId);
         }
     }
 }

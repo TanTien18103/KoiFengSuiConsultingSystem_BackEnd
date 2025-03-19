@@ -314,7 +314,7 @@ namespace Services.Services.RegisterAttendService
                     var order = await _orderRepo.GetOrderByServiceId(latestRegisterAttend.GroupId);
 
                     // Nếu chưa tạo Order hoặc Order chưa thanh toán
-                    if (order == null || order.Status != PaymentStatusEnums.Paid.ToString())
+                    if (order == null || order.Status != PaymentStatusEnums.PendingConfirm.ToString())
                     {
                         res.IsSuccess = false;
                         res.StatusCode = StatusCodes.Status400BadRequest;

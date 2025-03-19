@@ -1,18 +1,18 @@
-namespace BusinessObjects.Enums
+﻿namespace BusinessObjects.Enums
 {
     public enum DiaChi
     {
-        Ty,
-        Suu,
-        Dan,
-        Mao,
-        Thin,
-        Ti,
-        Ngo,
-        Mui,
-        Than,
-        Dau,
-        Tuat,
-        Hoi
+        Tý,
+        Sửu,
+        Dần,
+        Mão,
+        Thìn,
+        Tị,
+        Ngọ,
+        Mùi,
+        Thân,
+        Dậu,
+        Tuất,
+        Hợi
     }
 } 

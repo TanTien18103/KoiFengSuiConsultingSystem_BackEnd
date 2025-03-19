@@ -39,7 +39,7 @@ namespace Services.ServicesHelpers.PriceService
 
                     case PaymentTypeEnums.BookingOffline:
                         var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
-                        return bookingOffline?.ConsultationPackage?.PackagePrice;
+                        return bookingOffline?.ConsultationPackage?.MaxPrice;
 
                     case PaymentTypeEnums.Course:
                         var course = await _courseRepo.GetCourseById(serviceId);

@@ -23,56 +23,56 @@ public class CustomerService : ICustomerService
 
     private static readonly Dictionary<string, Dictionary<string, double>> ElementColorPoints = new()
 {
-    { "Metal", new() { { "White", 10 }, { "Yellow", 5 }, { "Blue", -5 }, { "Red", -10 }, { "Black", -8 } } },
-    { "Wood", new() { { "Blue", 10 }, { "Black", 5 }, { "White", -5 }, { "Yellow", -8 }, { "Red", -10 } } },
-    { "Water", new() { { "Black", 10 }, { "White", 5 }, { "Blue", -5 }, { "Yellow", -10 }, { "Red", -8 } } },
-    { "Fire", new() { { "Red", 10 }, { "Blue", 5 }, { "White", -5 }, { "Yellow", -10 }, { "Black", -8 } } },
-    { "Earth", new() { { "Yellow", 10 }, { "Red", 5 }, { "Blue", -5 }, { "White", -10 }, { "Black", -8 } } }
+    { "Kim", new() { { "Trắng", 10 }, { "Vàng", 5 }, { "Xanh dương", -5 }, { "Đỏ", -10 }, { "Black", -8 } } },
+    { "Mộc", new() { { "Xanh dương", 10 }, { "Black", 5 }, { "Trắng", -5 }, { "Vàng", -8 }, { "Đỏ", -10 } } },
+    { "Thủy", new() { { "Black", 10 }, { "Trắng", 5 }, { "Xanh dương", -5 }, { "Vàng", -10 }, { "Đỏ", -8 } } },
+    { "Hỏa", new() { { "Đỏ", 10 }, { "Xanh dương", 5 }, { "Trắng", -5 }, { "Vàng", -10 }, { "Black", -8 } } },
+    { "Thổ", new() { { "Vàng", 10 }, { "Đỏ", 5 }, { "Xanh dương", -5 }, { "Trắng", -10 }, { "Black", -8 } } }
 };
 
     private static readonly Dictionary<string, Dictionary<string, double>> ShapePoints = new()
 {
-    { "Metal", new() { { "Circle", 8 }, { "Square", -5 }, { "Rectangular", -3 } } },
-    { "Wood", new() { { "Rectangular", 8 }, { "Circle", -5 }, { "Square", -3 } } },
-    { "Water", new() { { "Uncertain", 8 }, { "Square", -5 }, { "Circle", -3 } } },
-    { "Fire", new() { { "Tam giác", 8 }, { "Rectangular", -5 }, { "Circle", -3 } } },
-    { "Earth", new() { { "Square", 8 }, { "Circle", -5 }, { "Tam giác", -3 } } }
+    { "Kim", new() { { "Tròn", 8 }, { "Vuông", -5 }, { "Chữ nhật", -3 } } },
+    { "Mộc", new() { { "Chữ nhật", 8 }, { "Tròn", -5 }, { "Vuông", -3 } } },
+    { "Thủy", new() { { "Tự do", 8 }, { "Vuông", -5 }, { "Tròn", -3 } } },
+    { "Hỏa", new() { { "Tam giác", 8 }, { "Chữ nhật", -5 }, { "Tròn", -3 } } },
+    { "Thổ", new() { { "Vuông", 8 }, { "Tròn", -5 }, { "Tam giác", -3 } } }
 };
 
     private static readonly Dictionary<string, Dictionary<string, double>> DirectionPoints = new()
 {
-    { "Metal", new() { { "West", 10 }, { "East", -5 }, { "North", -3 } } },
-    { "Wood", new() { { "East", 10 }, { "West", -5 }, { "South", -3 } } },
-    { "Water", new() { { "North", 10 }, { "South", -5 }, { "West", -3 } } },
-    { "Fire", new() { { "South", 10 }, { "North", -5 }, { "East", -3 } } },
-    { "Earth", new() { { "Trung tâm", 10 }, { "West", -5 }, { "East", -3 } } }
+    { "Kim", new() { { "Tây", 10 }, { "Đông", -5 }, { "Bắc", -3 } } },
+    { "Mộc", new() { { "Đông", 10 }, { "Tây", -5 }, { "Nam", -3 } } },
+    { "Thủy", new() { { "Bắc", 10 }, { "Nam", -5 }, { "Tây", -3 } } },
+    { "Hỏa", new() { { "Nam", 10 }, { "Bắc", -5 }, { "Đông", -3 } } },
+    { "Thổ", new() { { "Trung tâm", 10 }, { "Tây", -5 }, { "Đông", -3 } } }
 };
 
     Dictionary<int, string> fishCountToElement = new()
     {
-        { 1, "Water" }, { 6, "Water" },
-        { 2, "Fire" }, { 7, "Fire" },
-        { 3, "Wood" }, { 8, "Wood" },
-        { 4, "Metal" }, { 9, "Metal" },
-        { 5, "Earth" }, { 10, "Earth" }
+        { 1, "Thủy" }, { 6, "Thủy" },
+        { 2, "Hỏa" }, { 7, "Hỏa" },
+        { 3, "Mộc" }, { 8, "Mộc" },
+        { 4, "Kim" }, { 9, "Kim" },
+        { 5, "Thổ" }, { 10, "Thổ" }
     };
 
     Dictionary<string, string> elementGenerates = new()
     {
-        { "Metal", "Water" },
-        { "Water", "Wood" },
-        { "Wood", "Fire" },
-        { "Fire", "Earth" },
-        { "Earth", "Metal" }
+        { "Kim", "Thủy" },
+        { "Thủy", "Mộc" },
+        { "Mộc", "Hỏa" },
+        { "Hỏa", "Thổ" },
+        { "Thổ", "Kim" }
     };
 
     Dictionary<string, string> elementDestroys = new()
     {
-        { "Metal", "Wood" },
-        { "Water", "Fire" },
-        { "Wood", "Earth" },
-        { "Fire", "Metal" },
-        { "Earth", "Water" }
+        { "Kim", "Mộc" },
+        { "Thủy", "Hỏa" },
+        { "Mộc", "Thổ" },
+        { "Hỏa", "Kim" },
+        { "Thổ", "Thủy" }
     };
     public CustomerService(ICustomerRepo customerRepo, IHttpContextAccessor httpContextAccessor, IMapper mapper)
     {

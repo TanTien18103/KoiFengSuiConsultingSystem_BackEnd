@@ -27,6 +27,14 @@ public partial class Account
     
     public bool IsActive { get; set; } = true;
 
+    public bool IsActive { get; set; }
+
+    public int? BankId { get; set; }
+
+    public string AccountNo { get; set; }
+
+    public string AccountName { get; set; }
+
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 
     public virtual ICollection<BookingOnline> BookingOnlines { get; set; } = new List<BookingOnline>();

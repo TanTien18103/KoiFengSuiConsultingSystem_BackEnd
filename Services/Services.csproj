@@ -14,10 +14,8 @@
     <Folder Include="ApiModels\Answer\" />
     <Folder Include="ApiModels\Attachment\" />
     <Folder Include="ApiModels\Certificate\" />
-    <Folder Include="ApiModels\Chapter\" />
     <Folder Include="ApiModels\ConsultationPackage\" />
     <Folder Include="ApiModels\Contract\" />
-    <Folder Include="ApiModels\Course\" />
     <Folder Include="ApiModels\EnrollAnswer\" />
     <Folder Include="ApiModels\EnrollCert\" />
     <Folder Include="ApiModels\EnrollChapter\" />

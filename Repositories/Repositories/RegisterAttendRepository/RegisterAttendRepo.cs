@@ -42,5 +42,13 @@ namespace Repositories.Repositories.RegisterAttendRepository
         {
             return RegisterAttendDAO.Instance.DeleteRegisterAttendDao(registerAttendId);
         }
+        public Task<List<RegisterAttend>> GetRegisterAttendsByGroupId(string groupId)
+        {
+            return RegisterAttendDAO.Instance.GetRegisterAttendsByGroupIdDao(groupId);
+        }
+        public Task<List<RegisterAttend>> GetPendingTickets(string workshopId, string customerId)
+        {
+            return RegisterAttendDAO.Instance.GetPendingTicketsDao(workshopId, customerId);
+        }
     }
 }

@@ -36,6 +36,14 @@ namespace DAOs.DAOs
             }
         }
 
+
+        public async Task<List<Account>> GetAccountsByIds(List<string> accountIds)
+        {
+            return await _context.Accounts
+                .Where(a => accountIds.Contains(a.AccountId))
+                .ToListAsync();
+        }
+
         public async Task<Account?> GetAccountByEmailDao(string email)
         {
             return await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);

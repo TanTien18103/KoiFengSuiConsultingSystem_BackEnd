@@ -1,6 +1,7 @@
 ﻿using BusinessObjects.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Services.ApiModels.RegisterAttend;
 using Services.Services.RegisterAttendService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
@@ -48,6 +49,27 @@ namespace KoiFengSuiConsultingSystem.Controllers
         public async Task<IActionResult> GetRegisterAttendByWorkshopId([FromRoute] string id)
         {
             var result = await _registerAttendService.GetRegisterAttendByWorkshopId(id);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("register-by-group/{id}")]
+        public async Task<IActionResult> GetRegisterAttendByGroupId([FromRoute] string id)
+        {
+            var result = await _registerAttendService.GetRegisterAttendByGroupId(id);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateRegisterAttend([FromBody] RegisterAttendRequest request)
+        {
+            var result = await _registerAttendService.CreateRegisterAttend(request);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateRegisterAttend(string id, int num)
+        {
+            var result = await _registerAttendService.UpdatePendingTickets(id, num);
             return StatusCode(result.StatusCode, result);
         }
     }

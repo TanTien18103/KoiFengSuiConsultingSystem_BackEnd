@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace BusinessObjects.Enums
 {
-    public enum PaymentTypeEnums
+    public enum CourseStatusEnum
     {
-        BookingOnline,
-        BookingOffline,
-        Course,
-        RegisterAttend
+        Active,
+        Inactive
     }
 }

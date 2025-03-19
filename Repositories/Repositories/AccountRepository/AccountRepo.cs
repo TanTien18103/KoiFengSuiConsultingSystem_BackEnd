@@ -62,5 +62,10 @@ namespace Repositories.Repositories.AccountRepository
         {
             return AccountDAO.Instance.UpdateAccountRoleDao(accountId, newRole);
         }
+
+        public Task<List<Account>> GetAccountsByIds(List<string> accountIds)
+        {
+            return AccountDAO.Instance.GetAccountsByIds(accountIds);
+        }
     }
 }

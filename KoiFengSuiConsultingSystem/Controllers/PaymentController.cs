@@ -29,33 +29,33 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
         [Authorize(Roles = "Customer")]
         [HttpPost("payos/customer/payment-url")]
-        public async Task<IActionResult> GetPayOSPaymentUrl(PaymentTypeEnums serviceType, string serviceId, string cancelUrl, string returnUrl)
+        public async Task<IActionResult> GetPayOSPaymentUrl(PaymentTypeEnums paymentType, string serviceId)
         {
-            var res = await _paymentService.CreateServicePaymentLinkAsync(serviceType, serviceId, cancelUrl, returnUrl);
+            var res = await _paymentService.Payment(serviceId, paymentType);
             return Ok(res);
         }
 
-        [HttpPost("payos/transfer-handler")]
-        public IActionResult PayOSPaymentExecute([FromBody] WebhookType request)
-        {
-            _paymentService.GetWebhookTypeAsync(request);
-            return Ok();
-        }
+        //[HttpPost("payos/transfer-handler")]
+        //public IActionResult PayOSPaymentExecute([FromBody] WebhookType request)
+        //{
+        //    _paymentService.GetWebhookTypeAsync(request);
+        //    return Ok();
+        //}
 
-        [Authorize(Roles = "Admin")]
-        [HttpGet("payos/admin/payment-info/{orderCode}")]
-        public async Task<IActionResult> GetPayOSPaymentInfo([FromRoute] long orderCode)
-        {
-            var response = await _paymentService.GetPaymentLinkInformationAsync(orderCode);
-            return Ok(response);
-        }
+        //[Authorize(Roles = "Admin")]
+        //[HttpGet("payos/admin/payment-info/{orderCode}")]
+        //public async Task<IActionResult> GetPayOSPaymentInfo([FromRoute] long orderCode)
+        //{
+        //    var response = await _paymentService.GetPaymentLinkInformationAsync(orderCode);
+        //    return Ok(response);
+        //}
 
-        [Authorize(Roles = "Customer")]
-        [HttpGet("payos/customer/confirmation/{orderId}/{orderCode}")]
-        public async Task<IActionResult> PayOSConfirmPayment([FromRoute] string orderId, long orderCode)
-        {
-            await _paymentService.ConfirmPayment(orderId, orderCode);
-            return Ok();
-        }
+        //[Authorize(Roles = "Customer")]
+        //[HttpGet("payos/customer/confirmation/{orderId}/{orderCode}")]
+        //public async Task<IActionResult> PayOSConfirmPayment([FromRoute] string orderId, long orderCode)
+        //{
+        //    await _paymentService.ConfirmPayment(orderId, orderCode);
+        //    return Ok();
+        //}
     }
 }

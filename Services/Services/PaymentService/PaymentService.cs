@@ -27,6 +27,13 @@ using Repositories.Repositories.WorkShopRepository;
 using BusinessObjects.Constants;
 using BusinessObjects.Exceptions;
 using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
+using Microsoft.Extensions.Caching.Memory;
+using System.Linq;
+using System.Globalization;
+using Microsoft.Extensions.Logging;
+using Services.ApiModels;
+using Repositories.Repositories.RegisterAttendRepository;
+using AutoMapper;
 
 namespace Services.Services.PaymentService
 {
@@ -48,6 +55,9 @@ namespace Services.Services.PaymentService
         private readonly IOrderRepo _orderRepo;
         private readonly IAccountRepo _accountRepo;
         private readonly IPayOSService _payOSService;
+        private readonly IRegisterAttendRepo _registerAttendRepo;
+        private readonly IMapper _mapper;
+        private readonly ILogger<PaymentService> _logger;
 
         public PaymentService(
             IConfiguration configuration,
@@ -61,7 +71,10 @@ namespace Services.Services.PaymentService
             IWorkShopRepo workShopRepo,
             IOrderRepo orderRepo,
             IAccountRepo accountRepo,
-            IPayOSService payOSService)
+            IPayOSService payOSService,
+            IRegisterAttendRepo registerAttendRepo,
+            IMapper mapper,
+            ILogger<PaymentService> logger)
         {
             _httpClient = httpClient;
             _configuration = configuration;
@@ -79,148 +92,161 @@ namespace Services.Services.PaymentService
             _orderRepo = orderRepo;
             _accountRepo = accountRepo;
             _payOSService = payOSService;
+            _registerAttendRepo = registerAttendRepo;
+            _mapper = mapper;
+            _logger = logger;
         }
-        public static string GenerateShortGuid()
+
+        public async Task<ResultModel> Payment(string serviceId, PaymentTypeEnums serviceType)
         {
-            Guid guid = Guid.NewGuid();
-            string base64 = Convert.ToBase64String(guid.ToByteArray());
-            return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
-        }
-        public async Task<CreatePaymentResult> CreateServicePaymentLinkAsync(PaymentTypeEnums serviceType, string serviceId, string cancelUrl, string returnUrl)
-        {
-            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            var res = new ResultModel();
+            try
             {
-                throw new AppException(ResponseCodeConstants.UNAUTHORIZED, ResponseMessageIdentity.TOKEN_NOT_SEND, StatusCodes.Status401Unauthorized);
+                var curCustomer = await GetCurrentCustomer();
+                if (curCustomer == null)
+                {
+                    throw new AppException(ResponseCodeConstants.UNAUTHORIZED, "Unauthorized", StatusCodes.Status401Unauthorized);
+                }
+
+                // Thêm kiểm tra thanh toán pending
+                await CheckPendingPayments(curCustomer.CustomerId, serviceType);
+
+                string cancelUrl = "https://yourdomain.com/cancel";
+                string returnUrl = "https://yourdomain.com/return";
+                string description = "";
+                string customerName = "";
+                decimal price = 0;
+
+                switch (serviceType)
+                {
+                    case PaymentTypeEnums.RegisterAttend:
+                        // Lấy danh sách RegisterAttend theo GroupId
+                        var registerAttends = await _registerAttendRepo.GetRegisterAttendsByGroupId(serviceId);
+                        if (!registerAttends.Any())
+                            throw new AppException(ResponseCodeConstants.NOT_FOUND, "Không tìm thấy thông tin đăng ký", StatusCodes.Status404NotFound);
+                        // Lấy thông tin workshop
+                        var workshop = await _workShopRepo.GetWorkShopById(registerAttends.First().WorkshopId);
+                        if (workshop == null)
+                            throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND, StatusCodes.Status404NotFound);
+                        // Kiểm tra workshop đã bắt đầu chưa
+                        if (workshop.StartDate <= DateTime.Now)
+                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Workshop đã bắt đầu, không thể thanh toán", StatusCodes.Status400BadRequest);
+
+                        var totalTickets = registerAttends.Count;
+                        var totalAmount = workshop.Price * totalTickets;
+
+                        description = "Thanh toán vé tham dự";
+                        customerName = curCustomer.Account.FullName ?? "Khách hàng";
+                        price = (decimal)totalAmount;
+                        break;
+
+                    case PaymentTypeEnums.BookingOnline:
+                        var bookingOnline = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(serviceId);
+                        if (bookingOnline.BookingDate <= DateOnly.FromDateTime(DateTime.Now) && bookingOnline.StartTime <= TimeOnly.FromDateTime(DateTime.Now))
+                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Buổi tư vấn đã bắt đầu, không thể thanh toán", StatusCodes.Status400BadRequest);
+                        if (bookingOnline == null)
+                            throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE, StatusCodes.Status404NotFound);
+
+                        description = "Thanh toán đặt lịch trực tuyến";
+                        customerName = curCustomer.Account.FullName ?? "Khách hàng";
+                        price = await _priceService.GetServicePrice(serviceType, serviceId) ?? 0;
+                        break;
+
+                    case PaymentTypeEnums.BookingOffline:
+                        var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
+                        if (bookingOffline == null)
+                            throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE, StatusCodes.Status404NotFound);
+
+                        description = "Thanh toán gói tư vấn";
+                        customerName = curCustomer.Account.FullName ?? "Khách hàng";
+                        price = await _priceService.GetServicePrice(serviceType, serviceId) ?? 0;
+                        break;
+
+                    case PaymentTypeEnums.Course:
+                        var course = await _courseRepo.GetCourseById(serviceId);
+                        if (course == null)
+                            throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsCourse.COURSE_NOT_FOUND, StatusCodes.Status404NotFound);
+
+                        description = "Thanh toán khóa học";
+                        customerName = curCustomer.Account.FullName ?? "Khách hàng";
+                        price = await _priceService.GetServicePrice(serviceType, serviceId) ?? 0;
+                        break;
+
+                    default:
+                        throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsOrder.SERVICE_TYPE_INVALID, StatusCodes.Status400BadRequest);
+                }
+
+                // Tạo mã đơn hàng tạm thời
+                string tempOrderId = GenerateShortGuid();
+
+                var payOS = new PayOS(_clientId, _apiKey, _checksumKey);
+                // Tạo item cho thanh toán
+                ItemData item = new ItemData(
+                    $"{description} cho {customerName}",
+                    1,
+                    (int)price
+                );
+                List<ItemData> items = new List<ItemData>();
+                items.Add(item);
+
+                // Thời gian hết hạn thanh toán (15 phút)
+                var expiredAt = ConvertDateTimeToUnixTimestamp(DateTime.Now.AddMinutes(15));
+                int orderCode = int.Parse(DateTime.Now.ToString("ffffff"));
+
+                // Tạo dữ liệu thanh toán với thông tin chi tiết
+                PaymentData paymentData = new PaymentData(
+                    orderCode,
+                    (int)price,
+                    description,
+                    items,
+                    cancelUrl, 
+                    returnUrl,
+                    expiredAt: expiredAt
+                );
+
+                // Tạo chữ ký cho dữ liệu thanh toán
+                var signature = CreateSignature(payOS, paymentData);
+                paymentData = paymentData with { signature = signature };
+
+                // Tạo liên kết thanh toán
+                CreatePaymentResult createPayment = await payOS.createPaymentLink(paymentData);
+
+                // Tạo Order mới với trạng thái Pending
+                var order = new Order
+                {
+                    OrderId = tempOrderId,
+                    CustomerId = curCustomer.CustomerId,
+                    ServiceId = serviceId,
+                    ServiceType = serviceType.ToString(),
+                    Amount = price,
+                    OrderCode = orderCode.ToString(),
+                    PaymentReference = createPayment.checkoutUrl,
+                    Status = PaymentStatusEnums.Pending.ToString(),
+                    CreatedDate = DateTime.Now,
+                    Description = description,
+                    PaymentId = GenerateShortGuid(),
+                    Note = $"Thanh toán cho {description}"
+                };
+
+                // Lưu Order vào database
+                await _orderRepo.CreateOrder(order);
+
+                // Trả về kết quả link thanh toán
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = new { PaymentUrl = createPayment.checkoutUrl };
+                res.Message = "Tạo URL thanh toán thành công";
+                return res;
             }
-            var token = authHeader.Substring("Bearer ".Length);
-            if (string.IsNullOrEmpty(token))
+            catch (Exception ex)
             {
-                throw new AppException(ResponseCodeConstants.UNAUTHORIZED, ResponseMessageIdentity.TOKEN_INVALID, StatusCodes.Status401Unauthorized);
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
             }
-            var curAccount = await _accountRepo.GetAccountIdFromToken(token);
-            if (string.IsNullOrEmpty(curAccount))
-            {
-                throw new AppException(ResponseCodeConstants.UNAUTHORIZED, ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED, StatusCodes.Status401Unauthorized);
-            }
-
-            var curCustomer = await _customerRepo.GetCustomerByAccountId(curAccount);
-            if (curCustomer == null)
-            {
-                throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstantsUser.CUSTOMER_NOT_FOUND, StatusCodes.Status404NotFound);
-            }
-            // Lấy thông tin giá từ PriceService
-            var price = await _priceService.GetServicePrice(serviceType, serviceId);
-            if (price == null || price <= 0)
-            {
-                throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsOrder.PRICE_NOT_FOUND_OR_INVALID, StatusCodes.Status404NotFound);
-            }
-
-            // Tạo mô tả dịch vụ dựa trên loại dịch vụ
-            string description = "";
-            string customerName = "";
-
-            switch (serviceType)
-            {
-                case PaymentTypeEnums.BookingOnline:
-                    var bookingOnline = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(serviceId);
-                    if (bookingOnline == null)
-                        throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE, StatusCodes.Status404NotFound);
-
-                    description = $"Thanh toán đặt lịch trực tuyến";
-                    customerName = curCustomer.Account.FullName ?? "Khách hàng";
-                    break;
-
-                case PaymentTypeEnums.BookingOffline:
-                    var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
-                    if (bookingOffline == null)
-                        throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE, StatusCodes.Status404NotFound);
-
-                    description = $"Gói tư vấn: {bookingOffline.ConsultationPackage?.PackageName}";
-                    customerName = curCustomer.Account.FullName ?? "Khách hàng";
-                    break;
-
-                case PaymentTypeEnums.Course:
-                    var course = await _courseRepo.GetCourseById(serviceId);
-                    if (course == null)
-                        throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsCourse.COURSE_NOT_FOUND, StatusCodes.Status404NotFound);
-
-                    description = $"Khóa học: {course.CourseName}";
-                    // Vì không có thông tin về khách hàng trực tiếp trong bảng Course
-                    customerName = curCustomer.Account.FullName ?? "Khách hàng";
-                    break;
-
-                case PaymentTypeEnums.Workshop:
-                    var workshop = await _workShopRepo.GetWorkShopById(serviceId);
-                    if (workshop == null)
-                        throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND, StatusCodes.Status404NotFound);
-
-                    description = $"Sự kiện: {workshop.WorkshopName}";
-                    // Vì không có thông tin về khách hàng trực tiếp trong bảng Workshop
-                    customerName = curCustomer.Account.FullName ?? "Khách hàng";
-                    break;
-
-                default:
-                    throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsOrder.SERVICE_TYPE_INVALID, StatusCodes.Status400BadRequest);
-            }
-
-            // Tạo mã đơn hàng tạm thời
-            string tempOrderId = GenerateShortGuid();
-
-            var payOS = new PayOS(_clientId, _apiKey, _checksumKey);
-            // Tạo item cho thanh toán
-            ItemData item = new ItemData(
-                $"{description} cho {customerName}",
-                1,
-                (int)price
-            );
-            List<ItemData> items = new List<ItemData>();
-            items.Add(item);
-
-            // Thời gian hết hạn thanh toán (15 phút)
-            var expiredAt = ConvertDateTimeToUnixTimestamp(DateTime.Now.AddMinutes(15));
-            int orderCode = int.Parse(DateTime.Now.ToString("ffffff"));
-
-            // Tạo dữ liệu thanh toán với thông tin chi tiết
-            PaymentData paymentData = new PaymentData(
-                orderCode,
-                (int)price,
-                $"{description}",
-                items,
-                cancelUrl,
-                returnUrl,
-                expiredAt: expiredAt
-            );
-
-            // Tạo chữ ký cho dữ liệu thanh toán
-            var signature = CreateSignature(payOS, paymentData);
-            paymentData = paymentData with { signature = signature };
-
-            // Tạo liên kết thanh toán
-            CreatePaymentResult createPayment = await payOS.createPaymentLink(paymentData);
-
-            // Tạo Order mới với trạng thái Pending
-            var order = new Order
-            {
-                OrderId = tempOrderId,
-                CustomerId = curCustomer.CustomerId,
-                ServiceId = serviceId,
-                ServiceType = serviceType.ToString(),
-                Amount = price,
-                OrderCode = orderCode.ToString(),
-                PaymentReference = createPayment.checkoutUrl,
-                Status = PaymentStatusEnums.Pending.ToString(),
-                CreatedDate = DateTime.Now,
-                Description = description,
-                PaymentId = GenerateShortGuid(),
-                Note = $"Thanh toán cho {description}"
-            };
-
-            // Lưu Order vào database
-            await _orderRepo.CreateOrder(order);
-
-            // Trả về kết quả link thanh toán
-            return createPayment;
         }
 
         private string CreateSignature(PayOS payOs, PaymentData paymentData)
@@ -258,11 +284,6 @@ namespace Services.Services.PaymentService
                 // Convert hash to lowercase hexadecimal
                 return BitConverter.ToString(hash).Replace("-", "").ToLower();
             }
-        }
-
-        private int ConvertDateTimeToUnixTimestamp(DateTimeOffset dateTime)
-        {
-            return (int)dateTime.ToUnixTimeSeconds();
         }
 
         public async Task GetWebhookTypeAsync(WebhookType request)
@@ -343,6 +364,73 @@ namespace Services.Services.PaymentService
         {
             var payOs = new PayOS(_clientId, _apiKey, _checksumKey);
             return await payOs.confirmWebhook(webhookUrl);
+        }
+
+        private string GetAuthenticatedAccountId()
+        {
+            var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+            if (identity == null || !identity.IsAuthenticated) return null;
+
+            return identity.Claims.SingleOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        }
+
+        private async Task<Customer> GetCurrentCustomer()
+        {
+            try
+            {
+                var accountId = GetAuthenticatedAccountId();
+                if (string.IsNullOrEmpty(accountId))
+                    return null;
+
+                // Lấy customerId từ accountId
+                var customerId = await _registerAttendRepo.GetCustomerIdByAccountId(accountId);
+                if (string.IsNullOrEmpty(customerId))
+                    return null;
+
+                // Lấy thông tin customer từ repository
+                var customer = await _customerRepo.GetCustomerById(customerId);
+                if (customer == null)
+                    return null;
+
+                // Load thêm thông tin Account nếu cần
+                if (customer.Account == null)
+                {
+                    customer = await _customerRepo.GetCustomerByAccountId(customerId);
+                }
+
+                return customer;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi lấy thông tin customer hiện tại");
+                return null;
+            }
+        }
+
+        private string GenerateShortGuid()
+        {
+            return Guid.NewGuid().ToString("N").Substring(0, 16);
+        }
+
+        private int ConvertDateTimeToUnixTimestamp(DateTime date)
+        {
+            var dateTimeOffset = new DateTimeOffset(date);
+            return (int)dateTimeOffset.ToUnixTimeSeconds();
+        }
+
+        private async Task CheckPendingPayments(string customerId, PaymentTypeEnums serviceType)
+        {
+            var pendingOrders = await _orderRepo.GetOrdersByCustomerAndService(customerId, serviceType);
+            var hasPendingPayment = pendingOrders.Any(o => o.Status == PaymentStatusEnums.Pending.ToString());
+            
+            if (hasPendingPayment)
+            {
+                throw new AppException(
+                    ResponseCodeConstants.BAD_REQUEST, 
+                    $"Bạn có đơn hàng {serviceType.ToString()} chưa thanh toán. Vui lòng thanh toán trước khi đặt dịch vụ mới.", 
+                    StatusCodes.Status400BadRequest
+                );
+            }
         }
     }
 }

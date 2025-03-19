@@ -148,6 +148,7 @@ namespace BusinessObjects.Constants
         public const string INVALID_DATA = "Dữ liệu lịch tư vấn không hợp lệ";
         public const string NOT_FOUND_ONLINE = "Không tìm thấy đặt lịch trực tuyến";
         public const string NOT_FOUND_OFFLINE = "Không tìm thấy lịch tư vấn";
+        public const string NOT_FOUND_REGISTERATTEND = "Không tìm thấy vé";
 
     }
 
@@ -190,6 +191,13 @@ namespace BusinessObjects.Constants
             public const string UPDATE_KOIVARIETY_FAILED = "Cập nhật cá Koi thất bại!";
             public const string UPDATE_KOIVARIETY_SUCCESS = "Cập nhật cá Koi thành công!";
             public const string DELETE_KOIVARIETY_SUCCESS = "Xóa cá Koi thành công!";
+            public const string COLOR_NOT_FOUND = "Không tìm thấy màu sắc!";
+            public const string COLOR_FOUND = "Lấy danh sách màu sắc thành công!";
+            public const string CREATE_COLOR_FAILED = "Tạo màu sắc thất bại!";
+            public const string CREATE_COLOR_SUCCESS = "Tạo màu sắc thành công!";
+            public const string UPDATE_COLOR_SUCCESS = "Cập nhật màu sắc thành công!";
+            public const string UPDATE_COLOR_FAILED = "Cập nhật màu sắc thất bại!";
+            public const string DELETE_COLOR_SUCCESS = "Xóa màu sắc thành công!";
         }
 
         public class ResponseMessageConstrantsMasterSchedule
@@ -208,7 +216,12 @@ namespace BusinessObjects.Constants
         public class ResponseMessageConstrantsRegisterAttend
         {
             public const string REGISTERATTEND_NOT_FOUND = "Không tìm thấy vé dự sự kiện!";
+            public const string INVALID_TICKET_NUMBER = "Số lượng vé phải lớn hơn 0!";
             public const string REGISTERATTEND_FOUND = "Lấy danh sách vé dự sự kiện thành công!";
+            public const string REGISTERATTEND_CREATED_SUCCESS = "Tạo vé cho buổi sự kiện thành công!";
+            public const string REGISTERATTEND_UPDATED_SUCCESS = "Cập nhật số lượng vé thành công!";
+            public const string TICKET_NOT_PAID = "Vui lòng cập nhật số lượng vé. Số vé bạn chưa thanh toán cho workshop này là ";
+            public const string PENDING_NOT_FOUND = "Không tìm thấy vé chưa thanh toán";
         }
 
         public class ResponseMessageConstrantsTransaction
@@ -238,6 +251,8 @@ namespace BusinessObjects.Constants
             public const string WORKSHOP_MINIMUM_HOURS_DIFFERENCE = "Khoảng cách giữa hai hội thảo ở hai địa điểm khác nhau phải tối thiểu 5 giờ.";
             public const string WORKSHOP_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa workshop này.";
             public const string WORKSHOP_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật workshop này.";
+            public const string ALREADY_STARTED = "Workshop đã bắt đầu, không thể đăng ký hay chỉnh sửa.";
+            public const string CAPACITY_LEFT = "Vé còn trống cho workshop này là ";
         }
 
         public class ResponseMessageConstrantsCourse
@@ -249,6 +264,7 @@ namespace BusinessObjects.Constants
             public const string COURSE_NOT_FOUND = "Không tìm thấy khóa học!";
             public const string COURSE_INFO_FOUND = "Lấy thông tin khóa học thành công";
             public const string COURSE_INFO_INVALID = "Dữ liệu khóa học không hợp lệ";
+            public const string NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy AccountId tương ứng với tài khoản";
         }
 
         //Image
@@ -259,5 +275,19 @@ namespace BusinessObjects.Constants
             public const string INVALID_FORMAT = "Định dạng hình ảnh không hợp lệ. ";
             public const string INVALID_URL = "Đường dẫn hình ảnh không hợp lệ. ";
         }
+
+        public class ResponseMessageConstrantsChapter
+        {
+            public const string CHAPTER_CREATED_SUCCESS = "Tạo chương học thành công!";
+            public const string CHAPTER_UPDATED_SUCCESS = "Cập nhật chương học thành công!";
+            public const string CHAPTER_DELETED_SUCCESS = "Xóa chương học thành công!";
+            public const string CHAPTER_FOUND = "Lấy danh sách chương học thành công!";
+            public const string CHAPTER_NOT_FOUND = "Không tìm thấy chương học!";
+            public const string CHAPTER_INFO_FOUND = "Lấy thông tin chương học thành công";
+            public const string CHAPTER_INFO_INVALID = "Dữ liệu chương học không hợp lệ";
+
+            public static string? COURSE_ID_REQUIRED { get; set; }
+        }
     }
 }
+

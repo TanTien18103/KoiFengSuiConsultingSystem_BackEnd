@@ -14,8 +14,10 @@ namespace Repositories.Repositories.RegisterAttendRepository
         Task<List<RegisterAttend>> GetRegisterAttendByCustomerId(string customerId);
         Task<string> GetCustomerIdByAccountId(string accountId);
         Task<List<RegisterAttend>> GetRegisterAttendsByWorkShopId(string workShopId);
+        Task<List<RegisterAttend>> GetRegisterAttendsByGroupId(string groupId);
         Task<RegisterAttend> CreateRegisterAttend(RegisterAttend registerAttend);
         Task<RegisterAttend> UpdateRegisterAttend(RegisterAttend registerAttend);
         Task DeleteRegisterAttend(string registerAttendId);
+        Task<List<RegisterAttend>> GetPendingTickets(string workshopId, string customerId);
     }
 }

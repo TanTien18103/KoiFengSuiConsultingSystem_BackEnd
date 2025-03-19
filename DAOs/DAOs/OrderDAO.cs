@@ -74,6 +74,13 @@ namespace DAOs.DAOs
                 .ToListAsync();
         }
 
+        public async Task<Order> GetOrdersByServiceIdDao(string serviceId)
+        {
+            return await _context.Orders
+                .OrderByDescending(o => o.CreatedDate)
+                .FirstOrDefaultAsync(o => o.ServiceId == serviceId);
+        }
+
         public async Task<bool> UpdateOrderDao(Order order)
         {
             _context.Orders.Update(order);
@@ -88,6 +95,14 @@ namespace DAOs.DAOs
 
             _context.Orders.Remove(order);
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<List<Order>> GetOrdersByCustomerAndServiceDao(string cutomerId, PaymentTypeEnums serviceType)
+        {
+            return await _context.Orders
+                .Where(o => o.CustomerId == cutomerId && o.ServiceType == serviceType.ToString())
+                .OrderByDescending(o => o.CreatedDate)
+                .ToListAsync();
         }
     }
 }

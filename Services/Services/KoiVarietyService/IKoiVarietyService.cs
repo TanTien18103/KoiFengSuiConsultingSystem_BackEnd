@@ -22,5 +22,12 @@ namespace Services.Services.KoiVarietyService
         Task<ResultModel> CreateKoiVarietyAsync(KoiVarietyRequest koiVariety);
         Task<ResultModel> UpdateKoiVarietyAsync(string id, KoiVarietyRequest koiVariety);
         Task<ResultModel> DeleteKoiVarietyAsync(string id);
+
+
+        Task<ResultModel> GetColorById(string id);
+        Task<ResultModel> GetColors();
+        Task<ResultModel> CreateColors(ColorRequest color);
+        Task<ResultModel> UpdateColors(string id, ColorRequest color);
+        Task<ResultModel> DeleteColors(string id);
     }
 }

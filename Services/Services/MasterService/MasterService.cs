@@ -76,7 +76,7 @@ namespace Services.Services.MasterService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<MasterListReponseDTO>>(master);
+                res.Data = _mapper.Map<MasterListReponseDTO>(master);
                 res.Message = ResponseMessageConstrantsMaster.MASTER_FOUND;
                 return res;
             }

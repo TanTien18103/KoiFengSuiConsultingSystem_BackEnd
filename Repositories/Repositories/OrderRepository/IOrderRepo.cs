@@ -18,6 +18,8 @@ namespace Repositories.Repositories.OrderRepository
         Task<Order> CreateOrder(Order order);
         Task<bool> UpdateOrder(Order order);
         Task<bool> DeleteOrder(string id);
-        Task<List<Order>> GetOrdersByCustomerAndService(string cutomerId, PaymentTypeEnums serviceType);
+        Task<List<Order>> GetPendingOrdersByCustomerId(string customerId);
+        Task<List<Order>> GetAllOrders();
+        Task<List<Order>> GetOrdersByStatusAndCustomer(string status, string accountId);
     }
 }

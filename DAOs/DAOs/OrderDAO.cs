@@ -37,11 +37,23 @@ namespace DAOs.DAOs
                 return _instance;
             }
         }
+        public async Task<List<Order>> GetAllOrdersDao()
+        {
+            return await _context.Orders.Include(x => x.Customer).ToListAsync();
+        }
+
         public async Task<Order> CreateOrderDao(Order order)
         {
             await _context.Orders.AddAsync(order);
             await _context.SaveChangesAsync();
             return order;
+        }
+
+        public async Task<List<Order>> GetOrdersByStatusAndCustomerDao(string status, string accountId)
+        {
+            return await _context.Orders
+                .Where(o => o.Status == status && o.Customer != null && o.Customer.Account != null && o.Customer.Account.AccountId == accountId)
+                .ToListAsync();
         }
 
         public async Task<Order> GetOrderByIdDao(string id)
@@ -97,10 +109,11 @@ namespace DAOs.DAOs
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<List<Order>> GetOrdersByCustomerAndServiceDao(string cutomerId, PaymentTypeEnums serviceType)
+        public async Task<List<Order>> GetPendingOrdersByCustomerIdDao(string customerId)
         {
             return await _context.Orders
-                .Where(o => o.CustomerId == cutomerId && o.ServiceType == serviceType.ToString())
+                .Where(o => o.CustomerId == customerId && 
+                           o.Status == PaymentStatusEnums.Pending.ToString())
                 .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
         }

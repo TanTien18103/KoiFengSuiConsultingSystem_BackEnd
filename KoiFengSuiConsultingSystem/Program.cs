@@ -34,6 +34,8 @@ using Repositories.Repositories.ColorRepository;
 using Services.Services.CourseService;
 using Repositories.Repositories.ChapterRepository;
 using Services.Services.ChapterService;
+using Services.Services.OrderService;
+using Services.ServicesHelpers.BackGroundService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,8 +76,10 @@ builder.Services.AddScoped<IRegisterAttendService, RegisterAttendService>();
 builder.Services.AddScoped<IPayOSService, PayOSService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IChapterService, ChapterService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
-
+// Register BackgroundService
+builder.Services.AddHostedService<OrderExpirationBackgroundService>();
 
 //Register Mapper
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));
@@ -161,10 +165,10 @@ builder.Services.AddAuthentication(options =>
     googleOptions.CallbackPath = "/signin-google";
 });
 
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    serverOptions.ListenAnyIP(5261);
-});
+//builder.WebHost.ConfigureKestrel(serverOptions =>
+//{
+//    serverOptions.ListenAnyIP(5261);
+//});
 
 // CORS Policy
 builder.Services.AddCors(options =>

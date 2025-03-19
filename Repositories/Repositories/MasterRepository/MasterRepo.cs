@@ -22,6 +22,10 @@ namespace Repositories.Repositories.MasterRepository
         {
             return MasterDAO.Instance.GetByMasterIdDao(masterId);
         }
+        public Task<string> GetMasterIdByAccountId(string accountId)
+        {
+            return MasterDAO.Instance.GetMasterIdByAccountIdDao(accountId);
+        }
         public Task<T> Create<T>(T entity) where T : class
         {
             return MasterDAO.Instance.CreateDao(entity);

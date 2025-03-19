@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using BusinessObjects.Constants;
 using Repositories.Repositories.RegisterAttendRepository;
 using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
+using Repositories.Repositories.MasterRepository;
 
 namespace Services.Services.WorkshopService
 {
@@ -24,13 +25,15 @@ namespace Services.Services.WorkshopService
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRegisterAttendRepo _registerAttendRepo;
+        private readonly IMasterRepo _masterRepo;
 
-        public WorkshopService(IWorkShopRepo workShopRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IRegisterAttendRepo registerAttendRepo)
+        public WorkshopService(IWorkShopRepo workShopRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IRegisterAttendRepo registerAttendRepo, IMasterRepo masterRepo)
         {
             _workShopRepo = workShopRepo;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _registerAttendRepo = registerAttendRepo;
+            _masterRepo = masterRepo;
         }
 
 
@@ -242,7 +245,7 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                var masterId = await _workShopRepo.GetMasterIdByAccountId(accountId);
+                var masterId = await _masterRepo.GetMasterIdByAccountId(accountId);
                 if (masterId == null)
                 {
                     res.IsSuccess = false;
@@ -356,7 +359,7 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                var masterId = await _workShopRepo.GetMasterIdByAccountId(accountId);
+                var masterId = await _masterRepo.GetMasterIdByAccountId(accountId);
                 if (masterId == null || masterId != workshop.MasterId)
                 {
                     res.IsSuccess = false;
@@ -412,7 +415,7 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                var masterId = await _workShopRepo.GetMasterIdByAccountId(accountId);
+                var masterId = await _masterRepo.GetMasterIdByAccountId(accountId);
                 if (masterId == null || masterId != workshop.MasterId)
                 {
                     res.IsSuccess = false;

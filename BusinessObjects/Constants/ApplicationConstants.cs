@@ -53,7 +53,8 @@ namespace BusinessObjects.Constants
         public const string PASSWORD_WRONG = "Mật khẩu không đúng.";
         public const string OLD_PASSWORD_WRONG = "Mật khẩu cũ không đúng.";
         public const string PASSWORD_INVALID = "Mật khẩu không hợp lệ.";
-        public const string EXISTED_USER = "Người dùng đã tồn tại.";
+        public const string EXISTED_USER_NAME = "Người dùng đã tồn tại.";
+        public const string EXISTED_ACCOUNT_NO = "Tài khoản ngân hàng đã tồn tại.";
         public const string EXISTED_EMAIL = "Email đã tồn tại.";
         public const string EXISTED_PHONE = "Số điện thoại đã tồn tại.";
         public const string TOKEN_INVALID_OR_EXPIRED = "Token không xác thực hoặc đã hết hạn.";
@@ -121,7 +122,9 @@ namespace BusinessObjects.Constants
     //Order-Payment Service
     public class ResponseMessageConstrantsOrder
     {
-        public const string NOT_FOUND = "Không tìm thấy đơn hàng: ";
+        public const string NOT_FOUND = "Không tìm thấy đơn hàng";
+        public const string NOT_FOUND_PENDING = "Không tìm thấy đơn hàng đang chờ được xử lý";
+        public const string FOUND = "Tìm thấy đơn hàng: ";
         public const string INVALID_DATA = "Dữ liệu không hợp lệ";
         public const string NOTALLOWED = "Bạn không được phép xem đơn hàng này";
         public const string CUSTOMER_NOTALLOWED = "Bạn chỉ được phép xem đơn hàng của chính mình";
@@ -133,6 +136,10 @@ namespace BusinessObjects.Constants
         public const string WEBHOOK_NOT_FOUND = "Dữ liệu Webhook không tìm thấy";
         public const string REQUEST_FAILED_ORDER = "Gửi yêu cầu thất bại cho đơn hàng: ";
         public const string NEED_TO_PAY_SERVICE_NOT_FOUND = "Không tìm thấy dịch vụ cần thanh toán";
+        public const string ORDER_STATUS_TO_PAID = "Cập nhật trạng thái đơn hàng thành đã thanh toán thành công";
+        public const string ORDER_STATUS_TO_PENDINGCONFIRM = "Cập nhật trạng thái đơn hàng thành chờ xác nhận đã thanh toán thành công";
+        public const string ORDER_CANCELED_SUCCESS = "Đơn hàng được hủy thành công";
+        public const string ORDER_EXPIRED = "Đơn hàng đã quá hạn thanh toán";
     }
 
     public class ResponseMessageConstrantsBooking
@@ -264,6 +271,8 @@ namespace BusinessObjects.Constants
             public const string COURSE_NOT_FOUND = "Không tìm thấy khóa học!";
             public const string COURSE_INFO_FOUND = "Lấy thông tin khóa học thành công";
             public const string COURSE_INFO_INVALID = "Dữ liệu khóa học không hợp lệ";
+            public const string COURSE_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật khóa học này.";
+            public const string COURSE_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa khóa học này.";
             public const string NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy AccountId tương ứng với tài khoản";
         }
 

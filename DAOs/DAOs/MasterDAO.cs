@@ -51,6 +51,12 @@ namespace DAOs.DAOs
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<string> GetMasterIdByAccountIdDao(string accountId)
+        {
+            var master = await _context.Masters.FirstOrDefaultAsync(x => x.AccountId == accountId);
+            return master?.MasterId;
+        }
+
         public async Task<List<Master>> GetAllMastersDAO() 
         {
             return await _context.Masters.ToListAsync();

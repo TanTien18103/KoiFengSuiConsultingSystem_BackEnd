@@ -10,7 +10,6 @@ namespace Repositories.Repositories.WorkShopRepository
     public interface IWorkShopRepo
     {
         Task<WorkShop> GetWorkShopById(string workShopId);
-        Task<string> GetMasterIdByAccountId(string accountId);
         Task<List<WorkShop>> GetWorkShops();
         Task<WorkShop> GetWorkshopByMasterLocationAndDate(string masterId, string location, DateTime? startDate);
         Task<WorkShop> GetWorkshopByLocationAndDate(string location, DateTime? startDate);

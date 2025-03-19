@@ -247,7 +247,7 @@ public class AccountService : IAccountService
                 return res;
             }
 
-            var existingAccount = await _accountRepository.GetAccountByEmail(request.Email);
+            var existingAccount = await _accountRepository.GetAccountById(accountId);
             if (existingAccount == null)
             {
                 res.IsSuccess = false;
@@ -255,6 +255,45 @@ public class AccountService : IAccountService
                 res.Message = ResponseMessageIdentity.ACCOUNT_NOT_FOUND;
                 res.StatusCode = StatusCodes.Status404NotFound;
                 return res;
+            }
+
+            var duplicateAccount = await _accountRepository.GetAccountByUniqueFields(
+                request.UserName, request.Email, request.PhoneNumber, (int)request.BankId, request.AccountNo, accountId);
+
+            if (duplicateAccount != null)
+            {
+                if (duplicateAccount.UserName == request.UserName)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.EXISTED;
+                    res.Message = ResponseMessageIdentity.EXISTED_USER_NAME;
+                    res.StatusCode = StatusCodes.Status409Conflict;
+                    return res;
+                }
+                if (duplicateAccount.Email == request.Email)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.EXISTED;
+                    res.Message = ResponseMessageIdentity.EXISTED_EMAIL;
+                    res.StatusCode = StatusCodes.Status409Conflict;
+                    return res;
+                }
+                if (duplicateAccount.PhoneNumber == request.PhoneNumber)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.EXISTED;
+                    res.Message = ResponseMessageIdentity.EXISTED_PHONE;
+                    res.StatusCode = StatusCodes.Status409Conflict;
+                    return res;
+                }
+                if (duplicateAccount.BankId == request.BankId && duplicateAccount.AccountNo == request.AccountNo)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.EXISTED;
+                    res.Message = ResponseMessageIdentity.EXISTED_ACCOUNT_NO;
+                    res.StatusCode = StatusCodes.Status409Conflict;
+                    return res;
+                }
             }
 
             if (existingAccount.AccountId != accountId)
@@ -285,6 +324,7 @@ public class AccountService : IAccountService
             return res;
         }
     }
+
 
     public async Task<ResultModel> ChangePassword(ChangePasswordRequest request)
     {

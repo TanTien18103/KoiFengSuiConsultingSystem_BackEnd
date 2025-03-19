@@ -24,6 +24,11 @@ namespace Repositories.Repositories.AccountRepository
             return AccountDAO.Instance.GetAccountByIdDao(accountId);
         }
 
+        public Task<Account> GetAccountByUniqueFields(string userName, string email, string phoneNumber, int bankId, string accountNo, string currentAccountId)
+        {
+            return AccountDAO.Instance.GetAccountByUniqueFieldsDao(userName, email, phoneNumber, bankId, accountNo, currentAccountId);
+        }
+
         public Task<string> GetAccountIdFromToken(string token)
         {
             return AccountDAO.Instance.GetAccountIdFromTokenDao(token);

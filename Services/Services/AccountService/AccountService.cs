@@ -453,4 +453,397 @@ public class AccountService : IAccountService
             return res;
         }
     }
+
+    // Account Management (Admin only)
+    public async Task<ResultModel> GetAllAccounts(string? role = null)
+    {
+        try
+        {
+            // Kiểm tra role Admin
+            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.UNAUTHORIZED,
+                    Message = ResponseMessageIdentity.TOKEN_NOT_SEND,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                };
+            }
+
+            var token = authHeader.Substring("Bearer ".Length);
+            var accountId = await _accountRepository.GetAccountIdFromToken(token);
+            var admin = await _accountRepository.GetAccountById(accountId);
+
+            if (admin == null || admin.Role != RoleEnums.Admin.ToString())
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.FORBIDDEN,
+                    Message = "Only Admin can access this feature",
+                    StatusCode = StatusCodes.Status403Forbidden
+                };
+            }
+
+            // Kiểm tra role hợp lệ nếu có
+            if (!string.IsNullOrEmpty(role) && !Enum.TryParse<RoleEnums>(role, out _))
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.BAD_REQUEST,
+                    Message = "Invalid role",
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+            }
+
+            // Lấy danh sách tài khoản
+            var accounts = await _accountRepository.GetAllAccounts(role);
+            var accountResponses = _mapper.Map<List<AccountResponse>>(accounts);
+
+            return new ResultModel
+            {
+                IsSuccess = true,
+                ResponseCode = ResponseCodeConstants.SUCCESS,
+                Message = string.IsNullOrEmpty(role) ? 
+                    "Get all accounts successfully" : 
+                    $"Get all accounts with role {role} successfully",
+                Data = accountResponses,
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+        catch (Exception ex)
+        {
+            return new ResultModel
+            {
+                IsSuccess = false,
+                ResponseCode = ResponseCodeConstants.FAILED,
+                Message = ex.Message,
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
+        }
+    }
+
+    public async Task<ResultModel> GetAccountsByRole(string role)
+    {
+        try
+        {
+            // Kiểm tra role Admin
+            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.UNAUTHORIZED,
+                    Message = ResponseMessageIdentity.TOKEN_NOT_SEND,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                };
+            }
+
+            var token = authHeader.Substring("Bearer ".Length);
+            var accountId = await _accountRepository.GetAccountIdFromToken(token);
+            var admin = await _accountRepository.GetAccountById(accountId);
+
+            if (admin == null || admin.Role != RoleEnums.Admin.ToString())
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.FORBIDDEN,
+                    Message = "Only Admin can access this feature",
+                    StatusCode = StatusCodes.Status403Forbidden
+                };
+            }
+
+            // Kiểm tra role hợp lệ
+            if (!Enum.TryParse<RoleEnums>(role, out _))
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.BAD_REQUEST,
+                    Message = "Invalid role",
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+            }
+
+            // Lấy danh sách tài khoản theo role
+            var accounts = await _accountRepository.GetAccountsByRole(role);
+            var accountResponses = _mapper.Map<List<AccountResponse>>(accounts);
+
+            return new ResultModel
+            {
+                IsSuccess = true,
+                ResponseCode = ResponseCodeConstants.SUCCESS,
+                Message = $"Get accounts with role {role} successfully",
+                Data = accountResponses,
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+        catch (Exception ex)
+        {
+            return new ResultModel
+            {
+                IsSuccess = false,
+                ResponseCode = ResponseCodeConstants.FAILED,
+                Message = ex.Message,
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
+        }
+    }
+
+    public async Task<ResultModel> ToggleAccountStatus(string accountId, bool isActive)
+    {
+        try
+        {
+            // Kiểm tra role Admin
+            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.UNAUTHORIZED,
+                    Message = ResponseMessageIdentity.TOKEN_NOT_SEND,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                };
+            }
+
+            var token = authHeader.Substring("Bearer ".Length);
+            var adminId = await _accountRepository.GetAccountIdFromToken(token);
+            var admin = await _accountRepository.GetAccountById(adminId);
+
+            if (admin == null || admin.Role != RoleEnums.Admin.ToString())
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.FORBIDDEN,
+                    Message = "Only Admin can access this feature",
+                    StatusCode = StatusCodes.Status403Forbidden
+                };
+            }
+
+            // Không cho phép Admin vô hiệu hóa chính tài khoản của mình
+            if (adminId == accountId)
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.BAD_REQUEST,
+                    Message = "Cannot toggle your own account status",
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+            }
+
+            // Cập nhật trạng thái tài khoản
+            var updatedAccount = await _accountRepository.ToggleAccountStatus(accountId, isActive);
+            if (updatedAccount == null)
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.NOT_FOUND,
+                    Message = "Account not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                };
+            }
+
+            var accountResponse = _mapper.Map<AccountResponse>(updatedAccount);
+
+            return new ResultModel
+            {
+                IsSuccess = true,
+                ResponseCode = ResponseCodeConstants.SUCCESS,
+                Message = $"Account status updated successfully. Account is now {(isActive ? "active" : "inactive")}",
+                Data = accountResponse,
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+        catch (Exception ex)
+        {
+            return new ResultModel
+            {
+                IsSuccess = false,
+                ResponseCode = ResponseCodeConstants.FAILED,
+                Message = ex.Message,
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
+        }
+    }
+
+    public async Task<ResultModel> DeleteAccount(string accountId)
+    {
+        try
+        {
+            // Kiểm tra role Admin
+            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.UNAUTHORIZED,
+                    Message = ResponseMessageIdentity.TOKEN_NOT_SEND,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                };
+            }
+
+            var token = authHeader.Substring("Bearer ".Length);
+            var adminId = await _accountRepository.GetAccountIdFromToken(token);
+            var admin = await _accountRepository.GetAccountById(adminId);
+
+            if (admin == null || admin.Role != RoleEnums.Admin.ToString())
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.FORBIDDEN,
+                    Message = "Only Admin can access this feature",
+                    StatusCode = StatusCodes.Status403Forbidden
+                };
+            }
+
+            // Không cho phép Admin xóa chính tài khoản của mình
+            if (adminId == accountId)
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.BAD_REQUEST,
+                    Message = "Cannot delete your own account",
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+            }
+
+            // Kiểm tra tài khoản tồn tại
+            var account = await _accountRepository.GetAccountById(accountId);
+            if (account == null)
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.NOT_FOUND,
+                    Message = "Account not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                };
+            }
+
+            // Xóa tài khoản
+            await _accountRepository.DeleteAccount(accountId);
+
+            return new ResultModel
+            {
+                IsSuccess = true,
+                ResponseCode = ResponseCodeConstants.SUCCESS,
+                Message = "Account deleted successfully",
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+        catch (Exception ex)
+        {
+            return new ResultModel
+            {
+                IsSuccess = false,
+                ResponseCode = ResponseCodeConstants.FAILED,
+                Message = ex.Message,
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
+        }
+    }
+
+    public async Task<ResultModel> UpdateAccountRole(string accountId, string newRole)
+    {
+        try
+        {
+            // Kiểm tra role Admin
+            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.UNAUTHORIZED,
+                    Message = ResponseMessageIdentity.TOKEN_NOT_SEND,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                };
+            }
+
+            var token = authHeader.Substring("Bearer ".Length);
+            var adminId = await _accountRepository.GetAccountIdFromToken(token);
+            var admin = await _accountRepository.GetAccountById(adminId);
+
+            if (admin == null || admin.Role != RoleEnums.Admin.ToString())
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.FORBIDDEN,
+                    Message = "Only Admin can access this feature",
+                    StatusCode = StatusCodes.Status403Forbidden
+                };
+            }
+
+            // Không cho phép Admin thay đổi role của chính mình
+            if (adminId == accountId)
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.BAD_REQUEST,
+                    Message = "Cannot change your own role",
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+            }
+
+            // Kiểm tra role hợp lệ
+            if (!Enum.TryParse<RoleEnums>(newRole, out _))
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.BAD_REQUEST,
+                    Message = "Invalid role",
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+            }
+
+            // Cập nhật role của tài khoản
+            var updatedAccount = await _accountRepository.UpdateAccountRole(accountId, newRole);
+            if (updatedAccount == null)
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.NOT_FOUND,
+                    Message = "Account not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                };
+            }
+
+            var accountResponse = _mapper.Map<AccountResponse>(updatedAccount);
+
+            return new ResultModel
+            {
+                IsSuccess = true,
+                ResponseCode = ResponseCodeConstants.SUCCESS,
+                Message = $"Account role updated successfully to {newRole}",
+                Data = accountResponse,
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+        catch (Exception ex)
+        {
+            return new ResultModel
+            {
+                IsSuccess = false,
+                ResponseCode = ResponseCodeConstants.FAILED,
+                Message = ex.Message,
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
+        }
+    }
 }

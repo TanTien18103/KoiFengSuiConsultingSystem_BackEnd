@@ -19,5 +19,12 @@ namespace Services.Services.AccountService
         Task<ResultModel> EditProfile(EditProfileRequest request);
         Task<ResultModel> ChangePassword(ChangePasswordRequest request);
         Task<ResultModel> ForgotPassword(string email);
+
+        // Account Management (Admin only)
+        Task<ResultModel> GetAllAccounts(string? role = null);
+        Task<ResultModel> GetAccountsByRole(string role);
+        Task<ResultModel> ToggleAccountStatus(string accountId, bool isActive);
+        Task<ResultModel> DeleteAccount(string accountId);
+        Task<ResultModel> UpdateAccountRole(string accountId, string newRole);
     }
 }

@@ -15,6 +15,11 @@ namespace Repositories.Repositories.AccountRepository
         Task<Account> GetAccountById(string accountId);
         Task<Account> GetAccountByUniqueFields(string userName, string email, string phoneNumber, int bankId, string accountNo, string currentAccountId);
         Task AddAccount(Account account);
-        Task<Account> UpdateAccount(Account account);
+        Task<Account> UpdateAccount(Account account);        
+        Task<List<Account>> GetAllAccounts(string? role = null);
+        Task<List<Account>> GetAccountsByRole(string role);
+        Task<Account> ToggleAccountStatus(string accountId, bool isActive);
+        Task DeleteAccount(string accountId);
+        Task<Account> UpdateAccountRole(string accountId, string newRole);
     }
 }

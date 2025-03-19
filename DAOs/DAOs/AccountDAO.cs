@@ -81,5 +81,56 @@ namespace DAOs.DAOs
             await _context.SaveChangesAsync();
             return account;
         }
+
+        public async Task<List<Account>> GetAllAccountsDao(string? role = null)
+        {
+            var query = _context.Accounts.AsQueryable();
+            
+            if (!string.IsNullOrEmpty(role))
+            {
+                query = query.Where(a => a.Role == role);
+            }
+            
+            return await query.ToListAsync();
+        }
+
+        public async Task<List<Account>> GetAccountsByRoleDao(string role)
+        {
+            return await _context.Accounts
+                .Where(a => a.Role == role)
+                .ToListAsync();
+        }
+
+        public async Task<Account> ToggleAccountStatusDao(string accountId, bool isActive)
+        {
+            var account = await GetAccountByIdDao(accountId);
+            if (account != null)
+            {
+                account.IsActive = isActive;
+                await _context.SaveChangesAsync();
+            }
+            return account;
+        }
+
+        public async Task DeleteAccountDao(string accountId)
+        {
+            var account = await GetAccountByIdDao(accountId);
+            if (account != null)
+            {
+                _context.Accounts.Remove(account);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<Account> UpdateAccountRoleDao(string accountId, string newRole)
+        {
+            var account = await GetAccountByIdDao(accountId);
+            if (account != null)
+            {
+                account.Role = newRole;
+                await _context.SaveChangesAsync();
+            }
+            return account;
+        }
     }
 }

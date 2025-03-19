@@ -14,6 +14,9 @@ namespace Services.Mapper
                 .ForMember(dest => dest.Password, opt => opt.Ignore())
                 .ForMember(dest => dest.AccountId, opt => opt.Ignore())
                 .ForMember(dest => dest.Role, opt => opt.Ignore());
+
+            // Mapping cho Account Management
+            CreateMap<Account, AccountResponse>();
         }
     }
 } 

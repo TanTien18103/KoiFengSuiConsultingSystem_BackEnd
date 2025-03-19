@@ -8,10 +8,10 @@ namespace BusinessObjects.Enums
 {
     public enum RoleEnums
     {
-        Admin,
-        Manager,
-        Staff, 
-        Customer,
-        User,
+        Admin = 0,
+        Manager = 1,
+        Staff = 2, 
+        Customer = 3,
+        Master = 4,
     }
 }

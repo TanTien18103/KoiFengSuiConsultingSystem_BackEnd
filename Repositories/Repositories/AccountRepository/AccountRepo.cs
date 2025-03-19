@@ -38,5 +38,29 @@ namespace Repositories.Repositories.AccountRepository
         {
             return AccountDAO.Instance.UpdateAccountDao(account);
         }
+        public Task<List<Account>> GetAllAccounts(string? role = null)
+        {
+            return AccountDAO.Instance.GetAllAccountsDao(role);
+        }
+
+        public Task<List<Account>> GetAccountsByRole(string role)
+        {
+            return AccountDAO.Instance.GetAccountsByRoleDao(role);
+        }
+
+        public Task<Account> ToggleAccountStatus(string accountId, bool isActive)
+        {
+            return AccountDAO.Instance.ToggleAccountStatusDao(accountId, isActive);
+        }
+
+        public Task DeleteAccount(string accountId)
+        {
+            return AccountDAO.Instance.DeleteAccountDao(accountId);
+        }
+
+        public Task<Account> UpdateAccountRole(string accountId, string newRole)
+        {
+            return AccountDAO.Instance.UpdateAccountRoleDao(accountId, newRole);
+        }
     }
 }

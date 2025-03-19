@@ -24,6 +24,8 @@ public partial class Account
     public bool? Gender { get; set; }
 
     public string Role { get; set; }
+    
+    public bool IsActive { get; set; } = true;
 
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 

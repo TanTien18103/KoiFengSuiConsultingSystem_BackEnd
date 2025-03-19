@@ -7,6 +7,8 @@ using Services.ApiModels.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Services.Services.AccountService;
+using Services.ApiModels;
+using BusinessObjects.Enums;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -162,6 +164,46 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
                 var res = await _accountService.ForgotPassword(forgotPasswordRequest.Email);
                 return Ok(res);
+        }
+        [HttpGet("accounts")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAccounts([FromQuery] RoleEnums? role = null)
+        {
+            var result = await _accountService.GetAllAccounts(role?.ToString());
+            return StatusCode(result.StatusCode, result);
+        }
+
+
+        [HttpGet("get-accounts-by-role/{role}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAccountsByRole(string role)
+        {
+            var result = await _accountService.GetAccountsByRole(role);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("toggle-account-status/{accountId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ToggleAccountStatus(string accountId, [FromQuery] bool isActive)
+        {
+            var result = await _accountService.ToggleAccountStatus(accountId, isActive);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpDelete("delete-account/{accountId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteAccount(string accountId)
+        {
+            var result = await _accountService.DeleteAccount(accountId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("update-account-role/{accountId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateAccountRole(string accountId, [FromQuery] string newRole)
+        {
+            var result = await _accountService.UpdateAccountRole(accountId, newRole);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

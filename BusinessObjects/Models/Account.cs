@@ -27,8 +27,6 @@ public partial class Account
     
     public bool IsActive { get; set; } = true;
 
-    public bool IsActive { get; set; }
-
     public int? BankId { get; set; }
 
     public string AccountNo { get; set; }

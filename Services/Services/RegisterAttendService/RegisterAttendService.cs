@@ -228,7 +228,6 @@ namespace Services.Services.RegisterAttendService
             }
         }
 
-
         public async Task<ResultModel> GetRegisterAttendByWorkshopId(string id)
         {
             var res = new ResultModel();

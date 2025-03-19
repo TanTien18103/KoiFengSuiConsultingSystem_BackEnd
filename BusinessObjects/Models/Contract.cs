@@ -14,5 +14,6 @@ public partial class Contract
     public string DocNo { get; set; }
 
     public string ContractName { get; set; }
+
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 }

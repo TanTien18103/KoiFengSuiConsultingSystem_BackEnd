@@ -9,6 +9,7 @@ namespace BusinessObjects.Models;
 
 public partial class KoiFishPondContext : DbContext
 {
+
     public KoiFishPondContext()
     {
     }
@@ -375,8 +376,9 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.MaxPrice).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.MinPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.PackageName).HasMaxLength(100);
-            entity.Property(e => e.PackagePrice).HasColumnType("decimal(10, 2)");
         });
 
         modelBuilder.Entity<Contract>(entity =>

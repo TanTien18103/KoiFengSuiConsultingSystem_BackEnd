@@ -1,16 +1,16 @@
-namespace BusinessObjects.Enums
+﻿namespace BusinessObjects.Enums
 {
     public enum ThienCan
     {
-        Giap,
-        At,
-        Binh,
-        Dinh,
-        Mau,
-        Ky,
+        Giáp,
+        Ất,
+        Bính,
+        Đinh,
+        Mậu,
+        Kỷ,
         Canh,
-        Tan,
-        Nham,
-        Quy
+        Tân,
+        Nhâm,
+        Quý
     }
 } 

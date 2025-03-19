@@ -1,11 +1,11 @@
-namespace BusinessObjects.Enums
+﻿namespace BusinessObjects.Enums
 {
     public enum NguHanh
     {
         Kim,
-        Moc,
-        Thuy,
-        Hoa,
-        Tho
+        Mộc,
+        Thủy,
+        Hỏa,
+        Thổ
     }
 } 

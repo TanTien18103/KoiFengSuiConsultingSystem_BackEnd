@@ -174,20 +174,20 @@ namespace Services.Services.KoiVarietyService
 
         private readonly Dictionary<NguHanh, (List<NguHanh> Compatible, List<NguHanh> Incompatible)> _elementRelationships = new()
     {
-        { NguHanh.Kim, (new List<NguHanh> { NguHanh.Kim, NguHanh.Thuy }, new List<NguHanh> { NguHanh.Hoa }) },
-        { NguHanh.Moc, (new List<NguHanh> { NguHanh.Moc, NguHanh.Thuy }, new List<NguHanh> { NguHanh.Kim }) },
-        { NguHanh.Thuy, (new List<NguHanh> { NguHanh.Thuy, NguHanh.Kim }, new List<NguHanh> { NguHanh.Tho }) },
-        { NguHanh.Hoa, (new List<NguHanh> { NguHanh.Hoa, NguHanh.Moc }, new List<NguHanh> { NguHanh.Thuy }) },
-        { NguHanh.Tho, (new List<NguHanh> { NguHanh.Tho, NguHanh.Hoa }, new List<NguHanh> { NguHanh.Moc }) }
+        { NguHanh.Kim, (new List<NguHanh> { NguHanh.Kim, NguHanh.Thủy }, new List<NguHanh> { NguHanh.Hỏa }) },
+        { NguHanh.Mộc, (new List<NguHanh> { NguHanh.Mộc, NguHanh.Thủy }, new List<NguHanh> { NguHanh.Kim }) },
+        { NguHanh.Thủy, (new List<NguHanh> { NguHanh.Thủy, NguHanh.Kim }, new List<NguHanh> { NguHanh.Thổ }) },
+        { NguHanh.Hỏa, (new List<NguHanh> { NguHanh.Hỏa, NguHanh.Mộc }, new List<NguHanh> { NguHanh.Thủy }) },
+        { NguHanh.Thổ, (new List<NguHanh> { NguHanh.Thổ, NguHanh.Hỏa }, new List<NguHanh> { NguHanh.Mộc }) }
     };
 
         private readonly Dictionary<string, NguHanh> _elementMapping = new(StringComparer.OrdinalIgnoreCase)
     {
         { "Kim", NguHanh.Kim },
-        { "Moc", NguHanh.Moc },
-        { "Thuy", NguHanh.Thuy },
-        { "Hoa", NguHanh.Hoa },
-        { "Tho", NguHanh.Tho }
+        { "Mộc", NguHanh.Mộc },
+        { "Thủy", NguHanh.Thủy },
+        { "Hỏa", NguHanh.Hỏa },
+        { "Thổ", NguHanh.Thổ }
     };
 
         private List<NguHanh> GetElements(NguHanh element, bool getCompatible)
@@ -372,7 +372,7 @@ namespace Services.Services.KoiVarietyService
             try
             {
                 // Xác thực người dùng và lấy accountId từ token
-                var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+                var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["AuThổrization"].FirstOrDefault();
                 if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
                 {
                     res.IsSuccess = false;

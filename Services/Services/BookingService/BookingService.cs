@@ -715,7 +715,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                if (bookingOffline.ConsultationPackage == null)
+                if (bookingOffline.ConsultationPackageId == null)
                 {
                     res.IsSuccess = false;
                     res.StatusCode = StatusCodes.Status400BadRequest;

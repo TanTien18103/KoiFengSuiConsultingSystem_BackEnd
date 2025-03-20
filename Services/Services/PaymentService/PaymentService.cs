@@ -108,13 +108,13 @@ namespace Services.Services.PaymentService
                     throw new AppException(ResponseCodeConstants.UNAUTHORIZED, ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED, StatusCodes.Status401Unauthorized);
                 }
 
-                decimal? selectedPrice = null;
                 bool isFirstPayment = true;
 
                 // Kiểm tra nếu là thanh toán lần 2 cho BookingOffline
                 if (serviceType == PaymentTypeEnums.BookingOffline)
                 {
                     var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
+                    decimal? selectedPrice = bookingOffline.SelectedPrice;
                     if (bookingOffline == null)
                         throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE, StatusCodes.Status404NotFound);
 
@@ -186,27 +186,28 @@ namespace Services.Services.PaymentService
                         break;
 
                     case PaymentTypeEnums.BookingOffline:
-                        var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
-                        if (bookingOffline == null)
+                        var bookingOfflineInCase = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
+                        decimal? selectedPrice = bookingOfflineInCase.SelectedPrice;
+                        if (bookingOfflineInCase == null)
                             throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE, StatusCodes.Status404NotFound);
 
                         // Kiểm tra trạng thái booking trước khi cho phép thanh toán
-                        if (bookingOffline.Status == BookingOfflineEnums.Cancelled.ToString())
+                        if (bookingOfflineInCase.Status == BookingOfflineEnums.Cancelled.ToString())
                             throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsBooking.SERVICETYPE_CANCELED, StatusCodes.Status400BadRequest);
 
                         // Xác định lần thanh toán và giá
                         if (isFirstPayment)
                         {
-                            if (bookingOffline.Status != BookingOfflineEnums.Pending.ToString())
+                            if (bookingOfflineInCase.Status != BookingOfflineEnums.Pending.ToString())
                                 throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsBooking.NOT_PENDING_TO_PAY1ST, StatusCodes.Status400BadRequest);
                         }
                         else
                         {
-                            if (bookingOffline.Status != BookingOfflineEnums.Paid1st.ToString())
+                            if (bookingOfflineInCase.Status != BookingOfflineEnums.Paid1st.ToString())
                                 throw new AppException(ResponseCodeConstants.BAD_REQUEST, "", StatusCodes.Status400BadRequest);
 
                             // Lấy giá từ đơn hàng trước
-                            var previousOrder = await _orderRepo.GetOrderByServiceIdAndStatus(serviceId, PaymentTypeEnums.BookingOffline.ToString(), PaymentStatusEnums.Paid.ToString());
+                            var previousOrder = await _orderRepo.GetOrderByServiceIdAndStatus(serviceId, PaymentTypeEnums.BookingOffline.ToString(), PaymentStatusEnums.Paid1st.ToString());
                             if (previousOrder == null)
                                 throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_PAID1ST_OR_PAID2ND, StatusCodes.Status404NotFound);
 
@@ -218,7 +219,7 @@ namespace Services.Services.PaymentService
                         customerName = curCustomer.Account.FullName ?? "Khách hàng";
 
                         // Lấy giá dựa trên lần thanh toán
-                        price = await _priceService.GetServicePrice(serviceType, serviceId, isFirstPayment, selectedPrice) ?? 0;
+                        price = await _priceService.GetServicePrice(serviceType, serviceId, isFirstPayment) ?? 0;
                         break;
 
                     case PaymentTypeEnums.Course:

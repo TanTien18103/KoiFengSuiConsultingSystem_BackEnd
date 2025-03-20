@@ -167,6 +167,7 @@ namespace BusinessObjects.Constants
         public const string NOT_PAID1ST_OR_PAID2ND = "Booking chưa thanh toán lần 1 hoặc đã thanh toán đủ";
         public const string BOOKING_NO_PACKAGE = "Booking chưa chọn gói tư vấn";
         public const string PRICE_NOT_CHOSEN = "Chưa chọn giá gói tư vấn";
+        public const string PRICE_CHOSEN_SUCCES = "Chọn giá gói tư vấn thành công";
         public const string CHOOSE_PRICE_FOR_PENDING_ONLY = "Chỉ có thể chọn giá cho booking ở trạng thái Pending";
     }
 

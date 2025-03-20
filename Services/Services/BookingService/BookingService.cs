@@ -653,7 +653,7 @@ namespace Services.Services.BookingService
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                res.Message = "Chọn giá thành công";
+                res.Message = ResponseMessageConstrantsBooking.PRICE_NOT_CHOSEN;
                 return res;
             }
             catch (Exception ex)

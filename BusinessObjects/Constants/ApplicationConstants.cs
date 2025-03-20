@@ -172,6 +172,7 @@ namespace BusinessObjects.Constants
         public const string PACKAGE_NOT_FOUND = "Không tìm thấy gói tư vấn";
         public const string PACKAGE_EXISTED = "Bạn đã chọn gói tư vấn cho buổi tư vấn này. Nếu bạn muốn đặt gói mới, hãy hủy gói cũ";
         public const string REMOVED_PACKAGE = "Hủy gói tư vấn thành công";
+        public const string PRICE_CHOSEN_SUCCESS = "Chọn giá thành công";
     }
 
     public class ResponseMessageConstrantsCompatibility

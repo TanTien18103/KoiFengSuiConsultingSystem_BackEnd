@@ -42,5 +42,10 @@ namespace Repositories.Repositories.MasterScheduleRepository
         {
             return MasterScheduleDAO.Instance.DeleteMasterScheduleDao(masterScheduleId);
         }
+
+        public Task<List<MasterSchedule>> GetMasterScheduleByMasterId(string masterId)
+        {
+            return MasterScheduleDAO.Instance.GetMasterScheduleByMasterId(masterId);
+        }
     }
 }

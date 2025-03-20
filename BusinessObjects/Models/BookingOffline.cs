@@ -31,6 +31,14 @@ public partial class BookingOffline
 
     public string AssignStaffId { get; set; }
 
+    public DateTime? StartDate { get; set; }
+
+    public DateTime CreateDate { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
+
+    public decimal? SelectedPrice { get; set; }
+
     public virtual Account AssignStaff { get; set; }
 
     public virtual ConsultationPackage ConsultationPackage { get; set; }

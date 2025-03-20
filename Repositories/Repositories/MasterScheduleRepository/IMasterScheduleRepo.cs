@@ -17,5 +17,6 @@ namespace Repositories.Repositories.MasterScheduleRepository
         Task<MasterSchedule> CreateMasterSchedule(MasterSchedule masterSchedule);
         Task<MasterSchedule> UpdateMasterSchedule(MasterSchedule masterSchedule);
         Task DeleteMasterSchedule(string masterScheduleId);
+        Task<List<MasterSchedule>> GetMasterScheduleByMasterId(string masterId);
     }
 }

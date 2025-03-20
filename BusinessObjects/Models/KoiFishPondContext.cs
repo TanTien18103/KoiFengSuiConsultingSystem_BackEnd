@@ -9,10 +9,10 @@ namespace BusinessObjects.Models;
 
 public partial class KoiFishPondContext : DbContext
 {
-
     public KoiFishPondContext()
     {
     }
+
     public KoiFishPondContext(DbContextOptions<KoiFishPondContext> options)
         : base(options)
     {
@@ -88,7 +88,6 @@ public partial class KoiFishPondContext : DbContext
 
     public virtual DbSet<WorkShop> WorkShops { get; set; }
 
-
     public static string GetConnectionString(string connectionStringName)
     {
         var config = new ConfigurationBuilder()
@@ -100,6 +99,7 @@ public partial class KoiFishPondContext : DbContext
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
        => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"));
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -191,6 +191,9 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.CustomerId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -213,7 +216,10 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.SelectedPrice).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.AssignStaff).WithMany(p => p.BookingOfflines)
                 .HasForeignKey(d => d.AssignStaffId)

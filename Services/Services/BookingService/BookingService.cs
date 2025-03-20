@@ -362,10 +362,8 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                var bookingonline = await _onlineRepo.GetBookingOnlineByIdRepo(bookingonlineId);
+                var bookingOnline = await _onlineRepo.GetBookingOnlineByIdRepo(bookingonlineId);
                 var bookingOffline = await _offlineRepo.GetBookingOfflineById(bookingofflineId);
-
-
 
                 var masterschedules = await _masterScheduleRepo.GetMasterScheduleByMasterId(masterId);
                 if (masterschedules == null)
@@ -398,7 +396,7 @@ namespace Services.Services.BookingService
                 if (string.IsNullOrEmpty(bookingofflineId) && !string.IsNullOrEmpty(bookingonlineId))
                 {
 
-                    if (bookingonline == null)
+                    if (bookingOnline == null)
                     {
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -407,7 +405,7 @@ namespace Services.Services.BookingService
                         return res;
                     }
 
-                    if (!string.IsNullOrEmpty(bookingonline.MasterId))
+                    if (!string.IsNullOrEmpty(bookingOnline.MasterId))
                     {
 
                         res.IsSuccess = false;
@@ -419,7 +417,7 @@ namespace Services.Services.BookingService
 
                     foreach (var masterschedule in masterschedules)
                     {
-                        if (masterschedule.Date == bookingonline.BookingDate && masterschedule.StartTime == bookingonline.StartTime && masterschedule.EndTime == bookingonline.EndTime)
+                        if (masterschedule.Date == bookingOnline.BookingDate && masterschedule.StartTime == bookingOnline.StartTime && masterschedule.EndTime == bookingOnline.EndTime)
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.EXISTED;
@@ -428,14 +426,13 @@ namespace Services.Services.BookingService
                             return res;
                         }
                     }
-                    bookingonline.MasterId = masterId;
-                    bookingonline.AssignStaffId = accountId;
-                    await _onlineRepo.UpdateBookingOnlineRepo(bookingonline);
+                    bookingOnline.MasterId = masterId;
+                    bookingOnline.AssignStaffId = accountId;
+                    await _onlineRepo.UpdateBookingOnlineRepo(bookingOnline);
                 }
-                var bookingoffline = await _offlineRepo.GetBookingOfflineById(bookingofflineId);
                 if (!string.IsNullOrEmpty(bookingofflineId) && string.IsNullOrEmpty(bookingonlineId))
                 {
-                    if (bookingoffline == null)
+                    if (bookingOffline == null)
                     {
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -466,9 +463,9 @@ namespace Services.Services.BookingService
                         }
                     }
 
-                    bookingoffline.MasterId = masterId;
-                    bookingoffline.AssignStaffId = accountId;
-                    await _offlineRepo.UpdateBookingOffline(bookingoffline);
+                    bookingOffline.MasterId = masterId;
+                    bookingOffline.AssignStaffId = accountId;
+                    await _offlineRepo.UpdateBookingOffline(bookingOffline);
                 }
 
                 res.IsSuccess = true;

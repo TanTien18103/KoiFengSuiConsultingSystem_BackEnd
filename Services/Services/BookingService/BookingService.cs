@@ -17,6 +17,9 @@ using System.Security.Claims;
 using Repositories.Repositories.MasterRepository;
 using Repositories.Repositories.MasterScheduleRepository;
 using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
+using System.Security.Cryptography.Xml;
+using System.Diagnostics;
+using Repositories.Repositories.ConsultationPackageRepository;
 
 namespace Services.Services.BookingService
 {
@@ -29,8 +32,18 @@ namespace Services.Services.BookingService
         private readonly ICustomerRepo _customerRepo;
         private readonly IAccountRepo _accountRepo;
         private readonly IMasterScheduleRepo _masterScheduleRepo;
+        private readonly IConsultationPackageRepo _consultationPackageRepo;
 
-        public BookingService(IBookingOnlineRepo onlineRepo, IBookingOfflineRepo offlineRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICustomerRepo customerRepo, IAccountRepo accountRepo, IMasterScheduleRepo masterScheduleRepo)
+        public BookingService(
+            IBookingOnlineRepo onlineRepo,
+            IBookingOfflineRepo offlineRepo,
+            IMapper mapper,
+            IHttpContextAccessor httpContextAccessor,
+            ICustomerRepo customerRepo,
+            IAccountRepo accountRepo,
+            IMasterScheduleRepo masterScheduleRepo,
+            IConsultationPackageRepo consultationPackageRepo
+        )
         {
             _onlineRepo = onlineRepo;
             _offlineRepo = offlineRepo;
@@ -40,8 +53,18 @@ namespace Services.Services.BookingService
             _accountRepo = accountRepo;
             _masterScheduleRepo = masterScheduleRepo;
 
+            _consultationPackageRepo = consultationPackageRepo;
         }
 
+        private string GetAuthenticatedAccountId()
+        {
+            var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+            if (identity == null || !identity.IsAuthenticated) return null;
+
+            return identity.Claims.SingleOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        }
+
+        //Booking Online
         public static string GenerateShortGuid()
         {
             Guid guid = Guid.NewGuid();
@@ -101,8 +124,8 @@ namespace Services.Services.BookingService
                     Date = bookingOnlineRequest.BookingDate,
                     StartTime = bookingOnlineRequest.StartTime,
                     EndTime = bookingOnlineRequest.EndTime,
-                    Type = "Booking Online",
-                    Status = "Pending"
+                    Type = BookingTypeEnums.Online.ToString(),
+                    Status = BookingOnlineEnums.Pending.ToString(),
                 };
                 await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
 
@@ -531,6 +554,202 @@ namespace Services.Services.BookingService
                     res.StatusCode = StatusCodes.Status400BadRequest;
                     res.Message = ResponseMessageConstrantsBooking.INVALID_DATA;
                     return res;
+            }
+        }
+
+
+        // Bookin Offline
+        public async Task<ResultModel> CreateBookingOffline(BookingOfflineRequest request)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var accountId = GetAuthenticatedAccountId();
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    return res;
+                }
+                var customerId = await _customerRepo.GetCustomerIdByAccountId(accountId);
+                var account = await _accountRepo.GetAccountById(accountId);
+
+                var bookingOffline = _mapper.Map<BookingOffline>(request);
+                bookingOffline.BookingOfflineId = GenerateShortGuid();
+                bookingOffline.CustomerId = customerId;
+                bookingOffline.Status = BookingOfflineEnums.Pending.ToString();
+                await _offlineRepo.CreateBookingOffline(bookingOffline);
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status201Created;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsBooking.BOOKING_CREATED;
+                return res;
+            }
+            catch(Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> AddConsultationPackage(string packageId,string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var bookingOffline = await _offlineRepo.GetBookingOfflineById(id);
+                if(bookingOffline == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                    return res;
+                }
+                if(bookingOffline.ConsultationPackageId != null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status409Conflict;
+                    res.ResponseCode = ResponseCodeConstants.EXISTED;
+                    res.Message = ResponseMessageConstrantsPackage.PACKAGE_EXISTED;
+                    return res;
+                }
+
+                var consultationPackage = await _consultationPackageRepo.GetConsultationPackageById(packageId);
+                if(consultationPackage == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsPackage.PACKAGE_NOT_FOUND;
+                    return res;
+                }
+                bookingOffline.ConsultationPackageId = packageId;
+                await _offlineRepo.UpdateBookingOffline(bookingOffline);
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsPackage.ADDED_PACKAGE;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> RemoveConsultationPackage(string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var bookingOffline = await _offlineRepo.GetBookingOfflineById(id);
+                if (bookingOffline == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                    return res;
+                }
+
+                if (bookingOffline.ConsultationPackageId == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsPackage.PACKAGE_NOT_FOUND;
+                    return res;
+                }
+                bookingOffline.ConsultationPackageId = null;
+                await _offlineRepo.UpdateBookingOffline(bookingOffline);
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsPackage.REMOVED_PACKAGE;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> SelectBookingOfflinePrice(string bookingId, decimal selectedPrice)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var bookingOffline = await _offlineRepo.GetBookingOfflineById(bookingId);
+                if (bookingOffline == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                    return res;
+                }
+
+                if (bookingOffline.Status != BookingOfflineEnums.Pending.ToString())
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsBooking.CHOOSE_PRICE_FOR_PENDING_ONLY;
+                    return res;
+                }
+
+                if (bookingOffline.ConsultationPackageId == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsBooking.BOOKING_NO_PACKAGE;
+                    return res;
+                }
+
+                if (selectedPrice != bookingOffline.ConsultationPackage.MinPrice &&
+                    selectedPrice != bookingOffline.ConsultationPackage.MaxPrice)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsBooking.PRICE_SELECTED_INVALID;
+                    return res;
+                }
+
+                bookingOffline.SelectedPrice = selectedPrice;
+                await _offlineRepo.UpdateBookingOffline(bookingOffline);
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsBooking.PRICE_NOT_CHOSEN;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
             }
         }
     }

@@ -26,6 +26,10 @@ namespace Repositories.Repositories.CustomerRepository
         {
             return CustomerDAO.Instance.GetElementLifePalaceByIdDao(accountId);
         }
+        public Task<string> GetCustomerIdByAccountId(string accountId)
+        {
+            return CustomerDAO.Instance.GetCustomerIdByAccountIdDao(accountId);
+        }
         public Task<Customer> CreateCustomer(Customer customer)
         {
             return CustomerDAO.Instance.CreateCustomerDao(customer);

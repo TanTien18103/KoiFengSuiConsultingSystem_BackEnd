@@ -22,10 +22,6 @@ namespace Repositories.Repositories.RegisterAttendRepository
         {
             return RegisterAttendDAO.Instance.GetRegisterAttendsByCustomerIdDao(customerId);
         }
-        public Task<string> GetCustomerIdByAccountId(string accountId)
-        {
-            return RegisterAttendDAO.Instance.GetCustomerIdByAccountIdDao(accountId);
-        }
         public Task<List<RegisterAttend>> GetRegisterAttendsByWorkShopId(string workShopId)
         {
             return RegisterAttendDAO.Instance.GetRegisterAttendsByWorkshopIdDao(workShopId);

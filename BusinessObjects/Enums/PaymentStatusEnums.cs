@@ -12,6 +12,8 @@ namespace BusinessObjects.Enums
         PendingConfirm,
         Paid,
         Canceled,
-        Expired
+        Expired,
+        Paid1st,
+        Paid2nd
     }
 }

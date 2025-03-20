@@ -140,6 +140,7 @@ namespace BusinessObjects.Constants
         public const string ORDER_STATUS_TO_PENDINGCONFIRM = "Cập nhật trạng thái đơn hàng thành chờ xác nhận đã thanh toán thành công";
         public const string ORDER_CANCELED_SUCCESS = "Đơn hàng được hủy thành công";
         public const string ORDER_EXPIRED = "Đơn hàng đã quá hạn thanh toán";
+        public const string SERVICETYPE_INVALID = "Loại dịch vụ không hợp lệ";
     }
 
     public class ResponseMessageConstrantsBooking
@@ -159,6 +160,25 @@ namespace BusinessObjects.Constants
         public const string REQUIRED_ONE_ATLEAST = "Cần ít nhất một trong các trường booking";
         public const string REQUIRED_ONE = "Chỉ được assign một booking";
 
+        public const string REQUIRED_ATLEAST_ONE = "Cần ít nhất một trong các trường booking";
+        public const string PRICE_SELECTED_INVALID = "Giá được chọn không hợp lệ";
+        public const string SERVICETYPE_CANCELED = "Buổi tư vấn đã bị hủy, không thể thanh toán";
+        public const string NOT_PENDING_TO_PAY1ST = "Booking không ở trạng thái cho phép thanh toán lần 1";
+        public const string NOT_PAID1ST_OR_PAID2ND = "Booking chưa thanh toán lần 1 hoặc đã thanh toán đủ";
+        public const string BOOKING_NO_PACKAGE = "Booking chưa chọn gói tư vấn";
+        public const string PRICE_NOT_CHOSEN = "Chưa chọn giá gói tư vấn";
+        public const string PRICE_CHOSEN_SUCCES = "Chọn giá gói tư vấn thành công";
+        public const string CHOOSE_PRICE_FOR_PENDING_ONLY = "Chỉ có thể chọn giá cho booking ở trạng thái Pending";
+    }
+
+    public class ResponseMessageConstrantsPackage
+    {
+        public const string PACKAGE_FOUND = "Tìm danh sách các gói tư vấn thành công";
+        public const string ADDED_PACKAGE = "Chọn gói tư vấn thành công";
+        public const string PACKAGE_NOT_FOUND = "Không tìm thấy gói tư vấn";
+        public const string PACKAGE_EXISTED = "Bạn đã chọn gói tư vấn cho buổi tư vấn này. Nếu bạn muốn đặt gói mới, hãy hủy gói cũ";
+        public const string REMOVED_PACKAGE = "Hủy gói tư vấn thành công";
+        public const string PRICE_CHOSEN_SUCCESS = "Chọn giá thành công";
     }
 
     public class ResponseMessageConstrantsCompatibility

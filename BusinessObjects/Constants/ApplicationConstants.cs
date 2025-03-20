@@ -157,6 +157,9 @@ namespace BusinessObjects.Constants
         public const string NOT_FOUND_ONLINE = "Không tìm thấy đặt lịch trực tuyến";
         public const string NOT_FOUND_OFFLINE = "Không tìm thấy lịch tư vấn";
         public const string NOT_FOUND_REGISTERATTEND = "Không tìm thấy vé";
+        public const string REQUIRED_ONE_ATLEAST = "Cần ít nhất một trong các trường booking";
+        public const string REQUIRED_ONE = "Chỉ được assign một booking";
+
         public const string REQUIRED_ATLEAST_ONE = "Cần ít nhất một trong các trường booking";
         public const string PRICE_SELECTED_INVALID = "Giá được chọn không hợp lệ";
         public const string SERVICETYPE_CANCELED = "Buổi tư vấn đã bị hủy, không thể thanh toán";

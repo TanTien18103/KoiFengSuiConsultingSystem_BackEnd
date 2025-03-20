@@ -42,6 +42,7 @@ namespace DAOs.DAOs
             return await _context.BookingOfflines
                 .Include(x => x.Customer).ThenInclude(x => x.Account)
                 .Include(x => x.Master).ThenInclude(x => x.Account)
+                .Include(x => x.ConsultationPackage)
                 .FirstOrDefaultAsync(x => x.BookingOfflineId == bookingOfflineId);
         }
 

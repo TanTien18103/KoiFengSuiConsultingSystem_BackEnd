@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.ApiModels.BookingOnline;
 using Services.Services.BookingService;
+using Services.ApiModels.BookingOffline;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -19,6 +20,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _bookingService = bookingService;
         }
 
+        // Booking Online
         [HttpPost("create")]
         public async Task<IActionResult> CreateBookingOnline([FromBody] BookingOnlineRequest bookingOnlineRequest)
         {
@@ -58,12 +60,44 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
         [HttpPut("assign-master")]
         //[Authorize(Roles = "Staff")]
-        public async Task<IActionResult> AssignMaster( string bookingId, string masterId)
+        public async Task<IActionResult> AssignMaster( string? bookingonline, string? bookingoffline, string masterId)
         {
-            var result = await _bookingService.AssignMasterToBookingAsync(bookingId, masterId);
+            var result = await _bookingService.AssignMasterToBookingAsync(bookingonline,bookingoffline,masterId);
             return StatusCode(result.StatusCode, result);
         }
 
 
+        // Booking Offline
+        [HttpPost("offline-create")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> CreateBookingOffline([FromBody]BookingOfflineRequest request)
+        {
+            var res = await _bookingService.CreateBookingOffline(request);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpPut("offline-add/{packageId}-to/{offlineId}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> AddPackage([FromRoute]string packageId, [FromRoute] string offlineId)
+        {
+            var res = await _bookingService.AddConsultationPackage(packageId, offlineId);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpPut("offline-remove-package/{id}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> RemovePackage([FromRoute] string id)
+        {
+            var res = await _bookingService.RemoveConsultationPackage(id);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpPut("offline-select-price/{id}/{selectedPrice}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> SelectPrice([FromRoute] string id, [FromRoute] decimal selectedPrice)
+        {
+            var res = await _bookingService.SelectBookingOfflinePrice(id, selectedPrice);
+            return StatusCode(res.StatusCode, res);
+        }
     }
 }

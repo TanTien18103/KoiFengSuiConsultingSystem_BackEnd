@@ -372,7 +372,7 @@ namespace Services.Services.KoiVarietyService
             try
             {
                 // Xác thực người dùng và lấy accountId từ token
-                var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["AuThổrization"].FirstOrDefault();
+                var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
                 if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
                 {
                     res.IsSuccess = false;

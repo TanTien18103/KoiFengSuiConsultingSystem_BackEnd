@@ -42,6 +42,12 @@ namespace DAOs.DAOs
             return await _context.Customers.Include(x => x.Account).FirstOrDefaultAsync(x => x.CustomerId == customerId);
         }
 
+        public async Task<string> GetCustomerIdByAccountIdDao(string accountId)
+        {
+            var customer = await _context.Customers.FirstOrDefaultAsync(x => x.AccountId == accountId);
+            return customer.CustomerId;
+        }
+
         public async Task<Customer?> GetCustomerByAccountIdDao(string accountId)
         {
             return await _context.Customers

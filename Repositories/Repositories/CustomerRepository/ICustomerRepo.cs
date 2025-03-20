@@ -13,6 +13,7 @@ namespace Repositories.Repositories.CustomerRepository
         Task<Customer> GetCustomerByAccountId(string id);
         Task<Customer> GetElementLifePalaceById(string accountId);
         Task<List<Customer>> GetCustomers();
+        Task<string> GetCustomerIdByAccountId(string accountId);
         Task<Customer> CreateCustomer(Customer customer);
         Task<Customer> UpdateCustomer(Customer customer);
         Task DeleteCustomer(string customerId);

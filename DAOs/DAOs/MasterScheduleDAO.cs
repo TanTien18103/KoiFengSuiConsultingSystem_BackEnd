@@ -120,5 +120,13 @@ namespace DAOs.DAOs
             _context.MasterSchedules.Remove(masterSchedule);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<MasterSchedule>> GetMasterScheduleByMasterId(string masterId)
+        {
+            var masterSchedules = await _context.MasterSchedules
+                .Where(x => x.MasterId == masterId)
+                .ToListAsync();
+            return masterSchedules;
+        }
     }
 }

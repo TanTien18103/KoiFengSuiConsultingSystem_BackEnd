@@ -156,7 +156,7 @@ namespace BusinessObjects.Constants
         public const string NOT_FOUND_ONLINE = "Không tìm thấy đặt lịch trực tuyến";
         public const string NOT_FOUND_OFFLINE = "Không tìm thấy lịch tư vấn";
         public const string NOT_FOUND_REGISTERATTEND = "Không tìm thấy vé";
-
+        public const string REQUIRED_ATLEAST_ONE = "Cần ít nhất một trong các trường booking";
     }
 
     public class ResponseMessageConstrantsCompatibility
@@ -211,6 +211,7 @@ namespace BusinessObjects.Constants
         {
             public const string MASTERSCHEDULE_NOT_FOUND = "Không tìm thấy thời gian biểu của Master!";
             public const string MASTERSCHEDULE_FOUND = "Lấy danh sách thời gian biểu của Master thành công!";
+            public const string MASTERSCHEDULE_EXISTED_SLOT = "Thời gian biểu đã tồn tại!";
         }
 
         public class ResponseMessageConstrantsMaster
@@ -294,8 +295,7 @@ namespace BusinessObjects.Constants
             public const string CHAPTER_NOT_FOUND = "Không tìm thấy chương học!";
             public const string CHAPTER_INFO_FOUND = "Lấy thông tin chương học thành công";
             public const string CHAPTER_INFO_INVALID = "Dữ liệu chương học không hợp lệ";
-
-            public static string? COURSE_ID_REQUIRED { get; set; }
+            public const string COURSE_ID_REQUIRED = "Không tìm thấy Id khóa học";
         }
     }
 }

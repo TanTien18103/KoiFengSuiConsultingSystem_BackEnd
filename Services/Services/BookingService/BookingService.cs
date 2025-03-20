@@ -32,9 +32,6 @@ namespace Services.Services.BookingService
         private readonly ICustomerRepo _customerRepo;
         private readonly IAccountRepo _accountRepo;
         private readonly IMasterScheduleRepo _masterScheduleRepo;
-
-        public BookingService(IBookingOnlineRepo onlineRepo, IBookingOfflineRepo offlineRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICustomerRepo customerRepo, IAccountRepo accountRepo, IMasterScheduleRepo masterScheduleRepo)
-        private readonly IMasterScheduleService _masterScheduleService;
         private readonly IConsultationPackageRepo _consultationPackageRepo;
 
         public BookingService(
@@ -44,7 +41,7 @@ namespace Services.Services.BookingService
             IHttpContextAccessor httpContextAccessor,
             ICustomerRepo customerRepo,
             IAccountRepo accountRepo,
-            IMasterScheduleService masterScheduleService,
+            IMasterScheduleRepo masterScheduleRepo,
             IConsultationPackageRepo consultationPackageRepo
         )
         {
@@ -55,12 +52,9 @@ namespace Services.Services.BookingService
             _customerRepo = customerRepo;
             _accountRepo = accountRepo;
             _masterScheduleRepo = masterScheduleRepo;
-            
-        }
-
-            _masterScheduleService = masterScheduleService;
             _consultationPackageRepo = consultationPackageRepo;
         }
+
         private string GetAuthenticatedAccountId()
         {
             var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;

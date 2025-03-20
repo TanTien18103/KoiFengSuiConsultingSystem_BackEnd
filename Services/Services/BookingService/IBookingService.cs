@@ -15,6 +15,7 @@ namespace Services.Services.BookingService
         Task<ResultModel> AssignMasterToBookingAsync(string? bookingonlineId, string? bookingofflineId, string masterId);
         Task<ResultModel> CreateBookingOnline(BookingOnlineRequest bookingOnlineRequest);
 
+
         // Booking Offline
         Task<ResultModel> CreateBookingOffline(BookingOfflineRequest request);
         Task<ResultModel> AddConsultationPackage(string packageId, string id);

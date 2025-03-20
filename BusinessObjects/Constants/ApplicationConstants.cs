@@ -140,6 +140,7 @@ namespace BusinessObjects.Constants
         public const string ORDER_STATUS_TO_PENDINGCONFIRM = "Cập nhật trạng thái đơn hàng thành chờ xác nhận đã thanh toán thành công";
         public const string ORDER_CANCELED_SUCCESS = "Đơn hàng được hủy thành công";
         public const string ORDER_EXPIRED = "Đơn hàng đã quá hạn thanh toán";
+        public const string SERVICETYPE_INVALID = "Loại dịch vụ không hợp lệ";
     }
 
     public class ResponseMessageConstrantsBooking
@@ -155,8 +156,22 @@ namespace BusinessObjects.Constants
         public const string INVALID_DATA = "Dữ liệu lịch tư vấn không hợp lệ";
         public const string NOT_FOUND_ONLINE = "Không tìm thấy đặt lịch trực tuyến";
         public const string NOT_FOUND_OFFLINE = "Không tìm thấy lịch tư vấn";
-        public const string NOT_FOUND_REGISTERATTEND = "Không tìm thấy vé";
+        public const string PRICE_SELECTED_INVALID = "Giá được chọn không hợp lệ";
+        public const string SERVICETYPE_CANCELED = "Buổi tư vấn đã bị hủy, không thể thanh toán";
+        public const string NOT_PENDING_TO_PAY1ST = "Booking không ở trạng thái cho phép thanh toán lần 1";
+        public const string NOT_PAID1ST_OR_PAID2ND = "Booking chưa thanh toán lần 1 hoặc đã thanh toán đủ";
+        public const string BOOKING_NO_PACKAGE = "Booking chưa chọn gói tư vấn";
+        public const string PRICE_NOT_CHOSEN = "Chưa chọn giá gói tư vấn";
+        public const string CHOOSE_PRICE_FOR_PENDING_ONLY = "Chỉ có thể chọn giá cho booking ở trạng thái Pending";
+    }
 
+    public class ResponseMessageConstrantsPackage
+    {
+        public const string PACKAGE_FOUND = "Tìm danh sách các gói tư vấn thành công";
+        public const string ADDED_PACKAGE = "Chọn gói tư vấn thành công";
+        public const string PACKAGE_NOT_FOUND = "Không tìm thấy gói tư vấn";
+        public const string PACKAGE_EXISTED = "Bạn đã chọn gói tư vấn cho buổi tư vấn này. Nếu bạn muốn đặt gói mới, hãy hủy gói cũ";
+        public const string REMOVED_PACKAGE = "Hủy gói tư vấn thành công";
     }
 
     public class ResponseMessageConstrantsCompatibility

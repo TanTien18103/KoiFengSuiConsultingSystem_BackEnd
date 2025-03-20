@@ -5,6 +5,9 @@ using Repositories.Repositories.BookingOnlineRepository;
 using Repositories.Repositories.CourseRepository;
 using Repositories.Repositories.RegisterAttendRepository;
 using Repositories.Repositories.WorkShopRepository;
+using Microsoft.AspNetCore.Http;
+using BusinessObjects.Exceptions;
+using BusinessObjects.Constants;
 
 namespace Services.ServicesHelpers.PriceService
 {
@@ -27,7 +30,7 @@ namespace Services.ServicesHelpers.PriceService
             _registerAttendRepo = registerAttendRepo;
         }
 
-        public async Task<decimal?> GetServicePrice(PaymentTypeEnums serviceType, string serviceId)
+        public async Task<decimal?> GetServicePrice(PaymentTypeEnums serviceType, string serviceId, bool isFirstPayment = true, decimal? selectedPrice = null)
         {
             try
             {
@@ -39,7 +42,18 @@ namespace Services.ServicesHelpers.PriceService
 
                     case PaymentTypeEnums.BookingOffline:
                         var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
-                        return bookingOffline?.ConsultationPackage?.MaxPrice;
+                        if (bookingOffline?.ConsultationPackage == null)
+                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsBooking.BOOKING_NO_PACKAGE, StatusCodes.Status400BadRequest);
+
+                        if (selectedPrice == null)
+                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsBooking.PRICE_NOT_CHOSEN, StatusCodes.Status400BadRequest);
+
+                        if (selectedPrice != bookingOffline.ConsultationPackage.MinPrice &&
+                            selectedPrice != bookingOffline.ConsultationPackage.MaxPrice)
+                        {
+                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsBooking.PRICE_SELECTED_INVALID, StatusCodes.Status400BadRequest);
+                        }
+                        return isFirstPayment ? selectedPrice * 0.3m : selectedPrice * 0.7m;
 
                     case PaymentTypeEnums.Course:
                         var course = await _courseRepo.GetCourseById(serviceId);
@@ -53,7 +67,7 @@ namespace Services.ServicesHelpers.PriceService
                         }
                         return null;
                     default:
-                        throw new ArgumentException("Invalid service type");
+                        throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsOrder.SERVICETYPE_INVALID, StatusCodes.Status400BadRequest);
                 }
             }
             catch (Exception ex)

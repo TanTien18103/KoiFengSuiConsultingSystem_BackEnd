@@ -25,6 +25,8 @@ public partial class Account
 
     public string Role { get; set; }
 
+    public bool IsActive { get; set; } = true;
+
     public int? BankId { get; set; }
 
     public string AccountNo { get; set; }

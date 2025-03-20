@@ -12,7 +12,6 @@ namespace Repositories.Repositories.RegisterAttendRepository
         Task<RegisterAttend> GetRegisterAttendById(string registerAttendId);
         Task<List<RegisterAttend>> GetRegisterAttends();
         Task<List<RegisterAttend>> GetRegisterAttendByCustomerId(string customerId);
-        Task<string> GetCustomerIdByAccountId(string accountId);
         Task<List<RegisterAttend>> GetRegisterAttendsByWorkShopId(string workShopId);
         Task<List<RegisterAttend>> GetRegisterAttendsByGroupId(string groupId);
         Task<RegisterAttend> CreateRegisterAttend(RegisterAttend registerAttend);

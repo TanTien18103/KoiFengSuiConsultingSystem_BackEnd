@@ -105,7 +105,40 @@ namespace Services.Services.PaymentService
                 var curCustomer = await GetCurrentCustomer();
                 if (curCustomer == null)
                 {
-                    throw new AppException(ResponseCodeConstants.UNAUTHORIZED, "Unauthorized", StatusCodes.Status401Unauthorized);
+                    throw new AppException(ResponseCodeConstants.UNAUTHORIZED, ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED, StatusCodes.Status401Unauthorized);
+                }
+
+                decimal? selectedPrice = null;
+                bool isFirstPayment = true;
+
+                // Kiểm tra nếu là thanh toán lần 2 cho BookingOffline
+                if (serviceType == PaymentTypeEnums.BookingOffline)
+                {
+                    var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
+                    if (bookingOffline == null)
+                        throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE, StatusCodes.Status404NotFound);
+
+                    // Xác định lần thanh toán dựa trên trạng thái BookingOffline
+                    if (bookingOffline.Status == BookingOfflineEnums.Paid1st.ToString())
+                    {
+                        isFirstPayment = false;
+
+                        // Lấy giá đã chọn từ đơn hàng trước đó nếu không có selectedPrice mới
+                        if (selectedPrice == null)
+                        {
+                            var previousOrder = await _orderRepo.GetOrderByServiceIdAndStatus(serviceId, PaymentTypeEnums.BookingOffline.ToString(), PaymentStatusEnums.Paid.ToString());
+
+                            if (previousOrder == null)
+                                throw new AppException(ResponseCodeConstants.NOT_FOUND, "Không tìm thấy thông tin thanh toán trước đó", StatusCodes.Status404NotFound);
+
+                            // Tính lại selectedPrice dựa trên amount trước đó (amount = 30% của selectedPrice)
+                            selectedPrice = previousOrder.Amount / 0.3m;
+                        }
+                    }
+                    else if (bookingOffline.Status == BookingOfflineEnums.Paid2nd.ToString())
+                    {
+                        throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Đã thanh toán đầy đủ cho gói tư vấn này", StatusCodes.Status400BadRequest);
+                    }
                 }
 
                 // Thêm kiểm tra thanh toán pending
@@ -135,7 +168,7 @@ namespace Services.Services.PaymentService
                         var totalTickets = registerAttends.Count;
                         var totalAmount = workshop.Price * totalTickets;
 
-                        description = "Thanh toán vé tham dự";
+                        description = "Thanh toán vé sự kiện";
                         customerName = curCustomer.Account.FullName ?? "Khách hàng";
                         price = (decimal)totalAmount;
                         break;
@@ -157,9 +190,35 @@ namespace Services.Services.PaymentService
                         if (bookingOffline == null)
                             throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE, StatusCodes.Status404NotFound);
 
-                        description = "Thanh toán gói tư vấn";
+                        // Kiểm tra trạng thái booking trước khi cho phép thanh toán
+                        if (bookingOffline.Status == BookingOfflineEnums.Cancelled.ToString())
+                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsBooking.SERVICETYPE_CANCELED, StatusCodes.Status400BadRequest);
+
+                        // Xác định lần thanh toán và giá
+                        if (isFirstPayment)
+                        {
+                            if (bookingOffline.Status != BookingOfflineEnums.Pending.ToString())
+                                throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsBooking.NOT_PENDING_TO_PAY1ST, StatusCodes.Status400BadRequest);
+                        }
+                        else
+                        {
+                            if (bookingOffline.Status != BookingOfflineEnums.Paid1st.ToString())
+                                throw new AppException(ResponseCodeConstants.BAD_REQUEST, "", StatusCodes.Status400BadRequest);
+
+                            // Lấy giá từ đơn hàng trước
+                            var previousOrder = await _orderRepo.GetOrderByServiceIdAndStatus(serviceId, PaymentTypeEnums.BookingOffline.ToString(), PaymentStatusEnums.Paid.ToString());
+                            if (previousOrder == null)
+                                throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_PAID1ST_OR_PAID2ND, StatusCodes.Status404NotFound);
+
+                            selectedPrice = previousOrder.Amount / 0.3m; // Tính ngược lại từ số tiền đã thanh toán
+                        }
+
+                        // Xác định mô tả dựa trên lần thanh toán
+                        description = isFirstPayment ? "Thanh toán đặt cọc 30%" : "Thanh toán 70% còn lại";
                         customerName = curCustomer.Account.FullName ?? "Khách hàng";
-                        price = await _priceService.GetServicePrice(serviceType, serviceId) ?? 0;
+
+                        // Lấy giá dựa trên lần thanh toán
+                        price = await _priceService.GetServicePrice(serviceType, serviceId, isFirstPayment, selectedPrice) ?? 0;
                         break;
 
                     case PaymentTypeEnums.Course:
@@ -303,7 +362,7 @@ namespace Services.Services.PaymentService
                     return null;
 
                 // Lấy customerId từ accountId
-                var customerId = await _registerAttendRepo.GetCustomerIdByAccountId(accountId);
+                var customerId = await _customerRepo.GetCustomerIdByAccountId(accountId);
                 if (string.IsNullOrEmpty(customerId))
                     return null;
 

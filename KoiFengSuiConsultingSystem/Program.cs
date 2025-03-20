@@ -36,6 +36,8 @@ using Repositories.Repositories.ChapterRepository;
 using Services.Services.ChapterService;
 using Services.Services.OrderService;
 using Services.ServicesHelpers.BackGroundService;
+using Repositories.Repositories.ConsultationPackageRepository;
+using Services.Services.ConsultationPackageService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +59,7 @@ builder.Services.AddScoped<IRegisterAttendRepo, RegisterAttendRepo>();
 builder.Services.AddScoped<IColorRepo, ColorRepo>(); 
 builder.Services.AddScoped<ICourseRepo, CourseRepo>();
 builder.Services.AddScoped<IChapterRepo, ChapterRepo>();
+builder.Services.AddScoped<IConsultationPackageRepo, ConsultationPackageRepo>();
 
 
 
@@ -77,6 +80,7 @@ builder.Services.AddScoped<IPayOSService, PayOSService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IChapterService, ChapterService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IConsultationPackageService, ConsultationPackageService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();

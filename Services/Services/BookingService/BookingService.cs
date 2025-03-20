@@ -14,6 +14,9 @@ using Repositories.Repositories.BookingOnlineRepository;
 using Repositories.Repositories.CustomerRepository;
 using BusinessObjects.Constants;
 using System.Security.Claims;
+using Repositories.Repositories.MasterRepository;
+using Repositories.Repositories.MasterScheduleRepository;
+using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 using System.Security.Cryptography.Xml;
 using System.Diagnostics;
 using Repositories.Repositories.ConsultationPackageRepository;
@@ -28,6 +31,9 @@ namespace Services.Services.BookingService
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICustomerRepo _customerRepo;
         private readonly IAccountRepo _accountRepo;
+        private readonly IMasterScheduleRepo _masterScheduleRepo;
+
+        public BookingService(IBookingOnlineRepo onlineRepo, IBookingOfflineRepo offlineRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, ICustomerRepo customerRepo, IAccountRepo accountRepo, IMasterScheduleRepo masterScheduleRepo)
         private readonly IMasterScheduleService _masterScheduleService;
         private readonly IConsultationPackageRepo _consultationPackageRepo;
 
@@ -48,6 +54,10 @@ namespace Services.Services.BookingService
             _httpContextAccessor = httpContextAccessor;
             _customerRepo = customerRepo;
             _accountRepo = accountRepo;
+            _masterScheduleRepo = masterScheduleRepo;
+            
+        }
+
             _masterScheduleService = masterScheduleService;
             _consultationPackageRepo = consultationPackageRepo;
         }
@@ -122,7 +132,7 @@ namespace Services.Services.BookingService
                     Type = BookingTypeEnums.Online.ToString(),
                     Status = BookingOnlineEnums.Pending.ToString(),
                 };
-                await _masterScheduleService.CreateMasterSchedule(masterSchedule);
+                await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
 
                 var booking = _mapper.Map<BookingOnline>(bookingOnlineRequest);
                 booking.BookingOnlineId = GenerateShortGuid();
@@ -354,7 +364,7 @@ namespace Services.Services.BookingService
             }
         }
 
-        public async Task<ResultModel> AssignMasterToBookingAsync(string bookingId, string masterId)
+        public async Task<ResultModel> AssignMasterToBookingAsync(string? bookingonlineId ,string? bookingofflineId, string masterId)
         {
             var res = new ResultModel();
             try
@@ -380,17 +390,10 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                var booking = await _onlineRepo.GetBookingOnlineByIdRepo(bookingId);
-                if (booking == null)
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    return res;
-                }
+                var bookingonline = await _onlineRepo.GetBookingOnlineByIdRepo(bookingonlineId);
+                var bookingOffline = await _offlineRepo.GetBookingOfflineById(bookingofflineId);
 
-                if (!string.IsNullOrEmpty(booking.MasterId))
+                if (!string.IsNullOrEmpty(bookingonline.MasterId))
                 {
 
                     res.IsSuccess = false;
@@ -400,9 +403,70 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                booking.MasterId = masterId;
-                booking.AssignStaffId = accountId;
-                await _onlineRepo.UpdateBookingOnlineRepo(booking);
+                if (!string.IsNullOrEmpty(bookingOffline.MasterId))
+                {
+
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.EXISTED;
+                    res.Message = ResponseMessageConstrantsBooking.ALREADY_ASSIGNED;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var masterschedules = await _masterScheduleRepo.GetMasterScheduleByMasterId(masterId);
+                if (masterschedules == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                if (string.IsNullOrEmpty(bookingofflineId) && string.IsNullOrEmpty(bookingonlineId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.REQUIRED_ATLEAST_ONE;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+                if (string.IsNullOrEmpty(bookingofflineId) && !string.IsNullOrEmpty(bookingonlineId))
+                {
+                    foreach (var masterschedule in masterschedules)
+                    {
+                        if(masterschedule.Date == bookingonline.BookingDate && masterschedule.StartTime == bookingonline.StartTime && masterschedule.EndTime == bookingonline.EndTime)
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.EXISTED;
+                            res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_EXISTED_SLOT;
+                            res.StatusCode = StatusCodes.Status409Conflict;
+                            return res;
+                        }
+                    }
+                    bookingonline.MasterId = masterId;
+                    bookingonline.AssignStaffId = accountId;
+                    await _onlineRepo.UpdateBookingOnlineRepo(bookingonline);
+                }
+                var bookingoffline = await _offlineRepo.GetBookingOfflineById(bookingofflineId);
+                if (!string.IsNullOrEmpty(bookingofflineId) && string.IsNullOrEmpty(bookingonlineId))
+                {
+                    foreach (var masterschedule in masterschedules)
+                    {
+                        if (masterschedule.Date == DateOnly.FromDateTime((DateTime)bookingOffline.StartDate))
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.EXISTED;
+                            res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_EXISTED_SLOT;
+                            res.StatusCode = StatusCodes.Status409Conflict;
+                            return res;
+                        }
+                    }
+
+                    bookingoffline.MasterId = masterId;
+                    bookingoffline.AssignStaffId = accountId;
+                    await _offlineRepo.UpdateBookingOffline(bookingoffline);
+                }
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;

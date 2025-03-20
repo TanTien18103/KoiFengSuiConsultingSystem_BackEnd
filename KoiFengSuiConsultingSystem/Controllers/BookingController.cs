@@ -60,9 +60,9 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
         [HttpPut("assign-master")]
         //[Authorize(Roles = "Staff")]
-        public async Task<IActionResult> AssignMaster( string bookingId, string masterId)
+        public async Task<IActionResult> AssignMaster( string? bookingonline, string? bookingoffline, string masterId)
         {
-            var result = await _bookingService.AssignMasterToBookingAsync(bookingId, masterId);
+            var result = await _bookingService.AssignMasterToBookingAsync(bookingonline,bookingoffline,masterId);
             return StatusCode(result.StatusCode, result);
         }
 

@@ -9,7 +9,6 @@ namespace Services.ApiModels.BookingOnline
 {
     public class BookingOnlineRequest
     {
-        [Required]
         public string? MasterId { get; set; }
         [Required]
         [RegularExpression(@"^[\p{L}0-9 ]+$", ErrorMessage = "Mô tả không được chứa ký tự đặc biệt")]

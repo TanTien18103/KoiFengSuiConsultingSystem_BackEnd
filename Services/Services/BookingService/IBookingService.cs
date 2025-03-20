@@ -12,7 +12,7 @@ namespace Services.Services.BookingService
         Task<ResultModel> GetConsultingDetailByMasterScheduleIdAsync(string masterScheduleId);
         Task<ResultModel> GetBookingByStatusAsync(BookingOnlineEnums? status, BookingTypeEnums? type);
         Task<ResultModel> GetBookingOnlinesHoverAsync();
-        Task<ResultModel> AssignMasterToBookingAsync(string bookingId, string masterId);
+        Task<ResultModel> AssignMasterToBookingAsync(string? bookingonlineId, string? bookingofflineId, string masterId);
         Task<ResultModel> CreateBookingOnline(BookingOnlineRequest bookingOnlineRequest);
 
         // Booking Offline

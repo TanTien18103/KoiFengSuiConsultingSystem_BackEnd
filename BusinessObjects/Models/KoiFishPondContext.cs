@@ -9,7 +9,6 @@ namespace BusinessObjects.Models;
 
 public partial class KoiFishPondContext : DbContext
 {
-
     public KoiFishPondContext()
     {
     }
@@ -89,7 +88,6 @@ public partial class KoiFishPondContext : DbContext
 
     public virtual DbSet<WorkShop> WorkShops { get; set; }
 
-    public static string GetConnectionString(string connectionStringName)
     {
         var config = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)

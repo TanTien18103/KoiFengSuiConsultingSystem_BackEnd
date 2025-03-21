@@ -15,5 +15,7 @@ namespace Repositories.Repositories.QuizRepository
         Task<Quiz> CreateQuiz(Quiz quiz);
         Task<Quiz> UpdateQuiz(Quiz quiz);
         Task DeleteQuiz(string quizId);
+        Task<Quiz> GetQuizByCourseId(string courseId);
+
     }
 }

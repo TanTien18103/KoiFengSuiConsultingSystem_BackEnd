@@ -10,7 +10,7 @@ namespace Services.ApiModels.Quiz
     {
         public string QuizId { get; set; }
 
-        public string CourseId { get; set; }
+        public string CourseName { get; set; }
 
         public string Title { get; set; }
 

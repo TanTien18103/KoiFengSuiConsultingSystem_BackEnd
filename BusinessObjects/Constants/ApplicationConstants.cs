@@ -277,6 +277,7 @@ namespace BusinessObjects.Constants
             public const string COURSE_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật khóa học này.";
             public const string COURSE_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa khóa học này.";
             public const string NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy AccountId tương ứng với tài khoản";
+            public const string COURSE_UPDATED_FAILED = "Cập nhật khóa học thất bại!";
         }
 
         //Image

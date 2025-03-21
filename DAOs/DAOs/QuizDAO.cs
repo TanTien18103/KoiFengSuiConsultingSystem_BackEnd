@@ -60,6 +60,13 @@ namespace DAOs.DAOs
                 .ToListAsync();
         }
 
+        public async Task<Quiz> GetQuizzesByCourseIdDao(string courseId)
+        {
+            return await _context.Quizzes
+                .Where(q => q.CourseId == courseId)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<List<Quiz>> GetQuizzesByMasterIdDao(string masterId)
         {
             return await _context.Quizzes

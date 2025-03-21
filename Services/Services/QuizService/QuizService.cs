@@ -110,11 +110,20 @@ namespace Services.Services.QuizService
                     return res;
                 }
 
-
                 var master = await _masterRepo.GetMasterByAccountId(accountId);
+
+                if (master == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    return res;
+                }
+
                 var quizes = await _quizRepo.GetQuizzesByMasterId(master.MasterId);
 
-                if (quizes == null)
+                if (quizes == null || !quizes.Any())  
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -122,6 +131,7 @@ namespace Services.Services.QuizService
                     res.Message = ResponseMessageConstrantQuiz.QUIZ_NOT_FOUND;
                     return res;
                 }
+
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
@@ -207,7 +217,16 @@ namespace Services.Services.QuizService
                 }
                 var master = await _masterRepo.GetMasterByAccountId(accountId);
 
-                var course = await _courseRepo.GetCourseByMasterId(master.MasterId);
+                if (master == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    return res;
+                }
+
+                var course = await _courseRepo.GetCourseById(courseId);
 
                 if (course == null)
                 {
@@ -222,8 +241,10 @@ namespace Services.Services.QuizService
                 newQuiz.QuizId = GenerateShortGuid();
                 newQuiz.CourseId = courseId;
                 newQuiz.CreateBy = master.MasterId;
-                
+                newQuiz.CreateAt = DateTime.Now;
+
                 var createdQuiz = await _quizRepo.CreateQuiz(newQuiz);
+
                 if (createdQuiz == null)
                 {
                     res.IsSuccess = false;
@@ -233,11 +254,36 @@ namespace Services.Services.QuizService
                     return res;
                 }
 
+                var existingQuiz = await _quizRepo.GetQuizById(createdQuiz.QuizId);
+                if (existingQuiz == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantQuiz.QUIZ_NOT_FOUND;
+                    return res;
+                }
+
+                course.UpdateAt = DateTime.Now;
+                course.QuizId = existingQuiz.QuizId;
+
+                var updatedCourse = await _courseRepo.UpdateCourse(course);
+
+                if (updatedCourse == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.Message = ResponseMessageConstrantsCourse.COURSE_UPDATED_FAILED;
+                    return res;
+
+                }
+
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status201Created;
                 res.Message = ResponseMessageConstrantQuiz.QUIZ_CREATE_SUCCESS;
-                res.Data = _mapper.Map<QuizResponse>(createdQuiz);
+                res.Data = _mapper.Map<QuizResponse>(existingQuiz);
                 return res;
             }
             catch (Exception ex)
@@ -245,7 +291,7 @@ namespace Services.Services.QuizService
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = ex.Message;
+                res.Message = ex.InnerException?.Message;
                 return res;
             }
         }
@@ -286,7 +332,7 @@ namespace Services.Services.QuizService
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = ex.Message;
+                res.Message = ex.InnerException?.Message;
                 return res;
             }
         }
@@ -300,7 +346,8 @@ namespace Services.Services.QuizService
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.REQUIRED_INPUT;
-                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantQuiz.QUIZ_UPDATE_FAILED;
                     return res;
                 }
 
@@ -324,10 +371,18 @@ namespace Services.Services.QuizService
                     res.StatusCode = StatusCodes.Status400BadRequest;
                     return res;
                 }
+
                 var master = await _masterRepo.GetMasterByAccountId(accountId);
+                if (master == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    return res;
+                }
 
-                var course = await _courseRepo.GetCourseByMasterId(master.MasterId);
-
+                var course = await _courseRepo.GetCourseById(courseId);
                 if (course == null)
                 {
                     res.IsSuccess = false;
@@ -337,14 +392,19 @@ namespace Services.Services.QuizService
                     return res;
                 }
 
-                var newQuiz = _mapper.Map<Quiz>(quiz);
-                newQuiz.CourseId = courseId;
-                newQuiz.CreateBy = master.MasterId;
+                var existingQuiz = await _quizRepo.GetQuizByCourseId(courseId);
+                if (existingQuiz == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantQuiz.QUIZ_NOT_FOUND;
+                    return res;
+                }
 
-                var updatedQuiz = await _quizRepo.UpdateQuiz(newQuiz);
-
-                course.UpdateAt = DateTime.Now;
-                var updatedCourse = await _courseRepo.UpdateCourse(course);
+                existingQuiz.Title = quiz.Title;
+                existingQuiz.Score = quiz.Score;
+                var updatedQuiz = await _quizRepo.UpdateQuiz(existingQuiz);
                 if (updatedQuiz == null)
                 {
                     res.IsSuccess = false;
@@ -353,6 +413,9 @@ namespace Services.Services.QuizService
                     res.Message = ResponseMessageConstrantQuiz.QUIZ_UPDATE_FAILED;
                     return res;
                 }
+
+                course.UpdateAt = DateTime.UtcNow;
+                await _courseRepo.UpdateCourse(course);
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
@@ -370,5 +433,6 @@ namespace Services.Services.QuizService
                 return res;
             }
         }
+
     }
 }

@@ -88,6 +88,7 @@ public partial class KoiFishPondContext : DbContext
 
     public virtual DbSet<WorkShop> WorkShops { get; set; }
 
+    public static string GetConnectionString(string connectionStringName)
     {
         var config = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
@@ -98,6 +99,7 @@ public partial class KoiFishPondContext : DbContext
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
        => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"));
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -162,10 +164,18 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.AttachmentName).HasMaxLength(100);
+            entity.Property(e => e.BookingOfflineId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.DocNo)
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Status).HasMaxLength(20);
+
+            entity.HasOne(d => d.BookingOffline).WithMany(p => p.Attachments)
+                .HasForeignKey(d => d.BookingOfflineId)
+                .HasConstraintName("FK_Attachment_BookingOffline");
         });
 
         modelBuilder.Entity<BookingOffline>(entity =>
@@ -396,6 +406,10 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.BookingOfflineId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.ContractName).HasMaxLength(100);
             entity.Property(e => e.ContractUrl).HasMaxLength(255);
             entity.Property(e => e.CreatedDate)
@@ -408,6 +422,10 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.OtpExpiredTime).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(20);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.BookingOffline).WithMany(p => p.Contracts)
+                .HasForeignKey(d => d.BookingOfflineId)
+                .HasConstraintName("FK_Contract_BookingOffline");
         });
 
         modelBuilder.Entity<Course>(entity =>
@@ -612,6 +630,10 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.BookingOfflineId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.DocNo)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -620,6 +642,10 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.Version)
                 .HasMaxLength(10)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.BookingOffline).WithMany(p => p.FengShuiDocuments)
+                .HasForeignKey(d => d.BookingOfflineId)
+                .HasConstraintName("FK_FengShuiDocument_BookingOffline");
         });
 
         modelBuilder.Entity<KoiPond>(entity =>

@@ -41,16 +41,13 @@ public partial class BookingOffline
 
     public virtual Account AssignStaff { get; set; }
 
-
     public virtual ConsultationPackage ConsultationPackage { get; set; }
 
     public virtual Contract Contract { get; set; }
 
-
     public virtual Customer Customer { get; set; }
 
     public virtual FengShuiDocument Document { get; set; }
-
 
     public virtual Master Master { get; set; }
 

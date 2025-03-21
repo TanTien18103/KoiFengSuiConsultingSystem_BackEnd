@@ -16,8 +16,14 @@ namespace Services.Services.KoiVarietyService
         Task<List<KoiVariety>> GetKoiVarietiesAsync();
         Task<ResultModel> GetKoiVarietyWithColorsAsync();
         Task<ResultModel> GetKoiVarietyWithColorsByIdAsync(string id);
-        Task<ResultModel> GetKoiVarietiesByElementAsync(string element);
+        Task<ResultModel> GetKoiVarietiesByElementAsync(NguHanh element);
         Task<ResultModel> GetRecommendedKoiVarietiesAsync();
+        Task<ResultModel> GetKoiVarietiesByName(string name);
+        Task<ResultModel> GetKoiVarietiesByColorsAsync(List<string> colorIds);
+        List<NguHanh> GetCompatibleElementsForColor(ColorEnums color);
+        //(bool IsCompatible, NguHanh? Element, string Message) CheckColorsCompatibility(List<ColorEnums> colors);
+        List<ColorEnums> GetPositiveColorsByElement(NguHanh nguHanh);
+        Task<ResultModel> FilterByColorAndElement(NguHanh? nguHanh = null, List<string>? colorIds = null);
 
         Task<ResultModel> CreateKoiVarietyAsync(KoiVarietyRequest koiVariety);
         Task<ResultModel> UpdateKoiVarietyAsync(string id, KoiVarietyRequest koiVariety);

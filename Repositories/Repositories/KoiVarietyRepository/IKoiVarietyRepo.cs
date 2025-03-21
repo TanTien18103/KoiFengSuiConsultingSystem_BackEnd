@@ -17,5 +17,7 @@ namespace Repositories.Repositories.KoiVarietyRepository
         Task<KoiVariety> CreateKoiVariety(KoiVariety koiVariety);
         Task<KoiVariety> UpdateKoiVariety(KoiVariety koiVariety);
         Task DeleteKoiVariety(string id);
+        Task<List<KoiVariety>> GetKoiVarietiesByName(string name);
+        Task<List<KoiVariety>> GetKoiVarietiesByColors(List<string> colorIds);
     }
 }

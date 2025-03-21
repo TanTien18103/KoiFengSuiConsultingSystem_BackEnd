@@ -6,6 +6,7 @@ using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OData.UriParser;
 using Repositories.Repositories.AccountRepository;
 using Repositories.Repositories.ColorRepository;
 using Repositories.Repositories.CustomerRepository;
@@ -63,8 +64,6 @@ namespace Services.Services.KoiVarietyService
         {
             return await _koiVarietyRepo.GetKoiVarietyById(koiVarietyId);
         }
-
-
 
         public async Task<ResultModel> GetKoiVarietyWithColorsAsync()
         {
@@ -173,22 +172,72 @@ namespace Services.Services.KoiVarietyService
 
 
         private readonly Dictionary<NguHanh, (List<NguHanh> Compatible, List<NguHanh> Incompatible)> _elementRelationships = new()
-    {
-        { NguHanh.Kim, (new List<NguHanh> { NguHanh.Kim, NguHanh.Thủy }, new List<NguHanh> { NguHanh.Hỏa }) },
-        { NguHanh.Mộc, (new List<NguHanh> { NguHanh.Mộc, NguHanh.Thủy }, new List<NguHanh> { NguHanh.Kim }) },
-        { NguHanh.Thủy, (new List<NguHanh> { NguHanh.Thủy, NguHanh.Kim }, new List<NguHanh> { NguHanh.Thổ }) },
-        { NguHanh.Hỏa, (new List<NguHanh> { NguHanh.Hỏa, NguHanh.Mộc }, new List<NguHanh> { NguHanh.Thủy }) },
-        { NguHanh.Thổ, (new List<NguHanh> { NguHanh.Thổ, NguHanh.Hỏa }, new List<NguHanh> { NguHanh.Mộc }) }
-    };
+        {
+            { NguHanh.Kim, (new List<NguHanh> { NguHanh.Kim, NguHanh.Thủy, NguHanh.Thổ }, new List<NguHanh> { NguHanh.Mộc, NguHanh.Hỏa }) },
+            { NguHanh.Mộc, (new List<NguHanh> { NguHanh.Mộc, NguHanh.Hỏa, NguHanh.Thủy }, new List<NguHanh> { NguHanh.Kim, NguHanh.Thổ }) },
+            { NguHanh.Thủy, (new List<NguHanh> { NguHanh.Thủy, NguHanh.Mộc, NguHanh.Kim }, new List<NguHanh> { NguHanh.Thổ, NguHanh.Hỏa }) },
+            { NguHanh.Hỏa, (new List<NguHanh> { NguHanh.Hỏa, NguHanh.Mộc, NguHanh.Thổ }, new List<NguHanh> { NguHanh.Thủy, NguHanh.Kim }) },
+            { NguHanh.Thổ, (new List<NguHanh> { NguHanh.Thổ, NguHanh.Kim, NguHanh.Hỏa }, new List<NguHanh> { NguHanh.Mộc, NguHanh.Thủy }) }
+        };
+
+        private readonly Dictionary<NguHanh, (List<ColorEnums> Compatible, List<ColorEnums> Supportive, List<ColorEnums> Controlling, List<ColorEnums> Restricted)> _colorRelationships = new()
+        {
+            {
+                NguHanh.Kim,
+                (
+                    new List<ColorEnums> { ColorEnums.Trắng, ColorEnums.Xám, ColorEnums.Ghi }, // Màu hợp
+                    new List<ColorEnums> { ColorEnums.Vàng, ColorEnums.Nâu }, // Màu tương sinh (Thổ sinh Kim)
+                    new List<ColorEnums> { ColorEnums.XanhLá }, // Màu khắc chế (Kim khắc Mộc)
+                    new List<ColorEnums> { ColorEnums.Đỏ, ColorEnums.Hồng, ColorEnums.Cam, ColorEnums.Tím } // Màu bị khắc (Hỏa khắc Kim)
+                )
+            },
+            {
+                NguHanh.Mộc,
+                (
+                    new List<ColorEnums> { ColorEnums.XanhLá }, // Màu hợp
+                    new List<ColorEnums> { ColorEnums.Đen, ColorEnums.XanhDương }, // Màu tương sinh (Thủy sinh Mộc)
+                    new List<ColorEnums> { ColorEnums.Vàng, ColorEnums.Nâu }, // Màu khắc chế (Mộc khắc Thổ)
+                    new List<ColorEnums> { ColorEnums.Trắng, ColorEnums.Xám, ColorEnums.Ghi } // Màu bị khắc (Kim khắc Mộc)
+                )
+            },
+            {
+                NguHanh.Thủy,
+                (
+                    new List<ColorEnums> { ColorEnums.Đen, ColorEnums.XanhDương }, // Màu hợp
+                    new List<ColorEnums> { ColorEnums.Trắng, ColorEnums.Xám, ColorEnums.Ghi }, // Màu tương sinh (Kim sinh Thủy)
+                    new List<ColorEnums> { ColorEnums.Đỏ, ColorEnums.Hồng, ColorEnums.Cam, ColorEnums.Tím }, // Màu khắc chế (Thủy khắc Hỏa)
+                    new List<ColorEnums> { ColorEnums.Vàng, ColorEnums.Nâu } // Màu bị khắc (Thổ khắc Thủy)
+                )
+            },
+            {
+                NguHanh.Hỏa,
+                (
+                    new List<ColorEnums> { ColorEnums.Đỏ, ColorEnums.Hồng, ColorEnums.Cam, ColorEnums.Tím }, // Màu hợp
+                    new List<ColorEnums> { ColorEnums.XanhLá }, // Màu tương sinh (Mộc sinh Hỏa)
+                    new List<ColorEnums> { ColorEnums.Trắng, ColorEnums.Xám, ColorEnums.Ghi }, // Màu khắc chế (Hỏa khắc Kim)
+                    new List<ColorEnums> { ColorEnums.Đen, ColorEnums.XanhDương } // Màu bị khắc (Thủy khắc Hỏa)
+                )
+            },
+            {
+                NguHanh.Thổ,
+                (
+                    new List<ColorEnums> { ColorEnums.Vàng, ColorEnums.Nâu }, // Màu hợp
+                    new List<ColorEnums> { ColorEnums.Đỏ, ColorEnums.Hồng, ColorEnums.Cam, ColorEnums.Tím }, // Màu tương sinh (Hỏa sinh Thổ)
+                    new List<ColorEnums> { ColorEnums.Đen, ColorEnums.XanhDương }, // Màu khắc chế (Thổ khắc Thủy)
+                    new List<ColorEnums> { ColorEnums.XanhLá } // Màu bị khắc (Mộc khắc Thổ)
+                )
+            }
+        };
+
 
         private readonly Dictionary<string, NguHanh> _elementMapping = new(StringComparer.OrdinalIgnoreCase)
-    {
-        { "Kim", NguHanh.Kim },
-        { "Mộc", NguHanh.Mộc },
-        { "Thủy", NguHanh.Thủy },
-        { "Hỏa", NguHanh.Hỏa },
-        { "Thổ", NguHanh.Thổ }
-    };
+        {
+            { "Kim", NguHanh.Kim },
+            { "Mộc", NguHanh.Mộc },
+            { "Thủy", NguHanh.Thủy },
+            { "Hỏa", NguHanh.Hỏa },
+            { "Thổ", NguHanh.Thổ }
+        };
 
         private List<NguHanh> GetElements(NguHanh element, bool getCompatible)
         {
@@ -269,13 +318,13 @@ namespace Services.Services.KoiVarietyService
             return totalPercentage > 0 ? score / totalPercentage : 0;
         }
 
-        public async Task<ResultModel> GetKoiVarietiesByElementAsync(string element)
+        public async Task<ResultModel> GetKoiVarietiesByElementAsync(NguHanh element)
         {
             var res = new ResultModel();
             try
             {
 
-                var compatibleElements = GetElements(StringToEnum(element), true);
+                var compatibleElements = GetElements(element, true);
 
                 // Lấy tất cả các loại Koi từ các mệnh tương hợp
                 var elementStrings = compatibleElements.Select(EnumToString).ToList();
@@ -307,7 +356,7 @@ namespace Services.Services.KoiVarietyService
                     .Select(k => new
                     {
                         Koi = k,
-                        CompatibilityScore = CalculateCompatibilityScore(k, element),
+                        CompatibilityScore = CalculateCompatibilityScore(k, EnumToString(element)),
                         TotalPercentage = k.VarietyColors.Sum(vc => vc.Percentage ?? 0) // Tính tổng %
                     })
                     .OrderByDescending(k => k.CompatibilityScore)
@@ -336,7 +385,15 @@ namespace Services.Services.KoiVarietyService
                     res.IsSuccess = true;
                     res.ResponseCode = ResponseCodeConstants.SUCCESS;
                     res.StatusCode = StatusCodes.Status200OK;
-                    res.Data = lowCompatibilityKoi;
+                    res.Data = recommendedKoi.Select(k => new KoiVarietyResponse
+                    {
+                        VarietyName = k.Koi.VarietyName,
+                        Description = k.Koi.Description,
+                        VarietyColors = _mapper.Map<List<VarietyColorResponse>>(k.Koi.VarietyColors),
+                        TotalPercentage = k.TotalPercentage,
+                        CompatibilityScore = k.CompatibilityScore
+                    }).ToList();
+
                     res.Message = ResponseMessageConstrantsKoiVariety.LOW_MATCHES_KOIVARIETY;
                     return res;
                 }
@@ -365,6 +422,262 @@ namespace Services.Services.KoiVarietyService
                 return res;
             }
         }
+
+        public async Task<ResultModel> GetKoiVarietiesByName(string name)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var kois = await _koiVarietyRepo.GetKoiVarietiesByName(name);
+                if(kois == null || !kois.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
+                res.Data = _mapper.Map<List<KoiVarietyDto>>(kois);
+                return res;
+            }
+            catch(Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetKoiVarietiesByColorsAsync(List<string> colorIds)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var koiVarieties = await _koiVarietyRepo.GetKoiVarietiesByColors(colorIds);
+
+                if (koiVarieties == null || !koiVarieties.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<List<KoiVarietyDto>>(koiVarieties);
+                res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public List<NguHanh> GetCompatibleElementsForColor(ColorEnums color)
+        {
+            List<NguHanh> compatibleElements = new List<NguHanh>();
+
+            foreach (var elementRelationship in _colorRelationships)
+            {
+                var nguHanh = elementRelationship.Key;
+                var relationships = elementRelationship.Value;
+
+                if (relationships.Compatible.Contains(color) || relationships.Supportive.Contains(color))
+                {
+                    compatibleElements.Add(nguHanh);
+                }
+            }
+
+            return compatibleElements;
+        }
+
+        //public (bool IsCompatible, NguHanh? Element, string Message) CheckColorsCompatibility(List<ColorEnums> colors)
+        //{
+        //    if (colors == null || colors.Count == 0)
+        //    {
+        //        return (false, null, ResponseMessageConstrantsKoiVariety.COLOR_INPUT_REQUIRED);
+        //    }
+
+        //    if (colors.Count == 1)
+        //    {
+        //        var element = GetCompatibleElementForColor(colors[0]);
+        //        return (element != null, element, element != null
+        //            ? $"Màu {colors[0]} phù hợp với mệnh {element}"
+        //            : $"Không tìm thấy mệnh phù hợp với màu {colors[0]}");
+        //    }
+
+        //    var colorElements = new Dictionary<ColorEnums, NguHanh?>();
+        //    foreach (var color in colors)
+        //    {
+        //        colorElements[color] = GetCompatibleElementForColor(color);
+        //    }
+
+        //    // Lọc ra các màu có mệnh
+        //    var colorsWithElements = colorElements.Where(pair => pair.Value != null)
+        //                                        .ToDictionary(pair => pair.Key, pair => pair.Value);
+
+        //    if (colorsWithElements.Count == 0)
+        //    {
+        //        return (false, null, ResponseMessageConstrantsKoiVariety.ELEMENT_COMPATIBLE_NOT_FOUND);
+        //    }
+
+        //    // Kiểm tra xem tất cả các màu có cùng một mệnh không
+        //    var firstElement = colorsWithElements.First().Value;
+        //    var allSameElement = colorsWithElements.All(pair => pair.Value.Equals(firstElement));
+
+        //    if (allSameElement)
+        //    {
+        //        return (true, firstElement, $"Tất cả các màu đã chọn đều phù hợp với mệnh {firstElement}");
+        //    }
+
+        //    // Nếu không phải tất cả cùng một mệnh, tìm các màu xung khắc
+        //    var conflictingPairs = new List<(ColorEnums, ColorEnums)>();
+
+        //    for (int i = 0; i < colors.Count - 1; i++)
+        //    {
+        //        for (int j = i + 1; j < colors.Count; j++)
+        //        {
+        //            var color1 = colors[i];
+        //            var color2 = colors[j];
+
+        //            var element1 = colorElements[color1];
+        //            var element2 = colorElements[color2];
+
+        //            if (element1 != null && element2 != null && !element1.Equals(element2))
+        //            {
+        //                conflictingPairs.Add((color1, color2));
+        //            }
+        //        }
+        //    }
+
+        //    if (conflictingPairs.Count > 0)
+        //    {
+        //        var conflictMessage = "Các màu sau không hợp với nhau: ";
+        //        conflictMessage += string.Join(", ", conflictingPairs.Select(pair => $"{pair.Item1} và {pair.Item2}"));
+        //        conflictMessage += ". Hãy chọn màu khác.";
+
+        //        return (false, null, conflictMessage);
+        //    }
+
+        //    // Nếu có một số màu không tìm thấy mệnh
+        //    var unknownColors = colorElements.Where(pair => pair.Value == null)
+        //                                     .Select(pair => pair.Key)
+        //                                     .ToList();
+
+        //    if (unknownColors.Count > 0)
+        //    {
+        //        var commonElement = colorsWithElements.First().Value;
+        //        var unknownMessage = $"Không tìm thấy mệnh cho các màu: {string.Join(", ", unknownColors)}. ";
+        //        unknownMessage += $"Các màu còn lại phù hợp với mệnh {commonElement}.";
+
+        //        return (false, commonElement, unknownMessage);
+        //    }
+
+        //    // Trường hợp mặc định không nên xảy ra
+        //    return (false, null, ResponseMessageConstrantsKoiVariety.INVALID_ELEMENT_FOR_COLORS);
+        //}
+
+        public List<ColorEnums> GetPositiveColorsByElement(NguHanh nguHanh)
+        {
+            if (!_colorRelationships.ContainsKey(nguHanh))
+            {
+                return new List<ColorEnums>();
+            }
+
+            var relationships = _colorRelationships[nguHanh];
+
+            // Chỉ lấy các màu tích cực: Compatible và Supportive
+            var positiveColors = new List<ColorEnums>();
+            positiveColors.AddRange(relationships.Compatible);
+            positiveColors.AddRange(relationships.Supportive);
+
+            return positiveColors;
+        }
+
+        public async Task<ResultModel> FilterByColorAndElement(NguHanh? nguHanh = null, List<string>? colorIds = null)
+        {
+            var res = new ResultModel();
+            try 
+            {
+                if (nguHanh.HasValue)
+                {
+                    var koisByElement = await GetKoiVarietiesByElementAsync(nguHanh.Value);
+                    if (koisByElement == null)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status500InternalServerError;
+                        res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
+                        return res;
+                    }
+                    res.IsSuccess = true;
+                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.Data = koisByElement.Data;
+                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
+                    return res;
+                }
+                if (colorIds != null && colorIds.Count > 0)
+                {
+                    var koisByColor = await GetKoiVarietiesByColorsAsync(colorIds);
+                    if (koisByColor == null)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status500InternalServerError;
+                        res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
+                        return res;
+                    }
+                    res.IsSuccess = true;
+                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.Data = koisByColor.Data;
+                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
+                    return res;
+                }
+                var allKois = await _koiVarietyRepo.GetKoiVarieties();
+                if (allKois == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<List<KoiVarietyDto>>(allKois);
+                res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
 
         public async Task<ResultModel> GetRecommendedKoiVarietiesAsync()
         {
@@ -496,7 +809,15 @@ namespace Services.Services.KoiVarietyService
                     res.IsSuccess = true;
                     res.ResponseCode = ResponseCodeConstants.SUCCESS;
                     res.StatusCode = StatusCodes.Status200OK;
-                    res.Data = lowCompatibilityKoi;
+                    res.Data = recommendedKoi.Select(k => new KoiVarietyResponse
+                    {
+                        VarietyName = k.Koi.VarietyName,
+                        Description = k.Koi.Description,
+                        VarietyColors = _mapper.Map<List<VarietyColorResponse>>(k.Koi.VarietyColors),
+                        TotalPercentage = k.TotalPercentage,
+                        CompatibilityScore = k.CompatibilityScore
+                    }).ToList();
+
                     res.Message = ResponseMessageConstrantsKoiVariety.LOW_MATCHES_KOIVARIETY;
                     return res;
                 }
@@ -510,7 +831,8 @@ namespace Services.Services.KoiVarietyService
                     VarietyName = k.Koi.VarietyName,
                     Description = k.Koi.Description,
                     VarietyColors = _mapper.Map<List<VarietyColorResponse>>(k.Koi.VarietyColors),
-                    TotalPercentage = k.TotalPercentage
+                    TotalPercentage = k.TotalPercentage,
+                    CompatibilityScore = k.CompatibilityScore
                 }).ToList();
                 res.Message = ResponseMessageConstrantsKoiVariety.GET_MATCHES_KOIVARIETY;
                 return res;
@@ -576,7 +898,6 @@ namespace Services.Services.KoiVarietyService
                 return res;
             }
         }
-
 
         public async Task<ResultModel> UpdateKoiVarietyAsync(string id, KoiVarietyRequest koiVariety)
         {

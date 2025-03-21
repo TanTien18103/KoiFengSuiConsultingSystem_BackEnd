@@ -229,6 +229,10 @@ namespace BusinessObjects.Constants
             public const string UPDATE_COLOR_SUCCESS = "Cập nhật màu sắc thành công!";
             public const string UPDATE_COLOR_FAILED = "Cập nhật màu sắc thất bại!";
             public const string DELETE_COLOR_SUCCESS = "Xóa màu sắc thành công!";
+            public const string COLOR_INPUT_REQUIRED = "Không có màu nào được chọn!";
+            public const string ELEMENT_COMPATIBLE_NOT_FOUND = "Không tìm thấy mệnh phù hợp với bất kỳ màu nào được chọn!";
+            public const string INVALID_ELEMENT_FOR_COLORS = "Không thể xác định mệnh phù hợp cho các màu đã chọn!";
+
         }
 
         public class ResponseMessageConstrantsMasterSchedule

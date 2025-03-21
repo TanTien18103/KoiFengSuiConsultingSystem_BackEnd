@@ -15,8 +15,5 @@ public partial class Attachment
 
     public string AttachmentName { get; set; }
 
-    public string BookingOfflineId { get; set; }
-
-    public virtual BookingOffline BookingOffline { get; set; }
-
+    public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 }

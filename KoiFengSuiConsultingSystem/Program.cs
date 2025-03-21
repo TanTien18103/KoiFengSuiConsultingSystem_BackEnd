@@ -38,6 +38,8 @@ using Services.Services.OrderService;
 using Services.ServicesHelpers.BackGroundService;
 using Repositories.Repositories.QuizRepository;
 using Services.Services.QuizService;
+using Repositories.Repositories.QuestionRepository;
+using Services.Services.QuestionService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +62,7 @@ builder.Services.AddScoped<IColorRepo, ColorRepo>();
 builder.Services.AddScoped<ICourseRepo, CourseRepo>();
 builder.Services.AddScoped<IChapterRepo, ChapterRepo>();
 builder.Services.AddScoped<IQuizRepo, QuizRepo>();
+builder.Services.AddScoped<IQuestionRepo, QuestionRepo>();
 
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -79,6 +82,7 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IChapterService, ChapterService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
@@ -95,6 +99,7 @@ builder.Services.AddAutoMapper(typeof(WorkshopMappingProfile));
 builder.Services.AddAutoMapper(typeof(CourseMappingProfile));
 builder.Services.AddAutoMapper(typeof(ChapterMappingProfile));
 builder.Services.AddAutoMapper(typeof(QuizMappingProfile));
+builder.Services.AddAutoMapper(typeof(QuestionMappingProfile));
 
 builder.Services.AddHttpClient();
 

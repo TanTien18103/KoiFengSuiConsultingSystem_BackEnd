@@ -313,10 +313,41 @@ namespace BusinessObjects.Constants
             public const string COURSE_ID_REQUIRED = "Không tìm thấy Id khóa học";
             public const string QUIZ_CREATE_FAILED = "Tạo bài kiểm tra thất bại!";
             public const string QUIZ_CREATE_SUCCESS = "Tạo bài kiểm tra thành công!";
+            public const string QUIZ_DELETE_SUCCESS = "Xóa bài kiểm tra thành công!";
+            public const string QUIZ_UPDATE_SUCCESS = "Cập nhật bài kiểm tra thành công!";
+            public const string QUIZ_UPDATE_FAILED = "Cập nhật bài kiểm tra thất bại!";
+        }
 
-            public static string? QUIZ_DELETE_SUCCESS { get; set; }
-            public static string? QUIZ_UPDATE_SUCCESS { get; set; }
-            public static string? QUIZ_UPDATE_FAILED { get; set; }
+        public class ResponseMessageConstrantsQuestion
+        {
+            public const string QUESTION_CREATED_SUCCESS = "Tạo câu hỏi thành công!";
+            public const string QUESTION_UPDATED_SUCCESS = "Cập nhật câu hỏi thành công!";
+            public const string QUESTION_DELETED_SUCCESS = "Xóa câu hỏi thành công!";
+            public const string QUESTION_FOUND = "Lấy danh sách câu hỏi thành công!";
+            public const string QUESTION_NOT_FOUND = "Không tìm thấy câu hỏi!";
+            public const string QUESTION_INFO_FOUND = "Lấy thông tin câu hỏi thành công";
+            public const string QUESTION_INFO_INVALID = "Dữ liệu câu hỏi không hợp lệ";
+            public const string QUIZ_ID_REQUIRED = "Không tìm thấy Id bài kiểm tra";
+            public const string QUESTION_CREATE_FAILED = "Tạo câu hỏi thất bại!";
+            public const string QUESTION_UPDATED_FAILED = "Cập nhật câu hỏi thất bại!";
+            public const string QUESTION_DELETED_FAILED = "Xóa câu hỏi thất bại!";
+            public const string QUESTIONS_NOT_FOUND = "Không tìm thấy câu hỏi!";
+            public const string QUESTIONS_FOUND = "Lấy danh sách câu hỏi thành công!";
+        }
+
+        public class ResponseMessageConstrantsAnswer
+        {
+            public const string ANSWER_CREATED_SUCCESS = "Tạo câu trả lời thành công!";
+            public const string ANSWER_UPDATED_SUCCESS = "Cập nhật câu trả lời thành công!";
+            public const string ANSWER_DELETED_SUCCESS = "Xóa câu trả lời thành công!";
+            public const string ANSWER_FOUND = "Lấy danh sách câu trả lời thành công!";
+            public const string ANSWER_NOT_FOUND = "Không tìm thấy câu trả lời!";
+            public const string ANSWER_INFO_FOUND = "Lấy thông tin câu trả lời thành công";
+            public const string ANSWER_INFO_INVALID = "Dữ liệu câu trả lời không hợp lệ";
+            public const string QUESTION_ID_REQUIRED = "Không tìm thấy Id câu hỏi";
+            public const string ANSWER_CREATE_FAILED = "Tạo câu trả lời thất bại!";
+            public const string ANSWER_UPDATED_FAILED = "Cập nhật câu trả lời thất bại!";
+            public const string ANSWER_DELETED_FAILED = "Xóa câu trả lời thất bại!";
         }
     }
 }

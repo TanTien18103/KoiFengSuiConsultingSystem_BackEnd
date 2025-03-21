@@ -41,19 +41,16 @@ public partial class BookingOffline
 
     public virtual Account AssignStaff { get; set; }
 
-    public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
 
     public virtual ConsultationPackage ConsultationPackage { get; set; }
 
     public virtual Contract Contract { get; set; }
 
-    public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();
 
     public virtual Customer Customer { get; set; }
 
     public virtual FengShuiDocument Document { get; set; }
 
-    public virtual ICollection<FengShuiDocument> FengShuiDocuments { get; set; } = new List<FengShuiDocument>();
 
     public virtual Master Master { get; set; }
 

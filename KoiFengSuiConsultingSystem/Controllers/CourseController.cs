@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.ApiModels.Course;
 using Services.Services.CourseService;
@@ -50,5 +51,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _courseService.DeleteCourse(id);
             return Ok(result);
         }
-    }
+
+        [Authorize(Roles = "Master")]
+        [HttpGet("get-all-course-by-master")]
+        public async Task<IActionResult> GetAllCoursesByMaster()
+        {
+            var res = await _courseService.GetCoursesByMaster();
+            return StatusCode(res.StatusCode, res);
+        }
+        
+}
 }

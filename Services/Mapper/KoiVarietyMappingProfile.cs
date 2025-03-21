@@ -16,17 +16,20 @@ namespace Services.Mapper
         {
             CreateMap<KoiVariety, FishesWithColorsDTO>();
 
-            CreateMap<KoiVariety, KoiVarietyDto>().ReverseMap();
+            CreateMap<KoiVariety, KoiVarietyDto>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.VarietyName))
+                .ReverseMap();
                 
             CreateMap<KoiVariety, KoiVarietyElementDTO>();
 
             CreateMap<KoiVariety, KoiVarietyResponse>()
             .ForMember(dest => dest.VarietyName, opt => opt.MapFrom(src => src.VarietyName))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-            .ForMember(dest => dest.VarietyColors, opt => opt.MapFrom(src => src.VarietyColors));
+            .ForMember(dest => dest.VarietyColors, opt => opt.MapFrom(src => src.VarietyColors))
+            .ForMember(dest => dest.TotalPercentage, opt => opt.MapFrom(src => src.VarietyColors.Sum(vc => vc.Percentage ?? 0)));
             CreateMap<VarietyColor, VarietyColorResponse>();
             CreateMap<Color, ColorResponse>();
-                    
+
             CreateMap<KoiVarietyRequest, KoiVariety>()
                 .ForMember(dest => dest.VarietyColors, opt => opt.MapFrom(src => src.VarietyColors));
 

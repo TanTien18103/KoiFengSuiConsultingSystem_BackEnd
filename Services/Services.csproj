@@ -29,7 +29,6 @@
     <Folder Include="ApiModels\VarietyColor\" />
     <Folder Include="ApiModels\Transaction\" />
     <Folder Include="ApiModels\RegisterCourse\" />
-    <Folder Include="ApiModels\Quiz\" />
     <Folder Include="ApiModels\Question\" />
   </ItemGroup>
 

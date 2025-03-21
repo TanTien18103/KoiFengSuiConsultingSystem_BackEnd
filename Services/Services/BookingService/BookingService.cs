@@ -475,6 +475,7 @@ namespace Services.Services.BookingService
                     bookingOffline.AssignStaffId = accountId;
                     await _offlineRepo.UpdateBookingOffline(bookingOffline);
                 }
+
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.Message = ResponseMessageConstrantsBooking.ASSIGNED_SUCCESS;

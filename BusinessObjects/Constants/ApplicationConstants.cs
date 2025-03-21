@@ -299,6 +299,24 @@ namespace BusinessObjects.Constants
             public const string CHAPTER_INFO_INVALID = "Dữ liệu chương học không hợp lệ";
             public const string COURSE_ID_REQUIRED = "Không tìm thấy Id khóa học";
         }
+
+        public class ResponseMessageConstrantQuiz
+        {
+            public const string QUIZ_CREATED_SUCCESS = "Tạo bài kiểm tra thành công!";
+            public const string QUIZ_UPDATED_SUCCESS = "Cập nhật bài kiểm tra thành công!";
+            public const string QUIZ_DELETED_SUCCESS = "Xóa bài kiểm tra thành công!";
+            public const string QUIZ_FOUND = "Lấy danh sách bài kiểm tra thành công!";
+            public const string QUIZ_NOT_FOUND = "Không tìm thấy bài kiểm tra!";
+            public const string QUIZ_INFO_FOUND = "Lấy thông tin bài kiểm tra thành công";
+            public const string QUIZ_INFO_INVALID = "Dữ liệu bài kiểm tra không hợp lệ";
+            public const string COURSE_ID_REQUIRED = "Không tìm thấy Id khóa học";
+            public const string QUIZ_CREATE_FAILED = "Tạo bài kiểm tra thất bại!";
+            public const string QUIZ_CREATE_SUCCESS = "Tạo bài kiểm tra thành công!";
+
+            public static string? QUIZ_DELETE_SUCCESS { get; set; }
+            public static string? QUIZ_UPDATE_SUCCESS { get; set; }
+            public static string? QUIZ_UPDATE_FAILED { get; set; }
+        }
     }
 }
 

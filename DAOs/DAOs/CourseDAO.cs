@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,13 @@ namespace DAOs.DAOs
                 return _instance;
             }
         }
+
+        public async Task<Course> GetCourseByMasterIdDao(string masterId)
+        {
+            return await _context.Courses
+                .FirstOrDefaultAsync(c => c.CreateBy == masterId);
+        }
+
 
         public async Task<Course> GetCourseByIdDao(string courseId)
         {

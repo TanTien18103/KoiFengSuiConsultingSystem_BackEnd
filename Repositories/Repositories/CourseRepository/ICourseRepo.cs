@@ -14,5 +14,6 @@ namespace Repositories.Repositories.CourseRepository
         Task<Course> CreateCourse(Course course);
         Task<Course> UpdateCourse(Course course);
         Task DeleteCourse(string courseId);
+        Task<List<Course>> GetCoursesByMasterId(string masterId);
     }
 }

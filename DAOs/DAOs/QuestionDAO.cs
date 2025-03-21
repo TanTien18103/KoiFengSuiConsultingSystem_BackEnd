@@ -46,6 +46,11 @@ namespace DAOs.DAOs
             return _context.Questions.ToList();
         }
 
+        public async Task<List<Question>> GetQuestionsByQuizId(string quizid)
+        {
+            return _context.Questions.Where(q => q.QuizId == quizid).ToList();
+        }
+
         public async Task<Question> CreateQuestionDao(Question question)
         {
             _context.Questions.Add(question);
@@ -63,8 +68,17 @@ namespace DAOs.DAOs
         public async Task DeleteQuestionDao(string questionId)
         {
             var question = await GetQuestionByIdDao(questionId);
+            if (question == null)
+            {
+                throw new Exception("Question not found.");
+            }
+
+            var answers = _context.Answers.Where(a => a.QuestionId == questionId);
+            _context.Answers.RemoveRange(answers);
+
             _context.Questions.Remove(question);
             await _context.SaveChangesAsync();
         }
+
     }
 }

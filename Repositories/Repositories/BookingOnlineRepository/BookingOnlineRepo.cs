@@ -34,5 +34,9 @@ namespace Repositories.Repositories.BookingOnlineRepository
         {
             return BookingOnlineDAO.Instance.DeleteBookingOnlineDao(bookingOnlineId);
         }
+        public Task<bool> CheckCustomerHasUncompletedBookingRepo(string customerId)
+        {
+            return BookingOnlineDAO.Instance.CheckCustomerHasUncompletedBookingDao(customerId);
+        }
     }
 }

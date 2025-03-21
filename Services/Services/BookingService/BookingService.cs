@@ -117,23 +117,70 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                var masterSchedule = new MasterSchedule
+                var currentDate = DateOnly.FromDateTime(DateTime.Now);
+                var currentTime = TimeOnly.FromDateTime(DateTime.Now);
+
+                if (bookingOnlineRequest.BookingDate < currentDate ||
+                    (bookingOnlineRequest.BookingDate == currentDate && bookingOnlineRequest.StartTime <= currentTime))
                 {
-                    MasterScheduleId = GenerateShortGuid(),
-                    MasterId = bookingOnlineRequest.MasterId,
-                    Date = bookingOnlineRequest.BookingDate,
-                    StartTime = bookingOnlineRequest.StartTime,
-                    EndTime = bookingOnlineRequest.EndTime,
-                    Type = BookingTypeEnums.Online.ToString(),
-                    Status = BookingOnlineEnums.Pending.ToString(),
-                };
-                await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsBooking.TIME_PASSED;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var hasUncompletedBooking = await _onlineRepo.CheckCustomerHasUncompletedBookingRepo(customer.CustomerId);
+                if (hasUncompletedBooking)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsBooking.ALREADY_CREATE_BOOKING;
+                    res.StatusCode = StatusCodes.Status402PaymentRequired;
+                    return res;
+                }
+
+                string masterScheduleId = null;
+
+                if (bookingOnlineRequest.MasterId != null)
+                {
+                    var existingSchedule = await _masterScheduleRepo.CheckMasterScheduleAvailabilityRepo(
+                        bookingOnlineRequest.MasterId,
+                        bookingOnlineRequest.BookingDate,
+                        bookingOnlineRequest.StartTime,
+                        bookingOnlineRequest.EndTime);
+
+                    if (existingSchedule)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.EXISTED;
+                        res.Message = ResponseMessageConstrantsMaster.EXISTING_SCHEDULE;
+                        res.StatusCode = StatusCodes.Status409Conflict;
+                        return res;
+                    }
+
+                    var masterSchedule = new MasterSchedule
+                    {
+                        MasterScheduleId = GenerateShortGuid(),
+                        MasterId = bookingOnlineRequest.MasterId,
+                        Date = bookingOnlineRequest.BookingDate,
+                        StartTime = bookingOnlineRequest.StartTime,
+                        EndTime = bookingOnlineRequest.EndTime,
+                        Type = BookingTypeEnums.Online.ToString(),
+                        Status = BookingOnlineEnums.Pending.ToString(),
+                    };
+
+                    await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
+                    masterScheduleId = masterSchedule.MasterScheduleId;
+                }
 
                 var booking = _mapper.Map<BookingOnline>(bookingOnlineRequest);
                 booking.BookingOnlineId = GenerateShortGuid();
                 booking.CustomerId = customer.CustomerId;
                 booking.Status = BookingOnlineEnums.Pending.ToString();
-                booking.MasterScheduleId = masterSchedule.MasterScheduleId;
+                booking.MasterScheduleId = masterScheduleId;
+                booking.Price = 3000;
+
                 var createdBooking = await _onlineRepo.CreateBookingOnlineRepo(booking);
                 var bookingResponse = await _onlineRepo.GetBookingOnlineByIdRepo(createdBooking.BookingOnlineId);
 
@@ -142,6 +189,7 @@ namespace Services.Services.BookingService
                 res.StatusCode = StatusCodes.Status201Created;
                 res.Message = ResponseMessageConstrantsBooking.BOOKING_CREATED;
                 res.Data = _mapper.Map<BookingOnlineDetailResponse>(bookingResponse);
+
                 return res;
             }
             catch (Exception ex)

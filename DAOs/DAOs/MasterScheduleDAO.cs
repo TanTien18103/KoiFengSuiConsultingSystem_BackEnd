@@ -128,5 +128,18 @@ namespace DAOs.DAOs
                 .ToListAsync();
             return masterSchedules;
         }
+
+        public async Task<bool> CheckMasterScheduleAvailabilityDao(string masterId, DateOnly? bookingDate, TimeOnly? startTime, TimeOnly? endTime)
+        {
+            if (!bookingDate.HasValue || !startTime.HasValue || !endTime.HasValue)
+                return false;
+
+            return await _context.MasterSchedules
+                .AnyAsync(s => s.MasterId == masterId &&
+                             s.Date == bookingDate &&
+                             ((s.StartTime <= startTime && s.EndTime > startTime) ||
+                              (s.StartTime < endTime && s.EndTime >= endTime) ||
+                              (s.StartTime >= startTime && s.EndTime <= endTime)));
+        }
     }
 }

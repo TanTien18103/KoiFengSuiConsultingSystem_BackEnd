@@ -169,6 +169,8 @@ namespace BusinessObjects.Constants
         public const string PRICE_NOT_CHOSEN = "Chưa chọn giá gói tư vấn";
         public const string PRICE_CHOSEN_SUCCES = "Chọn giá gói tư vấn thành công";
         public const string CHOOSE_PRICE_FOR_PENDING_ONLY = "Chỉ có thể chọn giá cho booking ở trạng thái Pending";
+        public const string ALREADY_CREATE_BOOKING = "Vui lòng tạo Order cho tư vấn trước đó trước khi tạo tư vấn mới";
+        public const string TIME_PASSED = "Không thể đặt lịch các ngày đã qua thời điểm hiện tại";
     }
 
     public class ResponseMessageConstrantsPackage
@@ -241,6 +243,7 @@ namespace BusinessObjects.Constants
             public const string MASTER_NOT_FOUND = "Không tìm thấy Master!";
             public const string MASTER_INFO_NOT_FOUND = "Không tìm thấy thông tin Master!";
             public const string MASTER_FOUND = "Lấy danh sách Master thành công!";
+            public const string EXISTING_SCHEDULE = "Thời gian biểu của Master đã được đặt, vui lòng chọn thời gian khác!";
         }
 
         public class ResponseMessageConstrantsRegisterAttend

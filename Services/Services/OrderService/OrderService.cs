@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using BusinessObjects.Constants;
 using BusinessObjects.Enums;
+using BusinessObjects.Exceptions;
 using Microsoft.AspNetCore.Http;
+using Repositories.Repositories.BookingOfflineRepository;
 using Repositories.Repositories.OrderRepository;
 using Repositories.Repositories.RegisterAttendRepository;
 using Repositories.Repositories.WorkShopRepository;
@@ -23,14 +25,72 @@ namespace Services.Services.OrderService
         private readonly IRegisterAttendRepo _registerAttendRepo;
         private readonly IWorkShopRepo _workShopRepo;
         private readonly IHttpContextAccessor _contextAccessor;
-        public OrderService(IOrderRepo orderRepo, IMapper mapper, IRegisterAttendRepo registerAttendRepo, IWorkShopRepo workShopRepo, IHttpContextAccessor contextAccessor)
+        private readonly IBookingOfflineRepo _bookingOfflineRepo;
+        public OrderService(IOrderRepo orderRepo, IMapper mapper, IRegisterAttendRepo registerAttendRepo, IWorkShopRepo workShopRepo, IHttpContextAccessor contextAccessor, IBookingOfflineRepo bookingOfflineRepo)
         {
             _orderRepo = orderRepo;
             _mapper = mapper;
             _registerAttendRepo = registerAttendRepo;
             _workShopRepo = workShopRepo;
             _contextAccessor = contextAccessor;
+            _bookingOfflineRepo = bookingOfflineRepo;
         }
+        public async Task<ResultModel> UpdateOrderToPendingConfirm(string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var order = await _orderRepo.GetOrderById(id);
+                if (order == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsOrder.NOT_FOUND;
+                    return res;
+                }
+
+                order.Status = PaymentStatusEnums.PendingConfirm.ToString();
+                order.PaymentReference = null;
+                order.PaymentDate = DateTime.Now;
+                await _orderRepo.UpdateOrder(order);
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsOrder.ORDER_STATUS_TO_PAID;
+                return res;
+            }
+            catch(Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task UpdateBookingOfflineStatusAfterPayment(string serviceId, bool isFirstPayment)
+        {
+            try
+            {
+                var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
+                if (bookingOffline == null)
+                    throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE, StatusCodes.Status404NotFound);
+
+                // Xác định trạng thái mới dựa trên lần thanh toán
+                string newStatus = isFirstPayment ? BookingOfflineEnums.Paid1st.ToString() : BookingOfflineEnums.Paid2nd.ToString();
+
+                bookingOffline.Status = newStatus;
+                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error updating booking offline status: {ex.Message}");
+            }
+        }
+
         public async Task<ResultModel> UpdateOrderToPaid(string id)
         {
             var res = new ResultModel();
@@ -51,41 +111,11 @@ namespace Services.Services.OrderService
                 order.PaymentDate = DateTime.Now;
                 await _orderRepo.UpdateOrder(order);
 
-                res.IsSuccess = false;
-                res.StatusCode = StatusCodes.Status200OK;
-                res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                res.Message = ResponseMessageConstrantsOrder.ORDER_STATUS_TO_PAID;
-                return res;
-            }
-            catch(Exception ex)
-            {
-                res.IsSuccess = false;
-                res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.ResponseCode = ResponseCodeConstants.FAILED;
-                res.Message = ex.Message;
-                return res;
-            }
-        }
-
-        public async Task<ResultModel> UpdateOrderToPendingConfirm(string id)
-        {
-            var res = new ResultModel();
-            try
-            {
-                var order = await _orderRepo.GetOrderById(id);
-                if (order == null)
+                if (order.ServiceType == PaymentTypeEnums.BookingOffline.ToString())
                 {
-                    res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.Message = ResponseMessageConstrantsOrder.NOT_FOUND;
-                    return res;
+                    bool isFirstPayment = order.Note.Contains("Thanh toán lần 1");
+                    await UpdateBookingOfflineStatusAfterPayment(order.ServiceId, isFirstPayment);
                 }
-
-                order.Status = PaymentStatusEnums.PendingConfirm.ToString();
-                order.PaymentReference = null;
-                order.PaymentDate = DateTime.Now;
-                await _orderRepo.UpdateOrder(order);
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;

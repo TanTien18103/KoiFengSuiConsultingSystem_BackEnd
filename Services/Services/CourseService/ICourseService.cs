@@ -16,5 +16,6 @@ namespace Services.Services.CourseService
         Task<ResultModel> CreateCourse(CourseRequest course);
         Task<ResultModel> UpdateCourse(string id, CourseRequest course);
         Task<ResultModel> DeleteCourse(string courseId);
+        Task<ResultModel> GetCoursesByMaster();
     }
 }

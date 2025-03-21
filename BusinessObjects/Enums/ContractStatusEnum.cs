@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace BusinessObjects.Enums
 {
-    public enum PaymentStatusEnums
+    public enum ContractStatusEnum
     {
-        Pending = 1,
-        PendingConfirm,
-        Paid,
-        Canceled,
-        Expired,
-        Paid1st,
-        Paid2nd
+        Pending,
+        InProgress,
+        Success,
+        Cancel
     }
 }

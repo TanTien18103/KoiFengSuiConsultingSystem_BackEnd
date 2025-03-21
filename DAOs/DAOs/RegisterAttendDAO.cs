@@ -86,12 +86,6 @@ namespace DAOs.DAOs
                 .ToListAsync();
         }
 
-        public async Task<string> GetCustomerIdByAccountIdDao(string accountId)
-        {
-            var customer = await _context.Customers.FirstOrDefaultAsync(x => x.AccountId == accountId);
-            return customer.CustomerId;
-        }
-
         public async Task<List<RegisterAttend>> GetRegisterAttendsByWorkshopIdDao(string workshopId)
         {
             return await _context.RegisterAttends

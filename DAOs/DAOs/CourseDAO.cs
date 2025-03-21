@@ -74,5 +74,9 @@ namespace DAOs.DAOs
             _context.Courses.Remove(course);
             await _context.SaveChangesAsync();
         }
+        public async Task<List<Course>> GetCoursesByMasterIdDao(string masterId)
+        {
+            return _context.Courses.Where(c => c.CreateBy == masterId).ToList();
+        }
     }
 }

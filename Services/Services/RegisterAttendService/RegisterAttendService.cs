@@ -3,6 +3,7 @@ using BusinessObjects.Constants;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
+using Repositories.Repositories.CustomerRepository;
 using Repositories.Repositories.OrderRepository;
 using Repositories.Repositories.RegisterAttendRepository;
 using Repositories.Repositories.WorkShopRepository;
@@ -25,19 +26,16 @@ namespace Services.Services.RegisterAttendService
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IOrderRepo _orderRepo;
+        private readonly ICustomerRepo _customerRepo;
 
-        public RegisterAttendService(
-            IRegisterAttendRepo registerAttendRepo,
-            IWorkShopRepo workShopRepo,
-            IMapper mapper,
-            IHttpContextAccessor httpContextAccessor,
-            IOrderRepo orderRepo)
+        public RegisterAttendService(IRegisterAttendRepo registerAttendRepo, IWorkShopRepo workShopRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IOrderRepo orderRepo, ICustomerRepo customerRepo)
         {
             _registerAttendRepo = registerAttendRepo;
             _workShopRepo = workShopRepo;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _orderRepo = orderRepo;
+            _customerRepo = customerRepo;
         }
 
         private string GetAuthenticatedAccountId()
@@ -104,7 +102,7 @@ namespace Services.Services.RegisterAttendService
                     res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
                     return res;
                 }
-                var customerId = await _registerAttendRepo.GetCustomerIdByAccountId(accountId);
+                var customerId = await _customerRepo.GetCustomerIdByAccountId(accountId);
                 var registerAttends = await _registerAttendRepo.GetRegisterAttendByCustomerId(customerId);
                 if (registerAttends == null || !registerAttends.Any())
                 {
@@ -228,7 +226,6 @@ namespace Services.Services.RegisterAttendService
             }
         }
 
-
         public async Task<ResultModel> GetRegisterAttendByWorkshopId(string id)
         {
             var res = new ResultModel();
@@ -283,7 +280,7 @@ namespace Services.Services.RegisterAttendService
                     res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
                     return res;
                 }
-                var customerId = await _registerAttendRepo.GetCustomerIdByAccountId(accountId);
+                var customerId = await _customerRepo.GetCustomerIdByAccountId(accountId);
                 var workshop = await _workShopRepo.GetWorkShopById(request.WorkshopId);
                 if (workshop == null)
                 {
@@ -401,7 +398,7 @@ namespace Services.Services.RegisterAttendService
                     return res;
                 }
 
-                var customerId = await _registerAttendRepo.GetCustomerIdByAccountId(accountId);
+                var customerId = await _customerRepo.GetCustomerIdByAccountId(accountId);
 
                 // Lấy workshop
                 var workshop = await _workShopRepo.GetWorkShopById(workshopId);

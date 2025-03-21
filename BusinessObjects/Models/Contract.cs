@@ -29,5 +29,4 @@ public partial class Contract
 
     public virtual BookingOffline BookingOffline { get; set; }
 
-    public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 }

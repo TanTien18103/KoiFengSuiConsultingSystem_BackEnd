@@ -30,5 +30,10 @@ namespace Repositories.Repositories.CourseRepository
         {
             return CourseDAO.Instance.DeleteCourseDao(courseId);
         }
+
+        public Task<List<Course>> GetCoursesByMasterId(string masterId)
+        {
+            return CourseDAO.Instance.GetCoursesByMasterIdDao(masterId);
+        }
     }
 }

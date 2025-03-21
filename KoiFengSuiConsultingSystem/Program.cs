@@ -36,6 +36,10 @@ using Repositories.Repositories.ChapterRepository;
 using Services.Services.ChapterService;
 using Services.Services.OrderService;
 using Services.ServicesHelpers.BackGroundService;
+using Repositories.Repositories.QuizRepository;
+using Services.Services.QuizService;
+using Repositories.Repositories.QuestionRepository;
+using Services.Services.QuestionService;
 using Repositories.Repositories.ConsultationPackageRepository;
 using Services.Services.ConsultationPackageService;
 using System.Text.Json.Serialization;
@@ -60,6 +64,8 @@ builder.Services.AddScoped<IRegisterAttendRepo, RegisterAttendRepo>();
 builder.Services.AddScoped<IColorRepo, ColorRepo>(); 
 builder.Services.AddScoped<ICourseRepo, CourseRepo>();
 builder.Services.AddScoped<IChapterRepo, ChapterRepo>();
+builder.Services.AddScoped<IQuizRepo, QuizRepo>();
+builder.Services.AddScoped<IQuestionRepo, QuestionRepo>();
 builder.Services.AddScoped<IConsultationPackageRepo, ConsultationPackageRepo>();
 
 // Register Services
@@ -79,6 +85,8 @@ builder.Services.AddScoped<IPayOSService, PayOSService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IChapterService, ChapterService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IQuizService, QuizService>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IConsultationPackageService, ConsultationPackageService>();
 
 // Register BackgroundService
@@ -95,6 +103,8 @@ builder.Services.AddAutoMapper(typeof(RegisterAttendMappingProfile));
 builder.Services.AddAutoMapper(typeof(WorkshopMappingProfile));
 builder.Services.AddAutoMapper(typeof(CourseMappingProfile));
 builder.Services.AddAutoMapper(typeof(ChapterMappingProfile));
+builder.Services.AddAutoMapper(typeof(QuizMappingProfile));
+builder.Services.AddAutoMapper(typeof(QuestionMappingProfile));
 
 builder.Services.AddHttpClient();
 
@@ -108,6 +118,8 @@ builder.Services.AddSession(options =>
 });
 builder.Services.AddHttpContextAccessor();
 
+
+builder.Services.AddControllers();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

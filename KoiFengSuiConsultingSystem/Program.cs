@@ -119,7 +119,6 @@ builder.Services.AddSession(options =>
 builder.Services.AddHttpContextAccessor();
 
 
-builder.Services.AddControllers();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

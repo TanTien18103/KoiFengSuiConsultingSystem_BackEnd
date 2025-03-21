@@ -180,7 +180,7 @@ namespace Services.Services.PaymentService
                         if (bookingOnline == null)
                             throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE, StatusCodes.Status404NotFound);
 
-                        description = "Thanh toán đặt lịch trực tuyến";
+                        description = "Thanh toán booking online";
                         customerName = curCustomer.Account.FullName ?? "Khách hàng";
                         price = await _priceService.GetServicePrice(serviceType, serviceId) ?? 0;
                         break;

@@ -27,7 +27,6 @@ namespace Services.Services.CourseService
         private readonly IAccountRepo _accountRepo;
         private readonly IMasterRepo _masterRepo;
 
-
         public CourseService(ICourseRepo courseRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo, IMasterRepo masterRepo)
         {
             _courseRepo = courseRepo;
@@ -36,8 +35,6 @@ namespace Services.Services.CourseService
             _accountRepo = accountRepo;
             _masterRepo = masterRepo;
         }
-       
-
         public static string GenerateShortGuid()
         {
             Guid guid = Guid.NewGuid();
@@ -141,7 +138,8 @@ namespace Services.Services.CourseService
                 }
 
                 var accountId = GetAuthenticatedAccountId();
-                if (string.IsNullOrEmpty(accountId))
+                var masterid = await _masterRepo.GetMasterIdByAccountId(accountId);
+                if (string.IsNullOrEmpty(masterid))
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
@@ -154,7 +152,7 @@ namespace Services.Services.CourseService
                 course.CourseId = GenerateShortGuid();
                 course.CreateAt = DateTime.UtcNow;
                 course.Status = CourseStatusEnum.Inactive.ToString();
-                course.CreateBy = accountId;
+                course.CreateBy = masterid;
 
                 if (course.CreateBy == null)
                 {

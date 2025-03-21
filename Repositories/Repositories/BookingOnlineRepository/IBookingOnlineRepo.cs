@@ -15,5 +15,6 @@ namespace Repositories.Repositories.BookingOnlineRepository
         Task<BookingOnline> CreateBookingOnlineRepo(BookingOnline bookingOnline);
         Task<BookingOnline> UpdateBookingOnlineRepo(BookingOnline bookingOnline);
         Task DeleteBookingOnlineRepo(string bookingOnlineId);
+        Task<bool> CheckCustomerHasUncompletedBookingRepo(string customerId);
     }
 }

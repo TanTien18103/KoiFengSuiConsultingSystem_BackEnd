@@ -85,5 +85,25 @@ namespace DAOs.DAOs
             _context.BookingOnlines.Remove(bookingOnline);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<bool> CheckCustomerHasUncompletedBookingDao(string customerId)
+        {
+            var customerBookings = await _context.BookingOnlines
+                .Where(b => b.CustomerId == customerId)
+                .ToListAsync();
+
+            if (customerBookings.Count == 0)
+                return false;
+
+            foreach (var booking in customerBookings)
+            {
+                var hasOrder = await _context.Orders
+                    .AnyAsync(o => o.ServiceId == booking.BookingOnlineId);
+
+                if (!hasOrder)
+                    return true; 
+            }
+            return false; 
+        }
     }
 }

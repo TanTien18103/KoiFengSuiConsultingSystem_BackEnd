@@ -14,10 +14,16 @@ public partial class Contract
     public string DocNo { get; set; }
 
     public string ContractName { get; set; }
-    public string OtpCode { get; set; }
-    public DateTime? OtpExpiredTime { get; set; }
-    public string ContractUrl { get; set; }
+
     public DateTime CreatedDate { get; set; }
+
     public DateTime? UpdatedDate { get; set; }
+
+    public string OtpCode { get; set; }
+
+    public DateTime? OtpExpiredTime { get; set; }
+
+    public string ContractUrl { get; set; }
+
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 }

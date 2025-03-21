@@ -37,6 +37,8 @@ public partial class Course
 
     public virtual ICollection<Chapter> Chapters { get; set; } = new List<Chapter>();
 
+    public virtual Master CreateByNavigation { get; set; }
+
     public virtual Quiz Quiz { get; set; }
 
     public virtual ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();

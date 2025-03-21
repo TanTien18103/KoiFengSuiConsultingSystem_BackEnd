@@ -385,6 +385,15 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
+                if(string.IsNullOrEmpty(bookingonlineId) && string.IsNullOrEmpty(bookingofflineId) && string.IsNullOrEmpty(masterId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.REQUIRED_DATA;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
                 var bookingOnline = await _onlineRepo.GetBookingOnlineByIdRepo(bookingonlineId);
                 var bookingOffline = await _offlineRepo.GetBookingOfflineById(bookingofflineId);
 
@@ -466,7 +475,6 @@ namespace Services.Services.BookingService
 
                     if (!string.IsNullOrEmpty(bookingOffline.MasterId))
                     {
-
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.EXISTED;
                         res.Message = ResponseMessageConstrantsBooking.ALREADY_ASSIGNED;
@@ -490,7 +498,6 @@ namespace Services.Services.BookingService
                     bookingOffline.AssignStaffId = accountId;
                     await _offlineRepo.UpdateBookingOffline(bookingOffline);
                 }
-
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.Message = ResponseMessageConstrantsBooking.ASSIGNED_SUCCESS;

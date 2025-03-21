@@ -15,6 +15,7 @@ using System.Security.Claims;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Repositories.Repositories.AccountRepository;
+using Repositories.Repositories.MasterRepository;
 
 namespace Services.Services.CourseService
 {
@@ -24,17 +25,16 @@ namespace Services.Services.CourseService
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAccountRepo _accountRepo;
+        private readonly IMasterRepo _masterRepo;
 
-
-        public CourseService(ICourseRepo courseRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo)
+        public CourseService(ICourseRepo courseRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo, IMasterRepo masterRepo)
         {
             _courseRepo = courseRepo;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _accountRepo = accountRepo;
+            _masterRepo = masterRepo;
         }
-       
-
         public static string GenerateShortGuid()
         {
             Guid guid = Guid.NewGuid();
@@ -138,7 +138,8 @@ namespace Services.Services.CourseService
                 }
 
                 var accountId = GetAuthenticatedAccountId();
-                if (string.IsNullOrEmpty(accountId))
+                var masterid = await _masterRepo.GetMasterIdByAccountId(accountId);
+                if (string.IsNullOrEmpty(masterid))
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
@@ -151,7 +152,7 @@ namespace Services.Services.CourseService
                 course.CourseId = GenerateShortGuid();
                 course.CreateAt = DateTime.UtcNow;
                 course.Status = CourseStatusEnum.Inactive.ToString();
-                course.CreateBy = accountId;
+                course.CreateBy = masterid;
 
                 if (course.CreateBy == null)
                 {

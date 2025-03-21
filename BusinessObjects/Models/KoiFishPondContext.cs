@@ -9,6 +9,7 @@ namespace BusinessObjects.Models;
 
 public partial class KoiFishPondContext : DbContext
 {
+
     public KoiFishPondContext()
     {
     }
@@ -398,10 +399,17 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.ContractName).HasMaxLength(100);
+            entity.Property(e => e.ContractUrl).HasMaxLength(255);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.DocNo)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.OtpCode).HasMaxLength(50);
+            entity.Property(e => e.OtpExpiredTime).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Course>(entity =>
@@ -439,6 +447,10 @@ public partial class KoiFishPondContext : DbContext
             entity.HasOne(d => d.Certificate).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.CertificateId)
                 .HasConstraintName("FK__Course__Certific__534D60F1");
+
+            entity.HasOne(d => d.CreateByNavigation).WithMany(p => p.Courses)
+                .HasForeignKey(d => d.CreateBy)
+                .HasConstraintName("FK_Course_Master");
 
             entity.HasOne(d => d.Quiz).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.QuizId)

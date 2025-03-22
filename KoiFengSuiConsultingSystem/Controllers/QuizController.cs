@@ -57,5 +57,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _quizService.DeleteQuiz(quizId);
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpGet("by-course/{courseId}")]
+        public async Task<IActionResult> GetQuizByCourseId(string courseId)
+        {
+            var result = await _quizService.GetQuizByCourseId(courseId);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

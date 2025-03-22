@@ -13,9 +13,13 @@ public partial class KoiPond
 
     public string PondName { get; set; }
 
-    public int? Size { get; set; }
-
     public string Direction { get; set; }
+
+    public string Introduction { get; set; }
+
+    public string Description { get; set; }
+
+    public string ImageUrl { get; set; }
 
     public virtual Shape Shape { get; set; }
 }

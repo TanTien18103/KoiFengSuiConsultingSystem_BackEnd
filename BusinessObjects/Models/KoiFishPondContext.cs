@@ -381,6 +381,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
             entity.Property(e => e.MaxPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.MinPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.PackageName).HasMaxLength(100);
@@ -433,6 +434,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
             entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.QuizId)
                 .HasMaxLength(20)
@@ -470,6 +472,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.Element).HasMaxLength(20);
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
             entity.Property(e => e.LifePalace).HasMaxLength(20);
             entity.Property(e => e.MembershipId)
                 .HasMaxLength(20)
@@ -632,7 +635,10 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.Direction).HasMaxLength(20);
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
+            entity.Property(e => e.Introduction).HasMaxLength(255);
             entity.Property(e => e.PondName).HasMaxLength(100);
             entity.Property(e => e.ShapeId)
                 .HasMaxLength(20)
@@ -656,6 +662,8 @@ public partial class KoiFishPondContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("KoiVarietyID");
             entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
+            entity.Property(e => e.Introduction).HasMaxLength(255);
             entity.Property(e => e.VarietyName).HasMaxLength(50);
         });
 
@@ -686,6 +694,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsFixedLength();
             entity.Property(e => e.Experience).HasMaxLength(50);
             entity.Property(e => e.Expertise).HasMaxLength(255);
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
             entity.Property(e => e.MasterName).HasMaxLength(100);
             entity.Property(e => e.ServiceType).HasMaxLength(50);
             entity.Property(e => e.Title).HasMaxLength(100);
@@ -1017,6 +1026,7 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
             entity.Property(e => e.Location).HasMaxLength(255);
             entity.Property(e => e.MasterId)
                 .HasMaxLength(20)

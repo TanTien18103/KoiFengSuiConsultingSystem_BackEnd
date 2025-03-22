@@ -123,7 +123,7 @@ namespace Services.Services.QuizService
 
                 var quizes = await _quizRepo.GetQuizzesByMasterId(master.MasterId);
 
-                if (quizes == null || !quizes.Any())  
+                if (quizes == null || !quizes.Any())
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -433,5 +433,36 @@ namespace Services.Services.QuizService
             }
         }
 
+        public async Task<ResultModel> GetQuizByCourseId(string courseId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var quiz = await _quizRepo.GetQuizByCourseId(courseId);
+                if (quiz == null )
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantQuiz.QUIZ_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantQuiz.QUIZ_FOUND;
+                res.Data = _mapper.Map<QuizResponse>(quiz);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
     }
 }

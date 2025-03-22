@@ -23,5 +23,7 @@ public partial class ConsultationPackage
 
     public string PricingDetails { get; set; }
 
+    public string ImageUrl { get; set; }
+
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 }

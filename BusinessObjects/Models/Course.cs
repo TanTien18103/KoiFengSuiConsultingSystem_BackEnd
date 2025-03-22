@@ -33,6 +33,8 @@ public partial class Course
 
     public string Description { get; set; }
 
+    public string ImageUrl { get; set; }
+
     public virtual Certificate Certificate { get; set; }
 
     public virtual ICollection<Chapter> Chapters { get; set; } = new List<Chapter>();

@@ -12,6 +12,7 @@ namespace Services.ApiModels.KoiVariety
         public string Description { get; set; }
         public List<VarietyColorResponse> VarietyColors { get; set; }
         public decimal TotalPercentage { get; set; }
+        public decimal CompatibilityScore { get; set; }
     }
     public class VarietyColorResponse
     {

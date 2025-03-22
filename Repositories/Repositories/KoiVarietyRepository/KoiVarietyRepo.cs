@@ -42,5 +42,14 @@ namespace Repositories.Repositories.KoiVarietyRepository
         {
             return KoiVarietyDAO.Instance.DeleteKoiVarietyDao(koiVarietyId);
         }
+        public Task<List<KoiVariety>> GetKoiVarietiesByName(string name)
+        {
+            return KoiVarietyDAO.Instance.GetKoiVarietiesByNameDao(name);
+        }
+        public Task<List<KoiVariety>> GetKoiVarietiesByColors(List<string> colorIds)
+        {
+            return KoiVarietyDAO.Instance.GetKoiVarietiesByColorsDao(colorIds);
+
+        }
     }
 }

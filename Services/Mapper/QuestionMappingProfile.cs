@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using BusinessObjects.Models;
+using Services.ApiModels.Question;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +11,13 @@ namespace Services.Mapper
 {
     public class QuestionMappingProfile : Profile
     {
+        public QuestionMappingProfile()
+        {
+            CreateMap<QuestionRequest, Question>();
+            CreateMap<QuestionUpdateRequest, Question>();
+            CreateMap<QuestionRequest.AnswerRequest, Answer>();
+            CreateMap<Question, QuestionResponse>();
+            CreateMap<Answer, AnswerResponse>();
+        }
     }
 }

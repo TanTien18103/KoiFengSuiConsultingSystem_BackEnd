@@ -4,9 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static Azure.Core.HttpHeader;
 
 namespace DAOs.DAOs
 {
@@ -78,6 +80,36 @@ namespace DAOs.DAOs
                     .ThenInclude(vc => vc.Color)
                 .Where(k => k.VarietyColors.Any(vc => vc.Color.Element == element))
                 .ToListAsync();
+        }
+
+        public async Task<List<KoiVariety>> GetKoiVarietiesByNameDao(string name)
+        {
+            var koiVarieties = await _context.KoiVarieties
+                .Include(k => k.VarietyColors)
+                .ThenInclude(vc => vc.Color)
+                .Where(x => x.VarietyName.ToLower().Contains(name.ToLower()))
+                .ToListAsync();
+            return koiVarieties;
+        }
+
+        public async Task<List<KoiVariety>> GetKoiVarietiesByColorsDao(List<string> colorIds)
+        {
+            if (colorIds == null || !colorIds.Any())
+            {
+                return new List<KoiVariety>();
+            }
+            var koiVarietyIds = await _context.VarietyColors
+                .Where(vc => colorIds.Contains(vc.ColorId))
+                .Select(vc => vc.KoiVarietyId)
+                .Distinct()
+                .ToListAsync();
+            var koiVarieties = await _context.KoiVarieties
+                .Include(k => k.VarietyColors)
+                    .ThenInclude(vc => vc.Color)
+                .Where(k => koiVarietyIds.Contains(k.KoiVarietyId))
+                .ToListAsync();
+
+            return koiVarieties;
         }
 
         public async Task<KoiVariety> CreateKoiVarietyDao(KoiVariety koiVariety)

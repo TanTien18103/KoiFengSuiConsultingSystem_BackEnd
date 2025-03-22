@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,12 +39,23 @@ namespace DAOs.DAOs
 
         public async Task<Question> GetQuestionByIdDao(string questionId)
         {
-            return await _context.Questions.FindAsync(questionId);
+            return await _context.Questions.
+                Include(q => q.Answers).
+                FirstOrDefaultAsync(q => q.QuestionId == questionId);
         }
 
         public async Task<List<Question>> GetQuestionsDao()
         {
-            return _context.Questions.ToList();
+            return _context.Questions
+                .Include(q => q.Answers)
+                .ToList();
+        }
+
+        public async Task<List<Question>> GetQuestionsByQuizId(string quizid)
+        {
+            return _context.Questions
+                .Include(q => q.Answers)
+                .Where(q => q.QuizId == quizid).ToList();
         }
 
         public async Task<Question> CreateQuestionDao(Question question)
@@ -63,8 +75,17 @@ namespace DAOs.DAOs
         public async Task DeleteQuestionDao(string questionId)
         {
             var question = await GetQuestionByIdDao(questionId);
+            if (question == null)
+            {
+                throw new Exception("Question not found.");
+            }
+
+            var answers = _context.Answers.Where(a => a.QuestionId == questionId);
+            _context.Answers.RemoveRange(answers);
+
             _context.Questions.Remove(question);
             await _context.SaveChangesAsync();
         }
+
     }
 }

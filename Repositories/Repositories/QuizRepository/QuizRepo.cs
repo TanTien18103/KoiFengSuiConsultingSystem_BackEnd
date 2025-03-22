@@ -30,5 +30,16 @@ namespace Repositories.Repositories.QuizRepository
         {
             return QuizDAO.Instance.DeleteQuizDao(quizId);
         }
+        public Task<List<Quiz>> GetQuizzesByMasterId(string masterId)
+        {
+            return QuizDAO.Instance.GetQuizzesByMasterIdDao(masterId);
+        }
+
+        public Task<Quiz> GetQuizByCourseId(string courseId)
+        {
+            return QuizDAO.Instance.GetQuizzesByCourseIdDao(courseId);
+        }
+
+       
     }
 }

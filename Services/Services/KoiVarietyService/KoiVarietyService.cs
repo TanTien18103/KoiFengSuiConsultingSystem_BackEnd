@@ -323,13 +323,9 @@ namespace Services.Services.KoiVarietyService
             var res = new ResultModel();
             try
             {
-
                 var compatibleElements = GetElements(element, true);
-
-                // Lấy tất cả các loại Koi từ các mệnh tương hợp
                 var elementStrings = compatibleElements.Select(EnumToString).ToList();
                 var allKoi = new List<KoiVariety>();
-
                 foreach (var elementString in elementStrings)
                 {
                     var koi = await _koiVarietyRepo.GetKoiVarietiesByElement(elementString);
@@ -338,10 +334,7 @@ namespace Services.Services.KoiVarietyService
                         allKoi.AddRange(koi);
                     }
                 }
-
-                // Loại bỏ các loại Koi trùng lặp
                 allKoi = allKoi.DistinctBy(k => k.KoiVarietyId).ToList();
-
                 if (!allKoi.Any())
                 {
                     res.IsSuccess = false;
@@ -350,18 +343,15 @@ namespace Services.Services.KoiVarietyService
                     res.Message = ResponseMessageConstrantsKoiVariety.NO_MATCHES_KOIVARIETY;
                     return res;
                 }
-
-                // Sắp xếp theo điểm tương hợp và tính tổng phần trăm hợp
                 var recommendedKoi = allKoi
                     .Select(k => new
                     {
                         Koi = k,
                         CompatibilityScore = CalculateCompatibilityScore(k, EnumToString(element)),
-                        TotalPercentage = k.VarietyColors.Sum(vc => vc.Percentage ?? 0) // Tính tổng %
+                        TotalPercentage = k.VarietyColors.Sum(vc => vc.Percentage ?? 0)
                     })
                     .OrderByDescending(k => k.CompatibilityScore)
                     .ToList();
-
                 if (!recommendedKoi.Any())
                 {
                     res.IsSuccess = false;
@@ -370,8 +360,6 @@ namespace Services.Services.KoiVarietyService
                     res.Message = ResponseMessageConstrantsKoiVariety.NO_MATCHES_KOIVARIETY;
                     return res;
                 }
-
-                // Nếu tất cả các Koi đều có độ tương hợp < 0.5, chỉ hiển thị tên và tổng phần trăm
                 var lowCompatibilityKoi = recommendedKoi
                     .Where(k => k.CompatibilityScore < 0.5m)
                     .Select(k => new
@@ -380,36 +368,23 @@ namespace Services.Services.KoiVarietyService
                         k.CompatibilityScore
                     }).ToList();
 
+                // Lấy danh sách các đối tượng KoiVariety để chuyển đổi
+                var koiList = recommendedKoi.Select(k => k.Koi).ToList();
+
                 if (lowCompatibilityKoi.Any() && recommendedKoi.All(k => k.CompatibilityScore < 0.5m))
                 {
                     res.IsSuccess = true;
                     res.ResponseCode = ResponseCodeConstants.SUCCESS;
                     res.StatusCode = StatusCodes.Status200OK;
-                    res.Data = recommendedKoi.Select(k => new KoiVarietyResponse
-                    {
-                        VarietyName = k.Koi.VarietyName,
-                        Description = k.Koi.Description,
-                        VarietyColors = _mapper.Map<List<VarietyColorResponse>>(k.Koi.VarietyColors),
-                        TotalPercentage = k.TotalPercentage,
-                        CompatibilityScore = k.CompatibilityScore
-                    }).ToList();
-
+                    res.Data = _mapper.Map<List<KoiVarietyDto>>(koiList);
                     res.Message = ResponseMessageConstrantsKoiVariety.LOW_MATCHES_KOIVARIETY;
                     return res;
                 }
 
-                // Trả về danh sách đầy đủ cho Koi có độ tương hợp >= 0.5
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = recommendedKoi.Select(k => new KoiVarietyResponse
-                {
-                    VarietyName = k.Koi.VarietyName,
-                    Description = k.Koi.Description,
-                    VarietyColors = _mapper.Map<List<VarietyColorResponse>>(k.Koi.VarietyColors),
-                    TotalPercentage = k.TotalPercentage
-                }).ToList();
-
+                res.Data = _mapper.Map<List<KoiVarietyDto>>(koiList);
                 res.Message = ResponseMessageConstrantsKoiVariety.GET_MATCHES_KOIVARIETY;
                 return res;
             }
@@ -489,109 +464,155 @@ namespace Services.Services.KoiVarietyService
             }
         }
 
-        public List<NguHanh> GetCompatibleElementsForColor(ColorEnums color)
+        public (bool IsCompatible, List<NguHanh> Elements, string Message) GetCompatibleElementsForColors(List<ColorEnums> colors)
         {
-            List<NguHanh> compatibleElements = new List<NguHanh>();
-
-            foreach (var elementRelationship in _colorRelationships)
+            if (colors == null || colors.Count == 0)
             {
-                var nguHanh = elementRelationship.Key;
-                var relationships = elementRelationship.Value;
+                return (false, new List<NguHanh>(), ResponseMessageConstrantsKoiVariety.COLOR_INPUT_REQUIRED);
+            }
 
-                if (relationships.Compatible.Contains(color) || relationships.Supportive.Contains(color))
+            // Xử lý trường hợp chỉ có một màu
+            if (colors.Count == 1)
+            {
+                List<NguHanh> compatibleElements = new List<NguHanh>();
+                foreach (var elementRelationship in _colorRelationships)
                 {
-                    compatibleElements.Add(nguHanh);
+                    var nguHanh = elementRelationship.Key;
+                    var relationships = elementRelationship.Value;
+                    if (relationships.Compatible.Contains(colors[0]) || relationships.Supportive.Contains(colors[0]))
+                    {
+                        compatibleElements.Add(nguHanh);
+                    }
+                }
+
+                if (compatibleElements.Count == 0)
+                {
+                    return (false, new List<NguHanh>(), $"Không tìm thấy mệnh phù hợp với màu {colors[0]}");
+                }
+
+                return (true, compatibleElements, $"Màu {colors[0]} phù hợp với mệnh {compatibleElements.First()}");
+            }
+
+            // Xử lý trường hợp nhiều màu
+            // 1. Tìm các mệnh tương thích cho từng màu
+            Dictionary<ColorEnums, List<NguHanh>> colorToElementsMap = new Dictionary<ColorEnums, List<NguHanh>>();
+
+            foreach (var color in colors)
+            {
+                List<NguHanh> elementsForColor = new List<NguHanh>();
+                foreach (var elementRelationship in _colorRelationships)
+                {
+                    var nguHanh = elementRelationship.Key;
+                    var relationships = elementRelationship.Value;
+                    if (relationships.Compatible.Contains(color) || relationships.Supportive.Contains(color))
+                    {
+                        elementsForColor.Add(nguHanh);
+                    }
+                }
+                colorToElementsMap[color] = elementsForColor;
+            }
+
+            // 2. Lọc ra các màu có mệnh tương thích
+            var colorsWithElements = colorToElementsMap
+                .Where(pair => pair.Value.Count > 0)
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
+
+            if (colorsWithElements.Count == 0)
+            {
+                return (false, new List<NguHanh>(), ResponseMessageConstrantsKoiVariety.ELEMENT_COMPATIBLE_NOT_FOUND);
+            }
+
+            // 3. Tìm mệnh chung cho tất cả các màu (nếu có)
+            var commonElements = new List<NguHanh>(colorsWithElements.First().Value);
+            foreach (var pair in colorsWithElements.Skip(1))
+            {
+                commonElements = commonElements.Intersect(pair.Value).ToList();
+            }
+
+            if (commonElements.Count > 0)
+            {
+                // Có ít nhất một mệnh chung cho tất cả các màu
+                return (true, commonElements, $"Tất cả các màu đã chọn đều phù hợp với mệnh {commonElements.First()}");
+            }
+
+            // 4. Kiểm tra xung khắc giữa các màu
+            var conflictingPairs = new List<(ColorEnums, ColorEnums)>();
+
+            for (int i = 0; i < colors.Count - 1; i++)
+            {
+                for (int j = i + 1; j < colors.Count; j++)
+                {
+                    var color1 = colors[i];
+                    var color2 = colors[j];
+
+                    if (!colorToElementsMap.ContainsKey(color1) || !colorToElementsMap.ContainsKey(color2) ||
+                        colorToElementsMap[color1].Count == 0 || colorToElementsMap[color2].Count == 0)
+                    {
+                        continue;
+                    }
+
+                    // Kiểm tra xem hai màu có mệnh chung không
+                    bool hasCommonElement = false;
+                    foreach (var element1 in colorToElementsMap[color1])
+                    {
+                        if (colorToElementsMap[color2].Contains(element1))
+                        {
+                            hasCommonElement = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasCommonElement)
+                    {
+                        conflictingPairs.Add((color1, color2));
+                    }
                 }
             }
 
-            return compatibleElements;
+            // 5. Tìm mệnh phổ biến nhất từ tất cả các màu
+            Dictionary<NguHanh, int> elementFrequency = new Dictionary<NguHanh, int>();
+            foreach (var elements in colorsWithElements.Values)
+            {
+                foreach (var element in elements)
+                {
+                    if (!elementFrequency.ContainsKey(element))
+                    {
+                        elementFrequency[element] = 0;
+                    }
+                    elementFrequency[element]++;
+                }
+            }
+
+            var bestElements = elementFrequency
+                .OrderByDescending(pair => pair.Value)
+                .Select(pair => pair.Key)
+                .ToList();
+
+            // 6. Tạo thông báo phù hợp
+            if (conflictingPairs.Count > 0)
+            {
+                var conflictMessage = "Các màu sau không hợp với nhau: ";
+                conflictMessage += string.Join(", ", conflictingPairs.Select(pair => $"{pair.Item1} và {pair.Item2}"));
+                conflictMessage += $". Ngũ hành phù hợp nhất là {bestElements.First()}.";
+                return (false, bestElements, conflictMessage);
+            }
+
+            // 7. Kiểm tra màu không tìm thấy mệnh
+            var unknownColors = colorToElementsMap
+                .Where(pair => pair.Value.Count == 0)
+                .Select(pair => pair.Key)
+                .ToList();
+
+            if (unknownColors.Count > 0)
+            {
+                var unknownMessage = $"Không tìm thấy mệnh cho các màu: {string.Join(", ", unknownColors)}. ";
+                unknownMessage += $"Các màu còn lại phù hợp nhất với mệnh {bestElements.First()}.";
+                return (false, bestElements, unknownMessage);
+            }
+
+            // 8. Trường hợp mặc định
+            return (true, bestElements, $"Các màu đã chọn phù hợp nhất với mệnh {bestElements.First()}");
         }
-
-        //public (bool IsCompatible, NguHanh? Element, string Message) CheckColorsCompatibility(List<ColorEnums> colors)
-        //{
-        //    if (colors == null || colors.Count == 0)
-        //    {
-        //        return (false, null, ResponseMessageConstrantsKoiVariety.COLOR_INPUT_REQUIRED);
-        //    }
-
-        //    if (colors.Count == 1)
-        //    {
-        //        var element = GetCompatibleElementForColor(colors[0]);
-        //        return (element != null, element, element != null
-        //            ? $"Màu {colors[0]} phù hợp với mệnh {element}"
-        //            : $"Không tìm thấy mệnh phù hợp với màu {colors[0]}");
-        //    }
-
-        //    var colorElements = new Dictionary<ColorEnums, NguHanh?>();
-        //    foreach (var color in colors)
-        //    {
-        //        colorElements[color] = GetCompatibleElementForColor(color);
-        //    }
-
-        //    // Lọc ra các màu có mệnh
-        //    var colorsWithElements = colorElements.Where(pair => pair.Value != null)
-        //                                        .ToDictionary(pair => pair.Key, pair => pair.Value);
-
-        //    if (colorsWithElements.Count == 0)
-        //    {
-        //        return (false, null, ResponseMessageConstrantsKoiVariety.ELEMENT_COMPATIBLE_NOT_FOUND);
-        //    }
-
-        //    // Kiểm tra xem tất cả các màu có cùng một mệnh không
-        //    var firstElement = colorsWithElements.First().Value;
-        //    var allSameElement = colorsWithElements.All(pair => pair.Value.Equals(firstElement));
-
-        //    if (allSameElement)
-        //    {
-        //        return (true, firstElement, $"Tất cả các màu đã chọn đều phù hợp với mệnh {firstElement}");
-        //    }
-
-        //    // Nếu không phải tất cả cùng một mệnh, tìm các màu xung khắc
-        //    var conflictingPairs = new List<(ColorEnums, ColorEnums)>();
-
-        //    for (int i = 0; i < colors.Count - 1; i++)
-        //    {
-        //        for (int j = i + 1; j < colors.Count; j++)
-        //        {
-        //            var color1 = colors[i];
-        //            var color2 = colors[j];
-
-        //            var element1 = colorElements[color1];
-        //            var element2 = colorElements[color2];
-
-        //            if (element1 != null && element2 != null && !element1.Equals(element2))
-        //            {
-        //                conflictingPairs.Add((color1, color2));
-        //            }
-        //        }
-        //    }
-
-        //    if (conflictingPairs.Count > 0)
-        //    {
-        //        var conflictMessage = "Các màu sau không hợp với nhau: ";
-        //        conflictMessage += string.Join(", ", conflictingPairs.Select(pair => $"{pair.Item1} và {pair.Item2}"));
-        //        conflictMessage += ". Hãy chọn màu khác.";
-
-        //        return (false, null, conflictMessage);
-        //    }
-
-        //    // Nếu có một số màu không tìm thấy mệnh
-        //    var unknownColors = colorElements.Where(pair => pair.Value == null)
-        //                                     .Select(pair => pair.Key)
-        //                                     .ToList();
-
-        //    if (unknownColors.Count > 0)
-        //    {
-        //        var commonElement = colorsWithElements.First().Value;
-        //        var unknownMessage = $"Không tìm thấy mệnh cho các màu: {string.Join(", ", unknownColors)}. ";
-        //        unknownMessage += $"Các màu còn lại phù hợp với mệnh {commonElement}.";
-
-        //        return (false, commonElement, unknownMessage);
-        //    }
-
-        //    // Trường hợp mặc định không nên xảy ra
-        //    return (false, null, ResponseMessageConstrantsKoiVariety.INVALID_ELEMENT_FOR_COLORS);
-        //}
 
         public List<ColorEnums> GetPositiveColorsByElement(NguHanh nguHanh)
         {

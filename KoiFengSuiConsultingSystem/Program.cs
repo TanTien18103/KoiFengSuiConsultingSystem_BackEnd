@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.Google;
+﻿using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -42,6 +42,10 @@ using Repositories.Repositories.QuestionRepository;
 using Services.Services.QuestionService;
 using Repositories.Repositories.ConsultationPackageRepository;
 using Services.Services.ConsultationPackageService;
+using CloudinaryDotNet;
+using BusinessObjects.Models;
+using Microsoft.Extensions.Options;
+using Services.ServicesHelpers.UploadService;
 using System.Text.Json.Serialization;
 using Repositories.Repositories.AnswerRepository;
 
@@ -81,6 +85,7 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IMasterScheduleService, MasterScheduleService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPriceService, PriceService>();
+builder.Services.AddScoped<IUploadService, UploadService>();
 builder.Services.AddScoped<IWorkshopService, WorkshopService>();
 builder.Services.AddScoped<IRegisterAttendService, RegisterAttendService>();
 builder.Services.AddScoped<IPayOSService, PayOSService>();
@@ -199,6 +204,16 @@ builder.Services.AddCors(options =>
                    .AllowAnyMethod()
                    .AllowAnyHeader();
         });
+});
+
+// Cloudinary Configuration
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
+// Register Cloudinary into Dependency Injection
+builder.Services.AddSingleton(provider =>
+{
+    var config = provider.GetRequiredService<IOptions<CloudinarySettings>>().Value;
+    var account = new CloudinaryDotNet.Account(config.CloudName, config.ApiKey, config.ApiSecret);
+    return new Cloudinary(account);
 });
 
 var app = builder.Build();

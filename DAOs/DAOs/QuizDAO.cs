@@ -63,6 +63,8 @@ namespace DAOs.DAOs
         public async Task<Quiz> GetQuizzesByCourseIdDao(string courseId)
         {
             return await _context.Quizzes
+                .Include(q => q.Course)
+                .Include(q => q.CreateByNavigation)
                 .Where(q => q.CourseId == courseId)
                 .FirstOrDefaultAsync();
         }
@@ -95,5 +97,7 @@ namespace DAOs.DAOs
             _context.Quizzes.Remove(quiz);
             await _context.SaveChangesAsync();
         }
+
+
     }
 }

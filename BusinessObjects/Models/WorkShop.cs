@@ -33,6 +33,8 @@ public partial class WorkShop
 
     public DateTime? UpdateAt { get; set; }
 
+    public string ImageUrl { get; set; }
+
     public virtual Master Master { get; set; }
 
     public virtual ICollection<RegisterAttend> RegisterAttends { get; set; } = new List<RegisterAttend>();

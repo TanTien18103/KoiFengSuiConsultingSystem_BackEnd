@@ -302,6 +302,10 @@ namespace Services.Services.QuestionService
                 question.Point = questionRequest.Point;
 
                 var updatedQuestion = await _questionRepository.UpdateQuestion(question);
+                if (updatedQuestion != null)
+                {
+
+                }
 
                 return new ResultModel
                 {

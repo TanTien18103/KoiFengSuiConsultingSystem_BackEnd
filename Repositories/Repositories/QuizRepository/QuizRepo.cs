@@ -39,5 +39,7 @@ namespace Repositories.Repositories.QuizRepository
         {
             return QuizDAO.Instance.GetQuizzesByCourseIdDao(courseId);
         }
+
+       
     }
 }

@@ -48,6 +48,7 @@ using Microsoft.Extensions.Options;
 using Services.ServicesHelpers.UploadService;
 using System.Text.Json.Serialization;
 using Repositories.Repositories.AnswerRepository;
+using Services.Services.AnswerService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,6 +96,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IConsultationPackageService, ConsultationPackageService>();
+builder.Services.AddScoped<IAnswerService, AnswerService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
@@ -112,6 +114,8 @@ builder.Services.AddAutoMapper(typeof(CourseMappingProfile));
 builder.Services.AddAutoMapper(typeof(ChapterMappingProfile));
 builder.Services.AddAutoMapper(typeof(QuizMappingProfile));
 builder.Services.AddAutoMapper(typeof(QuestionMappingProfile));
+builder.Services.AddAutoMapper(typeof(ConsultationPackageMappingProfile));
+builder.Services.AddAutoMapper(typeof(AnswerMappingProfile));
 
 builder.Services.AddHttpClient();
 

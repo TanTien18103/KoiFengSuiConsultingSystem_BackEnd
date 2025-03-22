@@ -8,6 +8,7 @@ using Services.ApiModels;
 using Services.ApiModels.KoiVariety;
 using Services.Services.KoiVarietyService;
 using System.Xml.Linq;
+using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -78,23 +79,47 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return Ok(colors);
         }
 
-        [HttpGet("api/element-by-color/{color}")]
-        public IActionResult GetElementByColor(ColorEnums color)
+        [HttpGet("compatible-elements")]
+        public IActionResult GetCompatibleElements([FromQuery] string colors)
         {
-            var element = _koiVarietyService.GetCompatibleElementsForColor(color);
-            if (element == null)
+            if (string.IsNullOrEmpty(colors))
             {
-                return NotFound($"Không tìm thấy mệnh phù hợp với màu {color}");
+                return BadRequest(new { success = false, message = ResponseMessageConstrantsKoiVariety.COLOR_INPUT_REQUIRED });
             }
-            return Ok(element);
-        }
 
-        //[HttpPost("api/check-colors-compatibility")]
-        //public IActionResult CheckColorsCompatibility([FromBody] List<ColorEnums> colors)
-        //{
-        //    var result = _koiVarietyService.CheckColorsCompatibility(colors);
-        //    return Ok(result);
-        //}
+            // Chuyển đổi chuỗi colors thành List<ColorEnums>
+            var colorList = colors.Split(',')
+                                 .Select(c => c.Trim())
+                                 .Where(c => !string.IsNullOrEmpty(c))
+                                 .Select(c => {
+                                     if (Enum.TryParse<ColorEnums>(c, true, out var colorEnum))
+                                         return (success: true, color: colorEnum);
+                                     return (success: false, color: default(ColorEnums));
+                                 })
+                                 .Where(result => result.success)
+                                 .Select(result => result.color)
+                                 .ToList();
+
+            if (colorList.Count == 0)
+            {
+                return BadRequest(new { success = false, message = "Invalid color values provided" });
+            }
+
+            // Khai báo kiểu dữ liệu rõ ràng cho các biến
+            bool isCompatible;
+            List<NguHanh> elements;
+            string message;
+
+            // Sử dụng deconstruction với kiểu dữ liệu rõ ràng
+            (isCompatible, elements, message) = _koiVarietyService.GetCompatibleElementsForColors(colorList);
+
+            return Ok(new
+            {
+                success = isCompatible,
+                elements = elements.Select(e => e.ToString()).ToList(),
+                message = message
+            });
+        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetKoiVarietyById([FromRoute] string id)

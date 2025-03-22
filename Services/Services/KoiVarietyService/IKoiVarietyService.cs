@@ -20,8 +20,7 @@ namespace Services.Services.KoiVarietyService
         Task<ResultModel> GetRecommendedKoiVarietiesAsync();
         Task<ResultModel> GetKoiVarietiesByName(string name);
         Task<ResultModel> GetKoiVarietiesByColorsAsync(List<string> colorIds);
-        List<NguHanh> GetCompatibleElementsForColor(ColorEnums color);
-        //(bool IsCompatible, NguHanh? Element, string Message) CheckColorsCompatibility(List<ColorEnums> colors);
+        (bool IsCompatible, List<NguHanh> Elements, string Message) GetCompatibleElementsForColors(List<ColorEnums> colors);
         List<ColorEnums> GetPositiveColorsByElement(NguHanh nguHanh);
         Task<ResultModel> FilterByColorAndElement(NguHanh? nguHanh = null, List<string>? colorIds = null);
 

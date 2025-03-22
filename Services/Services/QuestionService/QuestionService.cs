@@ -16,6 +16,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
+using static Services.ApiModels.Question.QuestionRequest;
 
 namespace Services.Services.QuestionService
 {
@@ -164,7 +165,7 @@ namespace Services.Services.QuestionService
                 }
                 foreach (var quiz in quizes)
                 {
-                    var questions = await _questionRepository.GetQuestionsByQuizId(quiz.QuizId);
+                    var questions = await _questionRepository.GetQuestionsByQuizId(quizId);
                     if (questions == null || questions.Count == 0)
                     {
                         res.IsSuccess = false;
@@ -196,40 +197,7 @@ namespace Services.Services.QuestionService
             var res = new ResultModel();
             try
             {
-                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
-                if (identity == null || !identity.IsAuthenticated)
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
-                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
-                    res.StatusCode = StatusCodes.Status401Unauthorized;
-                    return res;
-                }
-
-                var claims = identity.Claims;
-                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(accountId))
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status400BadRequest;
-                    return res;
-                }
-
-                var master = await _masterRepo.GetMasterByAccountId(accountId);
-
-                if (master == null)
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
-                    return res;
-                }
-
                 var quiz = await _quizRepo.GetQuizById(quizId);
-
                 if (quiz == null)
                 {
                     res.IsSuccess = false;
@@ -242,39 +210,29 @@ namespace Services.Services.QuestionService
                 var question = _mapper.Map<Question>(questionRequest);
                 question.QuestionId = GenerateShortGuid();
                 question.QuizId = quizId;
+                question.CreateAt = DateTime.UtcNow;
 
-
-                var createdQuestion = await _questionRepository.CreateQuestion(question);
-
-                var answers = new List<Answer>();
-                foreach (var answer in questionRequest.Answers)
+                if (question.Answers != null && question.Answers.Any())
                 {
-                    var ans = new Answer
+                    foreach (var answer in question.Answers)
                     {
-                        AnswerId = GenerateShortGuid(),
-                        QuestionId = createdQuestion.QuestionId,
-                        OptionText = answer.OptionText,
-                        IsCorrect = answer.IsCorrect,
-                        OptionType = answer.OptionType,
-                        CreateAt = DateTime.Now
-                    };
-                    answers.Add(ans);
-                }
-
-                foreach (var ans in answers)
-                {
-                    var createdAnswer = await _answerRepo.CreateAnswer(ans);
-                    if (createdAnswer == null)
-                    {
-                        res.IsSuccess = false;
-                        res.ResponseCode = ResponseCodeConstants.FAILED;
-                        res.StatusCode = StatusCodes.Status500InternalServerError;
-                        res.Message = ResponseMessageConstrantsAnswer.ANSWER_CREATE_FAILED;
-                        return res;
+                        answer.AnswerId = GenerateShortGuid();
+                        answer.QuestionId = question.QuestionId;
+                        answer.CreateAt = DateTime.UtcNow;
                     }
                 }
 
-                res.Data = _mapper.Map<QuestionResponse>(createdQuestion);
+                var created = await _questionRepository.CreateQuestion(question);
+                if (created == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.Message = ResponseMessageConstrantsQuestion.QUESTION_CREATE_FAILED;
+                    return res;
+                }
+
+                res.Data = _mapper.Map<QuestionResponse>(created);
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status201Created;
@@ -286,10 +244,11 @@ namespace Services.Services.QuestionService
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = ex.Message;
+                res.Message = $"Lỗi: {ex.Message}";
                 return res;
             }
         }
+
         public async Task<ResultModel> DeleteQuestion(string questionId)
         {
             var res = new ResultModel();
@@ -321,48 +280,47 @@ namespace Services.Services.QuestionService
             }
         }
 
-        public async Task<ResultModel> UpdateQuestion(string questionid, QuestionRequest questionRequest)
+        public async Task<ResultModel> UpdateQuestion(string questionId, QuestionUpdateRequest questionRequest)
         {
             var res = new ResultModel();
             try
             {
-                var question = await _questionRepository.GetQuestionById(questionid);
+                var question = await _questionRepository.GetQuestionById(questionId);
                 if (question == null)
                 {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = ResponseMessageConstrantsQuestion.QUESTION_NOT_FOUND;
-                    return res;
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        ResponseCode = ResponseCodeConstants.NOT_FOUND,
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = ResponseMessageConstrantsQuestion.QUESTIONS_NOT_FOUND
+                    };
                 }
-                var updatedQuestion = _mapper.Map<Question>(questionRequest);
-                updatedQuestion.QuestionId = questionid;
-                updatedQuestion.QuizId = question.QuizId;
-                updatedQuestion.CreateAt = question.CreateAt;
 
-                var updated = await _questionRepository.UpdateQuestion(updatedQuestion);
-                if (updated == null)
+                question.QuestionText = questionRequest.QuestionText;
+                question.QuestionType = questionRequest.QuestionType;
+                question.Point = questionRequest.Point;
+
+                var updatedQuestion = await _questionRepository.UpdateQuestion(question);
+
+                return new ResultModel
                 {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.FAILED;
-                    res.StatusCode = StatusCodes.Status500InternalServerError;
-                    res.Message = ResponseMessageConstrantsQuestion.QUESTION_UPDATED_FAILED;
-                    return res;
-                }
-                res.Data = _mapper.Map<QuestionResponse>(updated);
-                res.IsSuccess = true;
-                res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                res.StatusCode = StatusCodes.Status200OK;
-                res.Message = ResponseMessageConstrantsQuestion.QUESTION_UPDATED_SUCCESS;
-                return res;
+                    Data = _mapper.Map<QuestionResponse>(updatedQuestion),
+                    IsSuccess = true,
+                    ResponseCode = ResponseCodeConstants.SUCCESS,
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = ResponseMessageConstrantsQuestion.QUESTION_UPDATED_SUCCESS
+                };
             }
             catch (Exception ex)
             {
-                res.IsSuccess = false;
-                res.ResponseCode = ResponseCodeConstants.FAILED;
-                res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = ex.Message;
-                return res;
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.FAILED,
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = ex.InnerException?.Message ?? ex.Message
+                };
             }
         }
     }

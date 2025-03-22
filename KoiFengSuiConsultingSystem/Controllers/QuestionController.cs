@@ -45,7 +45,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPut("{questionId}")]
-        public async Task<IActionResult> UpdateQuestion(string questionId, [FromBody] QuestionRequest questionRequest)
+        public async Task<IActionResult> UpdateQuestion(string questionId, [FromBody] QuestionUpdateRequest questionRequest)
         {
             var result = await _questionService.UpdateQuestion(questionId, questionRequest);
             return StatusCode(result.StatusCode, result);

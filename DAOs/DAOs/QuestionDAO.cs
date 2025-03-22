@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,17 +39,23 @@ namespace DAOs.DAOs
 
         public async Task<Question> GetQuestionByIdDao(string questionId)
         {
-            return await _context.Questions.FindAsync(questionId);
+            return await _context.Questions.
+                Include(q => q.Answers).
+                FirstOrDefaultAsync(q => q.QuestionId == questionId);
         }
 
         public async Task<List<Question>> GetQuestionsDao()
         {
-            return _context.Questions.ToList();
+            return _context.Questions
+                .Include(q => q.Answers)
+                .ToList();
         }
 
         public async Task<List<Question>> GetQuestionsByQuizId(string quizid)
         {
-            return _context.Questions.Where(q => q.QuizId == quizid).ToList();
+            return _context.Questions
+                .Include(q => q.Answers)
+                .Where(q => q.QuizId == quizid).ToList();
         }
 
         public async Task<Question> CreateQuestionDao(Question question)

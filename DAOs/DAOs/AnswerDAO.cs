@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +45,9 @@ namespace DAOs.DAOs
 
         public async Task<List<Answer>> GetAnswersByQuestionIdDao(string questionId)
         {
-            return _context.Answers.Where(a => a.QuestionId == questionId).ToList();
+            return await _context.Answers
+                .Where(a => a.QuestionId == questionId)
+                .ToListAsync();
         }
 
         public async Task<Answer> CreateAnswerDao(Answer answer)

@@ -43,6 +43,7 @@ using Services.Services.QuestionService;
 using Repositories.Repositories.ConsultationPackageRepository;
 using Services.Services.ConsultationPackageService;
 using System.Text.Json.Serialization;
+using Repositories.Repositories.AnswerRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +68,7 @@ builder.Services.AddScoped<IChapterRepo, ChapterRepo>();
 builder.Services.AddScoped<IQuizRepo, QuizRepo>();
 builder.Services.AddScoped<IQuestionRepo, QuestionRepo>();
 builder.Services.AddScoped<IConsultationPackageRepo, ConsultationPackageRepo>();
+builder.Services.AddScoped<IAnswerRepo, AnswerRepo>();
 
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();

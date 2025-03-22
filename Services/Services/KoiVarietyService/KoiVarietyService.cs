@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static Azure.Core.HttpHeader;
 using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 
 namespace Services.Services.KoiVarietyService
@@ -55,14 +56,68 @@ namespace Services.Services.KoiVarietyService
         }
 
 
-        public async Task<List<KoiVariety>> GetKoiVarietiesAsync()
+        public async Task<ResultModel> GetKoiVarietiesAsync()
         {
-            return await _koiVarietyRepo.GetKoiVarieties();
+            var res = new ResultModel();
+            try
+            {
+                var kois = await _koiVarietyRepo.GetKoiVarieties();
+                if (kois == null || !kois.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
+                res.Data = _mapper.Map<List<KoiVarietyDto>>(kois);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
         }
 
-        public async Task<KoiVariety> GetKoiVarietyByIdAsync(string koiVarietyId)
+        public async Task<ResultModel> GetKoiVarietyByIdAsync(string koiVarietyId)
         {
-            return await _koiVarietyRepo.GetKoiVarietyById(koiVarietyId);
+            var res = new ResultModel();
+            try
+            {
+                var koi = await _koiVarietyRepo.GetKoiVarietyById(koiVarietyId);
+                if (koi == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
+                res.Data = _mapper.Map<KoiVarietyDto>(koi);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
         }
 
         public async Task<ResultModel> GetKoiVarietyWithColorsAsync()
@@ -699,7 +754,6 @@ namespace Services.Services.KoiVarietyService
             }
         }
 
-
         public async Task<ResultModel> GetRecommendedKoiVarietiesAsync()
         {
             var res = new ResultModel();
@@ -816,7 +870,7 @@ namespace Services.Services.KoiVarietyService
                     return res;
                 }
 
-                // Nếu tất cả các Koi đều có độ tương hợp < 0.5, chỉ hiển thị tên và tổng phần trăm
+                // Nếu tất cả các Koi đều có độ tương hợp < 0.5, nhưng vẫn trả về danh sách koi
                 var lowCompatibilityKoi = recommendedKoi
                     .Where(k => k.CompatibilityScore < 0.5m)
                     .Select(k => new
@@ -825,36 +879,23 @@ namespace Services.Services.KoiVarietyService
                         k.CompatibilityScore
                     }).ToList();
 
+                // Lấy danh sách các đối tượng KoiVariety để mapping
+                var koiList = recommendedKoi.Select(k => k.Koi).ToList();
+
                 if (lowCompatibilityKoi.Any() && recommendedKoi.All(k => k.CompatibilityScore < 0.5m))
                 {
                     res.IsSuccess = true;
                     res.ResponseCode = ResponseCodeConstants.SUCCESS;
                     res.StatusCode = StatusCodes.Status200OK;
-                    res.Data = recommendedKoi.Select(k => new KoiVarietyResponse
-                    {
-                        VarietyName = k.Koi.VarietyName,
-                        Description = k.Koi.Description,
-                        VarietyColors = _mapper.Map<List<VarietyColorResponse>>(k.Koi.VarietyColors),
-                        TotalPercentage = k.TotalPercentage,
-                        CompatibilityScore = k.CompatibilityScore
-                    }).ToList();
-
+                    res.Data = _mapper.Map<List<KoiVarietyDto>>(koiList);
                     res.Message = ResponseMessageConstrantsKoiVariety.LOW_MATCHES_KOIVARIETY;
                     return res;
                 }
 
-                // Trả về danh sách đầy đủ cho Koi có độ tương hợp >= 0.5
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = recommendedKoi.Select(k => new KoiVarietyResponse
-                {
-                    VarietyName = k.Koi.VarietyName,
-                    Description = k.Koi.Description,
-                    VarietyColors = _mapper.Map<List<VarietyColorResponse>>(k.Koi.VarietyColors),
-                    TotalPercentage = k.TotalPercentage,
-                    CompatibilityScore = k.CompatibilityScore
-                }).ToList();
+                res.Data = _mapper.Map<List<KoiVarietyDto>>(koiList);
                 res.Message = ResponseMessageConstrantsKoiVariety.GET_MATCHES_KOIVARIETY;
                 return res;
             }

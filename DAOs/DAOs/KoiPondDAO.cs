@@ -42,6 +42,14 @@ namespace DAOs.DAOs
             return await _context.KoiPonds.FindAsync(koiPondId);
         }
 
+        public async Task<List<KoiPond>> GetKoiPondByShapeIdDao(string shapeId)
+        {
+            return await _context.KoiPonds
+                .Include(x => x.Shape)
+                .Where(x => x.ShapeId == shapeId)
+                .ToListAsync();
+        }
+
         public async Task<List<KoiPond>> GetKoiPondsDao()  
         {
             return await _context.KoiPonds.Include(x => x.Shape).ToListAsync();

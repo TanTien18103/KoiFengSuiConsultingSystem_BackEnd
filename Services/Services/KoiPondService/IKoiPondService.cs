@@ -15,8 +15,6 @@ namespace Services.Services.KoiPondService
         Task<ResultModel> CreateKoiPond(KoiPondRequest koiPond);
         Task<ResultModel> UpdateKoiPond(string id, KoiPondRequest koiPond);
         Task<ResultModel> DeleteKoiPond(string id);
-        
-       
-
+        Task<ResultModel> GetKoiPondByShapeId(string shapeId);
     }
 }

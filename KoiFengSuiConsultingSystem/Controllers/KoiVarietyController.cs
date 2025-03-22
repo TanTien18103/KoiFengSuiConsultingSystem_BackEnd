@@ -23,10 +23,17 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _koiVarietyService = koiVarietyService;
         }
 
-        [HttpGet("get-with-color")]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetAllKoiVarietyById([FromRoute]string id)
+        {
+            var res = await _koiVarietyService.GetKoiVarietyByIdAsync(id);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAllKoiVarieties()
         {
-            var res = await _koiVarietyService.GetKoiVarietyWithColorsAsync();
+            var res = await _koiVarietyService.GetKoiVarietiesAsync();
             return StatusCode(res.StatusCode, res);
         }
 
@@ -121,7 +128,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             });
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("with-color-by/{id}")]
         public async Task<IActionResult> GetKoiVarietyById([FromRoute] string id)
         {
             var res = await _koiVarietyService.GetKoiVarietyWithColorsByIdAsync(id);

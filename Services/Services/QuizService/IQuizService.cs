@@ -13,6 +13,7 @@ namespace Services.Services.QuizService
         Task<ResultModel> GetQuizzes();
         Task<ResultModel> GetQuizById(string quizId);
         Task<ResultModel> GetQuizzesByMaster();
+        Task<ResultModel> GetQuizByCourseId(string courseId);
         Task<ResultModel> CreateQuiz(string courseId ,QuizRequest quiz);
         Task<ResultModel> UpdateQuiz(string courseId, QuizRequest quiz);
         Task<ResultModel> DeleteQuiz(string quizId);

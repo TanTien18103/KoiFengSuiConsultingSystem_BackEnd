@@ -13,5 +13,9 @@ public partial class KoiVariety
 
     public string VarietyName { get; set; }
 
+    public string Introduction { get; set; }
+
+    public string ImageUrl { get; set; }
+
     public virtual ICollection<VarietyColor> VarietyColors { get; set; } = new List<VarietyColor>();
 }

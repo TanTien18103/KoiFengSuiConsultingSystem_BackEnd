@@ -17,6 +17,8 @@ public partial class Customer
 
     public string MembershipId { get; set; }
 
+    public string ImageUrl { get; set; }
+
     public virtual Account Account { get; set; }
 
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();

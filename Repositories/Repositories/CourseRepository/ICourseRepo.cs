@@ -10,8 +10,6 @@ namespace Repositories.Repositories.CourseRepository
     public interface ICourseRepo
     {
         Task<Course> GetCourseById(string courseId);
-        Task<Course> GetCourseByMasterId(string masterId);
-
         Task<List<Course>> GetCourses();
         Task<Course> CreateCourse(Course course);
         Task<Course> UpdateCourse(Course course);

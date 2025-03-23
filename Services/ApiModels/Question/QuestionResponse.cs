@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Services.ApiModels.Answer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,10 +16,5 @@ namespace Services.ApiModels.Question
         public List<AnswerResponse> Answers { get; set; }
     }
 
-    public class AnswerResponse
-    {
-        public string AnswerId { get; set; }
-        public string OptionText { get; set; }
-        public bool? IsCorrect { get; set; }
-    }
+   
 }

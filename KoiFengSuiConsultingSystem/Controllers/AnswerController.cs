@@ -16,28 +16,28 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _answerService = answerService;
         }
 
-        [HttpPost("{questionId}")]
+        [HttpPost("create-by/{questionId}")]
         public async Task<IActionResult> CreateAnswer(string questionId, [FromBody] AnswerRequest answerRequest)
         {
             var result = await _answerService.CreateAnswer(questionId, answerRequest);
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpDelete("{answerId}")]
+        [HttpDelete("delete-by/{answerId}")]
         public async Task<IActionResult> DeleteAnswer(string answerId)
         {
             var result = await _answerService.DeleteAnswer(answerId);
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpGet("{answerId}")]
+        [HttpGet("get-by/{answerId}")]
         public async Task<IActionResult> GetAnswerById(string answerId)
         {
             var result = await _answerService.GetAnswerById(answerId);
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPut("{answerId}")]
+        [HttpPut("update-by/{answerId}")]
         public async Task<IActionResult> UpdateAnswer(string answerId, [FromBody] AnswerRequest answerRequest)
         {
             var result = await _answerService.UpdateAnswer(answerId, answerRequest);

@@ -117,6 +117,11 @@ namespace Services.Services.OrderService
                     await UpdateBookingOfflineStatusAfterPayment(order.ServiceId, isFirstPayment);
                 }
 
+                //if(order.ServiceType == PaymentTypeEnums.Course.ToString())
+                //{
+
+                //}
+
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;

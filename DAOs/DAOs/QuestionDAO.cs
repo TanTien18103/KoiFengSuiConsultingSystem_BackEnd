@@ -71,7 +71,6 @@ namespace DAOs.DAOs
             await _context.SaveChangesAsync();
             return question;
         }
-
         public async Task DeleteQuestionDao(string questionId)
         {
             var question = await GetQuestionByIdDao(questionId);
@@ -80,12 +79,30 @@ namespace DAOs.DAOs
                 throw new Exception("Question not found.");
             }
 
-            var answers = _context.Answers.Where(a => a.QuestionId == questionId);
-            _context.Answers.RemoveRange(answers);
+            var answerIds = _context.Answers
+                .Where(a => a.QuestionId == questionId)
+                .Select(a => a.AnswerId)
+                .ToList();
+
+            if (answerIds.Any())
+            {
+                var enrollAnswers = _context.EnrollAnswers.Where(ea => answerIds.Contains(ea.AnswerId)).ToList();
+                foreach (var enroll in enrollAnswers)
+                {
+                    enroll.AnswerId = null;
+                    enroll.Correct = false;
+                }
+                await _context.SaveChangesAsync(); 
+
+                var answers = _context.Answers.Where(a => a.QuestionId == questionId);
+                _context.Answers.RemoveRange(answers);
+            }
 
             _context.Questions.Remove(question);
             await _context.SaveChangesAsync();
         }
+
+
 
     }
 }

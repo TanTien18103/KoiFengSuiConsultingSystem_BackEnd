@@ -561,11 +561,20 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.EnrollCourseId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.Status).HasMaxLength(20);
 
             entity.HasOne(d => d.Chapter).WithMany(p => p.EnrollChapters)
                 .HasForeignKey(d => d.ChapterId)
                 .HasConstraintName("FK__EnrollCha__Chapt__787EE5A0");
+
+            entity.HasOne(d => d.EnrollCourse).WithMany(p => p.EnrollChapters)
+                .HasForeignKey(d => d.EnrollCourseId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_EnrollChapter_EnrollCourse");
         });
 
         modelBuilder.Entity<EnrollQuiz>(entity =>
@@ -890,11 +899,11 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
-            entity.Property(e => e.EnrollCertId)
+            entity.Property(e => e.CustomerId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
-            entity.Property(e => e.EnrollChapterId)
+            entity.Property(e => e.EnrollCertId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
@@ -909,13 +918,14 @@ public partial class KoiFishPondContext : DbContext
                 .HasForeignKey(d => d.CourseId)
                 .HasConstraintName("FK__RegisterC__Cours__00200768");
 
+            entity.HasOne(d => d.Customer).WithMany(p => p.RegisterCourses)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_RegisterCourse_Customer");
+
             entity.HasOne(d => d.EnrollCert).WithMany(p => p.RegisterCourses)
                 .HasForeignKey(d => d.EnrollCertId)
                 .HasConstraintName("FK__RegisterC__Enrol__01142BA1");
-
-            entity.HasOne(d => d.EnrollChapter).WithMany(p => p.RegisterCourses)
-                .HasForeignKey(d => d.EnrollChapterId)
-                .HasConstraintName("FK__RegisterC__Enrol__02084FDA");
 
             entity.HasOne(d => d.EnrollQuiz).WithMany(p => p.RegisterCourses)
                 .HasForeignKey(d => d.EnrollQuizId)

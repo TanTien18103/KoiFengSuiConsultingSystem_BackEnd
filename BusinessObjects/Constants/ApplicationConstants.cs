@@ -306,6 +306,7 @@ namespace BusinessObjects.Constants
             public const string COURSE_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa khóa học này.";
             public const string NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy AccountId tương ứng với tài khoản";
             public const string COURSE_UPDATED_FAILED = "Cập nhật khóa học thất bại!";
+            public const string COURSE_CREATED_FAILED = "Tạo khóa học thất bại!";
         }
 
         //Image
@@ -327,6 +328,9 @@ namespace BusinessObjects.Constants
             public const string CHAPTER_INFO_FOUND = "Lấy thông tin chương học thành công";
             public const string CHAPTER_INFO_INVALID = "Dữ liệu chương học không hợp lệ";
             public const string COURSE_ID_REQUIRED = "Không tìm thấy Id khóa học";
+            public const string ENROLL_CHAPTER_CREATE_FAILED = "Tạo chương học thất bại!";
+            public const string CHAPTER_UPDATED_PROGRESS_SUCCESS = "Cập nhật tiến độ chương học thành công!";
+            public const string CHAPTER_ALREADY_COMPLETED = "Chương học đã hoàn thành!";
         }
 
         public class ResponseMessageConstrantQuiz
@@ -378,6 +382,19 @@ namespace BusinessObjects.Constants
             public const string ANSWER_DELETED_FAILED = "Xóa câu trả lời thất bại!";
         }
 
+        public class ResponseMessageConstrantsRegisterCourse
+        {
+            public const string REGISTER_COURSE_CREATED_SUCCESS = "Tạo đăng ký khóa học thành công!";
+            public const string REGISTER_COURSE_UPDATED_SUCCESS = "Cập nhật khóa học thành công!";
+            public const string REGISTER_COURSE_DELETED_SUCCESS = "Xóa khóa học thành công!";
+            public const string REGISTER_COURSE_FOUND = "Lấy danh sách khóa học thành công!";
+            public const string REGISTER_COURSE_NOT_FOUND = "Không tìm thấy khóa học!";
+            public const string REGISTER_COURSE_INFO_FOUND = "Lấy thông tin khóa học thành công";
+            public const string REGISTER_COURSE_INFO_INVALID = "Dữ liệu khóa học không hợp lệ";
+            public const string REGISTER_COURSE_CREATE_FAILED = "Tạo đăng ký khóa học thất bại!";
+            public const string REGISTER_COURSE_UPDATE_FAILED = "Cập nhật đăng ký khóa học thất bại!";
+            public const string REGISTER_COURSE_DELETE_FAILED = "Xóa đăng ký khóa học thất bại!";
+        }
     }
 }
 

@@ -14,7 +14,8 @@ namespace Services.Mapper
         public KoiPondMappingProfile() 
         {
             CreateMap<KoiPond, KoiPondResponse>()
-                .ForMember(dest => dest.ShapeName, opt => opt.MapFrom(src => src.Shape.ShapeName));
+                .ForMember(dest => dest.ShapeName, opt => opt.MapFrom(src => src.Shape.ShapeName))
+                .ForMember(dest => dest.Element, opt => opt.MapFrom(src => src.Shape.Element));
 
             CreateMap<KoiPondRequest, KoiPond>();
         }

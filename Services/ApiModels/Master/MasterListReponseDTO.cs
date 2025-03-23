@@ -16,6 +16,8 @@ namespace Services.ApiModels.Master
 
         public string Title { get; set; }
 
+        public string ImageUrl { get; set; }
+
         public string Expertise { get; set; }
 
         public string Experience { get; set; }

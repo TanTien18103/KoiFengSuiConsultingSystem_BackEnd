@@ -13,8 +13,6 @@ public partial class KoiPond
 
     public string PondName { get; set; }
 
-    public string Direction { get; set; }
-
     public string Introduction { get; set; }
 
     public string Description { get; set; }

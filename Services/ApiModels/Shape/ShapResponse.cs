@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.ApiModels.KoiPond
+namespace Services.ApiModels.Shape
 {
-    public class KoiPondRequest
+    public class ShapResponse
     {
         public string ShapeId { get; set; }
 
-        public string PondName { get; set; }
+        public string ShapeName { get; set; }
 
-        public string Direction { get; set; }
+        public string Element { get; set; }
     }
 }

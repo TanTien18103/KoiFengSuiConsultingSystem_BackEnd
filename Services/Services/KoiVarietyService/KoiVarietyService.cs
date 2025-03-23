@@ -189,6 +189,9 @@ namespace Services.Services.KoiVarietyService
                 {
                     Id = koiVariety.KoiVarietyId,
                     VarietyName = koiVariety.VarietyName,
+                    Description = koiVariety.Description,
+                    ImageUrl = koiVariety.ImageUrl,
+                    Introduction = koiVariety.Introduction,
                     Colors = koiVariety.VarietyColors
                         .Where(vc => vc.Color != null)
                         .Select(vc => new ColorPercentageDto
@@ -837,7 +840,7 @@ namespace Services.Services.KoiVarietyService
                         allKoi.AddRange(koi);
                     }
                 }
-
+                var kois = await _koiVarietyRepo.GetKoiVarieties();
                 // Loại bỏ các loại Koi trùng lặp
                 allKoi = allKoi.DistinctBy(k => k.KoiVarietyId).ToList();
 
@@ -846,6 +849,7 @@ namespace Services.Services.KoiVarietyService
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
                     res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Data = _mapper.Map<List<KoiVarietyDto>>(kois);
                     res.Message = ResponseMessageConstrantsKoiVariety.NO_MATCHES_KOIVARIETY;
                     return res;
                 }

@@ -40,6 +40,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
+        [HttpGet("get-all-shape")]
+        public async Task<IActionResult> GetAllShapes()
+        {
+            var res = await _iKoiPondService.GetAllShapes();
+            return StatusCode(res.StatusCode, res);
+        }
+
         [HttpGet("get-by-shape/{id}")]
         public async Task<IActionResult> GetPondsByShape([FromRoute]string id)
         {

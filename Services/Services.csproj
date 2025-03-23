@@ -22,7 +22,6 @@
     <Folder Include="ApiModels\FengShuiDocument\" />
     <Folder Include="ApiModels\MasterSchedule\" />
     <Folder Include="ApiModels\Membership\" />
-    <Folder Include="ApiModels\Shape\" />
     <Folder Include="ApiModels\WalletTransaction\" />
     <Folder Include="ApiModels\Wallet\" />
     <Folder Include="ApiModels\VarietyColor\" />

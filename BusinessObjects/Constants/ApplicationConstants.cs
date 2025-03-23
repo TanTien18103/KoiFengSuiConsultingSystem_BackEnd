@@ -207,6 +207,7 @@ namespace BusinessObjects.Constants
         public const string KOIPOND_DELETED = "Xóa hồ cá thành công!";
         public const string KOIPOND_INVALID = "Dữ liệu hồ cá không hợp lệ";
         public const string SHAPE_NOT_FOUND = "Không tìm thấy hình dạng hồ cá!";
+        public const string SHAPE_FOUND = "Tìm thấy danh sách hình dạng hồ cá!";
 
         public class ResponseMessageConstrantsKoiVariety
         {
@@ -214,7 +215,7 @@ namespace BusinessObjects.Constants
             public const string KOIVARIETY_FOUND = "Tìm thấy cá Koi thành công!";
             public const string KOIVARIETY_INFO_FOUND = "Lấy thông tin thành công ";
             public const string KOIVARIETY_COLOR_INFO_NOT_FOUND = "không có thông tin màu sắc ";
-            public const string NO_MATCHES_KOIVARIETY = "Không tìm thấy Koi Variety phù hợp với mệnh của bạn";
+            public const string NO_MATCHES_KOIVARIETY = "Không tìm thấy Koi Variety phù hợp với mệnh của bạn. Hãy tham khảo tất cả loại cá chúng tôi c";
             public const string LOW_MATCHES_KOIVARIETY = "Chỉ tìm thấy Koi Variety có độ tương hợp thấp với mệnh của bạn";
             public const string GET_MATCHES_KOIVARIETY = "Lấy danh sách Koi Variety phù hợp với mệnh của bạn thành công";
             public const string CREATE_KOIVARIETY_FAILED = "Tạo cá Koi thất bại!";

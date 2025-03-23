@@ -377,6 +377,7 @@ namespace BusinessObjects.Constants
             public const string ANSWER_UPDATED_FAILED = "Cập nhật câu trả lời thất bại!";
             public const string ANSWER_DELETED_FAILED = "Xóa câu trả lời thất bại!";
         }
+
     }
 }
 

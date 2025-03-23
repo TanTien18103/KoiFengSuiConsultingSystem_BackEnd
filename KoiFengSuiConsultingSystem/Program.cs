@@ -49,6 +49,9 @@ using Services.ServicesHelpers.UploadService;
 using System.Text.Json.Serialization;
 using Repositories.Repositories.AnswerRepository;
 using Services.Services.AnswerService;
+using Repositories.Repositories.RegisterCourseRepository;
+using Repositories.Repositories.EnrollChapterRepository;
+using Services.Services.RegisterCourseService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +77,9 @@ builder.Services.AddScoped<IQuizRepo, QuizRepo>();
 builder.Services.AddScoped<IQuestionRepo, QuestionRepo>();
 builder.Services.AddScoped<IConsultationPackageRepo, ConsultationPackageRepo>();
 builder.Services.AddScoped<IAnswerRepo, AnswerRepo>();
+builder.Services.AddScoped<IRegisterCourseRepo, RegisterCourseRepo>();
+builder.Services.AddScoped<IEnrollChapterRepo, EnrollChapterRepo>();
+
 
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -97,6 +103,7 @@ builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IConsultationPackageService, ConsultationPackageService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
+builder.Services.AddScoped<IRegisterCourseService, RegisterCourseService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();

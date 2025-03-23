@@ -15,5 +15,6 @@ namespace Repositories.Repositories.CourseRepository
         Task<Course> UpdateCourse(Course course);
         Task DeleteCourse(string courseId);
         Task<List<Course>> GetCoursesByMasterId(string masterId);
+        Task<Course> GetCourseByChapterId(string chapterId);
     }
 }

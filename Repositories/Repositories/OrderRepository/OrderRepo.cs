@@ -59,5 +59,10 @@ namespace Repositories.Repositories.OrderRepository
         {
             return OrderDAO.Instance.GetOrderByServiceIdAndStatusDao(serviceId, serviceType, status);
         }
+
+        public Task<Order> GetOrderByServiceIdAndCustomerIdAndServiceType(string customerId, string serviceId, string serviceType)
+        {
+            return OrderDAO.Instance.GetOrderByServiceIdAndCustomerIdAndServiceType(customerId, serviceId, serviceType);
+        }
     }
 }

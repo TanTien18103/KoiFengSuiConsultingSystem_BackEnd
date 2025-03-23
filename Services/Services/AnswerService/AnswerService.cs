@@ -156,8 +156,6 @@ namespace Services.Services.AnswerService
             var res = new ResultModel();
             try
             {
-
-
                 var answerData = await _answerRepo.GetAnswerById(answerid);
                 if (answerData == null)
                 {
@@ -168,10 +166,11 @@ namespace Services.Services.AnswerService
                     return res;
                 }
 
-                var answerUpdate = _mapper.Map<Answer>(answer);
-                answerUpdate.QuestionId = answerData.QuestionId;
+                _mapper.Map(answer, answerData); 
+                answerData.QuestionId = answerData.QuestionId; 
+                answerData.CreateAt = answerData.CreateAt;
 
-                var result = await _answerRepo.UpdateAnswer(answerUpdate);
+                var result = await _answerRepo.UpdateAnswer(answerData); 
                 if (result == null)
                 {
                     res.IsSuccess = false;
@@ -193,7 +192,7 @@ namespace Services.Services.AnswerService
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = ex.InnerException?.Message;
+                res.Message = ex.InnerException?.Message ?? ex.Message;
                 return res;
             }
         }

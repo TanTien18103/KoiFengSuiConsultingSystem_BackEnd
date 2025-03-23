@@ -14,7 +14,7 @@ namespace Services.Mapper
     {
         public CourseMappingProfile()
         {
-            CreateMap<Course, CourseRespone>()
+            CreateMap<Course, CourseResponse>()
                 .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.CreateByNavigation.MasterName));
 
             CreateMap<CourseRequest, Course>()

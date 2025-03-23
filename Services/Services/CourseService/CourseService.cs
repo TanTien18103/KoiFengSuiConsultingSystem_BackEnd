@@ -77,7 +77,7 @@ namespace Services.Services.CourseService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<CourseRespone>(course);
+                res.Data = _mapper.Map<CourseResponse>(course);
                 res.Message = ResponseMessageConstrantsCourse.COURSE_INFO_FOUND;
                 return res;
             }
@@ -109,7 +109,7 @@ namespace Services.Services.CourseService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<CourseRespone>>(courses);
+                res.Data = _mapper.Map<List<CourseResponse>>(courses);
                 res.Message = ResponseMessageConstrantsCourse.COURSE_INFO_FOUND;
                 return res;
             }
@@ -168,7 +168,7 @@ namespace Services.Services.CourseService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status201Created;
-                res.Data = _mapper.Map<CourseRespone>(course);
+                res.Data = _mapper.Map<CourseResponse>(course);
                 res.Message = ResponseMessageConstrantsCourse.COURSE_CREATED_SUCCESS;
                 return res;
             }
@@ -213,7 +213,7 @@ namespace Services.Services.CourseService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<CourseRespone>(course);
+                res.Data = _mapper.Map<CourseResponse>(course);
                 res.Message = ResponseMessageConstrantsCourse.COURSE_UPDATED_SUCCESS;
                 return res;
             }

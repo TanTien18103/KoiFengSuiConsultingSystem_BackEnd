@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Services.ApiModels.Course
 {
-    public class CourseRespone
+    public class CourseResponse
     {
         public string CourseId { get; set; }
         public string CourseName { get; set; }

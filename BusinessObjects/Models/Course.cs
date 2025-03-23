@@ -15,8 +15,6 @@ public partial class Course
 
     public bool? IsBestSeller { get; set; }
 
-    public string CourseCategory { get; set; }
-
     public string Status { get; set; }
 
     public string CertificateId { get; set; }
@@ -34,6 +32,10 @@ public partial class Course
     public string Description { get; set; }
 
     public string ImageUrl { get; set; }
+
+    public string CategoryId { get; set; }
+
+    public virtual Category Category { get; set; }
 
     public virtual Certificate Certificate { get; set; }
 

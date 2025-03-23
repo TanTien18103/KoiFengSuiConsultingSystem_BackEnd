@@ -193,10 +193,10 @@ builder.Services.AddAuthentication(options =>
     googleOptions.CallbackPath = "/signin-google";
 });
 
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    serverOptions.ListenAnyIP(5261);
-});
+//builder.WebHost.ConfigureKestrel(serverOptions =>
+//{
+//    serverOptions.ListenAnyIP(5261);
+//});
 
 // CORS Policy
 builder.Services.AddCors(options =>

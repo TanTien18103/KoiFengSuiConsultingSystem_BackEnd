@@ -13,19 +13,21 @@ public partial class RegisterCourse
 
     public string EnrollCertId { get; set; }
 
-    public string EnrollChapterId { get; set; }
-
     public string EnrollQuizId { get; set; }
 
     public decimal? Percentage { get; set; }
 
     public string Status { get; set; }
 
+    public string CustomerId { get; set; }
+
     public virtual Course Course { get; set; }
+
+    public virtual Customer Customer { get; set; }
 
     public virtual EnrollCert EnrollCert { get; set; }
 
-    public virtual EnrollChapter EnrollChapter { get; set; }
+    public virtual ICollection<EnrollChapter> EnrollChapters { get; set; } = new List<EnrollChapter>();
 
     public virtual EnrollQuiz EnrollQuiz { get; set; }
 }

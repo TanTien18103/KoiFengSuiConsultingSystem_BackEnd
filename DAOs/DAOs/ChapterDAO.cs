@@ -63,27 +63,24 @@ namespace DAOs.DAOs
 
         public async Task DeleteChapterDao(string chapterId)
         {
-            var enrollChapters = _context.EnrollChapters.Where(e => e.ChapterId == chapterId).ToList();
-
-            foreach (var enroll in enrollChapters)
-            {
-                var registerCourses = _context.RegisterCourses.Where(r => r.EnrollChapterId == enroll.EnrollChapterId);
-                _context.RegisterCourses.RemoveRange(registerCourses);
-            }
-
-            await _context.SaveChangesAsync();
-
-            _context.EnrollChapters.RemoveRange(enrollChapters);
-            await _context.SaveChangesAsync(); 
-
             var chapter = await _context.Chapters.FindAsync(chapterId);
-            if (chapter != null)
+            if (chapter == null)
             {
-                _context.Chapters.Remove(chapter);
-                await _context.SaveChangesAsync();
+                return; 
             }
+            
+            var enrollChapters = await _context.EnrollChapters
+                                               .Where(e => e.ChapterId == chapterId)
+                                               .ToListAsync();
+            if (enrollChapters.Any())
+            {
+                var enrollChapterIds = enrollChapters.Select(e => e.EnrollChapterId).ToList();
+                _context.EnrollChapters.RemoveRange(enrollChapters);
+            }
+            _context.Chapters.Remove(chapter);
+            await _context.SaveChangesAsync();
         }
 
-
+       
     }
 }

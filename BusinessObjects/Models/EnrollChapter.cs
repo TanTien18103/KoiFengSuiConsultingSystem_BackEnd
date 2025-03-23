@@ -13,7 +13,9 @@ public partial class EnrollChapter
 
     public string Status { get; set; }
 
+    public string EnrollCourseId { get; set; }
+
     public virtual Chapter Chapter { get; set; }
 
-    public virtual ICollection<RegisterCourse> RegisterCourses { get; set; } = new List<RegisterCourse>();
+    public virtual RegisterCourse EnrollCourse { get; set; }
 }

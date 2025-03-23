@@ -14,5 +14,6 @@ namespace Repositories.Repositories.RegisterCourseRepository
         Task<RegisterCourse> CreateRegisterCourse(RegisterCourse registerCourse);
         Task<RegisterCourse> UpdateRegisterCourse(RegisterCourse registerCourse);
         Task DeleteRegisterCourse(string registerCourseId);
+        Task<RegisterCourse> GetRegisterCourseByCourseIdAndCustomerId(string courseId, string customerid);
     }
 }

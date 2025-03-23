@@ -30,5 +30,10 @@ namespace Repositories.Repositories.RegisterCourseRepository
         {
             return RegisterCourseDAO.Instance.DeleteRegisterCourseDao(registerCourseId);
         }
+
+        public Task<RegisterCourse> GetRegisterCourseByCourseIdAndCustomerId(string courseId, string customerid)
+        {
+            return RegisterCourseDAO.Instance.GetRegisterCourseByCourseIdAndCustomerId(courseId, customerid);
+        }
     }
 }

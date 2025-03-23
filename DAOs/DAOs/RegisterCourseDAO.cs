@@ -66,5 +66,12 @@ namespace DAOs.DAOs
             _context.RegisterCourses.Remove(registerCourse);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<RegisterCourse> GetRegisterCourseByCourseIdAndCustomerId(string courseId, string customerid)
+        {
+            return _context.RegisterCourses
+                .FirstOrDefault(rc => rc.CourseId == courseId && rc.CustomerId == customerid);
+        }
+
     }
 }

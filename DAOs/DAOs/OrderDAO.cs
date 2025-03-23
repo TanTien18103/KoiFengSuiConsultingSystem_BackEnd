@@ -126,5 +126,14 @@ namespace DAOs.DAOs
                 .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
         }
+
+        public async Task<Order> GetOrderByServiceIdAndCustomerIdAndServiceType(string customerId, string serviceId, string serviceType)
+        {
+            return await _context.Orders
+                .FirstOrDefaultAsync(o =>
+                    o.CustomerId == customerId &&
+                    o.ServiceId == serviceId &&
+                    o.ServiceType == serviceType);
+        }
     }
 }

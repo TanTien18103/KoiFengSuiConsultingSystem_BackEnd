@@ -43,6 +43,13 @@ namespace DAOs.DAOs
                 .FirstOrDefaultAsync(c => c.CreateBy == masterId);
         }
 
+        public async Task<Course> GetCourseIdByChapterIdDao(string chapterId)
+        {
+            var chapter = await _context.Chapters.FindAsync(chapterId);
+            var course = await _context.Courses.FindAsync(chapter.CourseId);
+            return course;
+        }
+
 
         public async Task<Course> GetCourseByIdDao(string courseId)
         {

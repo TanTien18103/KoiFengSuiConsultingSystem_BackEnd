@@ -65,6 +65,11 @@ namespace Services.Mapper
 
             CreateMap<BookingOfflineRequest, BookingOffline>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            CreateMap<BookingOffline, BookingOfflineContractResponse>()
+                .ForMember(dest => dest.Contract, opt => opt.MapFrom(src => src.Contract));
+
+            CreateMap<Contract, ContractUrlOnlyResponse>();
         }
     }
 } 

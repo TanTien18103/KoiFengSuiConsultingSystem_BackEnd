@@ -22,6 +22,10 @@ namespace Repositories.Repositories.BookingOfflineRepository
         {
             return BookingOfflineDAO.Instance.GetBookingOfflinesByUserIdDao(userId);
         }
+        public Task<List<BookingOffline>> GetBookingOfflinesByAccountId(string accountId)
+        {
+            return BookingOfflineDAO.Instance.GetBookingOfflinesByAccountIdDao(accountId);
+        }
         public Task<List<BookingOffline>> GetBookingOfflines()
         {
             return BookingOfflineDAO.Instance.GetBookingOfflinesDao();
@@ -37,6 +41,10 @@ namespace Repositories.Repositories.BookingOfflineRepository
         public Task DeleteBookingOffline(string bookingOfflineId)
         {
             return BookingOfflineDAO.Instance.DeleteBookingOfflineDao(bookingOfflineId);
+        }
+        public Task<(BookingOffline booking, string message)> ProcessBookingTransaction(BookingOffline booking, string packageId, decimal selectedPrice)
+        {
+            return BookingOfflineDAO.Instance.ProcessBookingTransactionDao(booking, packageId, selectedPrice);
         }
     }
 }

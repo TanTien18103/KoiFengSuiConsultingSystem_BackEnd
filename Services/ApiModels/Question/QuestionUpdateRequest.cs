@@ -11,5 +11,6 @@ namespace Services.ApiModels.Question
         public string QuestionText { get; set; }
         public string QuestionType { get; set; }
         public decimal? Point { get; set; }
+        public List<AnswerUpdateRequest> answerUpdateRequests { get; set; } = new List<AnswerUpdateRequest>();
     }
 }

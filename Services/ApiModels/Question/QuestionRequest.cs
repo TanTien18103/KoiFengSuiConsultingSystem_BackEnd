@@ -13,7 +13,5 @@ namespace Services.ApiModels.Question
         public string QuestionType { get; set; }
         public decimal? Point { get; set; }
         public List<AnswerRequest> Answers { get; set; } = new List<AnswerRequest>();
-
     }
-   
 }

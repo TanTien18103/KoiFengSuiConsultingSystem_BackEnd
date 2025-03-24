@@ -58,6 +58,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
+        [HttpGet("current-login-bookingOffline")]
+        public async Task<IActionResult> GetBookingOfflineForCurrentLogin()
+        {
+            var res = await _bookingService.GetBookingOfflineForCurrentLogin();
+            return StatusCode(res.StatusCode, res);
+        }
+
         [HttpPut("assign-master")]
         //[Authorize(Roles = "Staff")]
         public async Task<IActionResult> AssignMaster( string? bookingonline, string? bookingoffline, string masterId)

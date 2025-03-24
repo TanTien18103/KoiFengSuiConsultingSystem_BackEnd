@@ -67,7 +67,16 @@ namespace DAOs.DAOs
 
         public async Task<List<BookingOffline>> GetBookingOfflinesByUserIdDao(string userId)
         {
-            return _context.BookingOfflines.Where(b => b.CustomerId == userId).ToList();
+            return _context.BookingOfflines.Include(x => x.Contract).Where(b => b.CustomerId == userId).ToList();
+        }
+
+        public async Task<List<BookingOffline>> GetBookingOfflinesByAccountIdDao(string accountId)
+        {
+            return await _context.BookingOfflines
+                .Include(x => x.Contract)
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Where(x => x.Customer.Account.AccountId == accountId)
+                .ToListAsync();
         }
 
         public async Task<(BookingOffline booking, string message)> ProcessBookingTransactionDao(BookingOffline booking, string packageId, decimal selectedPrice)

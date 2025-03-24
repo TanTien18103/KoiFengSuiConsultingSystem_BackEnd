@@ -14,6 +14,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             _contractService = contractService;
         }
+        [HttpGet("by-bookingOffline/{id}")]
+        public async Task<IActionResult> GetContractByBookingOfflineId([FromRoute] string id)
+        {
+            var result = await _contractService.GetContractByBookingOfflineId(id);
+            return StatusCode(result.StatusCode, result);
+        }
         [HttpPost("create")]
         public async Task<IActionResult> CreateContract([FromForm] ContractRequest request)
         {

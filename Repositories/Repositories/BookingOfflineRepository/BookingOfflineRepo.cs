@@ -22,6 +22,10 @@ namespace Repositories.Repositories.BookingOfflineRepository
         {
             return BookingOfflineDAO.Instance.GetBookingOfflinesByUserIdDao(userId);
         }
+        public Task<List<BookingOffline>> GetBookingOfflinesByAccountId(string accountId)
+        {
+            return BookingOfflineDAO.Instance.GetBookingOfflinesByAccountIdDao(accountId);
+        }
         public Task<List<BookingOffline>> GetBookingOfflines()
         {
             return BookingOfflineDAO.Instance.GetBookingOfflinesDao();

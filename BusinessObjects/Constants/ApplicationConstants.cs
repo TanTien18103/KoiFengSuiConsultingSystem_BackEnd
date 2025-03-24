@@ -412,6 +412,7 @@ namespace BusinessObjects.Constants
         public static class ResponseMessageConstrantsContract
         {
             public const string NOT_FOUND = "Không tìm thấy hợp đồng";
+            public const string FOUND = "Tìm thấy hợp đồng";
             public const string CREATED_SUCCESS = "Tạo hợp đồng thành công";
             public const string SENT_SUCCESS = "Gửi hợp đồng thành công";
             public const string OTP_SENT_SUCCESS = "Gửi mã OTP thành công";

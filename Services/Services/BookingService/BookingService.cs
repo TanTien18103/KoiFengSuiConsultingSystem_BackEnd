@@ -665,7 +665,11 @@ namespace Services.Services.BookingService
                 var accountId = GetAuthenticatedAccountId();
                 if (string.IsNullOrEmpty(accountId))
                 {
-                    throw new UnauthorizedAccessException(ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED);
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    return res;
                 }
 
                 var customerId = await _customerRepo.GetCustomerIdByAccountId(accountId);
@@ -714,6 +718,47 @@ namespace Services.Services.BookingService
                 return res;
             }
             catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetBookingOfflineForCurrentLogin()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var accountId = GetAuthenticatedAccountId();
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    return res;
+                }
+                var bookingOffline = await _offlineRepo.GetBookingOfflinesByAccountId(accountId);
+                if (bookingOffline == null || !bookingOffline.Any())
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsBooking.OFFLINE_GET_SUCCESS;
+                res.Data = bookingOffline.Select(b => _mapper.Map<BookingOfflineContractResponse>(b)).ToList();
+                return res;
+            }
+            catch(Exception ex)
             {
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;

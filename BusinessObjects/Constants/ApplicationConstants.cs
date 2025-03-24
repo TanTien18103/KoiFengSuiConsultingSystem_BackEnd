@@ -307,6 +307,17 @@ namespace BusinessObjects.Constants
             public const string NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy AccountId tương ứng với tài khoản";
             public const string COURSE_UPDATED_FAILED = "Cập nhật khóa học thất bại!";
             public const string COURSE_CREATED_FAILED = "Tạo khóa học thất bại!";
+            public const string PAID_COURSES_NOT_FOUND = "Chưa có khóa học nào được mua!";
+            public const string PAID_COURSES_FOUND = "Lấy danh sách khóa học đã mua thành công!";
+        }
+
+        public class ResponseMessageConstrantsCategory
+        {
+            public const string CATEGORY_CREATED_SUCCESS = "Tạo danh mục thành công!";
+            public const string CATEGORY_UPDATED_SUCCESS = "Cập nhật danh mục thành công!";
+            public const string CATEGORY_FOUND = "Lấy danh sách danh mục thành công!";
+            public const string CATEGORY_NOT_FOUND = "Không tìm thấy danh sách danh mục!";
+            public const string CATEGORY_ALREADY_EXIST = "Tên danh mục đã tồn tại!";
         }
 
         //Image

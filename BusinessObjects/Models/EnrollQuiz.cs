@@ -11,13 +11,11 @@ public partial class EnrollQuiz
 
     public string QuizId { get; set; }
 
-    public string EnrollAnswerId { get; set; }
-
     public decimal? Point { get; set; }
 
     public string ParticipantId { get; set; }
 
-    public virtual EnrollAnswer EnrollAnswer { get; set; }
+    public virtual ICollection<EnrollAnswer> EnrollAnswers { get; set; } = new List<EnrollAnswer>();
 
     public virtual Customer Participant { get; set; }
 

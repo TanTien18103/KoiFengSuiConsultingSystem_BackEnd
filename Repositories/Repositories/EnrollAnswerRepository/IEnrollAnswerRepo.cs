@@ -14,5 +14,6 @@ namespace Repositories.Repositories.EnrollAnswerRepository
         Task<EnrollAnswer> CreateEnrollAnswer(EnrollAnswer enrollAnswer);
         Task<EnrollAnswer> UpdateEnrollAnswer(EnrollAnswer enrollAnswer);
         Task DeleteEnrollAnswer(string enrollAnswerId);
+        Task AddRangeEnrollAnswers(List<EnrollAnswer> enrollAnswers);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Services.ApiModels.RegisterCourse;
 using Services.Services.RegisterCourseService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
@@ -19,6 +20,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
         public async Task<IActionResult> UpdateUserCourseStatus(string chapterId)
         {
             var result = await _registerCourseService.UpdateUserCourseStatus(chapterId);
+            return Ok(result);
+        }
+
+        [HttpPut("{quizid}/update")]
+        public async Task<IActionResult> UpdateUserQuiz(string quizid, [FromBody] RegisterQuizRequest registerQuizRequest)
+        {
+            var result = await _registerCourseService.UpdateUserQuiz(quizid, registerQuizRequest);
             return Ok(result);
         }
     }

@@ -14,5 +14,6 @@ namespace Repositories.Repositories.EnrollQuizRepository
         Task<EnrollQuiz> CreateEnrollQuiz(EnrollQuiz enrollQuiz);
         Task<EnrollQuiz> UpdateEnrollQuiz(EnrollQuiz enrollQuiz);
         Task DeleteEnrollQuiz(string enrollQuizId);
+        Task<EnrollQuiz> GetEnrollQuizByQuizIdAndParticipantId(string quizid, string customerid);
     }
 }

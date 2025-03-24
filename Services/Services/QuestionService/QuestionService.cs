@@ -244,7 +244,7 @@ namespace Services.Services.QuestionService
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = $"Lỗi: {ex.Message}";
+                res.Message = ex.Message;
                 return res;
             }
         }
@@ -275,7 +275,7 @@ namespace Services.Services.QuestionService
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = ex.Message;
+                res.Message = ex.InnerException?.Message;
                 return res;
             }
         }

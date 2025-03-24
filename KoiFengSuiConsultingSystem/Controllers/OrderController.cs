@@ -24,7 +24,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPut("update-to-PAID/{id}")]
-        [Authorize(Roles = "Master")]
+        //[Authorize(Roles = "Master")]
         public async Task<IActionResult> UpdateToPaid([FromRoute] string id)
         {
             var res = await _orderService.UpdateOrderToPaid(id);

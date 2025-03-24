@@ -32,5 +32,9 @@ namespace Repositories.Repositories.KoiPondRepository
         {
             return KoiPondDAO.Instance.DeleteKoiPondDao(koiPondId);
         }
+        public Task<List<KoiPond>> GetKoiPondByShapeId(string shapeId)
+        {
+            return KoiPondDAO.Instance.GetKoiPondByShapeIdDao(shapeId);
+        }
     }
 }

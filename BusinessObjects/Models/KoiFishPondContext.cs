@@ -12,7 +12,6 @@ public partial class KoiFishPondContext : DbContext
     public KoiFishPondContext()
     {
     }
-
     public KoiFishPondContext(DbContextOptions<KoiFishPondContext> options)
         : base(options)
     {
@@ -27,6 +26,8 @@ public partial class KoiFishPondContext : DbContext
     public virtual DbSet<BookingOffline> BookingOfflines { get; set; }
 
     public virtual DbSet<BookingOnline> BookingOnlines { get; set; }
+
+    public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Certificate> Certificates { get; set; }
 
@@ -306,6 +307,22 @@ public partial class KoiFishPondContext : DbContext
                 .HasConstraintName("FK_BookingOnline_MasterSchedule");
         });
 
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B7CB6226E");
+
+            entity.ToTable("Category");
+
+            entity.Property(e => e.CategoryId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.CategoryName)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
+        });
+
         modelBuilder.Entity<Certificate>(entity =>
         {
             entity.HasKey(e => e.CertificateId).HasName("PK__Certific__BBF8A7C1A2DED127");
@@ -334,6 +351,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.Title).HasMaxLength(100);
             entity.Property(e => e.Video).HasMaxLength(255);
@@ -421,11 +439,14 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CategoryId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.CertificateId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
-            entity.Property(e => e.CourseCategory).HasMaxLength(50);
             entity.Property(e => e.CourseName).HasMaxLength(100);
             entity.Property(e => e.CreateAt)
                 .HasDefaultValueSql("(getdate())")
@@ -443,6 +464,10 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.Rating).HasColumnType("decimal(3, 2)");
             entity.Property(e => e.Status).HasMaxLength(20);
             entity.Property(e => e.UpdateAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Category).WithMany(p => p.Courses)
+                .HasForeignKey(d => d.CategoryId)
+                .HasConstraintName("FK_Course_Category");
 
             entity.HasOne(d => d.Certificate).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.CertificateId)
@@ -513,10 +538,18 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.EnrollQuizId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
 
             entity.HasOne(d => d.Answer).WithMany(p => p.EnrollAnswers)
                 .HasForeignKey(d => d.AnswerId)
                 .HasConstraintName("FK__EnrollAns__Answe__75A278F5");
+
+            entity.HasOne(d => d.EnrollQuiz).WithMany(p => p.EnrollAnswers)
+                .HasForeignKey(d => d.EnrollQuizId)
+                .HasConstraintName("FK_EnrollAnswer_EnrollQuiz");
         });
 
         modelBuilder.Entity<EnrollCert>(entity =>
@@ -561,11 +594,20 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.EnrollCourseId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.Status).HasMaxLength(20);
 
             entity.HasOne(d => d.Chapter).WithMany(p => p.EnrollChapters)
                 .HasForeignKey(d => d.ChapterId)
                 .HasConstraintName("FK__EnrollCha__Chapt__787EE5A0");
+
+            entity.HasOne(d => d.EnrollCourse).WithMany(p => p.EnrollChapters)
+                .HasForeignKey(d => d.EnrollCourseId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_EnrollChapter_EnrollCourse");
         });
 
         modelBuilder.Entity<EnrollQuiz>(entity =>
@@ -578,10 +620,6 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
-            entity.Property(e => e.EnrollAnswerId)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .IsFixedLength();
             entity.Property(e => e.ParticipantId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -591,10 +629,6 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
-
-            entity.HasOne(d => d.EnrollAnswer).WithMany(p => p.EnrollQuizzes)
-                .HasForeignKey(d => d.EnrollAnswerId)
-                .HasConstraintName("FK__EnrollQui__Enrol__7C4F7684");
 
             entity.HasOne(d => d.Participant).WithMany(p => p.EnrollQuizzes)
                 .HasForeignKey(d => d.ParticipantId)
@@ -636,7 +670,6 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.Description).HasMaxLength(500);
-            entity.Property(e => e.Direction).HasMaxLength(20);
             entity.Property(e => e.ImageUrl).HasMaxLength(255);
             entity.Property(e => e.Introduction).HasMaxLength(255);
             entity.Property(e => e.PondName).HasMaxLength(100);
@@ -890,11 +923,11 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
-            entity.Property(e => e.EnrollCertId)
+            entity.Property(e => e.CustomerId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
-            entity.Property(e => e.EnrollChapterId)
+            entity.Property(e => e.EnrollCertId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
@@ -909,13 +942,14 @@ public partial class KoiFishPondContext : DbContext
                 .HasForeignKey(d => d.CourseId)
                 .HasConstraintName("FK__RegisterC__Cours__00200768");
 
+            entity.HasOne(d => d.Customer).WithMany(p => p.RegisterCourses)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_RegisterCourse_Customer");
+
             entity.HasOne(d => d.EnrollCert).WithMany(p => p.RegisterCourses)
                 .HasForeignKey(d => d.EnrollCertId)
                 .HasConstraintName("FK__RegisterC__Enrol__01142BA1");
-
-            entity.HasOne(d => d.EnrollChapter).WithMany(p => p.RegisterCourses)
-                .HasForeignKey(d => d.EnrollChapterId)
-                .HasConstraintName("FK__RegisterC__Enrol__02084FDA");
 
             entity.HasOne(d => d.EnrollQuiz).WithMany(p => p.RegisterCourses)
                 .HasForeignKey(d => d.EnrollQuizId)

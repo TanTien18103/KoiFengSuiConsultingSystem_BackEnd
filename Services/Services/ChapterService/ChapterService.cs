@@ -200,7 +200,7 @@ namespace Services.Services.ChapterService
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Data = _mapper.Map<ChapterRespone>(chapterInfo);
-                res.Message = ResponseMessageConstrantsChapter.CHAPTER_UPDATED_SUCCESS;
+                res.Message = ResponseMessageConstrantsChapter.CHAPTER_UPDATED_PROGRESS_SUCCESS;
                 return res;
             }
             catch (Exception ex)

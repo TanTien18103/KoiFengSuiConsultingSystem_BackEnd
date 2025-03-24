@@ -30,5 +30,21 @@ namespace Repositories.Repositories.EnrollChapterRepository
         {
             return EnrollChapterDAO.Instance.DeleteEnrollChapterDao(enrollChapterId);
         }
+
+        public Task<EnrollChapter> GetEnrollChapterByChapterIdAndEnrollCourseId(string chapterId, string enrollCourseId)
+        {
+            return EnrollChapterDAO.Instance.GetEnrollChapterByChapterIdAndEnrollCourseIdDao(chapterId, enrollCourseId);
+        }
+
+       
+        public Task<int> CountTotalChaptersByRegisterCourseId(string enrollCourseId)
+        {
+            return EnrollChapterDAO.Instance.CountTotalChaptersByResgisterCourseIdDao(enrollCourseId);
+        }
+
+        public Task<int> CountCompletedChaptersByRegisterCourseId(string enrollCourseId)
+        {
+            return EnrollChapterDAO.Instance.CountCompletedChaptersByResgisterCourseIdDao(enrollCourseId);
+        }
     }
 }

@@ -19,6 +19,8 @@ public partial class Chapter
 
     public string CourseId { get; set; }
 
+    public DateTime? CreateDate { get; set; }
+
     public virtual Course Course { get; set; }
 
     public virtual ICollection<EnrollChapter> EnrollChapters { get; set; } = new List<EnrollChapter>();

@@ -12,8 +12,8 @@ namespace Services.Services.KoiVarietyService
 {
     public interface IKoiVarietyService
     {
-        Task<KoiVariety> GetKoiVarietyByIdAsync(string koiVarietyId);
-        Task<List<KoiVariety>> GetKoiVarietiesAsync();
+        Task<ResultModel> GetKoiVarietyByIdAsync(string koiVarietyId);
+        Task<ResultModel> GetKoiVarietiesAsync();
         Task<ResultModel> GetKoiVarietyWithColorsAsync();
         Task<ResultModel> GetKoiVarietyWithColorsByIdAsync(string id);
         Task<ResultModel> GetKoiVarietiesByElementAsync(NguHanh element);

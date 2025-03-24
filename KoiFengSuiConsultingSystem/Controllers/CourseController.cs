@@ -31,6 +31,42 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return Ok(course);
         }
 
+        [HttpGet("best-seller")]
+        public async Task<IActionResult> GetIsBestSellerCourses()
+        {
+            var res = await _courseService.GetIsBestSellerCourses();
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpGet("sort-by-rating")]
+        public async Task<IActionResult> SortByRating()
+        {
+            var res = await _courseService.SortByRating();
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpGet("get-by-category/{id}")]
+        public async Task<IActionResult> GetCoursesByCategoryId([FromRoute]string id)
+        {
+            var res = await _courseService.GetCoursesByCategoryId(id);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpGet("get-details-for-mobile/{id}")]
+        public async Task<IActionResult> GetCourseByIdForMobile([FromRoute]string id)
+        {
+            var res = await _courseService.GetCourseByIdForMobile(id);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpGet("get-paid-courses")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> GetPurchasedCourses()
+        {
+            var res = await _courseService.GetPurchasedCourses();
+            return StatusCode(res.StatusCode, res);
+        }
+
         [HttpPost("create-course")]
         public async Task<IActionResult> CreateCourse([FromBody] CourseRequest courseRequest)
         {

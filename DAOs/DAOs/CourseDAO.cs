@@ -43,15 +43,31 @@ namespace DAOs.DAOs
                 .FirstOrDefaultAsync(c => c.CreateBy == masterId);
         }
 
+        public async Task<Course> GetCourseIdByChapterIdDao(string chapterId)
+        {
+            var chapter = await _context.Chapters.FindAsync(chapterId);
+            var course = await _context.Courses.FindAsync(chapter.CourseId);
+            return course;
+        }
+
 
         public async Task<Course> GetCourseByIdDao(string courseId)
         {
-            return await _context.Courses.FindAsync(courseId);
+            return await _context.Courses
+                .Include(x => x.CreateByNavigation)
+                .Include(x => x.Category)
+                .Include(x => x.Chapters)
+                .Include(x => x.RegisterCourses)
+                .Include(x => x.Quizzes).ThenInclude(x => x.Questions)
+                .FirstOrDefaultAsync(x => x.CourseId == courseId);
         }
 
         public async Task<List<Course>> GetCoursesDao()
         {
-            return _context.Courses.ToList();
+            return await _context.Courses
+                .Include(x => x.CreateByNavigation)
+                .Include(x => x.Category)
+                .ToListAsync();
         }
 
         public async Task<Course> CreateCourseDao(Course course)
@@ -74,9 +90,19 @@ namespace DAOs.DAOs
             _context.Courses.Remove(course);
             await _context.SaveChangesAsync();
         }
+
         public async Task<List<Course>> GetCoursesByMasterIdDao(string masterId)
         {
             return _context.Courses.Where(c => c.CreateBy == masterId).ToList();
+        }
+
+        public async Task<List<Course>> GetCoursesByIdsDao(List<string> courseIds)
+        {
+            return await _context.Courses
+                .Include(x => x.CreateByNavigation)
+                .Include(x => x.Category)
+                .Where(c => courseIds.Contains(c.CourseId))
+                .ToListAsync();
         }
     }
 }

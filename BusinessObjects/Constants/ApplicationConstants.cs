@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -207,6 +207,7 @@ namespace BusinessObjects.Constants
         public const string KOIPOND_DELETED = "Xóa hồ cá thành công!";
         public const string KOIPOND_INVALID = "Dữ liệu hồ cá không hợp lệ";
         public const string SHAPE_NOT_FOUND = "Không tìm thấy hình dạng hồ cá!";
+        public const string SHAPE_FOUND = "Tìm thấy danh sách hình dạng hồ cá!";
 
         public class ResponseMessageConstrantsKoiVariety
         {
@@ -214,7 +215,7 @@ namespace BusinessObjects.Constants
             public const string KOIVARIETY_FOUND = "Tìm thấy cá Koi thành công!";
             public const string KOIVARIETY_INFO_FOUND = "Lấy thông tin thành công ";
             public const string KOIVARIETY_COLOR_INFO_NOT_FOUND = "không có thông tin màu sắc ";
-            public const string NO_MATCHES_KOIVARIETY = "Không tìm thấy Koi Variety phù hợp với mệnh của bạn";
+            public const string NO_MATCHES_KOIVARIETY = "Không tìm thấy Koi Variety phù hợp với mệnh của bạn. Hãy tham khảo tất cả loại cá chúng tôi c";
             public const string LOW_MATCHES_KOIVARIETY = "Chỉ tìm thấy Koi Variety có độ tương hợp thấp với mệnh của bạn";
             public const string GET_MATCHES_KOIVARIETY = "Lấy danh sách Koi Variety phù hợp với mệnh của bạn thành công";
             public const string CREATE_KOIVARIETY_FAILED = "Tạo cá Koi thất bại!";
@@ -305,6 +306,19 @@ namespace BusinessObjects.Constants
             public const string COURSE_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa khóa học này.";
             public const string NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy AccountId tương ứng với tài khoản";
             public const string COURSE_UPDATED_FAILED = "Cập nhật khóa học thất bại!";
+            public const string COURSE_CREATED_FAILED = "Tạo khóa học thất bại!";
+            public const string PROCEED_TO_QUIZ_SUCCESS = "Bạn đã hoàn thành xong các chương, hãy làm quiz!";
+            public const string PAID_COURSES_NOT_FOUND = "Chưa có khóa học nào được mua!";
+            public const string PAID_COURSES_FOUND = "Lấy danh sách khóa học đã mua thành công!";
+        }
+
+        public class ResponseMessageConstrantsCategory
+        {
+            public const string CATEGORY_CREATED_SUCCESS = "Tạo danh mục thành công!";
+            public const string CATEGORY_UPDATED_SUCCESS = "Cập nhật danh mục thành công!";
+            public const string CATEGORY_FOUND = "Lấy danh sách danh mục thành công!";
+            public const string CATEGORY_NOT_FOUND = "Không tìm thấy danh sách danh mục!";
+            public const string CATEGORY_ALREADY_EXIST = "Tên danh mục đã tồn tại!";
         }
 
         //Image
@@ -326,6 +340,9 @@ namespace BusinessObjects.Constants
             public const string CHAPTER_INFO_FOUND = "Lấy thông tin chương học thành công";
             public const string CHAPTER_INFO_INVALID = "Dữ liệu chương học không hợp lệ";
             public const string COURSE_ID_REQUIRED = "Không tìm thấy Id khóa học";
+            public const string ENROLL_CHAPTER_CREATE_FAILED = "Tạo chương học thất bại!";
+            public const string CHAPTER_UPDATED_PROGRESS_SUCCESS = "Cập nhật tiến độ chương học thành công!";
+            public const string CHAPTER_ALREADY_COMPLETED = "Chương học đã hoàn thành!";
         }
 
         public class ResponseMessageConstrantQuiz
@@ -375,6 +392,21 @@ namespace BusinessObjects.Constants
             public const string ANSWER_CREATE_FAILED = "Tạo câu trả lời thất bại!";
             public const string ANSWER_UPDATED_FAILED = "Cập nhật câu trả lời thất bại!";
             public const string ANSWER_DELETED_FAILED = "Xóa câu trả lời thất bại!";
+            public const string INVALID_ANSWER = "Câu trả lời không hợp lệ";
+        }
+
+        public class ResponseMessageConstrantsRegisterCourse
+        {
+            public const string REGISTER_COURSE_CREATED_SUCCESS = "Tạo đăng ký khóa học thành công!";
+            public const string REGISTER_COURSE_UPDATED_SUCCESS = "Cập nhật khóa học thành công!";
+            public const string REGISTER_COURSE_DELETED_SUCCESS = "Xóa khóa học thành công!";
+            public const string REGISTER_COURSE_FOUND = "Lấy danh sách khóa học thành công!";
+            public const string REGISTER_COURSE_NOT_FOUND = "Không tìm thấy khóa học!";
+            public const string REGISTER_COURSE_INFO_FOUND = "Lấy thông tin khóa học thành công";
+            public const string REGISTER_COURSE_INFO_INVALID = "Dữ liệu khóa học không hợp lệ";
+            public const string REGISTER_COURSE_CREATE_FAILED = "Tạo đăng ký khóa học thất bại!";
+            public const string REGISTER_COURSE_UPDATE_FAILED = "Cập nhật đăng ký khóa học thất bại!";
+            public const string REGISTER_COURSE_DELETE_FAILED = "Xóa đăng ký khóa học thất bại!";
         }
         // Contract Service
         public static class ResponseMessageConstrantsContract

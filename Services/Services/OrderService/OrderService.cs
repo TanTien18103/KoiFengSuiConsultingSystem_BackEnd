@@ -2,10 +2,21 @@
 using BusinessObjects.Constants;
 using BusinessObjects.Enums;
 using BusinessObjects.Exceptions;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
+using Repositories.Repositories.AnswerRepository;
 using Repositories.Repositories.BookingOfflineRepository;
+using Repositories.Repositories.ChapterRepository;
+using Repositories.Repositories.CourseRepository;
+using Repositories.Repositories.EnrollAnswerRepository;
+using Repositories.Repositories.EnrollCertRepository;
+using Repositories.Repositories.EnrollChapterRepository;
+using Repositories.Repositories.EnrollQuizRepository;
 using Repositories.Repositories.OrderRepository;
+using Repositories.Repositories.QuestionRepository;
+using Repositories.Repositories.QuizRepository;
 using Repositories.Repositories.RegisterAttendRepository;
+using Repositories.Repositories.RegisterCourseRepository;
 using Repositories.Repositories.WorkShopRepository;
 using Services.ApiModels;
 using Services.ApiModels.Order;
@@ -15,6 +26,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 
 namespace Services.Services.OrderService
 {
@@ -26,7 +38,14 @@ namespace Services.Services.OrderService
         private readonly IWorkShopRepo _workShopRepo;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IBookingOfflineRepo _bookingOfflineRepo;
-        public OrderService(IOrderRepo orderRepo, IMapper mapper, IRegisterAttendRepo registerAttendRepo, IWorkShopRepo workShopRepo, IHttpContextAccessor contextAccessor, IBookingOfflineRepo bookingOfflineRepo)
+
+        private readonly ICourseRepo _courseRepo;
+        private readonly IChapterRepo _chapterRepo;
+    
+        private readonly IRegisterCourseRepo _registerCourseRepo;
+        private readonly IEnrollChapterRepo _enrollChapterRepo;
+
+        public OrderService(IOrderRepo orderRepo, IMapper mapper, IRegisterAttendRepo registerAttendRepo, IWorkShopRepo workShopRepo, IHttpContextAccessor contextAccessor, IBookingOfflineRepo bookingOfflineRepo, ICourseRepo courseRepo, IChapterRepo chapterRepo, IRegisterCourseRepo registerCourseRepo, IEnrollChapterRepo enrollChapterRepo)
         {
             _orderRepo = orderRepo;
             _mapper = mapper;
@@ -34,7 +53,19 @@ namespace Services.Services.OrderService
             _workShopRepo = workShopRepo;
             _contextAccessor = contextAccessor;
             _bookingOfflineRepo = bookingOfflineRepo;
+            _courseRepo = courseRepo;
+            _chapterRepo = chapterRepo;
+            _registerCourseRepo = registerCourseRepo;
+            _enrollChapterRepo = enrollChapterRepo;
         }
+
+        public static string GenerateShortGuid()
+        {
+            Guid guid = Guid.NewGuid();
+            string base64 = Convert.ToBase64String(guid.ToByteArray());
+            return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
+        }
+
         public async Task<ResultModel> UpdateOrderToPendingConfirm(string id)
         {
             var res = new ResultModel();
@@ -61,7 +92,7 @@ namespace Services.Services.OrderService
                 res.Message = ResponseMessageConstrantsOrder.ORDER_STATUS_TO_PAID;
                 return res;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 res.IsSuccess = false;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
@@ -117,6 +148,66 @@ namespace Services.Services.OrderService
                     await UpdateBookingOfflineStatusAfterPayment(order.ServiceId, isFirstPayment);
                 }
 
+                if (order.ServiceType == PaymentTypeEnums.Course.ToString())
+                {
+                    var Course = await _courseRepo.GetCourseById(order.ServiceId);
+                    if (Course == null) {
+                        res.IsSuccess = false;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.Message = ResponseMessageConstrantsCourse.COURSE_NOT_FOUND;
+                        return res;
+                    }
+
+                    var registerCourse = new RegisterCourse
+                    {
+                        EnrollCourseId = GenerateShortGuid(),
+                        CourseId = Course.CourseId,
+                        EnrollCertId = null,
+                        EnrollQuizId = null,
+                        Percentage = 0,
+                        Status = EnrollChapterStatusEnums.InProgress.ToString(),
+                        CustomerId = order.CustomerId
+                    };
+
+                    var result = await _registerCourseRepo.CreateRegisterCourse(registerCourse);
+
+                    var chapters = await _chapterRepo.GetChaptersByCourseId(Course.CourseId);
+                    if (chapters != null && chapters.Any())
+                    {
+                        foreach (var chapter in chapters)
+                        {
+                            var enrollChapter = new EnrollChapter
+                            {
+                                EnrollChapterId = GenerateShortGuid(),
+                                ChapterId = chapter.ChapterId,
+                                Status = EnrollChapterStatusEnums.InProgress.ToString(),
+                                EnrollCourseId = result.EnrollCourseId
+                            };
+
+                            await _enrollChapterRepo.CreateEnrollChapter(enrollChapter);
+                        }
+                    }
+
+                    if(order.Status.Equals(PaymentStatusEnums.Paid))
+                    {
+                        res.IsSuccess = false;
+                        res.StatusCode = StatusCodes.Status500InternalServerError;
+                        res.ResponseCode = ResponseCodeConstants.FAILED;
+                        res.Message = ResponseMessageConstrantsOrder.ALREADY_PAID;
+                        return res;
+                    }
+
+                    if (result == null)
+                    {
+                        res.IsSuccess = false;
+                        res.StatusCode = StatusCodes.Status500InternalServerError;
+                        res.ResponseCode = ResponseCodeConstants.FAILED;
+                        res.Message = ResponseMessageConstrantsCourse.COURSE_CREATED_FAILED;
+                        return res;
+                    }
+                }
+                    
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
@@ -128,7 +219,7 @@ namespace Services.Services.OrderService
                 res.IsSuccess = false;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
-                res.Message = ex.Message;
+                res.Message = ex.InnerException?.Message;
                 return res;
             }
         }

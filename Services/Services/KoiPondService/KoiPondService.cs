@@ -9,6 +9,7 @@ using Repositories.Repositories.KoiPondRepository;
 using Repositories.Repositories.ShapeRepository;
 using Services.ApiModels;
 using Services.ApiModels.KoiPond;
+using Services.ApiModels.Shape;
 
 namespace Services.Services.KoiPondService
 {
@@ -306,6 +307,38 @@ namespace Services.Services.KoiPondService
             }
         }
 
+        public async Task<ResultModel> GetKoiPondByShapeId(string shapeId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var koiPonds = await _koiPondRepo.GetKoiPondByShapeId(shapeId);
+                if (koiPonds == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_FOUND;
+                res.Data = _mapper.Map<List<KoiPondResponse>>(koiPonds); ;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
         public async Task<ResultModel> CreateKoiPond(KoiPondRequest koiPond)
         {
             var res = new ResultModel();
@@ -412,7 +445,7 @@ namespace Services.Services.KoiPondService
             }
         }
 
-    public async Task<ResultModel> DeleteKoiPond(string id)
+        public async Task<ResultModel> DeleteKoiPond(string id)
         {
             var res = new ResultModel();
             try
@@ -455,5 +488,37 @@ namespace Services.Services.KoiPondService
             }
         }
 
+
+        public async Task<ResultModel> GetAllShapes()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var shapes = await _shapeRepo.GetShapes();
+                if (shapes == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsKoiPond.SHAPE_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsKoiPond.SHAPE_FOUND;
+                res.Data = _mapper.Map<List<ShapResponse>>(shapes); ;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
     }
 }

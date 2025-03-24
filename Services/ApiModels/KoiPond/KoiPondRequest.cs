@@ -12,8 +12,6 @@ namespace Services.ApiModels.KoiPond
 
         public string PondName { get; set; }
 
-        public int? Size { get; set; }
-
         public string Direction { get; set; }
     }
 }

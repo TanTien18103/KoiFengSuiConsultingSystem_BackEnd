@@ -13,7 +13,9 @@ public partial class EnrollAnswer
 
     public bool? Correct { get; set; }
 
+    public string EnrollQuizId { get; set; }
+
     public virtual Answer Answer { get; set; }
 
-    public virtual ICollection<EnrollQuiz> EnrollQuizzes { get; set; } = new List<EnrollQuiz>();
+    public virtual EnrollQuiz EnrollQuiz { get; set; }
 }

@@ -34,5 +34,13 @@ namespace Repositories.Repositories.CourseRepository
         {
             return CourseDAO.Instance.GetCoursesByMasterIdDao(masterId);
         }
+        public Task<Course> GetCourseByChapterId(string chapterId)
+        {
+            return CourseDAO.Instance.GetCourseIdByChapterIdDao(chapterId);
+        }
+        public Task<List<Course>> GetCoursesByIds(List<string> courseIds)
+        {
+            return CourseDAO.Instance.GetCoursesByIdsDao(courseIds);
+        }
     }
 }

@@ -71,5 +71,11 @@ namespace DAOs.DAOs
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<Answer>> GetAnswersByQuestionIdsDao(List<string> list)
+        {
+            return await _context.Answers
+                .Where(a => list.Contains(a.QuestionId))
+                .ToListAsync();
+        }
     }
 }

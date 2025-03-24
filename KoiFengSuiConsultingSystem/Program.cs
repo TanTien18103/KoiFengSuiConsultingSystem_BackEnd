@@ -50,6 +50,15 @@ using System.Text.Json.Serialization;
 using Repositories.Repositories.AnswerRepository;
 using Repositories.Repositories.ContractRepository;
 using Services.Services.ContractService;
+using Services.Services.AnswerService;
+using Repositories.Repositories.RegisterCourseRepository;
+using Repositories.Repositories.EnrollChapterRepository;
+using Services.Services.RegisterCourseService;
+using Repositories.Repositories.EnrollQuizRepository;
+using Repositories.Repositories.EnrollAnswerRepository;
+using Repositories.Repositories.CategoryRepository;
+using Services.Services.CategoryService;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,6 +85,12 @@ builder.Services.AddScoped<IQuestionRepo, QuestionRepo>();
 builder.Services.AddScoped<IConsultationPackageRepo, ConsultationPackageRepo>();
 builder.Services.AddScoped<IAnswerRepo, AnswerRepo>();
 builder.Services.AddScoped<IContractRepo, ContractRepo>();
+builder.Services.AddScoped<IRegisterCourseRepo, RegisterCourseRepo>();
+builder.Services.AddScoped<IEnrollChapterRepo, EnrollChapterRepo>();
+builder.Services.AddScoped<IEnrollQuizRepo, EnrollQuizRepo>();
+builder.Services.AddScoped<IEnrollAnswerRepo, EnrollAnswerRepo>();
+builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
+
 
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -99,6 +114,9 @@ builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IConsultationPackageService, ConsultationPackageService>();
 builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<IAnswerService, AnswerService>();
+builder.Services.AddScoped<IRegisterCourseService, RegisterCourseService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
@@ -117,6 +135,8 @@ builder.Services.AddAutoMapper(typeof(ChapterMappingProfile));
 builder.Services.AddAutoMapper(typeof(QuizMappingProfile));
 builder.Services.AddAutoMapper(typeof(QuestionMappingProfile));
 builder.Services.AddAutoMapper(typeof(ContractMappingProfile));
+builder.Services.AddAutoMapper(typeof(ConsultationPackageMappingProfile));
+builder.Services.AddAutoMapper(typeof(AnswerMappingProfile));
 
 builder.Services.AddHttpClient();
 
@@ -194,10 +214,10 @@ builder.Services.AddAuthentication(options =>
     googleOptions.CallbackPath = "/signin-google";
 });
 
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    serverOptions.ListenAnyIP(5261);
-});
+//builder.WebHost.ConfigureKestrel(serverOptions =>
+//{
+//    serverOptions.ListenAnyIP(5261);
+//});
 
 // CORS Policy
 builder.Services.AddCors(options =>

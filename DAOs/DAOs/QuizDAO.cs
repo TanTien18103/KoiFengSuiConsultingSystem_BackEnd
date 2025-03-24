@@ -93,11 +93,25 @@ namespace DAOs.DAOs
 
         public async Task DeleteQuizDao(string quizid)
         {
+            var coursesWithQuiz = await _context.Courses
+                .Where(c => c.QuizId == quizid)
+                .ToListAsync();
+
+            if (coursesWithQuiz.Any())
+            {
+                foreach (var course in coursesWithQuiz)
+                {
+                    course.QuizId = null;
+                }
+            }
+
             var quiz = await GetQuizByIdDao(quizid);
-            _context.Quizzes.Remove(quiz);
+            if (quiz != null)
+            {
+                _context.Quizzes.Remove(quiz);
+            }
+
             await _context.SaveChangesAsync();
         }
-
-
     }
 }

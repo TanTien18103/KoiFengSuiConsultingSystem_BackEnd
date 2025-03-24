@@ -13,7 +13,6 @@ namespace Repositories.Repositories.CategoryRepository
         Task<List<Category>> GetCategories();
         Task<Category> CreateCategory(Category category);
         Task<Category> UpdateCategory(Category category);
-        Task DeleteCategory(string categoryId);
 
     }
 }

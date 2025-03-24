@@ -70,7 +70,7 @@ namespace Services.Services.CategoryService
             var res = new ResultModel();
             try
             {
-                var categories = await _categoryRepo.GetAllCatogories();
+                var categories = await _categoryRepo.GetCategories();
                 if(categories == null)
                 {
                     res.IsSuccess = false;
@@ -102,7 +102,7 @@ namespace Services.Services.CategoryService
             var res = new ResultModel();
             try
             {
-                var categories = await _categoryRepo.GetAllCatogories();
+                var categories = await _categoryRepo.GetCategories();
                 var existingCategoryName = categories.FirstOrDefault(x => x.CategoryName == request.CategoryName);
 
                 if (existingCategoryName != null)
@@ -150,7 +150,7 @@ namespace Services.Services.CategoryService
                     res.Message = ResponseMessageConstrantsCategory.CATEGORY_NOT_FOUND;
                     return res;
                 }
-                var categories = await _categoryRepo.GetAllCatogories();
+                var categories = await _categoryRepo.GetCategories();
                 var existingCategoryName = categories.FirstOrDefault(x => x.CategoryName == request.CategoryName && x.CategoryId != id);
 
                 if (existingCategoryName != null)

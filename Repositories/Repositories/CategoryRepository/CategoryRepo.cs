@@ -26,5 +26,12 @@ namespace Repositories.Repositories.CategoryRepository
         {
             return CategoryDao.Instance.UpdateCategorytDao(category);
         }
+
+        public Task<List<Category>> GetCategories()
+        {
+            return CategoryDao.Instance.GetAllCatogoriesDao();
+        }
+
+     
     }
 }

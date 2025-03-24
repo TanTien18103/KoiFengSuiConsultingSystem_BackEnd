@@ -43,6 +43,7 @@ namespace DAOs.DAOs
                 .Include(x => x.Customer).ThenInclude(x => x.Account)
                 .Include(x => x.Master).ThenInclude(x => x.Account)
                 .Include(x => x.ConsultationPackage)
+                .Include(x => x.Contract)
                 .FirstOrDefaultAsync(x => x.BookingOfflineId == bookingOfflineId);
         }
 

@@ -12,7 +12,10 @@ namespace Services.ServicesHelpers.UploadService
     {
         Task<string> UploadImageAsync(IFormFile file);
         Task<string> UploadVideoAsync(IFormFile file);
+        Task<string> UploadPdfAsync(IFormFile file);
+        Task<string> UploadDocumentAsync(IFormFile file);
         string GetImageUrl(string publicId);
         string GetVideoUrl(string publicId);
+        string GetDocumentUrl(string publicId);
     }
 }

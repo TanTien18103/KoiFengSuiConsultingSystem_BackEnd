@@ -48,6 +48,8 @@ using Microsoft.Extensions.Options;
 using Services.ServicesHelpers.UploadService;
 using System.Text.Json.Serialization;
 using Repositories.Repositories.AnswerRepository;
+using Repositories.Repositories.ContractRepository;
+using Services.Services.ContractService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,6 +75,7 @@ builder.Services.AddScoped<IQuizRepo, QuizRepo>();
 builder.Services.AddScoped<IQuestionRepo, QuestionRepo>();
 builder.Services.AddScoped<IConsultationPackageRepo, ConsultationPackageRepo>();
 builder.Services.AddScoped<IAnswerRepo, AnswerRepo>();
+builder.Services.AddScoped<IContractRepo, ContractRepo>();
 
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -95,6 +98,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IConsultationPackageService, ConsultationPackageService>();
+builder.Services.AddScoped<IContractService, ContractService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
@@ -112,6 +116,7 @@ builder.Services.AddAutoMapper(typeof(CourseMappingProfile));
 builder.Services.AddAutoMapper(typeof(ChapterMappingProfile));
 builder.Services.AddAutoMapper(typeof(QuizMappingProfile));
 builder.Services.AddAutoMapper(typeof(QuestionMappingProfile));
+builder.Services.AddAutoMapper(typeof(ContractMappingProfile));
 
 builder.Services.AddHttpClient();
 

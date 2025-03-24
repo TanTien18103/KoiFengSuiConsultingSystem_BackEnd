@@ -2,24 +2,25 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DAOs.DAOs
 {
-    public class CategoryDAO
+    public class CategoryDao
     {
-        private static volatile CategoryDAO _instance;
+        private static volatile CategoryDao _instance;
         private static readonly object _lock = new object();
         private readonly KoiFishPondContext _context;
 
-        private CategoryDAO()
+        private CategoryDao()
         {
             _context = new KoiFishPondContext();
         }
 
-        public static CategoryDAO Instance
+        public static CategoryDao Instance
         {
             get
             {
@@ -29,7 +30,7 @@ namespace DAOs.DAOs
                     {
                         if (_instance == null)
                         {
-                            _instance = new CategoryDAO();
+                            _instance = new CategoryDao();
                         }
                     }
                 }
@@ -37,12 +38,12 @@ namespace DAOs.DAOs
             }
         }
 
-        public async Task<Category> GetCategoryByIdDao(string categoryId)
+        public async Task<Category> GetCategoryByIdDao(string id)
         {
-            return await _context.Categories.FindAsync(categoryId);
+            return await _context.Categories.FirstOrDefaultAsync(x => x.CategoryId == id);
         }
 
-        public async Task<List<Category>> GetCategoriesDao()
+        public async Task<List<Category>> GetAllCatogoriesDao()
         {
             return await _context.Categories.ToListAsync();
         }
@@ -54,18 +55,11 @@ namespace DAOs.DAOs
             return category;
         }
 
-        public async Task<Category> UpdateCategoryDao(Category category)
+        public async Task<Category> UpdateCategorytDao(Category category)
         {
             _context.Categories.Update(category);
             await _context.SaveChangesAsync();
             return category;
-        }
-
-        public async Task DeleteCategoryDao(string categoryId)
-        {
-            var category = await _context.Categories.FindAsync(categoryId);
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
         }
     }
 }

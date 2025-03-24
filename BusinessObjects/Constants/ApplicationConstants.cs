@@ -307,6 +307,7 @@ namespace BusinessObjects.Constants
             public const string NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy AccountId tương ứng với tài khoản";
             public const string COURSE_UPDATED_FAILED = "Cập nhật khóa học thất bại!";
             public const string COURSE_CREATED_FAILED = "Tạo khóa học thất bại!";
+            public const string PROCEED_TO_QUIZ_SUCCESS = "Bạn đã hoàn thành xong các chương, hãy làm quiz!";
         }
 
         //Image
@@ -380,6 +381,7 @@ namespace BusinessObjects.Constants
             public const string ANSWER_CREATE_FAILED = "Tạo câu trả lời thất bại!";
             public const string ANSWER_UPDATED_FAILED = "Cập nhật câu trả lời thất bại!";
             public const string ANSWER_DELETED_FAILED = "Xóa câu trả lời thất bại!";
+            public const string INVALID_ANSWER = "Câu trả lời không hợp lệ";
         }
 
         public class ResponseMessageConstrantsRegisterCourse

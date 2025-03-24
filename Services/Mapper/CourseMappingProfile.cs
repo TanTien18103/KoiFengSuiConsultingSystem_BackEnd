@@ -15,7 +15,8 @@ namespace Services.Mapper
         public CourseMappingProfile()
         {
             CreateMap<Course, CourseRespone>()
-                .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.CreateByNavigation.MasterName));
+                .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.CreateByNavigation.MasterName))
+                .ForMember(dest => dest.CourseCategory, opt => opt.MapFrom(src => src.Category.CategoryName));
 
             CreateMap<CourseRequest, Course>()
                 .ForMember(dest => dest.CourseId, opt => opt.Ignore());

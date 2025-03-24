@@ -31,9 +31,9 @@ namespace Repositories.Repositories.EnrollChapterRepository
             return EnrollChapterDAO.Instance.DeleteEnrollChapterDao(enrollChapterId);
         }
 
-        public Task<EnrollChapter> GetEnrollChapterByChapterId(string chapterId)
+        public Task<EnrollChapter> GetEnrollChapterByChapterIdAndEnrollCourseId(string chapterId, string enrollCourseId)
         {
-            return EnrollChapterDAO.Instance.GetEnrollChapterByChapterIdDao(chapterId);
+            return EnrollChapterDAO.Instance.GetEnrollChapterByChapterIdAndEnrollCourseIdDao(chapterId, enrollCourseId);
         }
 
        

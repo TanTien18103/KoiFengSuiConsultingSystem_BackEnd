@@ -30,5 +30,10 @@ namespace Repositories.Repositories.EnrollAnswerRepository
         {
             return EnrollAnswerDAO.Instance.DeleteEnrollAnswerDao(enrollAnswerId);
         }
+
+        public Task AddRangeEnrollAnswers(List<EnrollAnswer> enrollAnswers)
+        {
+            return EnrollAnswerDAO.Instance.AddRangeEnrollAnswersDao(enrollAnswers);
+        }
     }
 }

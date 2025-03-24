@@ -30,5 +30,10 @@ namespace Repositories.Repositories.EnrollQuizRepository
         {
             return EnrollQuizDAO.Instance.DeleteEnrollQuizDao(enrollQuizId);
         }
+
+        public Task<EnrollQuiz> GetEnrollQuizByQuizIdAndParticipantId(string quizid, string customerid)
+        {
+            return EnrollQuizDAO.Instance.GetEnrollQuizByQuizIdAndParticipantIdDao(quizid, customerid);
+        }
     }
 }

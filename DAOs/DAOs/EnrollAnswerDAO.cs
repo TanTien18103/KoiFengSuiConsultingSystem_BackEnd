@@ -66,5 +66,11 @@ namespace DAOs.DAOs
             _context.EnrollAnswers.Remove(enrollAnswer);
             await _context.SaveChangesAsync();
         }
+
+        public async Task AddRangeEnrollAnswersDao(List<EnrollAnswer> enrollAnswers)
+        {
+            _context.EnrollAnswers.AddRange(enrollAnswers);
+            await _context.SaveChangesAsync();
+        }
     }
 }

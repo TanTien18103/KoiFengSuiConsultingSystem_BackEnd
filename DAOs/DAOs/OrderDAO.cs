@@ -135,5 +135,16 @@ namespace DAOs.DAOs
                     o.ServiceId == serviceId &&
                     o.ServiceType == serviceType);
         }
+
+        public async Task<List<Order>> GetOrdersByCustomerAndTypeDao(string customerId, string serviceType, string status)
+        {
+            return await _context.Orders
+                .Where(o =>
+                    o.CustomerId == customerId &&
+                    o.ServiceType == serviceType &&
+                    o.Status == status)
+                .OrderByDescending(o => o.PaymentDate)
+                .ToListAsync();
+        }
     }
 }

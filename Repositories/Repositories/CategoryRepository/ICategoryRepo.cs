@@ -1,0 +1,17 @@
+﻿using BusinessObjects.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Repositories.Repositories.CategoryRepository
+{
+    public interface ICategoryRepo
+    {
+        Task<Category> GetCategoryById(string id);
+        Task<List<Category>> GetAllCatogories();
+        Task<Category> CreateCategory(Category category);
+        Task<Category> UpdateCategory(Category category);
+    }
+}

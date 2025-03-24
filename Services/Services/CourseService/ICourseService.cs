@@ -17,5 +17,10 @@ namespace Services.Services.CourseService
         Task<ResultModel> UpdateCourse(string id, CourseRequest course);
         Task<ResultModel> DeleteCourse(string courseId);
         Task<ResultModel> GetCoursesByMaster();
+        Task<ResultModel> GetIsBestSellerCourses();
+        Task<ResultModel> GetCoursesByCategoryId(string id);
+        Task<ResultModel> SortByRating();
+        Task<ResultModel> GetCourseByIdForMobile(string courseId);
+        Task<ResultModel> GetPurchasedCourses();
     }
 }

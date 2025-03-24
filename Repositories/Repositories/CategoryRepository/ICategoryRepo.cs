@@ -1,4 +1,4 @@
-﻿using BusinessObjects.Models;
+using BusinessObjects.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +14,6 @@ namespace Repositories.Repositories.CategoryRepository
         Task<Category> CreateCategory(Category category);
         Task<Category> UpdateCategory(Category category);
         Task DeleteCategory(string categoryId);
+
     }
 }

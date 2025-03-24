@@ -10,29 +10,21 @@ namespace Repositories.Repositories.CategoryRepository
 {
     public class CategoryRepo : ICategoryRepo
     {
+        public Task<Category> GetCategoryById(string id)
+        {
+            return CategoryDao.Instance.GetCategoryByIdDao(id);
+        }
+        public Task<List<Category>> GetAllCatogories()
+        {
+            return CategoryDao.Instance.GetAllCatogoriesDao();
+        }
         public Task<Category> CreateCategory(Category category)
         {
-            return CategoryDAO.Instance.CreateCategoryDao(category);
+            return CategoryDao.Instance.CreateCategoryDao(category);
         }
-
-        public Task DeleteCategory(string categoryId)
+        public Task<Category> UpdateCategory(Category category)
         {
-            return CategoryDAO.Instance.DeleteCategoryDao(categoryId);
-        }
-
-        public Task<List<Category>> GetCategories()
-        {
-            return CategoryDAO.Instance.GetCategoriesDao();
-        }
-
-        public Task<Category> GetCategoryById(string categoryId)
-        {
-            return CategoryDAO.Instance.GetCategoryByIdDao(categoryId);
-        }
-
-        public Task<Category> UpdateCategory( Category category)
-        {
-            return CategoryDAO.Instance.UpdateCategoryDao(category);
+            return CategoryDao.Instance.UpdateCategorytDao(category);
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repositories.Repositories.OrderRepository
 {
@@ -59,10 +60,13 @@ namespace Repositories.Repositories.OrderRepository
         {
             return OrderDAO.Instance.GetOrderByServiceIdAndStatusDao(serviceId, serviceType, status);
         }
-
         public Task<Order> GetOrderByServiceIdAndCustomerIdAndServiceType(string customerId, string serviceId, string serviceType)
         {
             return OrderDAO.Instance.GetOrderByServiceIdAndCustomerIdAndServiceType(customerId, serviceId, serviceType);
+        }
+        public Task<List<Order>> GetOrdersByCustomerAndType(string customerId, string serviceType, string status)
+        {
+            return OrderDAO.Instance.GetOrdersByCustomerAndTypeDao(customerId, serviceType, status);
         }
     }
 }

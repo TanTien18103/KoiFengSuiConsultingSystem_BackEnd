@@ -54,6 +54,8 @@ using Repositories.Repositories.EnrollChapterRepository;
 using Services.Services.RegisterCourseService;
 using Repositories.Repositories.EnrollQuizRepository;
 using Repositories.Repositories.EnrollAnswerRepository;
+using Repositories.Repositories.CategoryRepository;
+using Services.Services.CategoryService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,6 +85,7 @@ builder.Services.AddScoped<IRegisterCourseRepo, RegisterCourseRepo>();
 builder.Services.AddScoped<IEnrollChapterRepo, EnrollChapterRepo>();
 builder.Services.AddScoped<IEnrollQuizRepo, EnrollQuizRepo>();
 builder.Services.AddScoped<IEnrollAnswerRepo, EnrollAnswerRepo>();
+builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
 
 
 // Register Services
@@ -108,6 +111,7 @@ builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IConsultationPackageService, ConsultationPackageService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<IRegisterCourseService, RegisterCourseService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();

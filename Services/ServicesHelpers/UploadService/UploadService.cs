@@ -17,6 +17,15 @@ namespace Services.ServicesHelpers.UploadService
             _cloudinary = cloudinary;
         }
 
+        public string GetDocumentUrl(string publicId)
+        {
+            if (string.IsNullOrEmpty(publicId))
+                return null;
+
+            var url = _cloudinary.Api.Url.BuildUrl(publicId);
+            return url;
+        }
+
         public string GetImageUrl(string publicId)
         {
             if (string.IsNullOrEmpty(publicId))
@@ -27,17 +36,45 @@ namespace Services.ServicesHelpers.UploadService
                 .FetchFormat("auto"))
                 .BuildUrl(publicId);
 
-            return url; ;
+            return url; 
         }
 
         public string GetVideoUrl(string publicId)
         {
-            {
-                if (string.IsNullOrEmpty(publicId))
-                    return null;
+            if (string.IsNullOrEmpty(publicId))
+                return null;
 
-                var url = _cloudinary.Api.UrlVideoUp.BuildUrl(publicId);
-                return url;
+            var url = _cloudinary.Api.Url.BuildUrl(publicId);
+            return url;
+        }
+
+        public async Task<string> UploadDocumentAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            try
+            {
+                using var stream = file.OpenReadStream();
+                var uploadParams = new RawUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    Folder = "documents",
+                    PublicId = Path.GetFileNameWithoutExtension(file.FileName)
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                if (uploadResult.Error != null)
+                {
+                    throw new Exception($"Lỗi khi upload tài liệu: {uploadResult.Error.Message}");
+                }
+
+                return uploadResult.SecureUrl.ToString();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi upload tài liệu: {ex.Message}");
             }
         }
 
@@ -64,6 +101,35 @@ namespace Services.ServicesHelpers.UploadService
             catch (Exception ex)
             {
                 throw new Exception($"Lỗi khi upload ảnh: {ex.Message}");
+            }
+        }
+
+        public async Task<string> UploadPdfAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            try
+            {
+                using var stream = file.OpenReadStream();
+                var uploadParams = new RawUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    Folder = "pdfs",
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                if (uploadResult.Error != null)
+                {
+                    throw new Exception($"Lỗi khi upload PDF: {uploadResult.Error.Message}");
+                }
+
+                return uploadResult.SecureUrl.ToString();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi upload PDF: {ex.Message}");
             }
         }
 

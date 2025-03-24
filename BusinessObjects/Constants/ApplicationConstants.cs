@@ -408,6 +408,26 @@ namespace BusinessObjects.Constants
             public const string REGISTER_COURSE_UPDATE_FAILED = "Cập nhật đăng ký khóa học thất bại!";
             public const string REGISTER_COURSE_DELETE_FAILED = "Xóa đăng ký khóa học thất bại!";
         }
+        // Contract Service
+        public static class ResponseMessageConstrantsContract
+        {
+            public const string NOT_FOUND = "Không tìm thấy hợp đồng";
+            public const string CREATED_SUCCESS = "Tạo hợp đồng thành công";
+            public const string SENT_SUCCESS = "Gửi hợp đồng thành công";
+            public const string OTP_SENT_SUCCESS = "Gửi mã OTP thành công";
+            public const string OTP_INVALID = "Mã OTP không đúng hoặc đã hết hạn";
+            public const string VERIFY_SUCCESS = "Xác thực hợp đồng thành công";
+            public const string CANCEL_SUCCESS = "Hủy hợp đồng thành công";
+            public const string CONFIRM_SUCCESS = "Xác nhận hợp đồng thành công";
+            public const string CHECK_STATUS= "Hợp đồng này không ở trạng thái chờ xác nhận";
+            public const string CONTRACT_INFORMATION_SUCCESS = "Lấy thông tin hợp đồng thành công";
+            public const string SEND_OTP_SUCCESS = "Gửi OTP cho hợp đồng thành công";
+            public const string OTP_EXPIRED = "Mã OTP đã hết hạn";
+            public const string VERIFY_OTP_SUCCESS = "Xác thực OTP thành công";
+            public const string VERIFY_OTP_FAILED = "Xác thực OTP thất bại";
+            public const string WAIT_TO_RESEND_OTP = "Vui lòng đợi 30s để gửi lại mã OTP";
+            public const string RESEND_OTP_SUCCESS = "Gửi lại mã OTP thành công";
+        }
     }
 }
 

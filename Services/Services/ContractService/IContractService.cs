@@ -1,0 +1,20 @@
+﻿using Services.ApiModels.Contract;
+using Services.ApiModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Services.Services.ContractService
+{
+    public interface IContractService
+    {
+        Task<ResultModel> CreateContract(ContractRequest request);
+        Task<ResultModel> SendOtpForContract(string contractId);
+        Task<ResultModel> VerifyContractOtp(string contractId, VerifyOtpRequest request);
+        Task<ResultModel> CancelContract(string contractId);
+        Task<ResultModel> ConfirmContract(string contractId);
+        Task<ResultModel> GetContractByBookingOfflineIdAndUpdateStatus(string bookingOfflineId);
+    }
+}

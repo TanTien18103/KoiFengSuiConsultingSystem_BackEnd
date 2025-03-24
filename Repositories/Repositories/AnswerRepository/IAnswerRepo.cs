@@ -14,5 +14,6 @@ namespace Repositories.Repositories.AnswerRepository
         Task<Answer> CreateAnswer(Answer answer);
         Task<Answer> UpdateAnswer(Answer answer);
         Task DeleteAnswer(string answerId);
+        Task<List<Answer>> GetAnswersByQuestionIds(List<string> list);
     }
 }

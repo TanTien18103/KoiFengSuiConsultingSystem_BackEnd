@@ -13,7 +13,6 @@
   <ItemGroup>
     <Folder Include="ApiModels\Attachment\" />
     <Folder Include="ApiModels\Certificate\" />
-    <Folder Include="ApiModels\Contract\" />
     <Folder Include="ApiModels\EnrollAnswer\" />
     <Folder Include="ApiModels\EnrollCert\" />
     <Folder Include="ApiModels\EnrollChapter\" />
@@ -25,7 +24,6 @@
     <Folder Include="ApiModels\Wallet\" />
     <Folder Include="ApiModels\VarietyColor\" />
     <Folder Include="ApiModels\Transaction\" />
-    <Folder Include="ApiModels\RegisterCourse\" />
   </ItemGroup>
 
   <ItemGroup>

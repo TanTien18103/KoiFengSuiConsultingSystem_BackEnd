@@ -11,5 +11,7 @@ public partial class Category
 
     public string CategoryName { get; set; }
 
+    public string ImageUrl { get; set; }
+
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 }

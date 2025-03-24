@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -307,6 +307,7 @@ namespace BusinessObjects.Constants
             public const string NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy AccountId tương ứng với tài khoản";
             public const string COURSE_UPDATED_FAILED = "Cập nhật khóa học thất bại!";
             public const string COURSE_CREATED_FAILED = "Tạo khóa học thất bại!";
+            public const string PROCEED_TO_QUIZ_SUCCESS = "Bạn đã hoàn thành xong các chương, hãy làm quiz!";
             public const string PAID_COURSES_NOT_FOUND = "Chưa có khóa học nào được mua!";
             public const string PAID_COURSES_FOUND = "Lấy danh sách khóa học đã mua thành công!";
         }
@@ -391,6 +392,7 @@ namespace BusinessObjects.Constants
             public const string ANSWER_CREATE_FAILED = "Tạo câu trả lời thất bại!";
             public const string ANSWER_UPDATED_FAILED = "Cập nhật câu trả lời thất bại!";
             public const string ANSWER_DELETED_FAILED = "Xóa câu trả lời thất bại!";
+            public const string INVALID_ANSWER = "Câu trả lời không hợp lệ";
         }
 
         public class ResponseMessageConstrantsRegisterCourse
@@ -405,6 +407,26 @@ namespace BusinessObjects.Constants
             public const string REGISTER_COURSE_CREATE_FAILED = "Tạo đăng ký khóa học thất bại!";
             public const string REGISTER_COURSE_UPDATE_FAILED = "Cập nhật đăng ký khóa học thất bại!";
             public const string REGISTER_COURSE_DELETE_FAILED = "Xóa đăng ký khóa học thất bại!";
+        }
+        // Contract Service
+        public static class ResponseMessageConstrantsContract
+        {
+            public const string NOT_FOUND = "Không tìm thấy hợp đồng";
+            public const string CREATED_SUCCESS = "Tạo hợp đồng thành công";
+            public const string SENT_SUCCESS = "Gửi hợp đồng thành công";
+            public const string OTP_SENT_SUCCESS = "Gửi mã OTP thành công";
+            public const string OTP_INVALID = "Mã OTP không đúng hoặc đã hết hạn";
+            public const string VERIFY_SUCCESS = "Xác thực hợp đồng thành công";
+            public const string CANCEL_SUCCESS = "Hủy hợp đồng thành công";
+            public const string CONFIRM_SUCCESS = "Xác nhận hợp đồng thành công";
+            public const string CHECK_STATUS= "Hợp đồng này không ở trạng thái chờ xác nhận";
+            public const string CONTRACT_INFORMATION_SUCCESS = "Lấy thông tin hợp đồng thành công";
+            public const string SEND_OTP_SUCCESS = "Gửi OTP cho hợp đồng thành công";
+            public const string OTP_EXPIRED = "Mã OTP đã hết hạn";
+            public const string VERIFY_OTP_SUCCESS = "Xác thực OTP thành công";
+            public const string VERIFY_OTP_FAILED = "Xác thực OTP thất bại";
+            public const string WAIT_TO_RESEND_OTP = "Vui lòng đợi 30s để gửi lại mã OTP";
+            public const string RESEND_OTP_SUCCESS = "Gửi lại mã OTP thành công";
         }
     }
 }

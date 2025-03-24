@@ -35,6 +35,8 @@ public partial class Course
 
     public string CategoryId { get; set; }
 
+    public string Introduction { get; set; }
+
     public virtual Category Category { get; set; }
 
     public virtual Certificate Certificate { get; set; }

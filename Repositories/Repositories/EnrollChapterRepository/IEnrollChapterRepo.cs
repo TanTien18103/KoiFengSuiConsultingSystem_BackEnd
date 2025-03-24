@@ -14,7 +14,7 @@ namespace Repositories.Repositories.EnrollChapterRepository
         Task<EnrollChapter> CreateEnrollChapter(EnrollChapter enrollChapter);
         Task<EnrollChapter> UpdateEnrollChapter(EnrollChapter enrollChapter);
         Task DeleteEnrollChapter(string enrollChapterId);
-        Task<EnrollChapter> GetEnrollChapterByChapterId(string chapterId);
+        Task<EnrollChapter> GetEnrollChapterByChapterIdAndEnrollCourseId( string chapterId, string enrollCourseId);
         Task<int> CountTotalChaptersByRegisterCourseId(string courseId);
         Task<int> CountCompletedChaptersByRegisterCourseId(string courseId);
     }

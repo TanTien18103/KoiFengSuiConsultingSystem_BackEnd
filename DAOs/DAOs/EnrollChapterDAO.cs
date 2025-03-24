@@ -74,9 +74,10 @@ namespace DAOs.DAOs
             return _context.EnrollChapters.Where(ec => ec.ChapterId == chapterId).ToList();
         }
 
-        public async Task<EnrollChapter> GetEnrollChapterByChapterIdDao(string chapterId)
+        public async Task<EnrollChapter> GetEnrollChapterByChapterIdAndEnrollCourseIdDao(string chapterId, string enrollCourseId)
         {
-            return await _context.EnrollChapters.FirstOrDefaultAsync(ec => ec.ChapterId == chapterId);
+            return await _context.EnrollChapters
+                .FirstOrDefaultAsync(ec => ec.ChapterId == chapterId && ec.EnrollCourseId == enrollCourseId);
         }
 
         public async Task<int> CountTotalChaptersByResgisterCourseIdDao(string enrollCourseId)

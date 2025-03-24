@@ -14,5 +14,6 @@ namespace Repositories.Repositories.ContractRepository
         Task<Contract> CreateContract(Contract contract);
         Task<Contract> UpdateContract(Contract contract);
         Task DeleteContract(string contractId);
+        Task<Contract> GetContractByBookingOfflineId(string bookingOfflineId);
     }
 }

@@ -30,5 +30,9 @@ namespace Repositories.Repositories.ContractRepository
         {
             return ContractDAO.Instance.DeleteContractDao(contractId);
         }
+        public Task<Contract> GetContractByBookingOfflineId(string bookingOfflineId)
+        {
+            return ContractDAO.Instance.GetContractByBookingOfflineIdDao(bookingOfflineId);
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,13 @@ namespace DAOs.DAOs
         public async Task<List<Contract>> GetContractsDao()
         {
             return _context.Contracts.ToList();
+        }
+
+        public async Task<Contract> GetContractByBookingOfflineIdDao(string bookingOfflineId)
+        {
+            return await _context.Contracts
+                .Include(c => c.BookingOfflines)
+                .FirstOrDefaultAsync(c => c.BookingOfflines.Any(b => b.BookingOfflineId == bookingOfflineId));
         }
 
         public async Task<Contract> CreateContractDao(Contract contract)

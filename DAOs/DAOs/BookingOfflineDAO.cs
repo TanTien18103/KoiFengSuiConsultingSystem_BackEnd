@@ -1,4 +1,6 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.Constants;
+using BusinessObjects.Exceptions;
+using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -65,6 +67,58 @@ namespace DAOs.DAOs
         public async Task<List<BookingOffline>> GetBookingOfflinesByUserIdDao(string userId)
         {
             return _context.BookingOfflines.Where(b => b.CustomerId == userId).ToList();
+        }
+
+        public async Task<(BookingOffline booking, string message)> ProcessBookingTransactionDao(BookingOffline booking, string packageId, decimal selectedPrice)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var package = await _context.ConsultationPackages
+                        .FirstOrDefaultAsync(x => x.ConsultationPackageId == packageId);
+                    
+                    if (package == null)
+                    {
+                        throw new AppException(ResponseMessageConstrantsPackage.PACKAGE_NOT_FOUND);
+                    }
+
+                    if (selectedPrice != package.MinPrice && selectedPrice != package.MaxPrice)
+                    {
+                        throw new AppException(ResponseMessageConstrantsBooking.PRICE_SELECTED_INVALID);
+                    }
+
+                    _context.BookingOfflines.Add(booking);
+                    await _context.SaveChangesAsync();
+
+                    booking.ConsultationPackageId = packageId;
+                    _context.BookingOfflines.Update(booking);
+                    await _context.SaveChangesAsync();
+
+                    booking.SelectedPrice = selectedPrice;
+                    _context.BookingOfflines.Update(booking);
+                    await _context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+
+                    await _context.Entry(booking)
+                        .Reference(b => b.Customer)
+                        .LoadAsync();
+                    await _context.Entry(booking.Customer)
+                        .Reference(c => c.Account)
+                        .LoadAsync();
+                    await _context.Entry(booking)
+                        .Reference(b => b.ConsultationPackage)
+                        .LoadAsync();
+
+                    return (booking, "Transaction completed successfully");
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return (null, ex.Message);
+                }
+            }
         }
 
         public async Task<BookingOffline> CreateBookingOfflineDao(BookingOffline bookingOffline)

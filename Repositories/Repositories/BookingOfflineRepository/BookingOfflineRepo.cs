@@ -38,5 +38,9 @@ namespace Repositories.Repositories.BookingOfflineRepository
         {
             return BookingOfflineDAO.Instance.DeleteBookingOfflineDao(bookingOfflineId);
         }
+        public Task<(BookingOffline booking, string message)> ProcessBookingTransaction(BookingOffline booking, string packageId, decimal selectedPrice)
+        {
+            return BookingOfflineDAO.Instance.ProcessBookingTransactionDao(booking, packageId, selectedPrice);
+        }
     }
 }

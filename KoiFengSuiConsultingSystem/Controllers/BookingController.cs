@@ -28,7 +28,6 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBookingById([FromRoute] string id)
         {
@@ -72,7 +71,6 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _bookingService.AssignMasterToBookingAsync(bookingonline,bookingoffline,masterId);
             return StatusCode(result.StatusCode, result);
         }
-
 
         // Booking Offline
         [HttpPut("offline-remove-package/{id}")]

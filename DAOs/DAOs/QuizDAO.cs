@@ -48,7 +48,6 @@ namespace DAOs.DAOs
                 .FirstOrDefaultAsync(q => q.QuizId == quizId);
         }
 
-
         public async Task<List<Quiz>> GetQuizzesDao()
         {
             return await _context.Quizzes
@@ -75,7 +74,6 @@ namespace DAOs.DAOs
                 .Where(q => q.CreateBy == masterId)
                 .ToListAsync();
         }
-
 
         public async Task<Quiz> CreateQuizDao(Quiz quiz)
         {

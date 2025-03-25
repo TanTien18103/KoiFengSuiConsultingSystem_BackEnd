@@ -44,7 +44,7 @@ namespace DAOs.DAOs
 
         public async Task<List<MasterSchedule>> GetMasterSchedulesDao()
         {
-            return _context.MasterSchedules.ToList();
+            return await _context.MasterSchedules.ToListAsync();
         }
 
         public async Task<List<MasterSchedule>> GetAllSchedulesAsync()

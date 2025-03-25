@@ -58,6 +58,7 @@ using Repositories.Repositories.EnrollQuizRepository;
 using Repositories.Repositories.EnrollAnswerRepository;
 using Repositories.Repositories.CategoryRepository;
 using Services.Services.CategoryService;
+using Services.ServicesHelpers.GoogleMeetService;
 using Services.ServicesHelpers.RefundSerivce;
 
 
@@ -122,6 +123,10 @@ builder.Services.AddScoped<IRefundService, RefundService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
+
+// Register GoogleMeetService
+builder.Services.AddSingleton<GoogleMeetService>();
+
 
 //Register Mapper
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));

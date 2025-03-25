@@ -142,7 +142,7 @@ namespace Services.Services.ContractService
             try
             {
                 var contract = await _contractRepo.GetContractByBookingOfflineId(bookingOfflineId);
-                if(contract == null)
+                if (contract == null)
                 {
                     res.IsSuccess = false;
                     res.StatusCode = StatusCodes.Status404NotFound;
@@ -155,7 +155,7 @@ namespace Services.Services.ContractService
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.Message = ResponseMessageConstrantsContract.FOUND;
-                res.Data = _mapper.Map<ContractResponse>(contract);   
+                res.Data = _mapper.Map<ContractResponse>(contract);
                 return res;
             }
             catch (Exception ex)

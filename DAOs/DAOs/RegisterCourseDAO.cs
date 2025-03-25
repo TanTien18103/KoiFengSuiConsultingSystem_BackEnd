@@ -44,7 +44,7 @@ namespace DAOs.DAOs
 
         public async Task<List<RegisterCourse>> GetRegisterCoursesDao()
         {
-            return _context.RegisterCourses.ToList();
+            return await _context.RegisterCourses.ToListAsync();
         }
 
         public async Task<RegisterCourse> CreateRegisterCourseDao(RegisterCourse registerCourse)
@@ -70,7 +70,8 @@ namespace DAOs.DAOs
 
         public async Task<RegisterCourse> GetRegisterCourseByCourseIdAndCustomerIdDao(string courseId, string customerid)
         {
-            return await _context.RegisterCourses.FirstOrDefaultAsync(rc => rc.CourseId == courseId && rc.CustomerId == customerid);
+            return await _context.RegisterCourses
+                .FirstOrDefaultAsync(rc => rc.CourseId == courseId && rc.CustomerId == customerid);
         }
     }
 }

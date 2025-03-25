@@ -33,7 +33,6 @@ public class AccountService : IAccountService
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
-
     public AccountService(IAccountRepo accountRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IMapper mapper, IEmailService emailService)
     {
         _accountRepository = accountRepository;

@@ -6,6 +6,7 @@ using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 using Repositories.Repositories.AnswerRepository;
 using Repositories.Repositories.BookingOfflineRepository;
+using Repositories.Repositories.BookingOnlineRepository;
 using Repositories.Repositories.ChapterRepository;
 using Repositories.Repositories.CourseRepository;
 using Repositories.Repositories.EnrollAnswerRepository;
@@ -38,14 +39,13 @@ namespace Services.Services.OrderService
         private readonly IWorkShopRepo _workShopRepo;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IBookingOfflineRepo _bookingOfflineRepo;
-
+        private readonly IBookingOnlineRepo _bookingOnlineRepo;
         private readonly ICourseRepo _courseRepo;
         private readonly IChapterRepo _chapterRepo;
-    
         private readonly IRegisterCourseRepo _registerCourseRepo;
         private readonly IEnrollChapterRepo _enrollChapterRepo;
 
-        public OrderService(IOrderRepo orderRepo, IMapper mapper, IRegisterAttendRepo registerAttendRepo, IWorkShopRepo workShopRepo, IHttpContextAccessor contextAccessor, IBookingOfflineRepo bookingOfflineRepo, ICourseRepo courseRepo, IChapterRepo chapterRepo, IRegisterCourseRepo registerCourseRepo, IEnrollChapterRepo enrollChapterRepo)
+        public OrderService(IOrderRepo orderRepo, IMapper mapper, IRegisterAttendRepo registerAttendRepo, IWorkShopRepo workShopRepo, IHttpContextAccessor contextAccessor, IBookingOfflineRepo bookingOfflineRepo, ICourseRepo courseRepo, IChapterRepo chapterRepo, IRegisterCourseRepo registerCourseRepo, IEnrollChapterRepo enrollChapterRepo, IBookingOnlineRepo bookingOnlineRepo)
         {
             _orderRepo = orderRepo;
             _mapper = mapper;
@@ -57,6 +57,7 @@ namespace Services.Services.OrderService
             _chapterRepo = chapterRepo;
             _registerCourseRepo = registerCourseRepo;
             _enrollChapterRepo = enrollChapterRepo;
+            _bookingOnlineRepo = bookingOnlineRepo;
         }
 
         public static string GenerateShortGuid()
@@ -282,28 +283,89 @@ namespace Services.Services.OrderService
                     return res;
                 }
 
-                if (order.ServiceType == PaymentTypeEnums.RegisterAttend.ToString())
+                bool isPaid = order.Status == PaymentStatusEnums.Paid.ToString();
+                bool isPending = order.Status == PaymentStatusEnums.Pending.ToString();
+
+                switch (order.ServiceType)
                 {
-                    var tickets = await _registerAttendRepo.GetRegisterAttendsByGroupId(order.ServiceId);
-                    if (tickets != null && tickets.Any())
-                    {
-                        var workshopId = tickets.First().WorkshopId;
-                        var workshop = await _workShopRepo.GetWorkShopById(workshopId);
-
-                        if (workshop != null)
+                    case nameof(PaymentTypeEnums.BookingOnline):
+                        var booking = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(order.ServiceId);
+                        if (booking != null && booking.BookingDate <= DateOnly.FromDateTime(DateTime.Now))
                         {
-                            workshop.Capacity += tickets.Count;
-                            await _workShopRepo.UpdateWorkShop(workshop);
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.FAILED;
+                            res.StatusCode = StatusCodes.Status400BadRequest;
+                            res.Message = ResponseMessageConstrantsOrder.ONLINE_EXPIRED;
+                            return res;
                         }
-
-                        foreach (var ticket in tickets)
+                        if(booking != null)
                         {
-                            await _registerAttendRepo.DeleteRegisterAttend(ticket.AttendId);
+                            if(booking.MasterId != null)
+                            {
+                                booking.MasterScheduleId = null;
+                                booking.MasterId = null;
+                                booking.LinkMeet = null;
+                                await _bookingOnlineRepo.UpdateBookingOnlineRepo(booking);
+                            }
                         }
-                    }
+                        order.Status = isPaid ? PaymentStatusEnums.WaitingForRefund.ToString() : PaymentStatusEnums.Canceled.ToString();
+                        break;
+
+                    case nameof(PaymentTypeEnums.RegisterAttend):
+                        var tickets = await _registerAttendRepo.GetRegisterAttendsByGroupId(order.ServiceId);
+                        if (tickets != null && tickets.Any())
+                        {
+                            var workshopId = tickets.First().WorkshopId;
+                            var workshop = await _workShopRepo.GetWorkShopById(workshopId);
+
+                            if (workshop != null)
+                            {
+                                if (workshop.StartDate <= DateTime.Now)
+                                {
+                                    res.IsSuccess = false;
+                                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                                    res.StatusCode = StatusCodes.Status400BadRequest;
+                                    res.Message = ResponseMessageConstrantsOrder.WORKSHOP_EXPIRED;
+                                    return res;
+                                }
+
+                                workshop.Capacity += tickets.Count;
+                                await _workShopRepo.UpdateWorkShop(workshop);
+                            }
+
+                            foreach (var ticket in tickets)
+                            {
+                                await _registerAttendRepo.DeleteRegisterAttend(ticket.AttendId);
+                            }
+                        }
+                        order.Status = isPaid ? PaymentStatusEnums.WaitingForRefund.ToString() : PaymentStatusEnums.Canceled.ToString();
+                        break;
+
+                    case nameof(PaymentTypeEnums.Course):
+                        var existingRegistration = await _registerCourseRepo.GetRegisterCourseByCourseIdAndCustomerId(order.ServiceId, order.CustomerId);
+                        if (existingRegistration != null)
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.FAILED;
+                            res.StatusCode = StatusCodes.Status400BadRequest;
+                            res.Message = ResponseMessageConstrantsOrder.COURSE_CONFIRMED;
+                            return res;
+                        }
+                        order.Status = isPaid ? PaymentStatusEnums.WaitingForRefund.ToString() : PaymentStatusEnums.Canceled.ToString();
+                        break;
+
+                    case nameof(PaymentTypeEnums.BookingOffline):
+                        order.Status = PaymentStatusEnums.Canceled.ToString();
+                        break;
+
+                    default:
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.FAILED;
+                        res.StatusCode = StatusCodes.Status400BadRequest;
+                        res.Message = ResponseMessageConstrantsOrder.SERVICETYPE_INVALID;
+                        return res;
                 }
 
-                order.Status = PaymentStatusEnums.Canceled.ToString();
                 order.PaymentReference = null;
                 await _orderRepo.UpdateOrder(order);
 

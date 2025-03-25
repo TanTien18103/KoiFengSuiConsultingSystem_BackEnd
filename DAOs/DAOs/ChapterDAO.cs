@@ -44,7 +44,7 @@ namespace DAOs.DAOs
 
         public async Task<List<Chapter>> GetChaptersByCourseIdDao(string courseId)
         {
-            return _context.Chapters.Where(c => c.CourseId == courseId).ToList();
+            return _context.Chapters.Where(c => c.CourseId == courseId).OrderByDescending(x => x.CreateDate).ToList();
         }
 
         public async Task<Chapter> CreateChapterDao(Chapter chapter)

@@ -14,6 +14,8 @@ namespace BusinessObjects.Enums
         Canceled,
         Expired,
         Paid1st,
-        Paid2nd
+        Paid2nd,
+        WaitingForRefund,
+        Refunded
     }
 }

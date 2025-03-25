@@ -68,11 +68,10 @@ namespace DAOs.DAOs
             await _context.SaveChangesAsync();
         }
 
-        public async Task<RegisterCourse> GetRegisterCourseByCourseIdAndCustomerId(string courseId, string customerid)
+        public async Task<RegisterCourse> GetRegisterCourseByCourseIdAndCustomerIdDao(string courseId, string customerid)
         {
             return await _context.RegisterCourses
                 .FirstOrDefaultAsync(rc => rc.CourseId == courseId && rc.CustomerId == customerid);
         }
-
     }
 }

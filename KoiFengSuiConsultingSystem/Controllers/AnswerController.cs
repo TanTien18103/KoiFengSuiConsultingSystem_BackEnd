@@ -23,13 +23,19 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpGet("get-by/{answerId}")]
+        [HttpGet("get-by/{answerId}/answerId")]
         public async Task<IActionResult> GetAnswerById(string answerId)
         {
             var result = await _answerService.GetAnswerById(answerId);
             return StatusCode(result.StatusCode, result);
         }
 
-       
+        [HttpGet("get-by/{questionId}/questionId")]
+        public async Task<IActionResult> GetAnswersByQuestionId(string questionId)
+        {
+            var result = await _answerService.GetAnswersByQuestionId(questionId);
+            return StatusCode(result.StatusCode, result);
+        }
+
     }
 }

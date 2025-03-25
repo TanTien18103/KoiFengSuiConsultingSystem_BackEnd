@@ -23,7 +23,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return Ok(result);
         }
 
-        [HttpPut("{quizid}/update")]
+        [HttpPut("submit-answers-by/{quizid}")]
         public async Task<IActionResult> UpdateUserQuiz(string quizid, [FromBody] RegisterQuizRequest registerQuizRequest)
         {
             var result = await _registerCourseService.UpdateUserQuiz(quizid, registerQuizRequest);

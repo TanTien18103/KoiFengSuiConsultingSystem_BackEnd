@@ -13,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 using Net.payOS.Types;
 using Services.Services.PaymentService;
+using BusinessObjects.Exceptions;
+using Services.ServicesHelpers.RefundSerivce;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -21,10 +23,11 @@ namespace KoiFengSuiConsultingSystem.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
-
-        public PaymentController(IPaymentService paymentService)
+        private readonly IRefundService _refundService;
+        public PaymentController(IPaymentService paymentService, IRefundService refundService)
         {
             _paymentService = paymentService;
+            _refundService = refundService;
         }
 
         [Authorize(Roles = "Customer")]
@@ -35,6 +38,20 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return Ok(res);
         }
 
+        [HttpPost("refund")]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> ProcessRefund([FromBody] RefundRequest request)
+        {
+            try
+            {
+                var customerQR = await _refundService.ProcessRefundAsync(request);
+                return Ok(new { CustomerRefundQR = customerQR });
+            }
+            catch (AppException ex)
+            {
+                return StatusCode(ex.StatusCode, new { ex.Code, ex.Message });
+            }
+        }
         //[HttpPost("payos/transfer-handler")]
         //public IActionResult PayOSPaymentExecute([FromBody] WebhookType request)
         //{

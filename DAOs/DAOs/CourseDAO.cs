@@ -104,5 +104,9 @@ namespace DAOs.DAOs
                 .Where(c => courseIds.Contains(c.CourseId))
                 .ToListAsync();
         }
+        public async Task<bool> CheckCourseExistsDao(string courseId)
+        {
+            return await _context.Courses.AnyAsync(c => c.CourseId == courseId);
+        }
     }
 }

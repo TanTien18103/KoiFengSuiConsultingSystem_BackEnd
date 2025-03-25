@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BusinessObjects.Constants;
+using BusinessObjects.Exceptions;
+using BusinessObjects.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Services.ServicesHelpers.UploadService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
@@ -80,6 +84,52 @@ namespace KoiFengSuiConsultingSystem.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost("UploadExcelFile")]
+        [Consumes("multipart/form-data")]
+        [Authorize(Roles = "Master")]
+        public async Task<ActionResult<List<Quiz>>> UploadExcelFile(IFormFile file)
+        {
+            try
+            {
+                var results = await _uploadService.UploadExcelAsync(file);
+                var response = results.Select(quiz => new
+                {
+                    quiz.QuizId,
+                    quiz.Title,
+                    quiz.CourseId,
+                    quiz.CreateBy,
+                    quiz.CreateAt,
+                    Questions = quiz.Questions.Select(q => new
+                    {
+                        q.QuestionId,
+                        q.QuestionText,
+                        q.QuestionType,
+                        q.Point,
+                        q.CreateAt,
+                        Answers = q.Answers.Select(a => new
+                        {
+                            a.AnswerId,
+                            a.OptionText,
+                            a.OptionType,
+                            a.IsCorrect,
+                            a.CreateAt
+                        })
+                    })
+                });
+
+                return Ok(response);
+            }
+            catch (AppException ex)
+            {
+                return StatusCode(ex.StatusCode, new { code = ex.Code, message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    new { code = ResponseCodeConstants.FAILED, message = ex.Message });
             }
         }
     }

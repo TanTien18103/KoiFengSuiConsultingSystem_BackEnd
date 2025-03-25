@@ -117,6 +117,7 @@ namespace BusinessObjects.Constants
         public const string ADMIN_NOT_FOUND = "Không tìm thấy quản trị viên";
         public const string CUSTOMER_NOT_FOUND = "Không tìm thấy khách hàng";
         public const string CUSTOMER_INFO_NOT_FOUND = "Không tìm thấy thông tin khách hàng";
+        public const string CUSTOMER_BANK_INFO_NOT_FOUND = "Không tìm thấy thông tin tài khoản ngân hàng của khách hàng";
     }
 
     //Order-Payment Service
@@ -141,6 +142,14 @@ namespace BusinessObjects.Constants
         public const string ORDER_CANCELED_SUCCESS = "Đơn hàng được hủy thành công";
         public const string ORDER_EXPIRED = "Đơn hàng đã quá hạn thanh toán";
         public const string SERVICETYPE_INVALID = "Loại dịch vụ không hợp lệ";
+        public const string NOT_WAITING_FOR_REFUND = "Đơn hàng này không ở trạng thái Chờ hoàn tiền";
+        public const string ORDER_AMOUNT_INVALID = "Đơn hàng này không có giá trị để hoàn tiền";
+        public const string CANT_REFUND_FOR_OFFLINE = "Không thể hoàn tiền cho đơn đặt lịch offline";
+        public const string WORKSHOP_EXPIRED = "Không thể hủy đơn vì workshop đã bắt đầu hoặc đã kết thúc";
+        public const string ONLINE_EXPIRED = "Không thể hủy đơn vì đã đến hoặc quá thời gian đặt lịch";
+        public const string COURSE_CONFIRMED = "Không thể hủy đơn vì khóa học đã được đăng ký và được xác nhận";
+        public const string WRONG_ORDER = "Đơn hàng hiện tại không thuộc về khách hàng này";
+
     }
 
     public class ResponseMessageConstrantsBooking
@@ -428,6 +437,18 @@ namespace BusinessObjects.Constants
             public const string VERIFY_OTP_FAILED = "Xác thực OTP thất bại";
             public const string WAIT_TO_RESEND_OTP = "Vui lòng đợi 30s để gửi lại mã OTP";
             public const string RESEND_OTP_SUCCESS = "Gửi lại mã OTP thành công";
+        }
+
+        // 
+        public static class ResponseMessageConstrantsForImport
+        {
+            public const string NOT_FOUND = "Không tìm thấy file";
+            public const string NO_DATA_TO_UPLOAD = "Không có dữ liệu để upload";
+            public const string UPLOAD_SUCCESS = "Upload thành công";
+            public const string NO_QUES_FOR_ANS = "Không thể thêm câu trả lời khi chưa có câu hỏi";
+            public const string NO_QUIZ_FOR_QUES= "Không thể thêm câu hỏi khi chưa có bài kiểm tra";
+            public const string EXISTED_QUIZ_TITLE= "Tiêu đề của bài kiểm tra đã tồn tại";
+            public const string FILE_INVALID= "File phải có định dạng .xls hoặc .xlsx";
         }
     }
 }

@@ -33,7 +33,7 @@ namespace Repositories.Repositories.RegisterCourseRepository
 
         public Task<RegisterCourse> GetRegisterCourseByCourseIdAndCustomerId(string courseId, string customerid)
         {
-            return RegisterCourseDAO.Instance.GetRegisterCourseByCourseIdAndCustomerId(courseId, customerid);
+            return RegisterCourseDAO.Instance.GetRegisterCourseByCourseIdAndCustomerIdDao(courseId, customerid);
         }
     }
 }

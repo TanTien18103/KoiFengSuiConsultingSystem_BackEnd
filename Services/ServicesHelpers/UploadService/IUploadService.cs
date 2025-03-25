@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BusinessObjects.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,5 +18,6 @@ namespace Services.ServicesHelpers.UploadService
         string GetImageUrl(string publicId);
         string GetVideoUrl(string publicId);
         string GetDocumentUrl(string publicId);
+        Task<List<Quiz>> UploadExcelAsync(IFormFile file);
     }
 }

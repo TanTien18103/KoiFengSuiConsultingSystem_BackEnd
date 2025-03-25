@@ -70,6 +70,13 @@ namespace DAOs.DAOs
                 .FirstOrDefaultAsync(o => o.OrderCode == orderCode);
         }
 
+        public async Task<Order> GetOrderWithDetailsDao(string orderId)
+        {
+            return await _context.Orders
+                .Include(o => o.Customer).ThenInclude(c => c.Account)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+        }
+
         public async Task<Order> GetOrderByServiceIdAndStatusDao(string serviceId, string serviceType, string status)
         {
             return await _context.Orders

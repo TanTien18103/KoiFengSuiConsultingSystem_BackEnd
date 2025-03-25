@@ -1,4 +1,7 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.Constants;
+using BusinessObjects.Exceptions;
+using BusinessObjects.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -112,6 +115,47 @@ namespace DAOs.DAOs
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<Quiz>> CreateQuizzesWithQuestionsAndAnswersDao(List<Quiz> quizzes)
+        {
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    foreach (var quiz in quizzes)
+                    {
+                        var courseExists = await _context.Courses.AnyAsync(c => c.CourseId == quiz.CourseId);
+                        if (!courseExists)
+                        {
+                            throw new AppException(ResponseCodeConstants.NOT_FOUND, $"Không tìm thấy khóa học với ID: {quiz.CourseId}", StatusCodes.Status404NotFound);
+                        }
+
+                        var masterExists = await _context.Masters.AnyAsync(m => m.MasterId == quiz.CreateBy);
+                        if (!masterExists)
+                        {
+                            throw new AppException( ResponseCodeConstants.NOT_FOUND, $"Không tìm thấy master với ID: {quiz.CreateBy}", StatusCodes.Status404NotFound);
+                        }
+                    }
+
+                    // Thêm Quizzes và related entities
+                    await _context.Quizzes.AddRangeAsync(quizzes);
+                    
+                    await _context.SaveChangesAsync();
+                    
+                    // Commit transaction
+                    await transaction.CommitAsync();
+                    
+                    return quizzes;
+                }
+                catch (Exception ex)
+                {
+                    // Rollback nếu có lỗi
+                    await transaction.RollbackAsync();
+                    
+                    throw new AppException(ResponseCodeConstants.FAILED, $"Lỗi khi lưu dữ liệu: {ex.InnerException?.Message ?? ex.Message}", StatusCodes.Status500InternalServerError);
+                }
+            }
         }
     }
 }

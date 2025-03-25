@@ -58,6 +58,7 @@ using Repositories.Repositories.EnrollQuizRepository;
 using Repositories.Repositories.EnrollAnswerRepository;
 using Repositories.Repositories.CategoryRepository;
 using Services.Services.CategoryService;
+using Services.ServicesHelpers.RefundSerivce;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -117,6 +118,7 @@ builder.Services.AddScoped<IContractService, ContractService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<IRegisterCourseService, RegisterCourseService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IRefundService, RefundService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();

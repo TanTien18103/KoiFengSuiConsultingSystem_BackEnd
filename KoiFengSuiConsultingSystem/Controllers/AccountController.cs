@@ -64,9 +64,6 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
 
-      
-
-
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Services.ApiModels.Account.LoginRequest request)
         {

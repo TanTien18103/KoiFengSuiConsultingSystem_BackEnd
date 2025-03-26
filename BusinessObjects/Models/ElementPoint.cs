@@ -10,4 +10,8 @@ public partial class ElementPoint
     public string ElementType { get; set; }
 
     public double? Point { get; set; }
+
+    public string CompatibleElement { get; set; }
+
+    public string IncompatibleElement { get; set; }
 }

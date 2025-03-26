@@ -12,6 +12,7 @@ public partial class KoiFishPondContext : DbContext
     public KoiFishPondContext()
     {
     }
+
     public KoiFishPondContext(DbContextOptions<KoiFishPondContext> options)
         : base(options)
     {
@@ -82,10 +83,6 @@ public partial class KoiFishPondContext : DbContext
     public virtual DbSet<Shape> Shapes { get; set; }
 
     public virtual DbSet<VarietyColor> VarietyColors { get; set; }
-
-    public virtual DbSet<Wallet> Wallets { get; set; }
-
-    public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
 
     public virtual DbSet<WorkShop> WorkShops { get; set; }
 
@@ -520,6 +517,12 @@ public partial class KoiFishPondContext : DbContext
             entity.ToTable("ElementPoint");
 
             entity.Property(e => e.ElementType)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.CompatibleElement)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.IncompatibleElement)
                 .HasMaxLength(255)
                 .IsUnicode(false);
         });
@@ -996,51 +999,6 @@ public partial class KoiFishPondContext : DbContext
                 .HasForeignKey(d => d.KoiVarietyId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__VarietyCo__KoiVa__60A75C0F");
-        });
-
-        modelBuilder.Entity<Wallet>(entity =>
-        {
-            entity.HasKey(e => e.WalletId).HasName("PK__Wallet__84D4F90E4D254BF9");
-
-            entity.ToTable("Wallet");
-
-            entity.Property(e => e.WalletId)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .IsFixedLength();
-            entity.Property(e => e.Balance).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CustomerId)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .IsFixedLength();
-
-            entity.HasOne(d => d.Customer).WithMany(p => p.Wallets)
-                .HasForeignKey(d => d.CustomerId)
-                .HasConstraintName("FK__Wallet__Customer__0F624AF8");
-        });
-
-        modelBuilder.Entity<WalletTransaction>(entity =>
-        {
-            entity.HasKey(e => e.WalletTransactionId).HasName("PK__WalletTr__7184AEEFBB100ABA");
-
-            entity.ToTable("WalletTransaction");
-
-            entity.Property(e => e.WalletTransactionId)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .IsFixedLength();
-            entity.Property(e => e.Amount).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.Description).HasMaxLength(255);
-            entity.Property(e => e.Status).HasMaxLength(20);
-            entity.Property(e => e.TransactionType).HasMaxLength(50);
-            entity.Property(e => e.WalletId)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .IsFixedLength();
-
-            entity.HasOne(d => d.Wallet).WithMany(p => p.WalletTransactions)
-                .HasForeignKey(d => d.WalletId)
-                .HasConstraintName("FK__WalletTra__Walle__123EB7A3");
         });
 
         modelBuilder.Entity<WorkShop>(entity =>

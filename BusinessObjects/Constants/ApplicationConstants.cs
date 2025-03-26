@@ -168,7 +168,9 @@ namespace BusinessObjects.Constants
         public const string NOT_FOUND_REGISTERATTEND = "Không tìm thấy vé";
         public const string REQUIRED_ONE_ATLEAST = "Cần ít nhất một trong các trường booking";
         public const string REQUIRED_ONE = "Chỉ được assign một booking";
-
+        public const string UPDATE_STATUS_BOOKING_ONL_FAILED = "Không thể cập nhật trạng thái buổi tư vấn";
+        public const string UPDATE_MASTER_NOTE_BOOKING_ONL_FAILED = "Cập nhật lưu ý của thầy thất bại";
+        public const string UPDATE_MASTER_NOTE_BOOKING_ONL_SUCCESS = "Cập nhật lưu ý của thầy thành công";
         public const string REQUIRED_ATLEAST_ONE = "Cần ít nhất một trong các trường booking";
         public const string PRICE_SELECTED_INVALID = "Giá được chọn không hợp lệ";
         public const string SERVICETYPE_CANCELED = "Buổi tư vấn đã bị hủy, không thể thanh toán";
@@ -181,6 +183,7 @@ namespace BusinessObjects.Constants
         public const string ALREADY_CREATE_BOOKING = "Vui lòng tạo Order cho tư vấn trước đó trước khi tạo tư vấn mới";
         public const string TIME_PASSED = "Không thể đặt lịch các ngày đã qua thời điểm hiện tại";
         public const string NOT_SELECTED_PRICE_FOR_BOOKING = "Booking chưa có giá được chọn";
+        public const string COMPLETE_BOOKING_SUCCESS = "Hoàn thành tư vấn thành công";
     }
 
     public class ResponseMessageConstrantsPackage

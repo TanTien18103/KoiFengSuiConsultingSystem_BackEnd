@@ -14,8 +14,8 @@ namespace Services.Services.BookingService
         Task<ResultModel> GetBookingOnlinesHoverAsync();
         Task<ResultModel> AssignMasterToBookingAsync(string? bookingonlineId, string? bookingofflineId, string masterId);
         Task<ResultModel> CreateBookingOnline(BookingOnlineRequest bookingOnlineRequest);
-
-
+        Task<ResultModel> CompleteBookingOnlineByMaster(string bookingOnlineId);
+        Task<ResultModel> UpdateBookingOnlineMasterNote(string bookingOnlineId, UpdateMasterNoteRequest request);
         // Booking Offline
         Task<ResultModel> RemoveConsultationPackage(string id);
         Task<ResultModel> ProcessCompleteBooking(BookingOfflineRequest request, string packageId, decimal selectedPrice);

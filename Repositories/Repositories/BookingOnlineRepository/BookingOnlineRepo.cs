@@ -38,5 +38,14 @@ namespace Repositories.Repositories.BookingOnlineRepository
         {
             return BookingOnlineDAO.Instance.CheckCustomerHasUncompletedBookingDao(customerId);
         }
+        public Task<BookingOnline> UpdateBookingOnlineStatusRepo(string bookingOnlineId, string status)
+        {
+            return BookingOnlineDAO.Instance.UpdateBookingOnlineStatusDao(bookingOnlineId, status);
+        }
+
+        public Task<BookingOnline> UpdateBookingOnlineMasterNoteRepo(string bookingOnlineId, string masterNote)
+        {
+            return BookingOnlineDAO.Instance.UpdateBookingOnlineMasterNoteDao(bookingOnlineId, masterNote);
+        }
     }
 }

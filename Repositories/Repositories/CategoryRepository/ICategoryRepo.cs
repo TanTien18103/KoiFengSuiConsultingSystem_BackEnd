@@ -10,10 +10,8 @@ namespace Repositories.Repositories.CategoryRepository
     public interface ICategoryRepo
     {
         Task<Category> GetCategoryById(string categoryId);
-        Task<List<Category>> GetCategories();
+        Task<List<Category>> GetAllCatogories(); 
         Task<Category> CreateCategory(Category category);
         Task<Category> UpdateCategory(Category category);
-        Task DeleteCategory(string categoryId);
-
     }
 }

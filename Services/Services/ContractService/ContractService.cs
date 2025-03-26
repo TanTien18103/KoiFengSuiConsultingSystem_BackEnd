@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Repositories.Repositories.BookingOfflineRepository;
 using Repositories.Repositories.ContractRepository;
+using Repositories.Repositories.OrderRepository;
 using Services.ApiModels;
 using Services.ApiModels.Contract;
 using Services.Services.EmailService;
+using Services.ServicesHelpers.PriceService;
 using Services.ServicesHelpers.UploadService;
 using System;
 using System.Collections.Generic;
@@ -25,22 +27,28 @@ namespace Services.Services.ContractService
     {
         private readonly IContractRepo _contractRepo;
         private readonly IBookingOfflineRepo _bookingOfflineRepo;
+        private readonly IOrderRepo _orderRepo;
         private readonly IEmailService _emailService;
         private readonly IUploadService _uploadService;
+        private readonly IPriceService _priceService;
         private readonly IMapper _mapper;
         private readonly ILogger<ContractService> _logger;
         public ContractService(
         IContractRepo contractRepo,
         IBookingOfflineRepo bookingOfflineRepo,
+        IOrderRepo orderRepo,
         IEmailService emailService,
         IUploadService uploadService,
+        IPriceService priceService,
         IMapper mapper,
         ILogger<ContractService> logger)
         {
             _contractRepo = contractRepo;
             _bookingOfflineRepo = bookingOfflineRepo;
+            _orderRepo = orderRepo;
             _emailService = emailService;
             _uploadService = uploadService;
+            _priceService = priceService;
             _mapper = mapper;
             _logger = logger;
         }
@@ -245,6 +253,95 @@ namespace Services.Services.ContractService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi khi lấy thông tin hợp đồng");
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> ProcessFirstPaymentAfterVerification(string contractId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var contract = await _contractRepo.GetContractById(contractId);
+                if (contract == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsContract.NOT_FOUND;
+                    return res;
+                }
+                if (contract.Status != ContractStatusEnum.Success.ToString())
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsContract.CHECK_STATUS;
+                    return res;
+                }
+                var bookingOffline = contract.BookingOfflines.FirstOrDefault();
+                if (bookingOffline == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                    return res;
+                }
+                if (bookingOffline.SelectedPrice == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_SELECTED_PRICE_FOR_BOOKING;
+                    return res;           
+                  }
+                decimal? firstPaymentAmount = await _priceService.GetServicePrice(PaymentTypeEnums.BookingOffline,bookingOffline.BookingOfflineId,true);
+
+                if (firstPaymentAmount == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsOrder.PRICE_NOT_FOUND_OR_INVALID;
+                    return res;
+                }
+                var order = new Order
+                {
+                    OrderId = Guid.NewGuid().ToString("N").Substring(0, 20),
+                    CustomerId = bookingOffline.CustomerId,
+                    ServiceId = bookingOffline.BookingOfflineId,
+                    ServiceType = PaymentTypeEnums.BookingOffline.ToString(),
+                    Amount = firstPaymentAmount,
+                    OrderCode = $"ORD_{DateTime.Now:yyyyMMddHHmmss}",
+                    Status = PaymentStatusEnums.Pending.ToString(),
+                    CreatedDate = DateTime.Now,
+                    Description = $"Thanh toán lần 1 (30%) cho hợp đồng {contract.ContractName}",
+                    Note = $"ContractId: {contractId}"
+                };
+                var createdOrder = await _orderRepo.CreateOrder(order);
+                contract.Status = ContractStatusEnum.FirstPaymentPending.ToString();
+                contract.UpdatedDate = DateTime.Now;
+                await _contractRepo.UpdateContract(contract);
+
+                var paymentInfo = new 
+                {
+                    createdOrder.OrderId,
+                    createdOrder.OrderCode,
+                    contract.ContractId,
+                    bookingOffline.BookingOfflineId,
+                    Amount = firstPaymentAmount,
+                    PaymentType = "FirstPayment",
+                    createdOrder.Status,
+                    createdOrder.CreatedDate
+                };
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsOrder.ORDER_STATUS_TO_PAID;
+                res.Data = paymentInfo;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi xử lý thanh toán lần đầu");
                 res.IsSuccess = false;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.Message = ex.Message;

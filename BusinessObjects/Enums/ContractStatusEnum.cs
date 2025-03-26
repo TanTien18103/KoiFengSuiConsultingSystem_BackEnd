@@ -12,6 +12,8 @@ namespace BusinessObjects.Enums
         InProgress,
         Success,
         VerifyingOTP,
-        Cancelled
+        Cancelled,
+        FirstPaymentPending,
+        FirstPaymentSuccess
     }
 }

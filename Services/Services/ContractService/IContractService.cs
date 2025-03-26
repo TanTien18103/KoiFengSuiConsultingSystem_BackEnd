@@ -16,5 +16,6 @@ namespace Services.Services.ContractService
         Task<ResultModel> CancelContract(string contractId);
         Task<ResultModel> ConfirmContract(string contractId);
         Task<ResultModel> GetContractByBookingOfflineIdAndUpdateStatus(string bookingOfflineId);
+        Task<ResultModel> ProcessFirstPaymentAfterVerification(string contractId);
     }
 }

@@ -164,6 +164,7 @@ namespace Services.Services.CourseService
                 course.CreateAt = DateTime.UtcNow;
                 course.Status = CourseStatusEnum.Inactive.ToString();
                 course.CreateBy = masterid;
+                course.CategoryId = request.CourseCategory;
 
                 if (course.CreateBy == null)
                 {
@@ -174,12 +175,12 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                await _courseRepo.CreateCourse(course);
-
+                var result = await _courseRepo.CreateCourse(course);
+                var response = await _courseRepo.GetCourseById(result.CourseId);
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status201Created;
-                res.Data = _mapper.Map<CourseResponse>(course);
+                res.Data = _mapper.Map<CourseResponse>(response);
                 res.Message = ResponseMessageConstrantsCourse.COURSE_CREATED_SUCCESS;
                 return res;
             }
@@ -220,12 +221,14 @@ namespace Services.Services.CourseService
 
                 _mapper.Map(request, course);
                 course.UpdateAt = DateTime.UtcNow;
+                course.CategoryId = request.CourseCategory;
                 await _courseRepo.UpdateCourse(course);
+                var response = await _courseRepo.GetCourseById(id);
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<CourseResponse>(course);
+                res.Data = _mapper.Map<CourseResponse>(response);
                 res.Message = ResponseMessageConstrantsCourse.COURSE_UPDATED_SUCCESS;
                 return res;
             }

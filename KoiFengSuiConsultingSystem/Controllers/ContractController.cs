@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Services.ApiModels.Contract;
 using Services.Services.ContractService;
 
@@ -26,13 +27,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _contractService.CreateContract(request);
             return StatusCode(result.StatusCode, result);
         }
+        [Authorize(Roles = "Customer, Manager")]
         [HttpPatch("cancel/{contractId}")]
         public async Task<IActionResult> CancelContract(string contractId)
         {
             var result = await _contractService.CancelContract(contractId);
             return StatusCode(result.StatusCode, result);
         }
-
+        [Authorize(Roles = "Customer, Manager")]
         [HttpPatch("confirm/{contractId}")]
         public async Task<IActionResult> ConfirmContract(string contractId)
         {

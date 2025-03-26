@@ -1,4 +1,4 @@
-using BusinessObjects.Models;
+﻿using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -104,6 +104,72 @@ namespace DAOs.DAOs
                     return true; 
             }
             return false; 
+        }
+
+        public async Task<BookingOnline> UpdateBookingOnlineStatusDao(string bookingOnlineId, string status)
+        {
+            try
+            {
+                var bookingOnline = await _context.BookingOnlines
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(b => b.BookingOnlineId == bookingOnlineId);
+
+                if (bookingOnline == null)
+                    return null;
+
+                
+                var entry = _context.BookingOnlines.FirstOrDefault(b => b.BookingOnlineId == bookingOnlineId);
+                if (entry != null)
+                {
+                    entry.Status = status;
+                    await _context.SaveChangesAsync();
+
+                    return await _context.BookingOnlines
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(b => b.BookingOnlineId == bookingOnlineId);
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        public async Task<BookingOnline> UpdateBookingOnlineMasterNoteDao(string bookingOnlineId, string masterNote)
+        {
+            try
+            {
+                var bookingOnline = await _context.BookingOnlines
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(b => b.BookingOnlineId == bookingOnlineId);
+
+                if (bookingOnline == null)
+                    return null;
+
+                
+                var entry = _context.BookingOnlines.FirstOrDefault(b => b.BookingOnlineId == bookingOnlineId);
+                if (entry != null)
+                {
+                    entry.MasterNote = masterNote;
+                    await _context.SaveChangesAsync();
+
+                    
+                    return await _context.BookingOnlines
+                        .Include(x => x.Customer).ThenInclude(x => x.Account)
+                        .Include(x => x.Master).ThenInclude(x => x.Account)
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(b => b.BookingOnlineId == bookingOnlineId);
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        public Task<BookingOnline> UpdateBookingOnlineMasterNoteRepo(string bookingOnlineId, string masterNote)
+        {
+            return BookingOnlineDAO.Instance.UpdateBookingOnlineMasterNoteDao(bookingOnlineId, masterNote);
         }
     }
 }

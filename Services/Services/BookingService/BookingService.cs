@@ -20,6 +20,7 @@ using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 using System.Security.Cryptography.Xml;
 using System.Diagnostics;
 using Repositories.Repositories.ConsultationPackageRepository;
+using System.Runtime.CompilerServices;
 
 namespace Services.Services.BookingService
 {
@@ -33,6 +34,7 @@ namespace Services.Services.BookingService
         private readonly IAccountRepo _accountRepo;
         private readonly IMasterScheduleRepo _masterScheduleRepo;
         private readonly IConsultationPackageRepo _consultationPackageRepo;
+        private readonly IMasterRepo _masterRepo;
 
         public BookingService(
             IBookingOnlineRepo onlineRepo,
@@ -42,7 +44,9 @@ namespace Services.Services.BookingService
             ICustomerRepo customerRepo,
             IAccountRepo accountRepo,
             IMasterScheduleRepo masterScheduleRepo,
-            IConsultationPackageRepo consultationPackageRepo
+            IConsultationPackageRepo consultationPackageRepo,
+            IMasterRepo masterRepo
+
         )
         {
             _onlineRepo = onlineRepo;
@@ -53,7 +57,9 @@ namespace Services.Services.BookingService
             _accountRepo = accountRepo;
             _masterScheduleRepo = masterScheduleRepo;
 
+
             _consultationPackageRepo = consultationPackageRepo;
+            _masterRepo = masterRepo;
         }
 
         private string GetAuthenticatedAccountId()
@@ -612,7 +618,120 @@ namespace Services.Services.BookingService
                     return res;
             }
         }
+        public async Task<ResultModel> CompleteBookingOnlineByMaster(string bookingOnlineId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                // Chỉ lấy BookingOnline mà không tải các entity liên quan
+                var bookingOnline = await _onlineRepo.GetBookingOnlineByIdRepo(bookingOnlineId);
+                if (bookingOnline == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE;
+                    return res;
+                }
 
+                
+                var updateSuccess = await _onlineRepo.UpdateBookingOnlineStatusRepo(bookingOnlineId, BookingOnlineEnums.Completed.ToString());
+
+                if (updateSuccess == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = ResponseMessageConstrantsBooking.UPDATE_STATUS_BOOKING_ONL_FAILED;
+                    return res;
+                }
+
+                
+                var updatedBooking = await _onlineRepo.GetBookingOnlineByIdRepo(bookingOnlineId);
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsBooking.COMPLETE_BOOKING_SUCCESS;
+                res.Data = _mapper.Map<BookingResponse>(updatedBooking);
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Lỗi khi cập nhật trạng thái buổi tư vấn: {ex.Message}";
+                return res;
+            }
+        }
+        public async Task<ResultModel> UpdateBookingOnlineMasterNote(string bookingOnlineId, UpdateMasterNoteRequest request)
+        {
+            var res = new ResultModel();
+            try
+            {
+                
+                var bookingOnline = await _onlineRepo.GetBookingOnlineByIdRepo(bookingOnlineId);
+                if (bookingOnline == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE;
+                    return res;
+                }
+
+                
+                var accountId = GetAuthenticatedAccountId();
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    return res;
+                }
+
+               
+                var master = await _masterRepo.GetMasterByAccountId(accountId);
+                if (master == null || bookingOnline.MasterId != master.MasterId)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status403Forbidden;
+                    res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    return res;
+                }
+
+                
+                var updatedBooking = await _onlineRepo.UpdateBookingOnlineMasterNoteRepo(bookingOnlineId, request.MasterNote);
+                if (updatedBooking == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = ResponseMessageConstrantsBooking.UPDATE_MASTER_NOTE_BOOKING_ONL_FAILED;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsBooking.UPDATE_MASTER_NOTE_BOOKING_ONL_SUCCESS;
+                res.Data = _mapper.Map<BookingResponse>(updatedBooking);
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Lỗi khi cập nhật ghi chú: {ex.Message}";
+                return res;
+            }
+        }
 
         // Bookin Offline
         public async Task<ResultModel> RemoveConsultationPackage(string id)

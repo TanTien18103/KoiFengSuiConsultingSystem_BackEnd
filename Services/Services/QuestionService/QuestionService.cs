@@ -297,6 +297,31 @@ namespace Services.Services.QuestionService
                     };
                 }
 
+                var answers = await _answerRepo.GetAnswersByQuestionId(questionId);
+
+                if(answers == null || !answers.Any())
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        ResponseCode = ResponseCodeConstants.NOT_FOUND,
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = ResponseMessageConstrantsAnswer.ANSWER_NOT_FOUND
+                    };
+                }
+
+                foreach (var answer in answers)
+                {
+                    var answerRequest = questionRequest.answerUpdateRequests.FirstOrDefault(x => x.AnswerId == answer.AnswerId);
+                    if (answerRequest != null)
+                    {
+                        answer.OptionText = answerRequest.OptionText;
+                        answer.OptionType = answerRequest.OptionType;
+                        answer.IsCorrect = answerRequest.IsCorrect;
+                        await _answerRepo.UpdateAnswer(answer);
+                    }
+                }
+
                 question.QuestionText = questionRequest.QuestionText;
                 question.QuestionType = questionRequest.QuestionType;
                 question.Point = questionRequest.Point;
@@ -304,7 +329,14 @@ namespace Services.Services.QuestionService
                 var updatedQuestion = await _questionRepository.UpdateQuestion(question);
                 if (updatedQuestion != null)
                 {
-
+                    return new ResultModel
+                    {
+                        Data = _mapper.Map<QuestionResponse>(updatedQuestion),
+                        IsSuccess = true,
+                        ResponseCode = ResponseCodeConstants.SUCCESS,
+                        StatusCode = StatusCodes.Status200OK,
+                        Message = ResponseMessageConstrantsQuestion.QUESTION_UPDATED_SUCCESS
+                    };
                 }
 
                 return new ResultModel

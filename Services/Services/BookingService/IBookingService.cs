@@ -17,9 +17,8 @@ namespace Services.Services.BookingService
 
 
         // Booking Offline
-        Task<ResultModel> CreateBookingOffline(BookingOfflineRequest request);
-        Task<ResultModel> AddConsultationPackage(string packageId, string id);
         Task<ResultModel> RemoveConsultationPackage(string id);
-        Task<ResultModel> SelectBookingOfflinePrice(string bookingId, decimal selectedPrice);
+        Task<ResultModel> ProcessCompleteBooking(BookingOfflineRequest request, string packageId, decimal selectedPrice);
+        Task<ResultModel> GetBookingOfflineForCurrentLogin();
     }
 }

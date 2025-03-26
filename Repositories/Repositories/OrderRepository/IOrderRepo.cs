@@ -24,5 +24,6 @@ namespace Repositories.Repositories.OrderRepository
         Task<Order> GetOrderByServiceIdAndStatus(string serviceId, string serviceType, string status);
         Task<Order> GetOrderByServiceIdAndCustomerIdAndServiceType(string customerId, string serviceId, string serviceType);
         Task<List<Order>> GetOrdersByCustomerAndType(string customerId, string serviceType, string status);
+        Task<Order> GetOrderWithDetails(string orderId);
     }
 }

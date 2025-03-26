@@ -58,6 +58,8 @@ using Repositories.Repositories.EnrollQuizRepository;
 using Repositories.Repositories.EnrollAnswerRepository;
 using Repositories.Repositories.CategoryRepository;
 using Services.Services.CategoryService;
+using Services.ServicesHelpers.GoogleMeetService;
+using Services.ServicesHelpers.RefundSerivce;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -117,9 +119,14 @@ builder.Services.AddScoped<IContractService, ContractService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<IRegisterCourseService, RegisterCourseService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IRefundService, RefundService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
+
+// Register GoogleMeetService
+builder.Services.AddSingleton<GoogleMeetService>();
+
 
 //Register Mapper
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));
@@ -214,10 +221,10 @@ builder.Services.AddAuthentication(options =>
     googleOptions.CallbackPath = "/signin-google";
 });
 
-//builder.WebHost.ConfigureKestrel(serverOptions =>
-//{
-//    serverOptions.ListenAnyIP(5261);
-//});
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(5261);
+});
 
 // CORS Policy
 builder.Services.AddCors(options =>

@@ -93,6 +93,5 @@ namespace DAOs.DAOs
                 .Where(ec => ec.EnrollCourseId == enrollCourseId && ec.Status == EnrollChapterStatusEnums.Done.ToString())
                 .CountAsync();
         }
-
     }
 }

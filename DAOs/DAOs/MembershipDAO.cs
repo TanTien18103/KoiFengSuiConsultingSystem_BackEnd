@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +44,7 @@ namespace DAOs.DAOs
 
         public async Task<List<Membership>> GetMembershipsDao()
         {
-            return _context.Memberships.ToList();
+            return await _context.Memberships.ToListAsync();
         }
 
         public async Task<Membership> CreateMembershipDao(Membership membership)

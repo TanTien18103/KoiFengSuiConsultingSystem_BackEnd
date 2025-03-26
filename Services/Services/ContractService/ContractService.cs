@@ -144,6 +144,38 @@ namespace Services.Services.ContractService
             }
         }
 
+        public async Task<ResultModel> GetContractByBookingOfflineId(string bookingOfflineId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var contract = await _contractRepo.GetContractByBookingOfflineId(bookingOfflineId);
+                if (contract == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsContract.NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsContract.FOUND;
+                res.Data = _mapper.Map<ContractResponse>(contract);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
         public async Task<ResultModel> CreateContract(ContractRequest request)
         {
             var res = new ResultModel();

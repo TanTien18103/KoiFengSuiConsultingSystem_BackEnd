@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +44,7 @@ namespace DAOs.DAOs
 
         public async Task<List<RegisterCourse>> GetRegisterCoursesDao()
         {
-            return _context.RegisterCourses.ToList();
+            return await _context.RegisterCourses.ToListAsync();
         }
 
         public async Task<RegisterCourse> CreateRegisterCourseDao(RegisterCourse registerCourse)
@@ -67,11 +68,10 @@ namespace DAOs.DAOs
             await _context.SaveChangesAsync();
         }
 
-        public async Task<RegisterCourse> GetRegisterCourseByCourseIdAndCustomerId(string courseId, string customerid)
+        public async Task<RegisterCourse> GetRegisterCourseByCourseIdAndCustomerIdDao(string courseId, string customerid)
         {
-            return _context.RegisterCourses
-                .FirstOrDefault(rc => rc.CourseId == courseId && rc.CustomerId == customerid);
+            return await _context.RegisterCourses
+                .FirstOrDefaultAsync(rc => rc.CourseId == courseId && rc.CustomerId == customerid);
         }
-
     }
 }

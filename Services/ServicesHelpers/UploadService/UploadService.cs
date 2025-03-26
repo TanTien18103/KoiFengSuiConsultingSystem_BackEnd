@@ -1,20 +1,38 @@
-﻿using CloudinaryDotNet;
+﻿using BusinessObjects.Constants;
+using BusinessObjects.Exceptions;
+using BusinessObjects.Models;
+using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using ExcelDataReader;
 using Microsoft.AspNetCore.Http;
+using Repositories.Repositories.CourseRepository;
+using Repositories.Repositories.MasterRepository;
+using Repositories.Repositories.QuizRepository;
+using Services.ApiModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 
 namespace Services.ServicesHelpers.UploadService
 {
     public class UploadService : IUploadService
     {
         private readonly Cloudinary _cloudinary;
-        public UploadService(Cloudinary cloudinary)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMasterRepo _masterRepo;
+        private readonly IQuizRepo _quizRepo;
+        private readonly ICourseRepo _courseRepo;
+        public UploadService(Cloudinary cloudinary, IHttpContextAccessor httpContextAccessor, IMasterRepo masterRepo, IQuizRepo quizRepo, ICourseRepo courseRepo)
         {
             _cloudinary = cloudinary;
+            _httpContextAccessor = httpContextAccessor;
+            _masterRepo = masterRepo;
+            _quizRepo = quizRepo;
+            _courseRepo = courseRepo;
         }
 
         public string GetDocumentUrl(string publicId)
@@ -158,6 +176,191 @@ namespace Services.ServicesHelpers.UploadService
             {
                 throw new Exception($"Lỗi khi upload video: {ex.Message}");
             }
+        }
+
+        public async Task<List<Quiz>> UploadExcelAsync(IFormFile file)
+        {
+            try
+            {
+                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (extension != ".xls" && extension != ".xlsx")
+                {
+                    throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsForImport.FILE_INVALID, StatusCodes.Status400BadRequest);
+                }
+
+                var accountId = GetAuthenticatedAccountId();
+                if(string.IsNullOrEmpty(accountId))
+                {
+                    throw new AppException(ResponseCodeConstants.UNAUTHORIZED, ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED, StatusCodes.Status401Unauthorized);
+                }
+                var masterId = await _masterRepo.GetMasterIdByAccountId(accountId);
+                if(string.IsNullOrEmpty(masterId))
+                {
+                    throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsMaster.MASTER_NOT_FOUND, StatusCodes.Status404NotFound);
+                }
+
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+                if (file == null || file.Length == 0)
+                {
+                    throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsForImport.NOT_FOUND, StatusCodes.Status404NotFound);
+                }
+
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var filePath = Path.Combine(uploadsFolder, file.FileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                var quizzes = new List<Quiz>();
+                var existingQuizTitles = new HashSet<string>();
+
+                using (var stream = System.IO.File.Open(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    using (var reader = ExcelReaderFactory.CreateReader(stream, new ExcelReaderConfiguration()
+                    {
+                        FallbackEncoding = Encoding.GetEncoding(1252),
+                        LeaveOpen = false
+                    }))
+                    {
+                        Quiz currentQuiz = null;
+                        Question currentQuestion = null;
+                        bool isHeaderSkipped = false;
+
+                        do
+                        {
+                            while (reader.Read())
+                            {
+                                if (!isHeaderSkipped)
+                                {
+                                    isHeaderSkipped = true;
+                                    continue;
+                                }
+
+                                if (reader.GetValue(0) == null || string.IsNullOrWhiteSpace(reader.GetValue(0).ToString()))
+                                {
+                                    continue;
+                                }
+
+                                var recordType = reader.GetValue(0).ToString().ToLower();
+
+                                switch (recordType)
+                                {
+                                    case "quiz":
+                                        var quizTitle = reader.GetValue(1).ToString();
+                                        var courseId = reader.GetValue(2).ToString();
+
+                                        if (existingQuizTitles.Contains(quizTitle))
+                                        {
+                                            throw new AppException(ResponseCodeConstants.EXISTED, ResponseMessageConstrantsForImport.EXISTED_QUIZ_TITLE, StatusCodes.Status400BadRequest);
+                                        }
+
+                                        var courseExists = await _courseRepo.CheckCourseExists(courseId);
+                                        if (!courseExists)
+                                        {
+                                            throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsCourse.COURSE_NOT_FOUND, StatusCodes.Status404NotFound);
+                                        }
+
+                                        currentQuiz = new Quiz
+                                        {
+                                            QuizId = GenerateShortGuid(),
+                                            Title = quizTitle,
+                                            CourseId = courseId,
+                                            CreateBy = masterId,
+                                            CreateAt = DateTime.Now,
+                                            Questions = new List<Question>()
+                                        };
+                                        quizzes.Add(currentQuiz);
+                                        existingQuizTitles.Add(quizTitle);
+                                        break;
+
+                                    case "question":
+                                        if (currentQuiz == null)
+                                        {
+                                            throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsForImport.NO_QUIZ_FOR_QUES, StatusCodes.Status404NotFound);
+                                        }
+
+                                        var questionText = reader.GetValue(1).ToString();
+                                        var questionType = reader.GetValue(2).ToString();
+                                        var point = decimal.Parse(reader.GetValue(3).ToString());
+
+                                        currentQuestion = new Question
+                                        {
+                                            QuestionId = GenerateShortGuid(),
+                                            QuizId = currentQuiz.QuizId,
+                                            QuestionText = questionText,
+                                            QuestionType = questionType,
+                                            CreateAt = DateTime.Now,
+                                            Point = point,
+                                            Answers = new List<Answer>()
+                                        };
+                                        currentQuiz.Questions.Add(currentQuestion);
+                                        break;
+
+                                    case "answer":
+                                        if (currentQuestion == null)
+                                        {
+                                            throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsForImport.NO_QUES_FOR_ANS, StatusCodes.Status404NotFound);
+                                        }
+
+                                        var optionText = reader.GetValue(1).ToString();
+                                        var optionType = reader.GetValue(2).ToString();
+                                        var isCorrect = bool.Parse(reader.GetValue(3).ToString());
+
+                                        var answer = new Answer
+                                        {
+                                            AnswerId = GenerateShortGuid(),
+                                            QuestionId = currentQuestion.QuestionId,
+                                            OptionText = optionText,
+                                            OptionType = optionType,
+                                            CreateAt = DateTime.Now,
+                                            IsCorrect = isCorrect
+                                        };
+                                        currentQuestion.Answers.Add(answer);
+                                        break;
+                                }
+                            }
+                        } while (reader.NextResult());
+                    }
+                }
+
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+
+                if (quizzes.Count > 0)
+                {
+                    return await _quizRepo.CreateQuizzesWithQuestionsAndAnswers(quizzes);
+                }
+
+                throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsForImport.NO_DATA_TO_UPLOAD, StatusCodes.Status404NotFound);
+            }
+            catch (Exception ex)
+            {
+                throw new AppException(ResponseCodeConstants.FAILED, ex.Message, StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        private string GetAuthenticatedAccountId()
+        {
+            var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+            if (identity == null || !identity.IsAuthenticated) return null;
+
+            return identity.Claims.SingleOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        }
+
+        public static string GenerateShortGuid()
+        {
+            Guid guid = Guid.NewGuid();
+            string base64 = Convert.ToBase64String(guid.ToByteArray());
+            return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
         }
     }
 }

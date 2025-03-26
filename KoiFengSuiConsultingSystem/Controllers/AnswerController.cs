@@ -23,25 +23,19 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpDelete("delete-by/{answerId}")]
-        public async Task<IActionResult> DeleteAnswer(string answerId)
-        {
-            var result = await _answerService.DeleteAnswer(answerId);
-            return StatusCode(result.StatusCode, result);
-        }
-
-        [HttpGet("get-by/{answerId}")]
+        [HttpGet("get-by/{answerId}/answerId")]
         public async Task<IActionResult> GetAnswerById(string answerId)
         {
             var result = await _answerService.GetAnswerById(answerId);
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPut("update-by/{answerId}")]
-        public async Task<IActionResult> UpdateAnswer(string answerId, [FromBody] AnswerRequest answerRequest)
+        [HttpGet("get-by/{questionId}/questionId")]
+        public async Task<IActionResult> GetAnswersByQuestionId(string questionId)
         {
-            var result = await _answerService.UpdateAnswer(answerId, answerRequest);
+            var result = await _answerService.GetAnswersByQuestionId(questionId);
             return StatusCode(result.StatusCode, result);
         }
+
     }
 }

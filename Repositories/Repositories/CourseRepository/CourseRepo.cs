@@ -42,5 +42,9 @@ namespace Repositories.Repositories.CourseRepository
         {
             return CourseDAO.Instance.GetCoursesByIdsDao(courseIds);
         }
+        public Task<bool> CheckCourseExists(string courseId)
+        {
+            return CourseDAO.Instance.CheckCourseExistsDao(courseId);
+        }
     }
 }

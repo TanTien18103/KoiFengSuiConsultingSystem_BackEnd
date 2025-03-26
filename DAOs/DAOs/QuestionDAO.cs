@@ -46,16 +46,16 @@ namespace DAOs.DAOs
 
         public async Task<List<Question>> GetQuestionsDao()
         {
-            return _context.Questions
+            return await _context.Questions
                 .Include(q => q.Answers)
-                .ToList();
+                .ToListAsync();
         }
 
         public async Task<List<Question>> GetQuestionsByQuizId(string quizid)
         {
-            return _context.Questions
+            return await _context.Questions
                 .Include(q => q.Answers)
-                .Where(q => q.QuizId == quizid).ToList();
+                .Where(q => q.QuizId == quizid).ToListAsync();
         }
 
         public async Task<Question> CreateQuestionDao(Question question)
@@ -74,10 +74,6 @@ namespace DAOs.DAOs
         public async Task DeleteQuestionDao(string questionId)
         {
             var question = await GetQuestionByIdDao(questionId);
-            if (question == null)
-            {
-                throw new Exception("Question not found.");
-            }
 
             var answerIds = _context.Answers
                 .Where(a => a.QuestionId == questionId)

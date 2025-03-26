@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Net.NetworkInformation;
 
 namespace Repositories.Repositories.OrderRepository
 {
@@ -67,6 +68,10 @@ namespace Repositories.Repositories.OrderRepository
         public Task<List<Order>> GetOrdersByCustomerAndType(string customerId, string serviceType, string status)
         {
             return OrderDAO.Instance.GetOrdersByCustomerAndTypeDao(customerId, serviceType, status);
+        }
+        public Task<Order> GetOrderWithDetails(string orderId)
+        {
+            return OrderDAO.Instance.GetOrderWithDetailsDao(orderId);
         }
     }
 }

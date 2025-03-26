@@ -14,8 +14,9 @@ namespace Services.Mapper
         public QuestionMappingProfile()
         {
             CreateMap<QuestionRequest, Question>();
-            CreateMap<QuestionUpdateRequest, Question>();
             CreateMap<Question, QuestionResponse>();
+            CreateMap<QuestionUpdateRequest, Question>();
+            CreateMap<AnswerUpdateRequest, Answer>();
         }
     }
 }

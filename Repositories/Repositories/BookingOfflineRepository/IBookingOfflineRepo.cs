@@ -12,9 +12,11 @@ namespace Repositories.Repositories.BookingOfflineRepository
         Task<BookingOffline> GetBookingOfflineById(string bookingOfflineId);
         Task<BookingOffline> GetConsultingOfflineByMasterScheduleIdRepo(string masterScheduleId);
         Task<List<BookingOffline>> GetBookingOfflines();
+        Task<List<BookingOffline>> GetBookingOfflinesByAccountId(string accountId);
         Task<List<BookingOffline>> GetBookingOfflinesByUserId(string userId);
         Task<BookingOffline> CreateBookingOffline(BookingOffline bookingOffline);
         Task<BookingOffline> UpdateBookingOffline(BookingOffline bookingOffline);
         Task DeleteBookingOffline(string bookingOfflineId);
+        Task<(BookingOffline booking, string message)> ProcessBookingTransaction(BookingOffline booking, string packageId, decimal selectedPrice);
     }
 }

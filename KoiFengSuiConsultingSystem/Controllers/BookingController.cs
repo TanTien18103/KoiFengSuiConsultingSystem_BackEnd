@@ -71,7 +71,20 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _bookingService.AssignMasterToBookingAsync(bookingonline,bookingoffline,masterId);
             return StatusCode(result.StatusCode, result);
         }
-
+        [HttpPut("booking-online/{bookingOnlineId}/complete")]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> CompleteBookingOnline(string bookingOnlineId)
+        {
+            var result = await _bookingService.CompleteBookingOnlineByMaster(bookingOnlineId);
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpPut("booking-online/{bookingOnlineId}/master-note")]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> UpdateBookingOnlineMasterNote(string bookingOnlineId, [FromBody] UpdateMasterNoteRequest request)
+        {
+            var result = await _bookingService.UpdateBookingOnlineMasterNote(bookingOnlineId, request);
+            return StatusCode(result.StatusCode, result);
+        }
         // Booking Offline
         [HttpPut("offline-remove-package/{id}")]
         [Authorize(Roles = "Customer")]

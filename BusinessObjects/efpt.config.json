@@ -147,14 +147,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[Wallet]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[WalletTransaction]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[WorkShop]",
          "ObjectType": 0
       }

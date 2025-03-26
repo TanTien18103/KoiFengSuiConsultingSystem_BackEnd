@@ -36,6 +36,4 @@ public partial class Customer
     public virtual ICollection<RegisterAttend> RegisterAttends { get; set; } = new List<RegisterAttend>();
 
     public virtual ICollection<RegisterCourse> RegisterCourses { get; set; } = new List<RegisterCourse>();
-
-    public virtual ICollection<Wallet> Wallets { get; set; } = new List<Wallet>();
 }

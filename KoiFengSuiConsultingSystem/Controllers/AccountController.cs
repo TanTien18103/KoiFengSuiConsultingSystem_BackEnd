@@ -129,7 +129,8 @@ namespace KoiFengSuiConsultingSystem.Controllers
                         Email = email,
                         Role = role,
                         PhoneNumber = user.PhoneNumber,
-                        FullName = user.FullName
+                        FullName = user.FullName,
+                        Dob = user.Dob
                     });
                 }
 
@@ -139,7 +140,8 @@ namespace KoiFengSuiConsultingSystem.Controllers
                     Email = email,
                     Role = role,
                     PhoneNumber = (string)null,
-                    FullName = (string)null
+                    FullName = (string)null,
+                    Dob = user.Dob
                 });
             }
 

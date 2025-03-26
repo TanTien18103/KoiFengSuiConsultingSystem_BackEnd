@@ -7,6 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ApiModels\WalletTransaction\**" />
+    <Compile Remove="ApiModels\Wallet\**" />
+    <EmbeddedResource Remove="ApiModels\WalletTransaction\**" />
+    <EmbeddedResource Remove="ApiModels\Wallet\**" />
+    <None Remove="ApiModels\WalletTransaction\**" />
+    <None Remove="ApiModels\Wallet\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Repositories\Repositories.csproj" />
   </ItemGroup>
 
@@ -20,8 +29,6 @@
     <Folder Include="ApiModels\FengShuiDocument\" />
     <Folder Include="ApiModels\MasterSchedule\" />
     <Folder Include="ApiModels\Membership\" />
-    <Folder Include="ApiModels\WalletTransaction\" />
-    <Folder Include="ApiModels\Wallet\" />
     <Folder Include="ApiModels\VarietyColor\" />
     <Folder Include="ApiModels\Transaction\" />
   </ItemGroup>

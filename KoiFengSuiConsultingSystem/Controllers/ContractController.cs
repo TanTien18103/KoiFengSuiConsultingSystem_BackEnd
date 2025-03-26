@@ -27,14 +27,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _contractService.CreateContract(request);
             return StatusCode(result.StatusCode, result);
         }
-        //[Authorize(Roles = "Customer, Manager")]
+        [Authorize(Roles = "Customer, Manager")]
         [HttpPatch("cancel/{contractId}")]
         public async Task<IActionResult> CancelContract(string contractId)
         {
             var result = await _contractService.CancelContract(contractId);
             return StatusCode(result.StatusCode, result);
         }
-        //[Authorize(Roles = "Customer, Manager")]
+        [Authorize(Roles = "Customer, Manager")]
         [HttpPatch("confirm/{contractId}")]
         public async Task<IActionResult> ConfirmContract(string contractId)
         {
@@ -57,12 +57,6 @@ namespace KoiFengSuiConsultingSystem.Controllers
         public async Task<IActionResult> VerifyContractOtp(string contractId, [FromForm] VerifyOtpRequest request)
         {
             var result = await _contractService.VerifyContractOtp(contractId, request);
-            return StatusCode(result.StatusCode, result);
-        }
-        [HttpPost("{contractId}/first-payment")]
-        public async Task<IActionResult> ProcessFirstPayment(string contractId)
-        {
-            var result = await _contractService.ProcessFirstPaymentAfterVerification(contractId);
             return StatusCode(result.StatusCode, result);
         }
     }

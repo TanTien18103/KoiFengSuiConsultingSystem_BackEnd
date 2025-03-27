@@ -151,5 +151,23 @@ namespace DAOs.DAOs
             _context.BookingOfflines.Remove(bookingOffline);
             await _context.SaveChangesAsync();
         }
+        public async Task<List<BookingOffline>> GetBookingOfflinesByMasterIdDao(string masterId)
+        {
+            try
+            {
+                return await _context.BookingOfflines
+                    .Include(x => x.Customer).ThenInclude(x => x.Account)
+                    .Include(x => x.Master).ThenInclude(x => x.Account)
+                    .Include(x => x.ConsultationPackage)
+                    .Include(x => x.Contract)
+                    .Where(b => b.MasterId == masterId)
+                    .AsNoTracking()
+                    .ToListAsync();
+            }
+            catch
+            {
+                return new List<BookingOffline>();
+            }
+        }
     }
 }

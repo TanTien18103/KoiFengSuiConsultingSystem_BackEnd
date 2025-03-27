@@ -732,7 +732,62 @@ namespace Services.Services.BookingService
                 return res;
             }
         }
+        public async Task<ResultModel> GetBookingOnlinesByMaster()
+        {
+            var res = new ResultModel();
+            try
+            {
+                
+                var accountId = GetAuthenticatedAccountId();
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    return res;
+                }
 
+                
+                var master = await _masterRepo.GetMasterByAccountId(accountId);
+                if (master == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status403Forbidden;
+                    res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
+                    res.Message = "Bạn không phải là Master";
+                    return res;
+                }
+
+                
+                var bookings = await _onlineRepo.GetBookingOnlinesByMasterIdRepo(master.MasterId);
+
+                if (bookings == null || !bookings.Any())
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsBooking.GET_ALL_BOOKING_ONLINE_SUCCESS;
+                res.Data = _mapper.Map<List<BookingOnlineDetailResponse>>(bookings);
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Lỗi khi lấy danh sách buổi tư vấn: {ex.Message}";
+                return res;
+            }
+        }
         // Bookin Offline
         public async Task<ResultModel> RemoveConsultationPackage(string id)
         {
@@ -883,6 +938,62 @@ namespace Services.Services.BookingService
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.Message = ex.Message;
+                return res;
+            }
+        }
+        public async Task<ResultModel> GetBookingOfflinesByMaster()
+        {
+            var res = new ResultModel();
+            try
+            {
+                // Lấy thông tin người dùng hiện tại
+                var accountId = GetAuthenticatedAccountId();
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    return res;
+                }
+
+                // Lấy thông tin master từ accountId
+                var master = await _masterRepo.GetMasterByAccountId(accountId);
+                if (master == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status403Forbidden;
+                    res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
+                    res.Message = "Bạn không phải là Master";
+                    return res;
+                }
+
+                // Lấy danh sách booking offline của master
+                var bookings = await _offlineRepo.GetBookingOfflinesByMasterIdRepo(master.MasterId);
+
+                if (bookings == null || !bookings.Any())
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsBooking.GET_ALL_BOOKING_ONLINE_SUCCESS;
+                res.Data = _mapper.Map<List<BookingOfflineDetailResponse>>(bookings);
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Lỗi khi lấy danh sách buổi tư vấn offline: {ex.Message}";
                 return res;
             }
         }

@@ -167,9 +167,21 @@ namespace DAOs.DAOs
                 return null;
             }
         }
-        public Task<BookingOnline> UpdateBookingOnlineMasterNoteRepo(string bookingOnlineId, string masterNote)
+        public async Task<List<BookingOnline>> GetBookingOnlinesByMasterIdDao(string masterId)
         {
-            return BookingOnlineDAO.Instance.UpdateBookingOnlineMasterNoteDao(bookingOnlineId, masterNote);
+            try
+            {
+                return await _context.BookingOnlines
+                    .Include(x => x.Customer).ThenInclude(x => x.Account)
+                    .Include(x => x.Master).ThenInclude(x => x.Account)
+                    .Where(b => b.MasterId == masterId)
+                    .AsNoTracking()
+                    .ToListAsync();
+            }
+            catch
+            {
+                return new List<BookingOnline>();
+            }
         }
     }
 }

@@ -14,7 +14,6 @@ public class GoogleMeetController : ControllerBase
         _googleMeetService = googleMeetService;
     }
 
-
     [HttpGet("get-auth-url")]
     public IActionResult GetAuthorizationUrl()
     {
@@ -22,14 +21,12 @@ public class GoogleMeetController : ControllerBase
         return Ok(url);
     }
 
- 
     [HttpPost("exchange-token")]
     public async Task<IActionResult> ExchangeToken([FromQuery] string code)
     {
         var result = await _googleMeetService.ExchangeCodeForToken(code);
         return Ok(result);
     }
-
    
     [HttpPost("create-meet")]
     public async Task<IActionResult> CreateGoogleMeet([FromBody] MeetRequest request)

@@ -9,8 +9,6 @@ public partial class BookingOnline
 {
     public string BookingOnlineId { get; set; }
 
-    public string LinkMeet { get; set; }
-
     public string Status { get; set; }
 
     public string MasterId { get; set; }
@@ -32,6 +30,8 @@ public partial class BookingOnline
     public decimal? Price { get; set; }
 
     public string AssignStaffId { get; set; }
+
+    public DateTime? CreateDate { get; set; }
 
     public virtual Account AssignStaff { get; set; }
 

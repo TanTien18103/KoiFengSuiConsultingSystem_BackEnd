@@ -9,6 +9,7 @@ namespace BusinessObjects.Enums
     public enum RegisterAttendStatusEnums
     {
         Pending,
+        Canceled,
         Paid,
         Confirmed
     }

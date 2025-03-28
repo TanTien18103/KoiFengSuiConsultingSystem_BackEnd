@@ -29,6 +29,10 @@ namespace Repositories.Repositories.OrderRepository
         {
             return OrderDAO.Instance.GetOrdersByServiceDao(serviceId, serviceType);
         }
+        public Task<Order> GetOneOrderByService(string serviceId, PaymentTypeEnums serviceType)
+        {
+            return OrderDAO.Instance.GetOneOrdersByServiceDao(serviceId, serviceType);
+        }
         public Task<Order> GetOrderByServiceId(string serviceId)
         {
             return OrderDAO.Instance.GetOrdersByServiceIdDao(serviceId);

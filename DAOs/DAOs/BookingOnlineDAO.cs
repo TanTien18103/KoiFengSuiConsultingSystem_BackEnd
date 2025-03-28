@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.Enums;
+using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -108,33 +109,16 @@ namespace DAOs.DAOs
 
         public async Task<BookingOnline> UpdateBookingOnlineStatusDao(string bookingOnlineId, string status)
         {
-            try
+            var bookingOnline = await GetBookingOnlineByIdDao(bookingOnlineId);
+            if (bookingOnline != null)
             {
-                var bookingOnline = await _context.BookingOnlines
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(b => b.BookingOnlineId == bookingOnlineId);
-
-                if (bookingOnline == null)
-                    return null;
-
-                
-                var entry = _context.BookingOnlines.FirstOrDefault(b => b.BookingOnlineId == bookingOnlineId);
-                if (entry != null)
-                {
-                    entry.Status = status;
-                    await _context.SaveChangesAsync();
-
-                    return await _context.BookingOnlines
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(b => b.BookingOnlineId == bookingOnlineId);
-                }
-                return null;
+                bookingOnline.Status = status;
+                _context.BookingOnlines.Update(bookingOnline);
+                await _context.SaveChangesAsync();
             }
-            catch
-            {
-                return null;
-            }
+            return bookingOnline;
         }
+
         public async Task<BookingOnline> UpdateBookingOnlineMasterNoteDao(string bookingOnlineId, string masterNote)
         {
             try
@@ -170,6 +154,35 @@ namespace DAOs.DAOs
         public Task<BookingOnline> UpdateBookingOnlineMasterNoteRepo(string bookingOnlineId, string masterNote)
         {
             return BookingOnlineDAO.Instance.UpdateBookingOnlineMasterNoteDao(bookingOnlineId, masterNote);
+        }
+
+        public async Task<List<BookingOnline>> GetConflictingBookingsDao(string masterId, DateOnly bookingDate, TimeOnly startTime)
+        {
+            return await _context.BookingOnlines
+                .Where(b => b.MasterId == masterId && 
+                           b.BookingDate == bookingDate && 
+                           b.StartTime == startTime &&
+                           b.Status != BookingOnlineEnums.Cancelled.ToString() &&
+                           b.Status != BookingOnlineEnums.Completed.ToString())
+                .ToListAsync();
+        }
+
+        public async Task<List<BookingOnline>> GetUnpaidBookingsOlderThanDao(DateTime cutoffDate)
+        {
+            return await _context.BookingOnlines
+                .Where(b => b.Status == BookingOnlineEnums.Pending.ToString() &&
+                           b.CreatedDate < cutoffDate)
+                .ToListAsync();
+        }
+
+        public async Task<BookingOnline> GetBookingOnlineByOrderIdDao(string orderId)
+        {
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId);
+            if (order != null && order.ServiceType == PaymentTypeEnums.BookingOnline.ToString())
+            {
+                return await GetBookingOnlineByIdDao(order.ServiceId);
+            }
+            return null;
         }
     }
 }

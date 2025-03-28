@@ -102,6 +102,12 @@ namespace DAOs.DAOs
                 .ToListAsync();
         }
 
+        public async Task<Order> GetOneOrdersByServiceDao(string serviceId, PaymentTypeEnums serviceType)
+        {
+            return await _context.Orders
+                .FirstOrDefaultAsync(o => o.ServiceId == serviceId && o.ServiceType == serviceType.ToString());
+        }
+
         public async Task<Order> GetOrdersByServiceIdDao(string serviceId)
         {
             return await _context.Orders

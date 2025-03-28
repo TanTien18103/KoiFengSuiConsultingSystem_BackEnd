@@ -101,5 +101,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var res = await _bookingService.ProcessCompleteBooking(request, packageId, selectedPrice);
             return StatusCode(res.StatusCode, res);
         }
+
+        [HttpGet("cancel-unpaid")]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> CancelUnpaidBookings()
+        {
+            var result = await _bookingService.CancelUnpaidBookings();
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

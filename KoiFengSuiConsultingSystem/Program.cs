@@ -123,6 +123,7 @@ builder.Services.AddScoped<IRefundService, RefundService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
+builder.Services.AddHostedService<BookingCleanupService>();
 
 // Register GoogleMeetService
 builder.Services.AddSingleton<GoogleMeetService>();

@@ -19,5 +19,8 @@ namespace Repositories.Repositories.BookingOnlineRepository
         Task<BookingOnline> UpdateBookingOnlineStatusRepo(string bookingOnlineId, string status);
         Task<BookingOnline> UpdateBookingOnlineMasterNoteRepo(string bookingOnlineId, string masterNote);
         Task<List<BookingOnline>> GetBookingOnlinesByMasterIdRepo(string masterId);
+        Task<List<BookingOnline>> GetConflictingBookingsRepo(string masterId, DateOnly bookingDate, TimeOnly startTime);
+        Task<List<BookingOnline>> GetUnpaidBookingsOlderThanRepo(DateTime cutoffDate);
+        Task<BookingOnline> GetBookingOnlineByOrderIdRepo(string orderId);
     }
 }

@@ -113,6 +113,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
         public async Task<IActionResult> GetBookingOfflinesByMaster()
         {
             var result = await _bookingService.GetBookingOfflinesByMaster();
+
+        [HttpGet("cancel-unpaid")]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> CancelUnpaidBookings()
+        {
+            var result = await _bookingService.CancelUnpaidBookings();
             return StatusCode(result.StatusCode, result);
         }
     }

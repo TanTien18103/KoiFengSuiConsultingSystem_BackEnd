@@ -15,6 +15,7 @@ using Repositories.Repositories.VarietyColorRepository;
 using Services.ApiModels;
 using Services.ApiModels.Color;
 using Services.ApiModels.KoiVariety;
+using Services.ServicesHelpers.FengShuiHelper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -330,12 +331,13 @@ namespace Services.Services.KoiVarietyService
 
         private decimal CalculateCompatibilityScore(KoiVariety variety, string personElementString)
         {
-            var personElement = StringToEnum(personElementString);
             decimal score = 0;
             decimal totalPercentage = 0;
 
-            var compatibleElements = GetElements(personElement, true);
-            var incompatibleElements = GetElements(personElement, false);
+            if (!FengShuiHelper.ElementColorPoints.ContainsKey(personElementString))
+                return 0; 
+
+            var elementColorScores = FengShuiHelper.ElementColorPoints[personElementString];
 
             var uniqueVarietyColors = variety.VarietyColors
                 .GroupBy(vc => vc.Color.Element)
@@ -349,32 +351,16 @@ namespace Services.Services.KoiVarietyService
 
                 totalPercentage += percentage;
 
-                try
-                {
-                    var colorElement = StringToEnum(colorVariety.Color.Element);
-
-                    if (compatibleElements.Contains(colorElement))
-                    {
-                        score += percentage;
-                    }
-                    else if (incompatibleElements.Contains(colorElement))
-                    {
-                        score += percentage * -0.5M;
-                    }
-                    else
-                    {
-                        score += percentage * 0.2M;
-                    }
-                }
-                catch (ArgumentException)
-                {
-                    score += percentage * 0.2M;
-                }
+                var color = colorVariety.Color.Element;
+                var colorScore = elementColorScores.ContainsKey(color) ? elementColorScores[color] : 0;
+                    
+                score += (percentage * (decimal)colorScore / 10); 
             }
 
-            // Normalize score based on total percentage
-            return totalPercentage > 0 ? score / totalPercentage : 0;
+            // Chuẩn hóa điểm số
+            return totalPercentage > 0 ? (score / totalPercentage) * 100 : 0;
         }
+
 
         public async Task<ResultModel> GetKoiVarietiesByElementAsync(NguHanh element)
         {
@@ -902,7 +888,7 @@ namespace Services.Services.KoiVarietyService
 
                 // Nếu tất cả các Koi đều có độ tương hợp < 0.5, nhưng vẫn trả về danh sách koi
                 var lowCompatibilityKoi = recommendedKoi
-                    .Where(k => k.CompatibilityScore < 0.5m)
+                    .Where(k => k.CompatibilityScore < 60)
                     .Select(k => new
                     {
                         k.Koi.VarietyName,
@@ -912,7 +898,7 @@ namespace Services.Services.KoiVarietyService
                 // Lấy danh sách các đối tượng KoiVariety để mapping
                 var koiList = recommendedKoi.Select(k => k.Koi).ToList();
 
-                if (lowCompatibilityKoi.Any() && recommendedKoi.All(k => k.CompatibilityScore < 0.5m))
+                if (lowCompatibilityKoi.Any() && recommendedKoi.All(k => k.CompatibilityScore < 60))
                 {
                     res.IsSuccess = true;
                     res.ResponseCode = ResponseCodeConstants.SUCCESS;

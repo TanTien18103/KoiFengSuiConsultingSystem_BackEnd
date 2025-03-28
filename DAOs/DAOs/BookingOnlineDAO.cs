@@ -117,7 +117,6 @@ namespace DAOs.DAOs
                 if (bookingOnline == null)
                     return null;
 
-                
                 var entry = _context.BookingOnlines.FirstOrDefault(b => b.BookingOnlineId == bookingOnlineId);
                 if (entry != null)
                 {

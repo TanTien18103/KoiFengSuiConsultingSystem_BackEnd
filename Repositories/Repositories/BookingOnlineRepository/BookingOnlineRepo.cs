@@ -47,5 +47,23 @@ namespace Repositories.Repositories.BookingOnlineRepository
         {
             return BookingOnlineDAO.Instance.UpdateBookingOnlineMasterNoteDao(bookingOnlineId, masterNote);
         }
+        public Task<List<BookingOnline>> GetBookingOnlinesByMasterIdRepo(string masterId)
+        {
+            return BookingOnlineDAO.Instance.GetBookingOnlinesByMasterIdDao(masterId);
+
+        public Task<List<BookingOnline>> GetConflictingBookingsRepo(string masterId, DateOnly bookingDate, TimeOnly startTime)
+        {
+            return BookingOnlineDAO.Instance.GetConflictingBookingsDao(masterId, bookingDate, startTime);
+        }
+
+        public Task<List<BookingOnline>> GetUnpaidBookingsOlderThanRepo(DateTime cutoffDate)
+        {
+            return BookingOnlineDAO.Instance.GetUnpaidBookingsOlderThanDao(cutoffDate);
+        }
+
+        public Task<BookingOnline> GetBookingOnlineByOrderIdRepo(string orderId)
+        {
+            return BookingOnlineDAO.Instance.GetBookingOnlineByOrderIdDao(orderId);
+        }
     }
 }

@@ -38,7 +38,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpGet("get-by-name")]
-        public async Task<IActionResult> GetKoiVarietiesByName(string name)
+        public async Task<IActionResult> GetKoiVarietiesByName(string? name)
         {
             var res = await _koiVarietyService.GetKoiVarietiesByName(name);
             return StatusCode(res.StatusCode, res);

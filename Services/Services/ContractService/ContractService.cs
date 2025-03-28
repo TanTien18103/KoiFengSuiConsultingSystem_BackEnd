@@ -494,7 +494,7 @@ namespace Services.Services.ContractService
 
                 contract.OtpCode = null;
                 contract.OtpExpiredTime = null;
-                contract.Status = ContractStatusEnum.Success.ToString();
+                contract.Status = ContractStatusEnum.FirstPaymentSuccess.ToString();
                 contract.UpdatedDate = DateTime.Now;
 
                 await _contractRepo.UpdateContract(contract);

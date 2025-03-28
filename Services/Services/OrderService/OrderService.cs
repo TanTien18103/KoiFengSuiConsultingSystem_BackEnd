@@ -123,12 +123,12 @@ namespace Services.Services.OrderService
             }
         }
 
-        public async Task<ResultModel> UpdateOrderToPaid(string id)
+        public async Task<ResultModel> UpdateOrderToPaid(string orderId)
         {
             var res = new ResultModel();
             try
             {
-                var order = await _orderRepo.GetOrderById(id);
+                var order = await _orderRepo.GetOrderById(orderId);
                 if (order == null)
                 {
                     res.IsSuccess = false;
@@ -143,13 +143,19 @@ namespace Services.Services.OrderService
                 order.PaymentDate = DateTime.Now;
                 await _orderRepo.UpdateOrder(order);
 
-                if (order.ServiceType == PaymentTypeEnums.BookingOffline.ToString())
+                // Xử lý cho BookingOnline
+                if (order.ServiceType == PaymentTypeEnums.BookingOnline.ToString())
+                {
+                    await HandleBookingOnlinePaid(order.ServiceId);
+                }
+                // Xử lý cho BookingOffline (giữ nguyên logic hiện tại)
+                else if (order.ServiceType == PaymentTypeEnums.BookingOffline.ToString())
                 {
                     bool isFirstPayment = order.Note.Contains("Thanh toán lần 1");
                     await UpdateBookingOfflineStatusAfterPayment(order.ServiceId, isFirstPayment);
                 }
-
-                if (order.ServiceType == PaymentTypeEnums.Course.ToString())
+                // Xử lý cho Course (giữ nguyên logic hiện tại)
+                else if (order.ServiceType == PaymentTypeEnums.Course.ToString())
                 {
                     var Course = await _courseRepo.GetCourseById(order.ServiceId);
                     if (Course == null) {
@@ -222,6 +228,42 @@ namespace Services.Services.OrderService
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.Message = ex.InnerException?.Message;
                 return res;
+            }
+        }
+
+        // Thêm phương thức mới để xử lý BookingOnline đã thanh toán
+        private async Task HandleBookingOnlinePaid(string bookingOnlineId)
+        {
+            try
+            {
+                // Lấy thông tin booking
+                var booking = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(bookingOnlineId);
+                if (booking == null || string.IsNullOrEmpty(booking.MasterId))
+                    return;
+
+                // Cập nhật trạng thái booking thành Paid
+                await _bookingOnlineRepo.UpdateBookingOnlineStatusRepo(bookingOnlineId, BookingOnlineEnums.Confirmed.ToString());
+
+                // Tìm các booking xung đột (cùng Master, cùng thời gian, cùng ngày)
+                var conflictingBookings = await _bookingOnlineRepo.GetConflictingBookingsRepo(
+                    booking.MasterId, (DateOnly)booking.BookingDate, (TimeOnly)booking.StartTime);
+
+                // Hủy tất cả các booking khác đang xung đột
+                foreach (var conflictBooking in conflictingBookings)
+                {
+                    if (conflictBooking.BookingOnlineId != bookingOnlineId && 
+                        conflictBooking.Status == BookingOnlineEnums.Pending.ToString())
+                    {
+                        await _bookingOnlineRepo.UpdateBookingOnlineStatusRepo(
+                            conflictBooking.BookingOnlineId, 
+                            BookingOnlineEnums.Cancelled.ToString());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi
+                Console.WriteLine($"Lỗi khi xử lý BookingOnline đã thanh toán: {ex.Message}");
             }
         }
 

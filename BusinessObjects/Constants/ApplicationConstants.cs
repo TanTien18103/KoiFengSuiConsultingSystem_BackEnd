@@ -180,12 +180,14 @@ namespace BusinessObjects.Constants
         public const string PRICE_NOT_CHOSEN = "Chưa chọn giá gói tư vấn";
         public const string PRICE_CHOSEN_SUCCES = "Chọn giá gói tư vấn thành công";
         public const string CHOOSE_PRICE_FOR_PENDING_ONLY = "Chỉ có thể chọn giá cho booking ở trạng thái Pending";
-        public const string ALREADY_CREATE_BOOKING = "Vui lòng tạo Order cho tư vấn trước đó trước khi tạo tư vấn mới";
+        public const string ALREADY_CREATE_BOOKING = "Vui lòng tạo đơn hàng cho tư vấn bạn đã tạo trước đó trước khi tạo tư vấn mới";
         public const string TIME_PASSED = "Không thể đặt lịch các ngày đã qua thời điểm hiện tại";
         public const string NOT_SELECTED_PRICE_FOR_BOOKING = "Booking chưa có giá được chọn";
         public const string COMPLETE_BOOKING_SUCCESS = "Hoàn thành tư vấn thành công";
         public const string BOOKING_FOUND = "Tìm lịch tư vấn thành công";
-
+        public const string COMPLETE_BOOKING_FAILED = "Hoàn thành tư vấn thất bại";
+        public const string GET_ALL_BOOKING_ONLINE_SUCCESS = "Lấy danh sách tư vấn online thành công";
+        public const string GET_ALL_BOOKING_OFFINE_SUCCESS = "Lấy danh sách tư vấn offline thành công";
     }
 
     public class ResponseMessageConstrantsPackage
@@ -230,7 +232,7 @@ namespace BusinessObjects.Constants
             public const string KOIVARIETY_FOUND = "Tìm thấy cá Koi thành công!";
             public const string KOIVARIETY_INFO_FOUND = "Lấy thông tin thành công ";
             public const string KOIVARIETY_COLOR_INFO_NOT_FOUND = "không có thông tin màu sắc ";
-            public const string NO_MATCHES_KOIVARIETY = "Không tìm thấy Koi Variety phù hợp với mệnh của bạn. Hãy tham khảo tất cả loại cá chúng tôi c";
+            public const string NO_MATCHES_KOIVARIETY = "Không tìm thấy Koi Variety phù hợp với mệnh của bạn. Hãy tham khảo tất cả loại cá chúng tôi";
             public const string LOW_MATCHES_KOIVARIETY = "Chỉ tìm thấy Koi Variety có độ tương hợp thấp với mệnh của bạn";
             public const string GET_MATCHES_KOIVARIETY = "Lấy danh sách Koi Variety phù hợp với mệnh của bạn thành công";
             public const string CREATE_KOIVARIETY_FAILED = "Tạo cá Koi thất bại!";

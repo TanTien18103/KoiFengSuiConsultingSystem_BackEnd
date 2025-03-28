@@ -115,6 +115,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _bookingService.UpdateBookingOnlineMasterNote(bookingOnlineId, request);
             return StatusCode(result.StatusCode, result);
         }
+        [HttpGet("master/booking-onlines")]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> GetBookingOnlinesByMaster()
+        {
+            var result = await _bookingService.GetBookingOnlinesByMaster();
+            return StatusCode(result.StatusCode, result);
+        }
         // Booking Offline
         [HttpPut("offline-remove-package/{id}")]
         [Authorize(Roles = "Customer")]
@@ -144,6 +151,19 @@ namespace KoiFengSuiConsultingSystem.Controllers
                 return StatusCode(result.StatusCode, result);
 
             return Ok(result);
+        }
+        [HttpGet("master/booking-offlines")]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> GetBookingOfflinesByMaster()
+        {
+            var result = await _bookingService.GetBookingOfflinesByMaster();
+
+        [HttpGet("cancel-unpaid")]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> CancelUnpaidBookings()
+        {
+            var result = await _bookingService.CancelUnpaidBookings();
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

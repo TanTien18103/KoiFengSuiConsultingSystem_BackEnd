@@ -10,7 +10,6 @@ namespace BusinessObjects.Enums
     {
         Pending,
         InProgress,
-        Success,
         VerifyingOTP,
         Cancelled,
         FirstPaymentPending,

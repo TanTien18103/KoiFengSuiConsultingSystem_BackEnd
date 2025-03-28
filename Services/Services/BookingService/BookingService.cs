@@ -654,7 +654,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                
+
                 var updateSuccess = await _onlineRepo.UpdateBookingOnlineStatusRepo(bookingOnlineId, BookingOnlineEnums.Completed.ToString());
 
                 if (updateSuccess == null)
@@ -666,7 +666,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                
+
                 var updatedBooking = await _onlineRepo.GetBookingOnlineByIdRepo(bookingOnlineId);
 
                 res.IsSuccess = true;
@@ -691,7 +691,7 @@ namespace Services.Services.BookingService
             var res = new ResultModel();
             try
             {
-                
+
                 var bookingOnline = await _onlineRepo.GetBookingOnlineByIdRepo(bookingOnlineId);
                 if (bookingOnline == null)
                 {
@@ -702,7 +702,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                
+
                 var accountId = GetAuthenticatedAccountId();
                 if (string.IsNullOrEmpty(accountId))
                 {
@@ -713,7 +713,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-               
+
                 var master = await _masterRepo.GetMasterByAccountId(accountId);
                 if (master == null || bookingOnline.MasterId != master.MasterId)
                 {
@@ -724,7 +724,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                
+
                 var updatedBooking = await _onlineRepo.UpdateBookingOnlineMasterNoteRepo(bookingOnlineId, request.MasterNote);
                 if (updatedBooking == null)
                 {
@@ -757,7 +757,7 @@ namespace Services.Services.BookingService
             var res = new ResultModel();
             try
             {
-                
+
                 var accountId = GetAuthenticatedAccountId();
                 if (string.IsNullOrEmpty(accountId))
                 {
@@ -768,7 +768,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                
+
                 var master = await _masterRepo.GetMasterByAccountId(accountId);
                 if (master == null)
                 {
@@ -779,7 +779,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                
+
                 var bookings = await _onlineRepo.GetBookingOnlinesByMasterIdRepo(master.MasterId);
 
                 if (bookings == null || !bookings.Any())

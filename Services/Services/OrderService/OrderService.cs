@@ -346,7 +346,6 @@ namespace Services.Services.OrderService
                             {
                                 booking.MasterScheduleId = null;
                                 booking.MasterId = null;
-                                booking.LinkMeet = null;
                                 await _bookingOnlineRepo.UpdateBookingOnlineRepo(booking);
                             }
                         }

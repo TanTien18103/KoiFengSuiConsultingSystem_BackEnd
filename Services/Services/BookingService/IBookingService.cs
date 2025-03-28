@@ -23,5 +23,9 @@ namespace Services.Services.BookingService
         Task<ResultModel> GetBookingOfflineForCurrentLogin();
         Task<ResultModel> GetBookingOfflinesByMaster();
         Task<ResultModel> CancelUnpaidBookings();
+        //Filter
+        Task<ResultModel> GetBookingByTypeAndStatus(BookingTypeEnums? type, BookingOnlineEnums? onlineStatus, BookingOfflineEnums? offlineStatus );
+
+
     }
 }

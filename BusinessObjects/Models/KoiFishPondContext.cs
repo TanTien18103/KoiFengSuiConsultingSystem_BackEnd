@@ -265,13 +265,15 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.CustomerId)
                 .IsRequired()
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.Description).HasMaxLength(255);
-            entity.Property(e => e.LinkMeet).HasMaxLength(255);
             entity.Property(e => e.MasterId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -731,6 +733,7 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.Experience).HasMaxLength(50);
             entity.Property(e => e.Expertise).HasMaxLength(255);
             entity.Property(e => e.ImageUrl).HasMaxLength(255);
+            entity.Property(e => e.LinkMeet).HasMaxLength(255);
             entity.Property(e => e.MasterName).HasMaxLength(100);
             entity.Property(e => e.ServiceType).HasMaxLength(50);
             entity.Property(e => e.Title).HasMaxLength(100);

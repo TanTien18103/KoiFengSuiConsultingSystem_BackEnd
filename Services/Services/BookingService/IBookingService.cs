@@ -16,10 +16,12 @@ namespace Services.Services.BookingService
         Task<ResultModel> CreateBookingOnline(BookingOnlineRequest bookingOnlineRequest);
         Task<ResultModel> CompleteBookingOnlineByMaster(string bookingOnlineId);
         Task<ResultModel> UpdateBookingOnlineMasterNote(string bookingOnlineId, UpdateMasterNoteRequest request);
+        Task<ResultModel> GetBookingOnlinesByMaster();
         // Booking Offline
         Task<ResultModel> RemoveConsultationPackage(string id);
         Task<ResultModel> ProcessCompleteBooking(BookingOfflineRequest request, string packageId, decimal selectedPrice);
         Task<ResultModel> GetBookingOfflineForCurrentLogin();
+        Task<ResultModel> GetBookingOfflinesByMaster();
         Task<ResultModel> CancelUnpaidBookings();
     }
 }

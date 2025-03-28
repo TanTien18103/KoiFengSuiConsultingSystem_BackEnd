@@ -18,5 +18,6 @@ namespace Repositories.Repositories.BookingOfflineRepository
         Task<BookingOffline> UpdateBookingOffline(BookingOffline bookingOffline);
         Task DeleteBookingOffline(string bookingOfflineId);
         Task<(BookingOffline booking, string message)> ProcessBookingTransaction(BookingOffline booking, string packageId, decimal selectedPrice);
+        Task<List<BookingOffline>> GetBookingOfflinesByMasterIdRepo(string masterId);
     }
 }

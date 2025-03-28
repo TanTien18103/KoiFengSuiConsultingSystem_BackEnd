@@ -46,5 +46,9 @@ namespace Repositories.Repositories.BookingOfflineRepository
         {
             return BookingOfflineDAO.Instance.ProcessBookingTransactionDao(booking, packageId, selectedPrice);
         }
+        public Task<List<BookingOffline>> GetBookingOfflinesByMasterIdRepo(string masterId)
+        {
+            return BookingOfflineDAO.Instance.GetBookingOfflinesByMasterIdDao(masterId);
+        }
     }
 }

@@ -184,6 +184,8 @@ namespace BusinessObjects.Constants
         public const string TIME_PASSED = "Không thể đặt lịch các ngày đã qua thời điểm hiện tại";
         public const string NOT_SELECTED_PRICE_FOR_BOOKING = "Booking chưa có giá được chọn";
         public const string COMPLETE_BOOKING_SUCCESS = "Hoàn thành tư vấn thành công";
+        public const string BOOKING_FOUND = "Tìm lịch tư vấn thành công";
+
     }
 
     public class ResponseMessageConstrantsPackage

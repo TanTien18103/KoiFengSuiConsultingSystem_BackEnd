@@ -20,5 +20,8 @@ namespace Services.Services.BookingService
         Task<ResultModel> RemoveConsultationPackage(string id);
         Task<ResultModel> ProcessCompleteBooking(BookingOfflineRequest request, string packageId, decimal selectedPrice);
         Task<ResultModel> GetBookingOfflineForCurrentLogin();
+
+        //Filter
+        Task<ResultModel> GetBookingByTypeAndStatus(BookingTypeEnums? type, BookingOnlineEnums? onlineStatus, BookingOfflineEnums? offlineStatus );
     }
 }

@@ -21,6 +21,7 @@ using System.Security.Cryptography.Xml;
 using System.Diagnostics;
 using Repositories.Repositories.ConsultationPackageRepository;
 using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace Services.Services.BookingService
 {
@@ -439,7 +440,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                if(string.IsNullOrEmpty(bookingonlineId) && string.IsNullOrEmpty(bookingofflineId) && string.IsNullOrEmpty(masterId))
+                if (string.IsNullOrEmpty(bookingonlineId) && string.IsNullOrEmpty(bookingofflineId) && string.IsNullOrEmpty(masterId))
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -634,7 +635,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                
+
                 var updateSuccess = await _onlineRepo.UpdateBookingOnlineStatusRepo(bookingOnlineId, BookingOnlineEnums.Completed.ToString());
 
                 if (updateSuccess == null)
@@ -646,7 +647,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                
+
                 var updatedBooking = await _onlineRepo.GetBookingOnlineByIdRepo(bookingOnlineId);
 
                 res.IsSuccess = true;
@@ -671,7 +672,7 @@ namespace Services.Services.BookingService
             var res = new ResultModel();
             try
             {
-                
+
                 var bookingOnline = await _onlineRepo.GetBookingOnlineByIdRepo(bookingOnlineId);
                 if (bookingOnline == null)
                 {
@@ -682,7 +683,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                
+
                 var accountId = GetAuthenticatedAccountId();
                 if (string.IsNullOrEmpty(accountId))
                 {
@@ -693,7 +694,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-               
+
                 var master = await _masterRepo.GetMasterByAccountId(accountId);
                 if (master == null || bookingOnline.MasterId != master.MasterId)
                 {
@@ -704,7 +705,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                
+
                 var updatedBooking = await _onlineRepo.UpdateBookingOnlineMasterNoteRepo(bookingOnlineId, request.MasterNote);
                 if (updatedBooking == null)
                 {
@@ -877,7 +878,7 @@ namespace Services.Services.BookingService
                 res.Data = bookingOffline.Select(b => _mapper.Map<BookingOfflineContractResponse>(b)).ToList();
                 return res;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
@@ -886,5 +887,115 @@ namespace Services.Services.BookingService
                 return res;
             }
         }
+
+        public async Task<ResultModel> GetBookingByTypeAndStatus(BookingTypeEnums? type, BookingOnlineEnums? onlineStatus, BookingOfflineEnums? offlineStatus)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var onlineBookings = await _onlineRepo.GetBookingOnlinesRepo() ?? new List<BookingOnline>();
+                var offlineBookings = await _offlineRepo.GetBookingOfflines() ?? new List<BookingOffline>();
+
+                // Nếu cả 3 tham số đều null, lấy toàn bộ danh sách online & offline
+                if (!type.HasValue && !onlineStatus.HasValue && !offlineStatus.HasValue)
+                {
+                    if (!onlineBookings.Any() && !offlineBookings.Any())
+                    {
+                        return new ResultModel
+                        {
+                            IsSuccess = false,
+                            ResponseCode = ResponseCodeConstants.NOT_FOUND,
+                            StatusCode = StatusCodes.Status404NotFound,
+                            Message = ResponseMessageConstrantsBooking.NOT_FOUND
+                        };
+                    }
+
+                    var allBookings = onlineBookings.Cast<object>().Concat(offlineBookings.Cast<object>()).ToList();
+
+                    return new ResultModel
+                    {
+                        IsSuccess = true,
+                        StatusCode = StatusCodes.Status200OK,
+                        ResponseCode = ResponseCodeConstants.SUCCESS,
+                        Data = _mapper.Map<List<BookingResponse>>(allBookings),
+                        Message = ResponseMessageConstrantsBooking.BOOKING_FOUND
+                    };
+                }
+
+                List<object> filteredBookings = new();
+
+                switch (type)
+                {
+                    case BookingTypeEnums.Online:
+                        if (!onlineBookings.Any())
+                        {
+                            return new ResultModel
+                            {
+                                IsSuccess = false,
+                                ResponseCode = ResponseCodeConstants.NOT_FOUND,
+                                StatusCode = StatusCodes.Status404NotFound,
+                                Message = ResponseMessageConstrantsBooking.NOT_FOUND + " online"
+                            };
+                        }
+
+                        if (onlineStatus.HasValue)
+                        {
+                            onlineBookings = onlineBookings.Where(x => x.Status == onlineStatus.Value.ToString()).ToList();
+                        }
+
+                        filteredBookings = onlineBookings.Cast<object>().ToList();
+                        break;
+
+                    case BookingTypeEnums.Offline:
+                        if (!offlineBookings.Any())
+                        {
+                            return new ResultModel
+                            {
+                                IsSuccess = false,
+                                ResponseCode = ResponseCodeConstants.NOT_FOUND,
+                                StatusCode = StatusCodes.Status404NotFound,
+                                Message = ResponseMessageConstrantsBooking.NOT_FOUND + " offline"
+                            };
+                        }
+
+                        if (offlineStatus.HasValue)
+                        {
+                            offlineBookings = offlineBookings.Where(x => x.Status == offlineStatus.Value.ToString()).ToList();
+                        }
+
+                        filteredBookings = offlineBookings.Cast<object>().ToList();
+                        break;
+
+                    default:
+                        return new ResultModel
+                        {
+                            IsSuccess = false,
+                            ResponseCode = ResponseCodeConstants.INVALID_INPUT,
+                            StatusCode = StatusCodes.Status400BadRequest,
+                            Message = "Invalid booking type"
+                        };
+                }
+
+                return new ResultModel
+                {
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    ResponseCode = ResponseCodeConstants.SUCCESS,
+                    Data = _mapper.Map<List<BookingResponse>>(filteredBookings),
+                    Message = type == BookingTypeEnums.Online ? ResponseMessageConstrantsBooking.ONLINE_GET_SUCCESS : ResponseMessageConstrantsBooking.OFFLINE_GET_SUCCESS
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.FAILED,
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message
+                };
+            }
+        }
+
     }
 }

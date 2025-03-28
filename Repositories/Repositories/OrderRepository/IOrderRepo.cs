@@ -14,6 +14,7 @@ namespace Repositories.Repositories.OrderRepository
         Task<Order> GetOrderByOrderCode(string orderCode);
         Task<List<Order>> GetOrderByCustomerId(string customerId);
         Task<List<Order>> GetOrderByService(string serviceId, PaymentTypeEnums serviceType);
+        Task<Order> GetOneOrderByService(string serviceId, PaymentTypeEnums serviceType);
         Task<Order> GetOrderByServiceId(string serviceId);
         Task<Order> CreateOrder(Order order);
         Task<bool> UpdateOrder(Order order);

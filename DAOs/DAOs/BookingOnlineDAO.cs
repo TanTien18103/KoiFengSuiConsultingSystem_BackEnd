@@ -171,8 +171,8 @@ namespace DAOs.DAOs
         public async Task<List<BookingOnline>> GetConflictingBookingsDao(string masterId, DateOnly bookingDate, TimeOnly startTime)
         {
             return await _context.BookingOnlines
-                .Where(b => b.MasterId == masterId && 
-                           b.BookingDate == bookingDate && 
+                .Where(b => b.MasterId == masterId &&
+                           b.BookingDate == bookingDate &&
                            b.StartTime == startTime &&
                            b.Status != BookingOnlineEnums.Cancelled.ToString() &&
                            b.Status != BookingOnlineEnums.Completed.ToString())
@@ -183,7 +183,7 @@ namespace DAOs.DAOs
         {
             return await _context.BookingOnlines
                 .Where(b => b.Status == BookingOnlineEnums.Pending.ToString() &&
-                           b.CreatedDate < cutoffDate)
+                           b.CreateDate < cutoffDate)
                 .ToListAsync();
         }
 

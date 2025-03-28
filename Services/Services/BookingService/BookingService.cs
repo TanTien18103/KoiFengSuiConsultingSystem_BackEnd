@@ -962,7 +962,8 @@ namespace Services.Services.BookingService
             }
         }
 
-        public async Task<ResultModel> GetBookingByTypeAndStatus(BookingTypeEnums? type, BookingOnlineEnums? onlineStatus, BookingOfflineEnums? offlineStatus)
+        public async Task<ResultModel> GetBookingByTypeAndStatus(BookingTypeEnums? type, BookingOnlineEnums? onlineStatus, BookingOfflineEnums? offlineStatus) 
+        { 
             var res = new ResultModel();
             try
             {

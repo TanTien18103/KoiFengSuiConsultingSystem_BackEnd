@@ -138,7 +138,7 @@ namespace Services.Services.BookingService
                 }
 
                 var hasUncompletedBooking = await _onlineRepo.CheckCustomerHasUncompletedBookingRepo(customer.CustomerId);
-                if (hasUncompletedBooking)
+                if (hasUncompletedBooking.HasPendingBooking)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
@@ -146,20 +146,37 @@ namespace Services.Services.BookingService
                     res.StatusCode = StatusCodes.Status402PaymentRequired;
                     return res;
                 }
+                
+                if (hasUncompletedBooking.HasPendingConfirmBooking)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsBooking.WAITING_CONFIRM;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
 
                 if (!string.IsNullOrEmpty(request.MasterId))
                 {
-                    var conflictingBookings = await _onlineRepo.GetConflictingBookingsRepo(
-                        request.MasterId, request.BookingDate, request.StartTime);
-                        
-                    foreach (var conflictBooking in conflictingBookings)
+                    var existingBookings = await _onlineRepo.GetBookingsByMasterAndTimeRepo(
+                        request.MasterId, 
+                        request.StartTime,
+                        request.EndTime,
+                        request.BookingDate);
+
+                    foreach (var existingBooking in existingBookings)
                     {
-                        if (conflictBooking.Status == BookingOnlineEnums.Confirmed.ToString() || 
-                            conflictBooking.Status == BookingOnlineEnums.Confirmed.ToString())
+                        var existingOrder = await _orderRepo.GetOneOrderByService(
+                            existingBooking.BookingOnlineId,
+                            PaymentTypeEnums.BookingOnline);
+
+                        if (existingOrder != null && 
+                            (existingOrder.Status == PaymentStatusEnums.Paid.ToString() ||
+                             existingOrder.Status == PaymentStatusEnums.PendingConfirm.ToString()))
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.FAILED;
-                            res.Message = "Master đã có lịch tư vấn vào thời gian này";
+                            res.Message = ResponseMessageConstrantsMaster.EXISTING_SCHEDULE;
                             res.StatusCode = StatusCodes.Status400BadRequest;
                             return res;
                         }
@@ -168,37 +185,19 @@ namespace Services.Services.BookingService
 
                 string masterScheduleId = null;
 
-                if (request.MasterId != null)
+                var masterSchedule = new MasterSchedule
                 {
-                    var existingSchedule = await _masterScheduleRepo.CheckMasterScheduleAvailabilityRepo(
-                        request.MasterId,
-                        request.BookingDate,
-                        request.StartTime,
-                        request.EndTime);
+                    MasterScheduleId = GenerateShortGuid(),
+                    MasterId = request.MasterId,
+                    Date = request.BookingDate,
+                    StartTime = request.StartTime,
+                    EndTime = request.EndTime,
+                    Type = BookingTypeEnums.Online.ToString(),
+                    Status = BookingOnlineEnums.Pending.ToString(),
+                };
 
-                    if (existingSchedule)
-                    {
-                        res.IsSuccess = false;
-                        res.ResponseCode = ResponseCodeConstants.EXISTED;
-                        res.Message = ResponseMessageConstrantsMaster.EXISTING_SCHEDULE;
-                        res.StatusCode = StatusCodes.Status409Conflict;
-                        return res;
-                    }
-
-                    var masterSchedule = new MasterSchedule
-                    {
-                        MasterScheduleId = GenerateShortGuid(),
-                        MasterId = request.MasterId,
-                        Date = request.BookingDate,
-                        StartTime = request.StartTime,
-                        EndTime = request.EndTime,
-                        Type = BookingTypeEnums.Online.ToString(),
-                        Status = BookingOnlineEnums.Pending.ToString(),
-                    };
-
-                    await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
-                    masterScheduleId = masterSchedule.MasterScheduleId;
-                }
+                await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
+                masterScheduleId = masterSchedule.MasterScheduleId;
 
                 var booking = _mapper.Map<BookingOnline>(request);
                 booking.BookingOnlineId = GenerateShortGuid();

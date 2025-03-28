@@ -181,6 +181,7 @@ namespace BusinessObjects.Constants
         public const string PRICE_CHOSEN_SUCCES = "Chọn giá gói tư vấn thành công";
         public const string CHOOSE_PRICE_FOR_PENDING_ONLY = "Chỉ có thể chọn giá cho booking ở trạng thái Pending";
         public const string ALREADY_CREATE_BOOKING = "Vui lòng tạo đơn hàng cho tư vấn bạn đã tạo trước đó trước khi tạo tư vấn mới";
+        public const string WAITING_CONFIRM = "Bạn đã thanh toán thành công, hãy chờ xác nhận để tạo lịch tư vấn mới";
         public const string TIME_PASSED = "Không thể đặt lịch các ngày đã qua thời điểm hiện tại";
         public const string NOT_SELECTED_PRICE_FOR_BOOKING = "Booking chưa có giá được chọn";
         public const string COMPLETE_BOOKING_SUCCESS = "Hoàn thành tư vấn thành công";

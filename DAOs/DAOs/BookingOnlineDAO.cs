@@ -40,12 +40,10 @@ namespace DAOs.DAOs
 
         public async Task<BookingOnline> GetBookingOnlineByIdDao(string bookingOnlineId)
         {
-            var booking = await _context.BookingOnlines
+            return await _context.BookingOnlines
                 .Include(x => x.Customer).ThenInclude(x => x.Account)
                 .Include(x => x.Master).ThenInclude(x => x.Account)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.BookingOnlineId.Equals(bookingOnlineId));
-            return booking;
+                .FirstOrDefaultAsync(b => b.BookingOnlineId == bookingOnlineId);
         }
 
         public async Task<BookingOnline> GetConsultingOnlineByMasterScheduleIdDao(string masterScheduleId)
@@ -87,36 +85,55 @@ namespace DAOs.DAOs
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> CheckCustomerHasUncompletedBookingDao(string customerId)
+        public class BookingCheckResult
         {
+            public bool HasPendingBooking { get; set; }
+            public bool HasPendingConfirmBooking { get; set; }
+        }
+
+        public async Task<BookingCheckResult> CheckCustomerHasUncompletedBookingDao(string customerId)
+        {
+            var result = new BookingCheckResult();
+            
+            // Lấy tất cả booking Pending của customer
             var customerBookings = await _context.BookingOnlines
-                .Where(b => b.CustomerId == customerId)
+                .Where(b => b.CustomerId == customerId && b.Status == BookingOnlineEnums.Pending.ToString())
                 .ToListAsync();
 
-            if (customerBookings.Count == 0)
-                return false;
+            if (!customerBookings.Any())
+                return result;
 
             foreach (var booking in customerBookings)
             {
-                var hasOrder = await _context.Orders
-                    .AnyAsync(o => o.ServiceId == booking.BookingOnlineId);
+                var order = await _context.Orders
+                    .FirstOrDefaultAsync(o => 
+                        o.ServiceId == booking.BookingOnlineId && 
+                        o.ServiceType == PaymentTypeEnums.BookingOnline.ToString());
 
-                if (!hasOrder)
-                    return true; 
+                if (order == null || order.Status == PaymentStatusEnums.Pending.ToString())
+                {
+                    result.HasPendingBooking = true;
+                }
+                else if (order.Status == PaymentStatusEnums.PendingConfirm.ToString())
+                {
+                    result.HasPendingConfirmBooking = true;
+                }
             }
-            return false; 
+            
+            return result;
         }
 
         public async Task<BookingOnline> UpdateBookingOnlineStatusDao(string bookingOnlineId, string status)
         {
-            var bookingOnline = await GetBookingOnlineByIdDao(bookingOnlineId);
-            if (bookingOnline != null)
+            var booking = await _context.BookingOnlines
+                .FirstOrDefaultAsync(b => b.BookingOnlineId == bookingOnlineId);
+            
+            if (booking != null)
             {
-                bookingOnline.Status = status;
-                _context.BookingOnlines.Update(bookingOnline);
+                booking.Status = status;
                 await _context.SaveChangesAsync();
             }
-            return bookingOnline;
+            return booking;
         }
 
         public async Task<BookingOnline> UpdateBookingOnlineMasterNoteDao(string bookingOnlineId, string masterNote)
@@ -195,6 +212,42 @@ namespace DAOs.DAOs
                 return await GetBookingOnlineByIdDao(order.ServiceId);
             }
             return null;
+        }
+
+        public async Task<BookingOnline> GetBookingOnlineByMasterScheduleIdDao(string masterScheduleId)
+        {
+            return await _context.BookingOnlines
+                .FirstOrDefaultAsync(b => 
+                    b.MasterScheduleId == masterScheduleId && 
+                    b.Status != BookingOnlineEnums.Cancelled.ToString());
+        }
+
+        public async Task<List<BookingOnline>> GetBookingsByMasterAndTimeDao(string masterId, TimeOnly startTime, TimeOnly endTime, DateOnly bookingDate)
+        {
+            return await _context.BookingOnlines
+                .Where(b => b.MasterId == masterId && 
+                           b.BookingDate == bookingDate &&
+                           ((startTime >= b.StartTime && startTime < b.EndTime) ||  
+                            (endTime > b.StartTime && endTime <= b.EndTime) ||     
+                            (startTime <= b.StartTime && endTime >= b.EndTime)) &&
+                           b.Status == BookingOnlineEnums.Confirmed.ToString())     
+                .ToListAsync();
+        }
+
+        public async Task<BookingOnline> UpdateBookingOnlineWithTrackingDao(BookingOnline bookingOnline)
+        {
+            var currentBooking = await _context.BookingOnlines.AsNoTracking().FirstOrDefaultAsync(b => b.BookingOnlineId == bookingOnline.BookingOnlineId);
+
+            if (currentBooking == null)
+            {
+                throw new Exception("Không tìm thấy booking để cập nhật");
+            }
+
+            _context.Entry(bookingOnline).State = EntityState.Detached;
+
+            _context.BookingOnlines.Update(bookingOnline);
+            await _context.SaveChangesAsync();
+            return bookingOnline;
         }
     }
 }

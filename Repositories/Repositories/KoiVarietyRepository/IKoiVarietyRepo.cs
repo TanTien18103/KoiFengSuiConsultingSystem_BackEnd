@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.Enums;
+using BusinessObjects.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,6 @@ namespace Repositories.Repositories.KoiVarietyRepository
         Task<KoiVariety> UpdateKoiVariety(KoiVariety koiVariety);
         Task DeleteKoiVariety(string id);
         Task<List<KoiVariety>> GetKoiVarietiesByName(string name);
-        Task<List<KoiVariety>> GetKoiVarietiesByColors(List<string> colorIds);
+        Task<List<KoiVariety>> GetKoiVarietiesByColors(List<ColorEnums> colors);
     }
 }

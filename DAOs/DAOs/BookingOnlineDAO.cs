@@ -249,5 +249,12 @@ namespace DAOs.DAOs
             await _context.SaveChangesAsync();
             return bookingOnline;
         }
+
+        public async Task<List<BookingOnline>?> GetBookingsOnlineByCustomerIdDao(string customerId)
+        {
+             return await _context.BookingOnlines
+                    .Where(b => b.CustomerId == customerId)
+                    .ToListAsync();
+        }
     }
 }

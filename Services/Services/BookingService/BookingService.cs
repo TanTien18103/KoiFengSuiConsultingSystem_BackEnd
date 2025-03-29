@@ -967,8 +967,31 @@ namespace Services.Services.BookingService
             var res = new ResultModel();
             try
             {
-                var onlineBookings = await _onlineRepo.GetBookingOnlinesRepo() ?? new List<BookingOnline>();
-                var offlineBookings = await _offlineRepo.GetBookingOfflines() ?? new List<BookingOffline>();
+
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+                var customerId = await _customerRepo.GetCustomerIdByAccountId(accountId);
+
+                var onlineBookings = await _onlineRepo.GetBookingsOnlineByCustomerId(customerId) ?? new List<BookingOnline>();
+                var offlineBookings = await _offlineRepo.GetBookingsOfflineByCustomerId(customerId) ?? new List<BookingOffline>();
 
                 // Nếu cả 3 tham số đều null, lấy toàn bộ danh sách online & offline
                 if (!type.HasValue && !onlineStatus.HasValue && !offlineStatus.HasValue)

@@ -160,10 +160,17 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.AttachmentName).HasMaxLength(100);
+            entity.Property(e => e.AttachmentUrl).HasColumnName("AttachmentURL");
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.DocNo)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.OtpCode).HasMaxLength(10);
+            entity.Property(e => e.OtpExpiredTime).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<BookingOffline>(entity =>
@@ -658,6 +665,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.DocumentName).HasMaxLength(100);
+            entity.Property(e => e.DocumentUrl).HasColumnName("DocumentURL");
             entity.Property(e => e.Status).HasMaxLength(20);
             entity.Property(e => e.Version)
                 .HasMaxLength(10)

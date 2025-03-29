@@ -169,5 +169,12 @@ namespace DAOs.DAOs
                 return new List<BookingOffline>();
             }
         }
+
+        public async Task<List<BookingOffline>?> GetBookingsOfflineByCustomerIdDao(string customerId)
+        {
+            return await _context.BookingOfflines
+           .Where(b => b.CustomerId == customerId)
+           .ToListAsync();
+        }
     }
 }

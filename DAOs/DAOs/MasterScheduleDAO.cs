@@ -141,5 +141,14 @@ namespace DAOs.DAOs
                               (s.StartTime < endTime && s.EndTime >= endTime) ||
                               (s.StartTime >= startTime && s.EndTime <= endTime)));
         }
+
+        public async Task<MasterSchedule> GetMasterScheduleByDateAndTimeDao(DateOnly bookingDate, TimeOnly startTime, string masterId)
+        {
+            return await _context.MasterSchedules
+                .FirstOrDefaultAsync(ms => 
+                    ms.Date == bookingDate && 
+                    ms.StartTime == startTime && 
+                    ms.MasterId == masterId);
+        }
     }
 }

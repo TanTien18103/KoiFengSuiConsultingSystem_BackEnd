@@ -150,38 +150,6 @@ namespace Services.Services.AnswerService
             }
         }
 
-        public async Task<ResultModel> GetAnswersByQuestionId(string questionId)
-        {
-            var res = new ResultModel();
-            try
-            {
-                var answers = await _answerRepo.GetAnswersByQuestionId(questionId);
-                if (answers == null || answers.Count == 0)
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = ResponseMessageConstrantsAnswer.ANSWER_NOT_FOUND;
-                    return res;
-                }
-
-                res.Data = _mapper.Map<List<AnswerResponse>>(answers);
-                res.IsSuccess = true;
-                res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                res.StatusCode = StatusCodes.Status200OK;
-                res.Message = ResponseMessageConstrantsAnswer.ANSWER_FOUND;
-                return res;
-            }
-            catch (Exception ex)
-            {
-                res.IsSuccess = false;
-                res.ResponseCode = ResponseCodeConstants.FAILED;
-                res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = ex.InnerException?.Message;
-                return res;
-            }
-        }
-
         public async Task<ResultModel> UpdateAnswer(string answerid, AnswerRequest answer)
         {
             var res = new ResultModel();
@@ -224,6 +192,38 @@ namespace Services.Services.AnswerService
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.Message = ex.InnerException?.Message ?? ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetAnswersByQuestionId(string questionId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var answers = await _answerRepo.GetAnswersByQuestionId(questionId);
+                if (answers == null || answers.Count == 0)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsAnswer.ANSWER_NOT_FOUND;
+                    return res;
+                }
+
+                res.Data = _mapper.Map<List<AnswerResponse>>(answers);
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsAnswer.ANSWER_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.InnerException?.Message;
                 return res;
             }
         }

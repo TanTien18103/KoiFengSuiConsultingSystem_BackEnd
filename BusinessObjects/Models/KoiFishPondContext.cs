@@ -160,10 +160,17 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.AttachmentName).HasMaxLength(100);
+            entity.Property(e => e.AttachmentUrl).HasColumnName("AttachmentURL");
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.DocNo)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.OtpCode).HasMaxLength(10);
+            entity.Property(e => e.OtpExpiredTime).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<BookingOffline>(entity =>
@@ -265,13 +272,15 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.CustomerId)
                 .IsRequired()
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.Description).HasMaxLength(255);
-            entity.Property(e => e.LinkMeet).HasMaxLength(255);
             entity.Property(e => e.MasterId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -656,6 +665,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.DocumentName).HasMaxLength(100);
+            entity.Property(e => e.DocumentUrl).HasColumnName("DocumentURL");
             entity.Property(e => e.Status).HasMaxLength(20);
             entity.Property(e => e.Version)
                 .HasMaxLength(10)
@@ -731,6 +741,7 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.Experience).HasMaxLength(50);
             entity.Property(e => e.Expertise).HasMaxLength(255);
             entity.Property(e => e.ImageUrl).HasMaxLength(255);
+            entity.Property(e => e.LinkMeet).HasMaxLength(255);
             entity.Property(e => e.MasterName).HasMaxLength(100);
             entity.Property(e => e.ServiceType).HasMaxLength(50);
             entity.Property(e => e.Title).HasMaxLength(100);

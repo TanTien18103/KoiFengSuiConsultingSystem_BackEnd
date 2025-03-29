@@ -15,5 +15,15 @@ public partial class Attachment
 
     public string AttachmentName { get; set; }
 
+    public string AttachmentUrl { get; set; }
+
+    public DateTime CreatedDate { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
+    public string OtpCode { get; set; }
+
+    public DateTime? OtpExpiredTime { get; set; }
+
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 }

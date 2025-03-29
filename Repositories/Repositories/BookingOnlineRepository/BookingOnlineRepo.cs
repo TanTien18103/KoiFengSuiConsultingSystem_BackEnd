@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static DAOs.DAOs.BookingOnlineDAO;
 
 namespace Repositories.Repositories.BookingOnlineRepository
 {
@@ -34,7 +35,7 @@ namespace Repositories.Repositories.BookingOnlineRepository
         {
             return BookingOnlineDAO.Instance.DeleteBookingOnlineDao(bookingOnlineId);
         }
-        public Task<bool> CheckCustomerHasUncompletedBookingRepo(string customerId)
+        public Task<BookingCheckResult> CheckCustomerHasUncompletedBookingRepo(string customerId)
         {
             return BookingOnlineDAO.Instance.CheckCustomerHasUncompletedBookingDao(customerId);
         }
@@ -42,7 +43,6 @@ namespace Repositories.Repositories.BookingOnlineRepository
         {
             return BookingOnlineDAO.Instance.UpdateBookingOnlineStatusDao(bookingOnlineId, status);
         }
-
         public Task<BookingOnline> UpdateBookingOnlineMasterNoteRepo(string bookingOnlineId, string masterNote)
         {
             return BookingOnlineDAO.Instance.UpdateBookingOnlineMasterNoteDao(bookingOnlineId, masterNote);
@@ -50,6 +50,38 @@ namespace Repositories.Repositories.BookingOnlineRepository
         public Task<List<BookingOnline>> GetBookingOnlinesByMasterIdRepo(string masterId)
         {
             return BookingOnlineDAO.Instance.GetBookingOnlinesByMasterIdDao(masterId);
+        }
+        public Task<List<BookingOnline>> GetConflictingBookingsRepo(string masterId, DateOnly bookingDate, TimeOnly startTime)
+        {
+            return BookingOnlineDAO.Instance.GetConflictingBookingsDao(masterId, bookingDate, startTime);
+        }
+        public Task<List<BookingOnline>> GetUnpaidBookingsOlderThanRepo(DateTime cutoffDate)
+        {
+            return BookingOnlineDAO.Instance.GetUnpaidBookingsOlderThanDao(cutoffDate);
+        }
+
+        public Task<BookingOnline> GetBookingOnlineByOrderIdRepo(string orderId)
+        {
+            return BookingOnlineDAO.Instance.GetBookingOnlineByOrderIdDao(orderId);
+        }
+
+        public Task<BookingOnline> GetBookingOnlineByMasterScheduleIdRepo(string masterScheduleId)
+        {
+            return BookingOnlineDAO.Instance.GetBookingOnlineByMasterScheduleIdDao(masterScheduleId);
+        }
+
+        public Task<List<BookingOnline>> GetBookingsByMasterAndTimeRepo(string masterId, TimeOnly startTime, TimeOnly endTime, DateOnly bookingDate)
+        {
+            return BookingOnlineDAO.Instance.GetBookingsByMasterAndTimeDao(masterId, startTime, endTime, bookingDate);
+        }
+        public Task<BookingOnline> UpdateBookingOnlineWithTrackingRepo(BookingOnline bookingOnline)
+        {
+            return BookingOnlineDAO.Instance.UpdateBookingOnlineWithTrackingDao(bookingOnline);
+        }
+
+        public Task<List<BookingOnline>?> GetBookingsOnlineByCustomerId(string customerId)
+        {
+            return BookingOnlineDAO.Instance.GetBookingsOnlineByCustomerIdDao(customerId);
         }
     }
 }

@@ -50,5 +50,9 @@ namespace Repositories.Repositories.MasterScheduleRepository
         {
             return MasterScheduleDAO.Instance.CheckMasterScheduleAvailabilityDao(masterId, bookingDate, startTime, endTime);
         }
+        public Task<MasterSchedule> GetMasterScheduleByDateAndTimeRepo(DateOnly bookingDate, TimeOnly startTime, string masterId)
+        {
+            return MasterScheduleDAO.Instance.GetMasterScheduleByDateAndTimeDao(bookingDate, startTime, masterId);
+        }
     }
 }

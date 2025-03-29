@@ -27,6 +27,8 @@ public partial class Master
 
     public string ImageUrl { get; set; }
 
+    public string LinkMeet { get; set; }
+
     public virtual Account Account { get; set; }
 
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();

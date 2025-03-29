@@ -20,6 +20,36 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _bookingService = bookingService;
         }
 
+        [HttpGet("get-All-BookingTypeEnums")]
+        public IActionResult GetAllBookingTypeEnums()
+        {
+            var types = Enum.GetValues(typeof(BookingTypeEnums))
+                            .Cast<BookingTypeEnums>()
+                            .Select(e => new { Id = (int)e, Name = e.ToString() })
+                            .ToList();
+            return Ok(types);
+        }
+
+        [HttpGet("get-All-BookingOnlineEnums")]
+        public IActionResult GetAllBookingOnlineEnums()
+        {
+            var types = Enum.GetValues(typeof(BookingOnlineEnums))
+                            .Cast<BookingOnlineEnums>()
+                            .Select(e => new { Id = (int)e, Name = e.ToString() })
+                            .ToList();
+            return Ok(types);
+        }
+
+        [HttpGet("get-All-BookingOfflineEnums")]
+        public IActionResult GetAllBookingOfflineEnums()
+        {
+            var types = Enum.GetValues(typeof(BookingOfflineEnums))
+                            .Cast<BookingOfflineEnums>()
+                            .Select(e => new { Id = (int)e, Name = e.ToString() })
+                            .ToList();
+            return Ok(types);
+        }
+
         // Booking Online
         [HttpPost("create")]
         public async Task<IActionResult> CreateBookingOnline([FromBody] BookingOnlineRequest bookingOnlineRequest)
@@ -108,11 +138,32 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var res = await _bookingService.ProcessCompleteBooking(request, packageId, selectedPrice);
             return StatusCode(res.StatusCode, res);
         }
+
+        [HttpGet("get-bookings-by-type-and-status")]
+        public async Task<IActionResult> GetBookings(
+       [FromQuery] BookingTypeEnums? type,
+       [FromQuery] BookingOnlineEnums? onlineStatus,
+       [FromQuery] BookingOfflineEnums? offlineStatus)
+        {
+            var result = await _bookingService.GetBookingByTypeAndStatus(type, onlineStatus, offlineStatus);
+
+            if (!result.IsSuccess)
+                return StatusCode(result.StatusCode, result);
+
+            return Ok(result);
+        }
         [HttpGet("master/booking-offlines")]
         [Authorize(Roles = "Master")]
         public async Task<IActionResult> GetBookingOfflinesByMaster()
         {
             var result = await _bookingService.GetBookingOfflinesByMaster();
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpGet("cancel-unpaid")]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> CancelUnpaidBookings()
+        {
+            var result = await _bookingService.CancelUnpaidBookings();
             return StatusCode(result.StatusCode, result);
         }
     }

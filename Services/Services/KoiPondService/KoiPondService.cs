@@ -313,7 +313,7 @@ namespace Services.Services.KoiPondService
             try
             {
                 var koiPonds = await _koiPondRepo.GetKoiPondByShapeId(shapeId);
-                if (koiPonds == null)
+                if (koiPonds == null || !koiPonds.Any())
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;

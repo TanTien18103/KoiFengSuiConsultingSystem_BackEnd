@@ -13,6 +13,7 @@ using Repositories.Repositories.EnrollAnswerRepository;
 using Repositories.Repositories.EnrollCertRepository;
 using Repositories.Repositories.EnrollChapterRepository;
 using Repositories.Repositories.EnrollQuizRepository;
+using Repositories.Repositories.MasterScheduleRepository;
 using Repositories.Repositories.OrderRepository;
 using Repositories.Repositories.QuestionRepository;
 using Repositories.Repositories.QuizRepository;
@@ -44,8 +45,9 @@ namespace Services.Services.OrderService
         private readonly IChapterRepo _chapterRepo;
         private readonly IRegisterCourseRepo _registerCourseRepo;
         private readonly IEnrollChapterRepo _enrollChapterRepo;
+        private readonly IMasterScheduleRepo _masterScheduleRepo;
 
-        public OrderService(IOrderRepo orderRepo, IMapper mapper, IRegisterAttendRepo registerAttendRepo, IWorkShopRepo workShopRepo, IHttpContextAccessor contextAccessor, IBookingOfflineRepo bookingOfflineRepo, ICourseRepo courseRepo, IChapterRepo chapterRepo, IRegisterCourseRepo registerCourseRepo, IEnrollChapterRepo enrollChapterRepo, IBookingOnlineRepo bookingOnlineRepo)
+        public OrderService(IOrderRepo orderRepo, IMapper mapper, IRegisterAttendRepo registerAttendRepo, IWorkShopRepo workShopRepo, IHttpContextAccessor contextAccessor, IBookingOfflineRepo bookingOfflineRepo, ICourseRepo courseRepo, IChapterRepo chapterRepo, IRegisterCourseRepo registerCourseRepo, IEnrollChapterRepo enrollChapterRepo, IBookingOnlineRepo bookingOnlineRepo, IMasterScheduleRepo masterScheduleRepo)
         {
             _orderRepo = orderRepo;
             _mapper = mapper;
@@ -58,6 +60,7 @@ namespace Services.Services.OrderService
             _registerCourseRepo = registerCourseRepo;
             _enrollChapterRepo = enrollChapterRepo;
             _bookingOnlineRepo = bookingOnlineRepo;
+            _masterScheduleRepo = masterScheduleRepo;
         }
 
         public static string GenerateShortGuid()
@@ -123,12 +126,12 @@ namespace Services.Services.OrderService
             }
         }
 
-        public async Task<ResultModel> UpdateOrderToPaid(string id)
+        public async Task<ResultModel> UpdateOrderToPaid(string orderId)
         {
             var res = new ResultModel();
             try
             {
-                var order = await _orderRepo.GetOrderById(id);
+                var order = await _orderRepo.GetOrderById(orderId);
                 if (order == null)
                 {
                     res.IsSuccess = false;
@@ -143,13 +146,19 @@ namespace Services.Services.OrderService
                 order.PaymentDate = DateTime.Now;
                 await _orderRepo.UpdateOrder(order);
 
-                if (order.ServiceType == PaymentTypeEnums.BookingOffline.ToString())
+                // Xử lý cho BookingOnline
+                if (order.ServiceType == PaymentTypeEnums.BookingOnline.ToString())
+                {
+                    await HandleBookingOnlinePaid(order.ServiceId);
+                }
+                // Xử lý cho BookingOffline (giữ nguyên logic hiện tại)
+                else if (order.ServiceType == PaymentTypeEnums.BookingOffline.ToString())
                 {
                     bool isFirstPayment = order.Note.Contains("Thanh toán lần 1");
                     await UpdateBookingOfflineStatusAfterPayment(order.ServiceId, isFirstPayment);
                 }
-
-                if (order.ServiceType == PaymentTypeEnums.Course.ToString())
+                // Xử lý cho Course (giữ nguyên logic hiện tại)
+                else if (order.ServiceType == PaymentTypeEnums.Course.ToString())
                 {
                     var Course = await _courseRepo.GetCourseById(order.ServiceId);
                     if (Course == null) {
@@ -222,6 +231,56 @@ namespace Services.Services.OrderService
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.Message = ex.InnerException?.Message;
                 return res;
+            }
+        }
+
+        // Thêm phương thức mới để xử lý BookingOnline đã thanh toán
+        private async Task HandleBookingOnlinePaid(string bookingOnlineId)
+        {
+            try
+            {
+                var booking = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(bookingOnlineId);
+                if (booking == null || string.IsNullOrEmpty(booking.MasterId))
+                    return;
+
+                await _bookingOnlineRepo.UpdateBookingOnlineStatusRepo(bookingOnlineId, BookingOnlineEnums.Confirmed.ToString());
+
+                var conflictingBookings = await _bookingOnlineRepo.GetBookingsByMasterAndTimeRepo(booking.MasterId, (TimeOnly)booking.StartTime, (TimeOnly)booking.EndTime, (DateOnly)booking.BookingDate);
+
+                foreach (var otherBooking in conflictingBookings)
+                {
+                    if (otherBooking.BookingOnlineId != bookingOnlineId && otherBooking.Status == BookingOnlineEnums.Pending.ToString())
+                    {
+                        try
+                        {
+                            var masterScheduleId = otherBooking.MasterScheduleId;
+
+                            await _bookingOnlineRepo.UpdateBookingOnlineStatusRepo(otherBooking.BookingOnlineId, BookingOnlineEnums.Cancelled.ToString());
+                            
+                            // Tạo một đối tượng mới để cập nhật thay vì sử dụng trực tiếp otherBooking
+                            var bookingToUpdate = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(otherBooking.BookingOnlineId);
+                            if (bookingToUpdate != null)
+                            {
+                                bookingToUpdate.MasterId = null;
+                                bookingToUpdate.MasterScheduleId = null;
+                                await _bookingOnlineRepo.UpdateBookingOnlineWithTrackingRepo(bookingToUpdate);
+                            }
+
+                            if (!string.IsNullOrEmpty(masterScheduleId))
+                            {
+                                await _masterScheduleRepo.DeleteMasterSchedule(masterScheduleId);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new AppException(ResponseCodeConstants.FAILED, ex.Message, StatusCodes.Status500InternalServerError);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new AppException(ResponseCodeConstants.FAILED, ex.Message, StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -304,7 +363,6 @@ namespace Services.Services.OrderService
                             {
                                 booking.MasterScheduleId = null;
                                 booking.MasterId = null;
-                                booking.LinkMeet = null;
                                 await _bookingOnlineRepo.UpdateBookingOnlineRepo(booking);
                             }
                         }

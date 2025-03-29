@@ -15,6 +15,7 @@ using Repositories.Repositories.VarietyColorRepository;
 using Services.ApiModels;
 using Services.ApiModels.Color;
 using Services.ApiModels.KoiVariety;
+using Services.ServicesHelpers.FengShuiHelper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -330,12 +331,13 @@ namespace Services.Services.KoiVarietyService
 
         private decimal CalculateCompatibilityScore(KoiVariety variety, string personElementString)
         {
-            var personElement = StringToEnum(personElementString);
             decimal score = 0;
             decimal totalPercentage = 0;
 
-            var compatibleElements = GetElements(personElement, true);
-            var incompatibleElements = GetElements(personElement, false);
+            if (!FengShuiHelper.ElementColorPoints.ContainsKey(personElementString))
+                return 0; 
+
+            var elementColorScores = FengShuiHelper.ElementColorPoints[personElementString];
 
             var uniqueVarietyColors = variety.VarietyColors
                 .GroupBy(vc => vc.Color.Element)
@@ -349,32 +351,16 @@ namespace Services.Services.KoiVarietyService
 
                 totalPercentage += percentage;
 
-                try
-                {
-                    var colorElement = StringToEnum(colorVariety.Color.Element);
-
-                    if (compatibleElements.Contains(colorElement))
-                    {
-                        score += percentage;
-                    }
-                    else if (incompatibleElements.Contains(colorElement))
-                    {
-                        score += percentage * -0.5M;
-                    }
-                    else
-                    {
-                        score += percentage * 0.2M;
-                    }
-                }
-                catch (ArgumentException)
-                {
-                    score += percentage * 0.2M;
-                }
+                var color = colorVariety.Color.Element;
+                var colorScore = elementColorScores.ContainsKey(color) ? elementColorScores[color] : 0;
+                    
+                score += (percentage * (decimal)colorScore / 10); 
             }
 
-            // Normalize score based on total percentage
-            return totalPercentage > 0 ? score / totalPercentage : 0;
+            // Chuẩn hóa điểm số
+            return totalPercentage > 0 ? (score / totalPercentage) * 100 : 0;
         }
+
 
         public async Task<ResultModel> GetKoiVarietiesByElementAsync(NguHanh element)
         {
@@ -461,8 +447,18 @@ namespace Services.Services.KoiVarietyService
             var res = new ResultModel();
             try
             {
-                var kois = await _koiVarietyRepo.GetKoiVarietiesByName(name);
-                if(kois == null || !kois.Any())
+                List<KoiVariety> kois;
+
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    kois = await _koiVarietyRepo.GetKoiVarieties();
+                }
+                else
+                {
+                    kois = await _koiVarietyRepo.GetKoiVarietiesByName(name);
+                }
+
+                if (kois == null || !kois.Any())
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -692,58 +688,74 @@ namespace Services.Services.KoiVarietyService
         public async Task<ResultModel> FilterByColorAndElement(NguHanh? nguHanh = null, List<string>? colorIds = null)
         {
             var res = new ResultModel();
-            try 
+            try
             {
+                if (!nguHanh.HasValue && (colorIds == null || colorIds.Count == 0))
+                {
+                    var allKois = await _koiVarietyRepo.GetKoiVarieties();
+                    if (allKois == null)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status500InternalServerError;
+                        res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
+                        return res;
+                    }
+                    res.IsSuccess = true;
+                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.Data = _mapper.Map<List<KoiVarietyDto>>(allKois);
+                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
+                    return res;
+                }
+
+                List<KoiVariety> koiList = new List<KoiVariety>();
+
+                // Lọc theo Bản mệnh trước
                 if (nguHanh.HasValue)
                 {
                     var koisByElement = await GetKoiVarietiesByElementAsync(nguHanh.Value);
-                    if (koisByElement == null)
+                    if (koisByElement != null && koisByElement.IsSuccess)
                     {
-                        res.IsSuccess = false;
-                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                        res.StatusCode = StatusCodes.Status500InternalServerError;
-                        res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
-                        return res;
+                        koiList = _mapper.Map<List<KoiVariety>>(koisByElement.Data);
                     }
-                    res.IsSuccess = true;
-                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                    res.StatusCode = StatusCodes.Status200OK;
-                    res.Data = koisByElement.Data;
-                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
-                    return res;
                 }
+
+                // Nếu có màu sắc, lọc tiếp danh sách theo màu
                 if (colorIds != null && colorIds.Count > 0)
                 {
-                    var koisByColor = await GetKoiVarietiesByColorsAsync(colorIds);
-                    if (koisByColor == null)
+                    if (koiList.Any())
                     {
-                        res.IsSuccess = false;
-                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                        res.StatusCode = StatusCodes.Status500InternalServerError;
-                        res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
-                        return res;
+                        // Giữ lại những con cá có màu sắc thuộc colorIds
+                        koiList = koiList.Where(k => k.VarietyColors.Any(vc => colorIds.Contains(vc.ColorId))).ToList();
                     }
-                    res.IsSuccess = true;
-                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                    res.StatusCode = StatusCodes.Status200OK;
-                    res.Data = koisByColor.Data;
-                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
-                    return res;
+                    else
+                    {
+                        // Nếu chưa có danh sách (chưa lọc theo Bản mệnh), lấy danh sách theo màu trước
+                        var koisByColor = await GetKoiVarietiesByColorsAsync(colorIds);
+                        if (koisByColor != null && koisByColor.IsSuccess)
+                        {
+                            koiList = _mapper.Map<List<KoiVariety>>(koisByColor.Data);
+                        }
+                    }
                 }
-                var allKois = await _koiVarietyRepo.GetKoiVarieties();
-                if (allKois == null)
+
+                if (!koiList.Any())
                 {
+                    var allKois = await _koiVarietyRepo.GetKoiVarieties();
+
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status500InternalServerError;
-                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Data = _mapper.Map<List<KoiVarietyDto>>(allKois);
+                    res.Message = ResponseMessageConstrantsKoiVariety.NO_MATCHES_KOIVARIETY;
                     return res;
                 }
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<KoiVarietyDto>>(allKois);
+                res.Data = _mapper.Map<List<KoiVarietyDto>>(koiList);
                 res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
                 return res;
             }
@@ -876,7 +888,7 @@ namespace Services.Services.KoiVarietyService
 
                 // Nếu tất cả các Koi đều có độ tương hợp < 0.5, nhưng vẫn trả về danh sách koi
                 var lowCompatibilityKoi = recommendedKoi
-                    .Where(k => k.CompatibilityScore < 0.5m)
+                    .Where(k => k.CompatibilityScore < 60)
                     .Select(k => new
                     {
                         k.Koi.VarietyName,
@@ -886,7 +898,7 @@ namespace Services.Services.KoiVarietyService
                 // Lấy danh sách các đối tượng KoiVariety để mapping
                 var koiList = recommendedKoi.Select(k => k.Koi).ToList();
 
-                if (lowCompatibilityKoi.Any() && recommendedKoi.All(k => k.CompatibilityScore < 0.5m))
+                if (lowCompatibilityKoi.Any() && recommendedKoi.All(k => k.CompatibilityScore < 60))
                 {
                     res.IsSuccess = true;
                     res.ResponseCode = ResponseCodeConstants.SUCCESS;

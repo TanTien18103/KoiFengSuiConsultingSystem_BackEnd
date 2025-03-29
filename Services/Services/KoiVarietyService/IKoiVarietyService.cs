@@ -19,10 +19,10 @@ namespace Services.Services.KoiVarietyService
         Task<ResultModel> GetKoiVarietiesByElementAsync(NguHanh element);
         Task<ResultModel> GetRecommendedKoiVarietiesAsync();
         Task<ResultModel> GetKoiVarietiesByName(string name);
-        Task<ResultModel> GetKoiVarietiesByColorsAsync(List<string> colorIds);
+        Task<ResultModel> GetKoiVarietiesByColorsAsync(List<ColorEnums> colors);
         (bool IsCompatible, List<NguHanh> Elements, string Message) GetCompatibleElementsForColors(List<ColorEnums> colors);
         List<ColorEnums> GetPositiveColorsByElement(NguHanh nguHanh);
-        Task<ResultModel> FilterByColorAndElement(NguHanh? nguHanh = null, List<string>? colorIds = null);
+        Task<ResultModel> FilterByColorAndElement(NguHanh? nguHanh = null, List<ColorEnums>? colors = null);
 
         Task<ResultModel> CreateKoiVarietyAsync(KoiVarietyRequest koiVariety);
         Task<ResultModel> UpdateKoiVarietyAsync(string id, KoiVarietyRequest koiVariety);

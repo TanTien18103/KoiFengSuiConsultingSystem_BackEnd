@@ -92,24 +92,16 @@ namespace DAOs.DAOs
             return koiVarieties;
         }
 
-        public async Task<List<KoiVariety>> GetKoiVarietiesByColorsDao(List<string> colorIds)
+        public async Task<List<KoiVariety>> GetKoiVarietiesByColorsDao(List<ColorEnums> colors)
         {
-            if (colorIds == null || !colorIds.Any())
-            {
-                return new List<KoiVariety>();
-            }
-            var koiVarietyIds = await _context.VarietyColors
-                .Where(vc => colorIds.Contains(vc.ColorId))
-                .Select(vc => vc.KoiVarietyId)
-                .Distinct()
-                .ToListAsync();
-            var koiVarieties = await _context.KoiVarieties
+            var colorNames = colors.Select(c => c.ToString()).ToList();
+
+            return await _context.KoiVarieties
                 .Include(k => k.VarietyColors)
                     .ThenInclude(vc => vc.Color)
-                .Where(k => koiVarietyIds.Contains(k.KoiVarietyId))
+                .Where(k => k.VarietyColors
+                    .Any(vc => colorNames.Contains(vc.Color.ColorName)))
                 .ToListAsync();
-
-            return koiVarieties;
         }
 
         public async Task<KoiVariety> CreateKoiVarietyDao(KoiVariety koiVariety)

@@ -45,9 +45,9 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpGet("get-by-color")]
-        public async Task<IActionResult> GetKoiVarietiesByColors([FromQuery] List<string> colorIds)
+        public async Task<IActionResult> GetKoiVarietiesByColors([FromQuery] List<ColorEnums> colors)
         {
-            var result = await _koiVarietyService.GetKoiVarietiesByColorsAsync(colorIds);
+            var result = await _koiVarietyService.GetKoiVarietiesByColorsAsync(colors);
             return StatusCode(result.StatusCode, result);
         }
 
@@ -59,10 +59,15 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpGet("filter")]
-        public async Task<IActionResult> FilterByColorAndElement(NguHanh? nguHanh = null, [FromQuery] List<string>? colorIds = null)
+        public async Task<IActionResult> FilterKoiVarieties([FromQuery] NguHanh? nguHanh = null, [FromQuery] List<ColorEnums>? colors = null)
         {
-            var res = await _koiVarietyService.FilterByColorAndElement(nguHanh, colorIds);
-            return StatusCode(res.StatusCode, res);
+            if (colors != null && colors.Contains(default(ColorEnums)))
+            {
+                colors = null;
+            }
+
+            var result = await _koiVarietyService.FilterByColorAndElement(nguHanh, colors);
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpGet("get-all-colors")]

@@ -484,12 +484,12 @@ namespace Services.Services.KoiVarietyService
             }
         }
 
-        public async Task<ResultModel> GetKoiVarietiesByColorsAsync(List<string> colorIds)
+        public async Task<ResultModel> GetKoiVarietiesByColorsAsync(List<ColorEnums> colors)
         {
             var res = new ResultModel();
             try
             {
-                var koiVarieties = await _koiVarietyRepo.GetKoiVarietiesByColors(colorIds);
+                var koiVarieties = await _koiVarietyRepo.GetKoiVarietiesByColors(colors);
 
                 if (koiVarieties == null || !koiVarieties.Any())
                 {
@@ -685,19 +685,20 @@ namespace Services.Services.KoiVarietyService
             return positiveColors;
         }
 
-        public async Task<ResultModel> FilterByColorAndElement(NguHanh? nguHanh = null, List<string>? colorIds = null)
+        public async Task<ResultModel> FilterByColorAndElement(NguHanh? nguHanh = null, List<ColorEnums>? colors = null)
         {
             var res = new ResultModel();
             try
             {
-                if (!nguHanh.HasValue && (colorIds == null || colorIds.Count == 0))
+                // Nếu không có bất kỳ điều kiện lọc nào hoặc colors là null/rỗng/chứa chuỗi rỗng
+                if (!nguHanh.HasValue && (colors == null || !colors.Any() || colors.Contains(default(ColorEnums))))
                 {
                     var allKois = await _koiVarietyRepo.GetKoiVarieties();
                     if (allKois == null)
                     {
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                        res.StatusCode = StatusCodes.Status500InternalServerError;
+                        res.StatusCode = StatusCodes.Status404NotFound;
                         res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
                         return res;
                     }
@@ -711,52 +712,53 @@ namespace Services.Services.KoiVarietyService
 
                 List<KoiVariety> koiList = new List<KoiVariety>();
 
-                // Lọc theo Bản mệnh trước
+                // Lọc theo Bản mệnh
                 if (nguHanh.HasValue)
                 {
                     var koisByElement = await GetKoiVarietiesByElementAsync(nguHanh.Value);
-                    if (koisByElement != null && koisByElement.IsSuccess)
+                    if (koisByElement != null && koisByElement.IsSuccess && koisByElement.Data != null)
                     {
                         koiList = _mapper.Map<List<KoiVariety>>(koisByElement.Data);
                     }
                 }
 
-                // Nếu có màu sắc, lọc tiếp danh sách theo màu
-                if (colorIds != null && colorIds.Count > 0)
+                // Chỉ lọc theo màu sắc nếu colors có giá trị và không null
+                if (colors != null && colors.Any())
                 {
                     if (koiList.Any())
                     {
-                        // Giữ lại những con cá có màu sắc thuộc colorIds
-                        koiList = koiList.Where(k => k.VarietyColors.Any(vc => colorIds.Contains(vc.ColorId))).ToList();
+                        // Lọc từ danh sách đã có
+                        koiList = koiList.Where(k => 
+                            k.VarietyColors.Any(vc => 
+                                colors.Contains(Enum.Parse<ColorEnums>(vc.ColorId))
+                            )
+                        ).ToList();
                     }
                     else
                     {
-                        // Nếu chưa có danh sách (chưa lọc theo Bản mệnh), lấy danh sách theo màu trước
-                        var koisByColor = await GetKoiVarietiesByColorsAsync(colorIds);
-                        if (koisByColor != null && koisByColor.IsSuccess)
+                        // Lấy danh sách mới theo màu
+                        var koisByColor = await GetKoiVarietiesByColorsAsync(colors);
+                        if (koisByColor != null && koisByColor.IsSuccess && koisByColor.Data != null)
                         {
                             koiList = _mapper.Map<List<KoiVariety>>(koisByColor.Data);
                         }
                     }
                 }
 
-                if (!koiList.Any())
-                {
-                    var allKois = await _koiVarietyRepo.GetKoiVarieties();
-
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Data = _mapper.Map<List<KoiVarietyDto>>(allKois);
-                    res.Message = ResponseMessageConstrantsKoiVariety.NO_MATCHES_KOIVARIETY;
-                    return res;
-                }
-
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Data = _mapper.Map<List<KoiVarietyDto>>(koiList);
-                res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
+                
+                if (!koiList.Any())
+                {
+                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
+                }
+                else
+                {
+                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
+                }
+                
                 return res;
             }
             catch (Exception ex)

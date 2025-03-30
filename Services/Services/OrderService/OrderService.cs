@@ -146,18 +146,91 @@ namespace Services.Services.OrderService
                 order.PaymentDate = DateTime.Now;
                 await _orderRepo.UpdateOrder(order);
 
-                // Xử lý cho BookingOnline
+                // RegisterAttend
+                if (order.ServiceType == PaymentTypeEnums.RegisterAttend.ToString())
+                {
+                    var tickets = await _registerAttendRepo.GetRegisterAttendsByGroupId(order.ServiceId);
+                    var paidOrders = await _orderRepo.GetAllOrders();
+                    var paidOrder = paidOrders.FirstOrDefault(x => x.Status == PaymentStatusEnums.Paid.ToString());
+                    if(paidOrder != null)
+                    {
+                        foreach(var ticket in tickets)
+                        {
+                            ticket.Status = PaymentStatusEnums.Paid.ToString();
+                            await _registerAttendRepo.UpdateRegisterAttend(ticket);
+                        }
+                    }
+                    if (tickets != null && tickets.Any())
+                    {
+                        var workshopId = tickets.First().WorkshopId;
+                        var workshop = await _workShopRepo.GetWorkShopById(workshopId);
+
+                        if (workshop != null)
+                        {
+                            workshop.Capacity -= tickets.Count;
+                            await _workShopRepo.UpdateWorkShop(workshop);
+
+                            if (workshop.Capacity == 0)
+                            {
+                                var pendingTickets = await _registerAttendRepo.GetRegisterAttendsByWorkShopId(workshopId);
+                                if (pendingTickets != null && pendingTickets.Any())
+                                {
+                                    foreach (var pendingTicket in pendingTickets)
+                                    {
+                                        if (pendingTicket.Status == RegisterAttendStatusEnums.Pending.ToString())
+                                        {
+                                            await _registerAttendRepo.DeleteRegisterAttend(pendingTicket.AttendId);
+
+                                            var pendingOrder = await _orderRepo.GetOrderByServiceId(pendingTicket.GroupId);
+                                            if (pendingOrder != null && pendingOrder.Status == PaymentStatusEnums.Pending.ToString())
+                                            {
+                                                pendingOrder.Status = PaymentStatusEnums.Canceled.ToString();
+                                                pendingOrder.PaymentReference = null;
+                                                await _orderRepo.UpdateOrder(pendingOrder);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            var allTickets = await _registerAttendRepo.GetRegisterAttends();
+                            var pendingTicketsToGroup = allTickets.Where(x => x.Status == RegisterAttendStatusEnums.Pending.ToString());
+                            var groupedTickets = pendingTicketsToGroup.GroupBy(x => x.GroupId).ToList();
+                            foreach (var group in groupedTickets)
+                            {
+                                int totalTickets = group.Count();
+
+                                if (totalTickets > workshop.Capacity)
+                                {
+                                    foreach (var ticket in group)
+                                    {
+                                        await _registerAttendRepo.DeleteRegisterAttend(ticket.AttendId);
+                                    }
+
+                                    var pendingOrder = await _orderRepo.GetOrderByServiceId(group.Key);
+                                    if (pendingOrder != null && pendingOrder.Status == PaymentStatusEnums.Pending.ToString())
+                                    {
+                                        pendingOrder.Status = PaymentStatusEnums.Canceled.ToString();
+                                        pendingOrder.PaymentReference = null;
+                                        await _orderRepo.UpdateOrder(pendingOrder);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // BookingOnline
                 if (order.ServiceType == PaymentTypeEnums.BookingOnline.ToString())
                 {
                     await HandleBookingOnlinePaid(order.ServiceId);
                 }
-                // Xử lý cho BookingOffline (giữ nguyên logic hiện tại)
+                // BookingOffline
                 else if (order.ServiceType == PaymentTypeEnums.BookingOffline.ToString())
                 {
                     bool isFirstPayment = order.Note.Contains("Thanh toán lần 1");
                     await UpdateBookingOfflineStatusAfterPayment(order.ServiceId, isFirstPayment);
                 }
-                // Xử lý cho Course (giữ nguyên logic hiện tại)
+                // Course
                 else if (order.ServiceType == PaymentTypeEnums.Course.ToString())
                 {
                     var Course = await _courseRepo.GetCourseById(order.ServiceId);

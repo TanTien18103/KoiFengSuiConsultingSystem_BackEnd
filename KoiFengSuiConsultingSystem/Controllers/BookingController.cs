@@ -20,34 +20,25 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _bookingService = bookingService;
         }
 
-        [HttpGet("get-All-BookingTypeEnums")]
+        [HttpGet("get-all-bookingTypeEnums")]
         public IActionResult GetAllBookingTypeEnums()
         {
-            var types = Enum.GetValues(typeof(BookingTypeEnums))
-                            .Cast<BookingTypeEnums>()
-                            .Select(e => new { Id = (int)e, Name = e.ToString() })
-                            .ToList();
-            return Ok(types);
+            var colors = Enum.GetValues(typeof(BookingTypeEnums)).Cast<BookingTypeEnums>().ToList();
+            return Ok(colors);
         }
 
-        [HttpGet("get-All-BookingOnlineEnums")]
+        [HttpGet("get-all-bookingOnlineEnums")]
         public IActionResult GetAllBookingOnlineEnums()
         {
-            var types = Enum.GetValues(typeof(BookingOnlineEnums))
-                            .Cast<BookingOnlineEnums>()
-                            .Select(e => new { Id = (int)e, Name = e.ToString() })
-                            .ToList();
-            return Ok(types);
+            var colors = Enum.GetValues(typeof(BookingOnlineEnums)).Cast<BookingOnlineEnums>().ToList();
+            return Ok(colors);
         }
 
-        [HttpGet("get-All-BookingOfflineEnums")]
+        [HttpGet("get-all-bookingOfflineEnums")]
         public IActionResult GetAllBookingOfflineEnums()
         {
-            var types = Enum.GetValues(typeof(BookingOfflineEnums))
-                            .Cast<BookingOfflineEnums>()
-                            .Select(e => new { Id = (int)e, Name = e.ToString() })
-                            .ToList();
-            return Ok(types);
+            var colors = Enum.GetValues(typeof(BookingOfflineEnums)).Cast<BookingOfflineEnums>().ToList();
+            return Ok(colors);
         }
 
         // Booking Online

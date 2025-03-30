@@ -19,5 +19,9 @@ public partial class FengShuiDocument
 
     public string DocumentUrl { get; set; }
 
+    public DateTime CreateDate { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
+
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 }

@@ -116,7 +116,7 @@ namespace Services.Services.QuestionService
             }
         }
 
-        public async Task<ResultModel> GetQuestionsByQuizId(string quizId)
+        public async Task<ResultModel> GetQuestionsByQuizIdMaster(string quizId)
         {
             var res = new ResultModel();
             try
@@ -347,6 +347,48 @@ namespace Services.Services.QuestionService
                     StatusCode = StatusCodes.Status200OK,
                     Message = ResponseMessageConstrantsQuestion.QUESTION_UPDATED_SUCCESS
                 };
+            }
+            catch (Exception ex)
+            {
+                return new ResultModel
+                {
+                    IsSuccess = false,
+                    ResponseCode = ResponseCodeConstants.FAILED,
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = ex.InnerException?.Message ?? ex.Message
+                };
+            }
+        }
+
+        public async Task<ResultModel> GetQuestionsByQuizId(string quizId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                if (string.IsNullOrWhiteSpace(quizId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.INVALID_INPUT;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var questions = await _questionRepository.GetQuestionsByQuizId(quizId);
+                if (questions == null || !questions.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsQuestion.QUESTIONS_NOT_FOUND;
+                    return res;
+                }
+
+                res.Data = _mapper.Map<List<QuestionResponse>>(questions);
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsQuestion.QUESTIONS_FOUND;
+                return res;
             }
             catch (Exception ex)
             {

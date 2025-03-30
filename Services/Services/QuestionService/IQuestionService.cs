@@ -12,6 +12,7 @@ namespace Services.Services.QuestionService
     {
         Task<ResultModel> GetQuestions();
         Task<ResultModel> GetQuestionById(string questionId);
+        Task<ResultModel> GetQuestionsByQuizIdMaster(string quizId);
         Task<ResultModel> GetQuestionsByQuizId(string quizId);
         Task<ResultModel> UpdateQuestion(string questionid, QuestionUpdateRequest questionRequest);
         Task<ResultModel> CreateQuestion(string quizId, QuestionRequest questionRequest);

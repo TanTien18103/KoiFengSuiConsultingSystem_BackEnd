@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using BusinessObjects.Models;
+using Services.ApiModels.Attachment;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +11,10 @@ namespace Services.Mapper
 {
     public class AttachmentMappingProfile : Profile
     {
+        public AttachmentMappingProfile()
+        {
+            CreateMap<Attachment, AttachmentResponse>();
+        }
     }
+
 }

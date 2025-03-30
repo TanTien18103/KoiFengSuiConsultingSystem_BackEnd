@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects.Constants;
+using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 using Repositories.Repositories.BookingOfflineRepository;
@@ -46,21 +47,11 @@ namespace Services.Services.FengShuiDocumentService
             _httpContextAccessor = httpContextAccessor;
         }
 
-        private string GetAuthenticatedAccountId()
-        {
-            var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
-            if (identity == null || !identity.IsAuthenticated) return null;
-
-            var accountIdClaim = identity.FindFirst("AccountId");
-            return accountIdClaim?.Value;
-        }
-
         public async Task<ResultModel> CreateFengShuiDocument(CreateFengShuiDocumentRequest request)
         {
             var res = new ResultModel();
             try
             {
-                // Kiểm tra booking offline tồn tại
                 var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(request.BookingOfflineId);
                 if (bookingOffline == null)
                 {
@@ -82,66 +73,56 @@ namespace Services.Services.FengShuiDocumentService
                     return res;
                 }
 
-                // Tạo mới tài liệu phong thủy
+                // Tạo mới tài liệu phong thủy với trạng thái Pending
                 var fengShuiDocument = new FengShuiDocument
                 {
-                    FengShuiDocumentId = Guid.NewGuid().ToString(),
-                    Version = "1.0",  // Giá trị mặc định
-                    Status = "Pending",
+                    FengShuiDocumentId = Guid.NewGuid().ToString("N").Substring(0, 20),
+                    Status = DocumentStatusEnum.Pending.ToString(),
+                    Version = "1.0",
                     DocNo = $"FS_{DateTime.Now:yyyyMMddHHmmss}",
-                    DocumentName = $"FengShui_{bookingOffline.BookingOfflineId}_{DateTime.Now:yyyyMMdd}",
-                    DocumentUrl = pdfUrl
-                };
-
-                // Lưu tài liệu vào database
-                var createdDocument = await _fengShuiDocumentRepo.CreateFengShuiDocument(fengShuiDocument);
-                if (createdDocument == null)
-                {
-                    res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status500InternalServerError;
-                    res.ResponseCode = ResponseCodeConstants.FAILED;
-                    res.Message = "Không thể tạo tài liệu Phong Thủy";
-                    return res;
-                }
-
-                // Cập nhật booking với DocumentId
-                bookingOffline.DocumentId = createdDocument.FengShuiDocumentId;
-                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
-
-                // Lấy thông tin booking đã cập nhật
-                var updatedBooking = await _bookingOfflineRepo.GetBookingOfflineById(bookingOffline.BookingOfflineId);
-
-                // Tạo response
-                var response = new FengShuiDocumentResponse
-                {
-                    FengShuiDocumentId = createdDocument.FengShuiDocumentId,
-                    Version = createdDocument.Version,
-                    Status = createdDocument.Status,
-                    DocNo = createdDocument.DocNo,
-                    DocumentName = createdDocument.DocumentName,
+                    DocumentName = $"FengShui_{request.BookingOfflineId}_{DateTime.Now:yyyyMMdd}",
                     DocumentUrl = pdfUrl,
-                    BookingOffline = new BookingOfflineInfo
-                    {
-                        BookingOfflineId = updatedBooking.BookingOfflineId,
-                        CustomerName = updatedBooking.Customer?.Account?.FullName ?? "Không có thông tin",
-                        MasterName = updatedBooking.Master?.Account?.FullName ?? "Không có thông tin"
-                    }
+                    CreateDate = DateTime.Now
                 };
+
+                var createdDocument = await _fengShuiDocumentRepo.CreateFengShuiDocument(fengShuiDocument);
+
+                // Update booking với DocumentId
+                bookingOffline.DocumentId = fengShuiDocument.FengShuiDocumentId;
+                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status201Created;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.Message = "Tạo tài liệu Phong Thủy thành công";
-                res.Data = response;
+                res.Data = new FengShuiDocumentResponse
+                {
+                    DocumentId = fengShuiDocument.FengShuiDocumentId,
+                    Status = "Pending",
+                    Version = "1.0",
+                    DocNo = $"FS_{DateTime.Now:yyyyMMddHHmmss}",
+                    DocumentName = fengShuiDocument.DocumentName,
+                    DocumentUrl = pdfUrl,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now,
+                    BookingOffline = new BookingOfflineInfo
+                    {
+                        BookingOfflineId = bookingOffline.BookingOfflineId,
+                        CustomerName = bookingOffline.Customer?.Account?.FullName ?? "Không có thông tin",
+                        MasterName = bookingOffline.Master?.Account?.FullName ?? "Không có thông tin"
+                    }
+                };
 
                 return res;
             }
             catch (Exception ex)
             {
+                var innerExceptionMessage = ex.InnerException != null ? ex.InnerException.Message : "Không có inner exception";
+
                 res.IsSuccess = false;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
-                res.Message = $"Lỗi khi tạo tài liệu Phong Thủy: {ex.Message}";
+                res.Message = $"Lỗi khi tạo tài liệu Phong Thủy: {ex.Message}. Chi tiết: {innerExceptionMessage}";
                 return res;
             }
         }
@@ -160,6 +141,7 @@ namespace Services.Services.FengShuiDocumentService
                     res.Message = "Không tìm thấy tài liệu Phong Thủy cho buổi tư vấn này";
                     return res;
                 }
+
 
                 var response = _mapper.Map<FengShuiDocumentResponse>(document);
 
@@ -198,18 +180,7 @@ namespace Services.Services.FengShuiDocumentService
             var res = new ResultModel();
             try
             {
-                // Kiểm tra người dùng hiện tại có phải là Manager không
-                var accountId = GetAuthenticatedAccountId();
-                if (string.IsNullOrEmpty(accountId))
-                {
-                    res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status401Unauthorized;
-                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
-                    res.Message = "Bạn chưa đăng nhập";
-                    return res;
-                }
-
-                // Kiểm tra tài liệu tồn tại
+                
                 var document = await _fengShuiDocumentRepo.GetFengShuiDocumentById(documentId);
                 if (document == null)
                 {
@@ -219,9 +190,18 @@ namespace Services.Services.FengShuiDocumentService
                     res.Message = "Không tìm thấy tài liệu Phong Thủy";
                     return res;
                 }
+                if (document.Status != DocumentStatusEnum.Pending.ToString() 
+                   )
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = "Không thể hủy tài liệu ở trạng thái hiện tại";
+                    return res;
+                }
 
-                // Cập nhật trạng thái
-                var updatedDocument = await _fengShuiDocumentRepo.UpdateFengShuiDocumentStatus(documentId, "CancelledByManager");
+                // Cập nhật trạng thái thành CancelledByManager
+                var updatedDocument = await _fengShuiDocumentRepo.UpdateFengShuiDocumentStatus(documentId, DocumentStatusEnum.CancelledByManager.ToString());
 
                 if (updatedDocument == null)
                 {
@@ -230,6 +210,14 @@ namespace Services.Services.FengShuiDocumentService
                     res.ResponseCode = ResponseCodeConstants.FAILED;
                     res.Message = "Không thể hủy tài liệu Phong Thủy";
                     return res;
+                }
+
+                // Cập nhật booking để xóa DocumentId
+                var booking = updatedDocument.BookingOfflines.FirstOrDefault();
+                if (booking != null)
+                {
+                    booking.DocumentId = null;
+                    await _bookingOfflineRepo.UpdateBookingOffline(booking);
                 }
 
                 var response = _mapper.Map<FengShuiDocumentResponse>(updatedDocument);
@@ -269,28 +257,7 @@ namespace Services.Services.FengShuiDocumentService
             var res = new ResultModel();
             try
             {
-                // Kiểm tra người dùng hiện tại có phải là Customer không
-                var accountId = GetAuthenticatedAccountId();
-                if (string.IsNullOrEmpty(accountId))
-                {
-                    res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status401Unauthorized;
-                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
-                    res.Message = "Bạn chưa đăng nhập";
-                    return res;
-                }
-
-                var customer = await _customerRepo.GetCustomerByAccountId(accountId);
-                if (customer == null)
-                {
-                    res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status403Forbidden;
-                    res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
-                    res.Message = "Bạn không phải là khách hàng";
-                    return res;
-                }
-
-                // Kiểm tra tài liệu tồn tại
+                
                 var document = await _fengShuiDocumentRepo.GetFengShuiDocumentById(documentId);
                 if (document == null)
                 {
@@ -301,19 +268,18 @@ namespace Services.Services.FengShuiDocumentService
                     return res;
                 }
 
-                // Kiểm tra tài liệu thuộc về khách hàng này
-                var booking = document.BookingOfflines.FirstOrDefault();
-                if (booking == null || booking.CustomerId != customer.CustomerId)
+                // Kiểm tra trạng thái hiện tại
+                if (document.Status != DocumentStatusEnum.Pending.ToString())
                 {
                     res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status403Forbidden;
-                    res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
-                    res.Message = "Tài liệu này không thuộc về bạn";
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = "Không thể hủy tài liệu ở trạng thái hiện tại";
                     return res;
                 }
 
-                // Cập nhật trạng thái
-                var updatedDocument = await _fengShuiDocumentRepo.UpdateFengShuiDocumentStatus(documentId, "CancelledByCustomer");
+                
+                var updatedDocument = await _fengShuiDocumentRepo.UpdateFengShuiDocumentStatus(documentId, DocumentStatusEnum.CancelledByCustomer.ToString());
 
                 if (updatedDocument == null)
                 {
@@ -322,6 +288,14 @@ namespace Services.Services.FengShuiDocumentService
                     res.ResponseCode = ResponseCodeConstants.FAILED;
                     res.Message = "Không thể hủy tài liệu Phong Thủy";
                     return res;
+                }
+
+                // Cập nhật booking để xóa DocumentId
+                var updatedBooking = updatedDocument.BookingOfflines.FirstOrDefault();
+                if (updatedBooking != null)
+                {
+                    updatedBooking.DocumentId = null;
+                    await _bookingOfflineRepo.UpdateBookingOffline(updatedBooking);
                 }
 
                 var response = _mapper.Map<FengShuiDocumentResponse>(updatedDocument);
@@ -361,28 +335,7 @@ namespace Services.Services.FengShuiDocumentService
             var res = new ResultModel();
             try
             {
-                // Kiểm tra người dùng hiện tại có phải là Customer không
-                var accountId = GetAuthenticatedAccountId();
-                if (string.IsNullOrEmpty(accountId))
-                {
-                    res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status401Unauthorized;
-                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
-                    res.Message = "Bạn chưa đăng nhập";
-                    return res;
-                }
-
-                var customer = await _customerRepo.GetCustomerByAccountId(accountId);
-                if (customer == null)
-                {
-                    res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status403Forbidden;
-                    res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
-                    res.Message = "Bạn không phải là khách hàng";
-                    return res;
-                }
-
-                // Kiểm tra tài liệu tồn tại
+               
                 var document = await _fengShuiDocumentRepo.GetFengShuiDocumentById(documentId);
                 if (document == null)
                 {
@@ -393,19 +346,18 @@ namespace Services.Services.FengShuiDocumentService
                     return res;
                 }
 
-                // Kiểm tra tài liệu thuộc về khách hàng này
-                var booking = document.BookingOfflines.FirstOrDefault();
-                if (booking == null || booking.CustomerId != customer.CustomerId)
+               
+                if (document.Status != DocumentStatusEnum.ConfirmedByManager.ToString())
                 {
                     res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status403Forbidden;
-                    res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
-                    res.Message = "Tài liệu này không thuộc về bạn";
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = "Tài liệu phải được Manager xác nhận trước khi khách hàng xác nhận";
                     return res;
                 }
 
-                // Cập nhật trạng thái
-                var updatedDocument = await _fengShuiDocumentRepo.UpdateFengShuiDocumentStatus(documentId, "ConfirmedByCustomer");
+                
+                var updatedDocument = await _fengShuiDocumentRepo.UpdateFengShuiDocumentStatus(documentId, DocumentStatusEnum.Success.ToString());
 
                 if (updatedDocument == null)
                 {
@@ -453,18 +405,7 @@ namespace Services.Services.FengShuiDocumentService
             var res = new ResultModel();
             try
             {
-                // Kiểm tra người dùng hiện tại có phải là Manager không
-                var accountId = GetAuthenticatedAccountId();
-                if (string.IsNullOrEmpty(accountId))
-                {
-                    res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status401Unauthorized;
-                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
-                    res.Message = "Bạn chưa đăng nhập";
-                    return res;
-                }
-
-                // Kiểm tra tài liệu tồn tại
+               
                 var document = await _fengShuiDocumentRepo.GetFengShuiDocumentById(documentId);
                 if (document == null)
                 {
@@ -475,8 +416,18 @@ namespace Services.Services.FengShuiDocumentService
                     return res;
                 }
 
-                // Cập nhật trạng thái
-                var updatedDocument = await _fengShuiDocumentRepo.UpdateFengShuiDocumentStatus(documentId, "ConfirmedByManager");
+                // Kiểm tra trạng thái hiện tại
+                if (document.Status != DocumentStatusEnum.Pending.ToString())
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = "Tài liệu phải ở trạng thái InProgress để xác nhận";
+                    return res;
+                }
+
+                // Cập nhật trạng thái thành ConfirmedByManager
+                var updatedDocument = await _fengShuiDocumentRepo.UpdateFengShuiDocumentStatus(documentId, DocumentStatusEnum.ConfirmedByManager.ToString());
 
                 if (updatedDocument == null)
                 {

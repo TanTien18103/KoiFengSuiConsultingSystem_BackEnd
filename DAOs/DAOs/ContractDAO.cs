@@ -39,7 +39,10 @@ namespace DAOs.DAOs
 
         public async Task<Contract> GetContractByIdDao(string contractId)
         {
-            return await _context.Contracts.Include(c => c.BookingOfflines).ThenInclude(b => b.Customer).ThenInclude(c => c.Account).FirstOrDefaultAsync(c => c.ContractId == contractId);
+            return await _context.Contracts
+                .Include(c => c.BookingOfflines).ThenInclude(b => b.Customer).ThenInclude(c => c.Account)
+                .Include(c => c.BookingOfflines).ThenInclude(b => b.Master)
+                .FirstOrDefaultAsync(c => c.ContractId == contractId);
         }
         public async Task<Contract> GetContractByBookingOfflineIdDao(string bookingOfflineId)
         {

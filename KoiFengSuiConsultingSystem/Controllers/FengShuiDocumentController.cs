@@ -64,6 +64,8 @@ namespace KoiFengSuiConsultingSystem.Controllers
         public async Task<IActionResult> ConfirmDocumentByManager(string documentId)
         {
             var result = await _fengShuiDocumentService.ConfirmDocumentByManager(documentId);
+            return StatusCode(result.StatusCode, result);
+        }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetFengShuiDocumentById([FromRoute] string id)
         {

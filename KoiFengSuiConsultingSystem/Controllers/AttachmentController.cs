@@ -31,6 +31,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _attachmentService.GetAttachmentById(attachmentId);
             return StatusCode(result.StatusCode, result);
         }
+        [HttpGet("get-all")]
+        public async Task<IActionResult> GetAllAttachments()
+        {
+            var result = await _attachmentService.GetAllAttachments();
+            return StatusCode(result.StatusCode, result);
+        }
         [HttpGet("booking/{bookingOfflineId}")]
         [Authorize]
         public async Task<IActionResult> GetAttachmentByBookingOfflineId(string bookingOfflineId)
@@ -67,17 +73,8 @@ namespace KoiFengSuiConsultingSystem.Controllers
         public async Task<IActionResult> VerifyAttachmentOtp(string attachmentId, [FromBody] VerifyOtpRequest request)
         {
             var result = await _attachmentService.VerifyAttachmentOtp(attachmentId, request);
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetAttachmentById([FromRoute] string id)
-        {
-            var result = await _attachmentService.GetAttachmentById(id);
             return StatusCode(result.StatusCode, result);
         }
-        [HttpGet("get-all")]
-        public async Task<IActionResult> GetAllAttachments()
-        {
-            var result = await _attachmentService.GetAllAttachments();
-            return StatusCode(result.StatusCode, result);
-        }
+
     }
 }

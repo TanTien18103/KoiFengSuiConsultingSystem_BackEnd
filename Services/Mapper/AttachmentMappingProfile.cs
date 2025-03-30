@@ -16,8 +16,7 @@ namespace Services.Mapper
         {
             CreateMap<Attachment, AllAttachmentResponse>();
 
-            CreateMap<Attachment, AttachmentDetailsResponse>();
+            CreateMap<Attachment, AttachmentResponse>();
         }
     }
-
 }

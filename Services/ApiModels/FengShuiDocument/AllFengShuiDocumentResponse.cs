@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Services.ApiModels.FengShuiDocument
 {
-    public class FengShuiDocumentDetailsResponse
+    public class AllFengShuiDocumentResponse
     {
         public string FengShuiDocumentId { get; set; }
 

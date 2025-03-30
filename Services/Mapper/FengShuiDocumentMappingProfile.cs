@@ -14,9 +14,12 @@ namespace Services.Mapper
     {
         public FengShuiDocumentMappingProfile() 
         {
-            CreateMap<FengShuiDocument, FengShuiDocumentDetailsResponse>();
+            CreateMap<FengShuiDocument, AllFengShuiDocumentResponse>();
 
-            CreateMap<FengShuiDocument, FengShuiDocumentResponse>();
+            CreateMap<FengShuiDocument, FengShuiDocumentResponse>()
+                .ForMember(dest => dest.DocumentId, opt => opt.MapFrom(src => src.FengShuiDocumentId))
+                .ForMember(dest => dest.BookingOffline, opt => opt.MapFrom(src => src.BookingOfflines.FirstOrDefault()));
+            CreateMap<BookingOffline, BookingOfflineInfo>();
         }
     }
 }

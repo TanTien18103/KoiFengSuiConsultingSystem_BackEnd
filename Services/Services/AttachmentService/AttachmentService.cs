@@ -137,6 +137,39 @@ namespace Services.Services.AttachmentService
             }
         }
 
+        public async Task<ResultModel> GetAllAttachments()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var attachments = await _attachmentRepo.GetAttachments();
+                if (attachments == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsAttachment.NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsAttachment.FOUND;
+                res.Data = _mapper.Map<List<AllAttachmentResponse>>(attachments);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi lấy thông tin tệp đính kèm");
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
         public async Task<ResultModel> GetAttachmentByBookingOfflineId(string bookingOfflineId)
         {
             var res = new ResultModel();
@@ -432,5 +465,4 @@ namespace Services.Services.AttachmentService
             }
         }
     }
-
 }

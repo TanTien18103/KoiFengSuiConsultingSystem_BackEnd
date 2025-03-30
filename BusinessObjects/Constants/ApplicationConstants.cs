@@ -287,12 +287,6 @@ namespace BusinessObjects.Constants
             public const string TRANSACTION_FOUND = "Lấy danh sách giao dịch thành công!";
         }
 
-        public class ResponseMessageConstrantsAttachment
-        {
-            public const string ATTACHMENT_FOUND = "Tìm thấy biên bản nghiệm thu thành công!";
-            public const string ATTACHMENT_NOT_FOUND = "Không tìm thấy biên bản nghiệm thu!";
-        }
-
         public class ResponseMessageConstrantsFengShuiDocument
         {
             public const string FENGSHUIDOCUMENT_FOUND = "Tìm thấy hồ sơ thành công!";

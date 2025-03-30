@@ -18,7 +18,6 @@ namespace Services.Services.AttachmentService
         Task<ResultModel> ConfirmAttachment(string attachmentId);
         Task<ResultModel> SendOtpForAttachment(string attachmentId);
         Task<ResultModel> VerifyAttachmentOtp(string attachmentId, VerifyOtpRequest request);
-        Task<ResultModel> GetAttachmentById(string id);
         Task<ResultModel> GetAllAttachments();
     }
 }

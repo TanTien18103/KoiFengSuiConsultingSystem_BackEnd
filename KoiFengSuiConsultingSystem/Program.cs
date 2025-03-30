@@ -60,6 +60,8 @@ using Repositories.Repositories.CategoryRepository;
 using Services.Services.CategoryService;
 using Services.ServicesHelpers.GoogleMeetService;
 using Services.ServicesHelpers.RefundSerivce;
+using Repositories.Repositories.FengShuiDocumentRepository;
+using Services.Services.FengShuiDocumentService;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -92,7 +94,7 @@ builder.Services.AddScoped<IEnrollChapterRepo, EnrollChapterRepo>();
 builder.Services.AddScoped<IEnrollQuizRepo, EnrollQuizRepo>();
 builder.Services.AddScoped<IEnrollAnswerRepo, EnrollAnswerRepo>();
 builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
-
+builder.Services.AddScoped<IFengShuiDocumentRepo, FengShuiDocumentRepo>();
 
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -120,7 +122,7 @@ builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<IRegisterCourseService, RegisterCourseService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IRefundService, RefundService>();
-
+builder.Services.AddScoped<IFengShuiDocumentService, FengShuiDocumentService>();
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
 builder.Services.AddHostedService<BookingCleanupService>();
@@ -145,7 +147,7 @@ builder.Services.AddAutoMapper(typeof(QuestionMappingProfile));
 builder.Services.AddAutoMapper(typeof(ContractMappingProfile));
 builder.Services.AddAutoMapper(typeof(ConsultationPackageMappingProfile));
 builder.Services.AddAutoMapper(typeof(AnswerMappingProfile));
-
+builder.Services.AddAutoMapper(typeof(FengShuiDocumentMappingProfile));
 builder.Services.AddHttpClient();
 
 builder.Services.AddDistributedMemoryCache();

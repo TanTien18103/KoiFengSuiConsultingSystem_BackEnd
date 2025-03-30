@@ -26,7 +26,6 @@
     <Folder Include="ApiModels\EnrollCert\" />
     <Folder Include="ApiModels\EnrollChapter\" />
     <Folder Include="ApiModels\EnrollQuiz\" />
-    <Folder Include="ApiModels\FengShuiDocument\" />
     <Folder Include="ApiModels\MasterSchedule\" />
     <Folder Include="ApiModels\Membership\" />
     <Folder Include="ApiModels\VarietyColor\" />

@@ -19,4 +19,5 @@ namespace Services.Mapper
             CreateMap<Attachment, AttachmentDetailsResponse>();
         }
     }
+
 }

@@ -189,7 +189,7 @@ namespace Services.Services.CourseService
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = $"Đã xảy ra lỗi khi tạo khóa học: {ex.Message}";
+                res.Message =ex.InnerException?.Message;
                 return res;
             }
         }

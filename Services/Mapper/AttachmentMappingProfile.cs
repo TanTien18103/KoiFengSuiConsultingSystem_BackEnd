@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects.Models;
+using Services.ApiModels.Answer;
 using Services.ApiModels.Attachment;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,11 @@ namespace Services.Mapper
 {
     public class AttachmentMappingProfile : Profile
     {
-        public AttachmentMappingProfile()
+        public AttachmentMappingProfile() 
         {
+            CreateMap<Attachment, AllAttachmentResponse>();
+
             CreateMap<Attachment, AttachmentResponse>();
         }
     }
-
 }

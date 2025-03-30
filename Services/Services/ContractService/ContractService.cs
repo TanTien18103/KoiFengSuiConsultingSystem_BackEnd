@@ -9,6 +9,7 @@ using Repositories.Repositories.ContractRepository;
 using Repositories.Repositories.OrderRepository;
 using Services.ApiModels;
 using Services.ApiModels.Contract;
+using Services.ApiModels.FengShuiDocument;
 using Services.Services.EmailService;
 using Services.ServicesHelpers.PriceService;
 using Services.ServicesHelpers.UploadService;
@@ -509,6 +510,70 @@ namespace Services.Services.ContractService
                 res.IsSuccess = false;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetContractById(string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var contract = await _contractRepo.GetContractById(id);
+                if (contract != null)
+                {
+                    res.IsSuccess = true;
+                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.Data = _mapper.Map<ContractResponse>(contract);
+                    res.Message = ResponseMessageConstrantsContract.FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                res.StatusCode = StatusCodes.Status404NotFound;
+                res.Message = ResponseMessageConstrantsContract.NOT_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetAllContracts()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var contracts = await _contractRepo.GetContracts();
+                if (contracts != null)
+                {
+                    res.IsSuccess = true;
+                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.Data = _mapper.Map<List<ContractResponse>>(contracts);
+                    res.Message = ResponseMessageConstrantsContract.FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                res.StatusCode = StatusCodes.Status404NotFound;
+                res.Message = ResponseMessageConstrantsContract.NOT_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
                 return res;
             }
         }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.ApiModels.Attachment;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Services.Services.AttachmentService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
@@ -27,6 +29,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
         public async Task<IActionResult> GetAttachmentById(string attachmentId)
         {
             var result = await _attachmentService.GetAttachmentById(attachmentId);
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpGet("get-all")]
+        public async Task<IActionResult> GetAllAttachments()
+        {
+            var result = await _attachmentService.GetAllAttachments();
             return StatusCode(result.StatusCode, result);
         }
         [HttpGet("booking/{bookingOfflineId}")]
@@ -67,5 +75,6 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _attachmentService.VerifyAttachmentOtp(attachmentId, request);
             return StatusCode(result.StatusCode, result);
         }
+
     }
 }

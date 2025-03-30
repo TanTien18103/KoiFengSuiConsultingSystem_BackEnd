@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.ApiModels.RegisterAttend;
@@ -22,7 +23,15 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var res = await _registerAttendService.GetRegisterAttends(status);
             return StatusCode(res.StatusCode, res);
         }
-      
+
+        [HttpGet("get-by-status-for-current-user")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> GetRegisterAttendsByCurrentUser([FromQuery] RegisterAttendStatusEnums? status = null)
+        {
+            var res = await _registerAttendService.GetRegisterAttendsByCurrentUser(status);
+            return StatusCode(res.StatusCode, res);
+        }
+
         [HttpGet("customer")]
         public async Task<IActionResult> GetRegisterAttendByCustomerId()
         {
@@ -71,6 +80,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             var result = await _registerAttendService.UpdatePendingTickets(id, num);
             return StatusCode(result.StatusCode, result);
+        }
+        [HttpGet("get-all-registerAttendEnums")]
+        public IActionResult GetRegisterAttendEnums()
+        {
+            var colors = Enum.GetValues(typeof(RegisterAttendStatusEnums)).Cast<RegisterAttendStatusEnums>().ToList();
+            return Ok(colors);
         }
     }
 }

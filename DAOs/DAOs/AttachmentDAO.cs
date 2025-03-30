@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +39,12 @@ namespace DAOs.DAOs
 
         public async Task<Attachment> GetAttachmentByIdDao(string attachmentId)
         {
-            return await _context.Attachments.FindAsync(attachmentId);
+            return await _context.Attachments.FirstOrDefaultAsync(x => x.AttachmentId == attachmentId);
+        }
+
+        public async Task<List<Attachment>> GetAttachmentsDao()
+        {
+            return await _context.Attachments.ToListAsync();
         }
 
         public async Task<Attachment> CreateAttachmentDao(Attachment attachment)

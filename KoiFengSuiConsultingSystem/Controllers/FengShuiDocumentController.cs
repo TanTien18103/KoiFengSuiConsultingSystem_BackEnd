@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.ApiModels.FengShuiDocument;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Repositories.Repositories.FengShuiDocumentRepository;
 using Services.Services.FengShuiDocumentService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
@@ -61,6 +64,18 @@ namespace KoiFengSuiConsultingSystem.Controllers
         public async Task<IActionResult> ConfirmDocumentByManager(string documentId)
         {
             var result = await _fengShuiDocumentService.ConfirmDocumentByManager(documentId);
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetFengShuiDocumentById([FromRoute] string id)
+        {
+            var result = await _fengShuiDocumentService.GetFengShuiDocumentById(id);
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpGet("get-all")]
+        public async Task<IActionResult> GetAllFengShuiDocuments()
+        {
+            var result = await _fengShuiDocumentService.GetAllFengShuiDocuments();
             return StatusCode(result.StatusCode, result);
         }
     }

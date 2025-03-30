@@ -287,6 +287,12 @@ namespace BusinessObjects.Constants
             public const string TRANSACTION_FOUND = "Lấy danh sách giao dịch thành công!";
         }
 
+        public class ResponseMessageConstrantsFengShuiDocument
+        {
+            public const string FENGSHUIDOCUMENT_FOUND = "Tìm thấy hồ sơ thành công!";
+            public const string FENGSHUIDOCUMENT_NOT_FOUND = "Không tìm thấy hồ sơ!";
+        }
+
         public class ResponseMessageConstrantsWorkshop
         {
             public const string WORKSHOP_CREATED_SUCCESS = "Tạo sự kiện thành công!";

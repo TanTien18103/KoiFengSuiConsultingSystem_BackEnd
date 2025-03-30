@@ -1,5 +1,6 @@
 ﻿using Services.ApiModels.FengShuiDocument;
 using Services.ApiModels;
+﻿using Services.ApiModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,7 @@ namespace Services.Services.FengShuiDocumentService
         Task<ResultModel> CancelDocumentByCustomer(string documentId);
         Task<ResultModel> ConfirmDocumentByCustomer(string documentId);
         Task<ResultModel> ConfirmDocumentByManager(string documentId);
+        Task<ResultModel> GetFengShuiDocumentById(string id);
+        Task<ResultModel> GetAllFengShuiDocuments();
     }
 }

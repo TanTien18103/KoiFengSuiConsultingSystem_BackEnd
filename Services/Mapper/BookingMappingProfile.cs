@@ -4,6 +4,7 @@ using BusinessObjects.Models;
 using Services.ApiModels.Booking;
 using Services.ApiModels.BookingOffline;
 using Services.ApiModels.BookingOnline;
+using Services.ApiModels.FengShuiDocument;
 using System;
 using System.Collections.Generic;
 using System.Linq;

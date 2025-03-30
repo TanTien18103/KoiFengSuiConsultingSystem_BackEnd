@@ -60,6 +60,10 @@ using Repositories.Repositories.CategoryRepository;
 using Services.Services.CategoryService;
 using Services.ServicesHelpers.GoogleMeetService;
 using Services.ServicesHelpers.RefundSerivce;
+using Repositories.Repositories.FengShuiDocumentRepository;
+using Services.Services.FengShuiDocumentService;
+using Repositories.Repositories.AttachmentRepository;
+using Services.Services.AttachmentService;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -92,8 +96,8 @@ builder.Services.AddScoped<IEnrollChapterRepo, EnrollChapterRepo>();
 builder.Services.AddScoped<IEnrollQuizRepo, EnrollQuizRepo>();
 builder.Services.AddScoped<IEnrollAnswerRepo, EnrollAnswerRepo>();
 builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
-
-
+builder.Services.AddScoped<IFengShuiDocumentRepo, FengShuiDocumentRepo>();
+builder.Services.AddScoped<IAttachmentRepo, AttachmentRepo>();
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
@@ -120,7 +124,8 @@ builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<IRegisterCourseService, RegisterCourseService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IRefundService, RefundService>();
-
+builder.Services.AddScoped<IFengShuiDocumentService, FengShuiDocumentService>();
+builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
 builder.Services.AddHostedService<BookingCleanupService>();
@@ -145,7 +150,8 @@ builder.Services.AddAutoMapper(typeof(QuestionMappingProfile));
 builder.Services.AddAutoMapper(typeof(ContractMappingProfile));
 builder.Services.AddAutoMapper(typeof(ConsultationPackageMappingProfile));
 builder.Services.AddAutoMapper(typeof(AnswerMappingProfile));
-
+builder.Services.AddAutoMapper(typeof(FengShuiDocumentMappingProfile));
+builder.Services.AddAutoMapper(typeof(AttachmentMappingProfile));
 builder.Services.AddHttpClient();
 
 builder.Services.AddDistributedMemoryCache();

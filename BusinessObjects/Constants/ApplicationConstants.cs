@@ -459,6 +459,20 @@ namespace BusinessObjects.Constants
             public const string EXISTED_QUIZ_TITLE= "Tiêu đề của bài kiểm tra đã tồn tại";
             public const string FILE_INVALID= "File phải có định dạng .xls hoặc .xlsx";
         }
+        // Attachment Service
+        public class ResponseMessageConstrantsAttachment
+        {
+            public const string CREATED_SUCCESS = "Tạo tệp đính kèm thành công";
+            public const string NOT_FOUND = "Không tìm thấy tệp đính kèm";
+            public const string FOUND = "Tìm thấy tệp đính kèm";
+            public const string CANCEL_SUCCESS = "Hủy tệp đính kèm thành công";
+            public const string CONFIRM_SUCCESS = "Xác nhận tệp đính kèm thành công";
+            public const string CHECK_STATUS = "Trạng thái tệp đính kèm không hợp lệ";
+            public const string SEND_OTP_SUCCESS = "Gửi mã OTP thành công";
+            public const string OTP_EXPIRED = "Mã OTP đã hết hạn";
+            public const string VERIFY_OTP_FAILED = "Mã OTP không chính xác";
+            public const string VERIFY_OTP_SUCCESS = "Xác thực OTP thành công";
+        }
     }
 }
 

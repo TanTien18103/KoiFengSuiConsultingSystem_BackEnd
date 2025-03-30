@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Services.ApiModels.FengShuiDocument;
+using Services.ApiModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +10,11 @@ namespace Services.Services.FengShuiDocumentService
 {
     public interface IFengShuiDocumentService
     {
+        Task<ResultModel> CreateFengShuiDocument(CreateFengShuiDocumentRequest request);
+        Task<ResultModel> GetFengShuiDocumentByBookingOfflineId(string bookingOfflineId);
+        Task<ResultModel> CancelDocumentByManager(string documentId);
+        Task<ResultModel> CancelDocumentByCustomer(string documentId);
+        Task<ResultModel> ConfirmDocumentByCustomer(string documentId);
+        Task<ResultModel> ConfirmDocumentByManager(string documentId);
     }
 }

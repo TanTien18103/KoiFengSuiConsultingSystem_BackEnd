@@ -1,0 +1,67 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Services.ApiModels.FengShuiDocument;
+using Services.Services.FengShuiDocumentService;
+
+namespace KoiFengSuiConsultingSystem.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class FengShuiDocumentController : ControllerBase
+    {
+        private readonly IFengShuiDocumentService _fengShuiDocumentService;
+
+        public FengShuiDocumentController(IFengShuiDocumentService fengShuiDocumentService)
+        {
+            _fengShuiDocumentService = fengShuiDocumentService;
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> CreateFengShuiDocument([FromForm] CreateFengShuiDocumentRequest request)
+        {
+            var result = await _fengShuiDocumentService.CreateFengShuiDocument(request);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("document/{bookingOfflineId}")]
+        [Authorize]
+        public async Task<IActionResult> GetFengShuiDocumentByBookingOfflineId(string bookingOfflineId)
+        {
+            var result = await _fengShuiDocumentService.GetFengShuiDocumentByBookingOfflineId(bookingOfflineId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("{documentId}/cancel-by-manager")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> CancelDocumentByManager(string documentId)
+        {
+            var result = await _fengShuiDocumentService.CancelDocumentByManager(documentId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("{documentId}/cancel-by-customer")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> CancelDocumentByCustomer(string documentId)
+        {
+            var result = await _fengShuiDocumentService.CancelDocumentByCustomer(documentId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("{documentId}/confirm-by-customer")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> ConfirmDocumentByCustomer(string documentId)
+        {
+            var result = await _fengShuiDocumentService.ConfirmDocumentByCustomer(documentId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("{documentId}/confirm-by-manager")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> ConfirmDocumentByManager(string documentId)
+        {
+            var result = await _fengShuiDocumentService.ConfirmDocumentByManager(documentId);
+            return StatusCode(result.StatusCode, result);
+        }
+    }
+}

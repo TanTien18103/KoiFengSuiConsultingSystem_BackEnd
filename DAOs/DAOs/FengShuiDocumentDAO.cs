@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,12 +39,21 @@ namespace DAOs.DAOs
 
         public async Task<FengShuiDocument> GetFengShuiDocumentByIdDao(string fengShuiDocumentId)
         {
-            return await _context.FengShuiDocuments.FindAsync(fengShuiDocumentId);
+            return await _context.FengShuiDocuments
+                .Include(d => d.BookingOfflines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Include(d => d.BookingOfflines)
+                    .ThenInclude(b => b.Master)
+                        .ThenInclude(m => m.Account)
+                .FirstOrDefaultAsync(d => d.FengShuiDocumentId == fengShuiDocumentId);
         }
 
         public async Task<List<FengShuiDocument>> GetFengShuiDocumentsDao()
         {
-            return _context.FengShuiDocuments.ToList();
+            return await _context.FengShuiDocuments
+                .Include(d => d.BookingOfflines)
+                .ToListAsync();
         }
 
         public async Task<FengShuiDocument> CreateFengShuiDocumentDao(FengShuiDocument fengShuiDocument)
@@ -65,6 +75,51 @@ namespace DAOs.DAOs
             var fengShuiDocument = await GetFengShuiDocumentByIdDao(fengShuiDocumentId);
             _context.FengShuiDocuments.Remove(fengShuiDocument);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<FengShuiDocument> GetFengShuiDocumentByBookingOfflineIdDao(string bookingOfflineId)
+        {
+            var booking = await _context.BookingOfflines
+                .Include(b => b.Document)
+                .Include(b => b.Customer).ThenInclude(c => c.Account)
+                .Include(b => b.Master).ThenInclude(m => m.Account)
+                .FirstOrDefaultAsync(b => b.BookingOfflineId == bookingOfflineId);
+
+            return booking?.Document;
+        }
+
+        public async Task<FengShuiDocument> UpdateFengShuiDocumentStatusDao(string documentId, string status)
+        {
+            var document = await _context.FengShuiDocuments
+                .Include(d => d.BookingOfflines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Include(d => d.BookingOfflines)
+                    .ThenInclude(b => b.Master)
+                        .ThenInclude(m => m.Account)
+                .FirstOrDefaultAsync(d => d.FengShuiDocumentId == documentId);
+
+            if (document == null)
+                return null;
+
+            document.Status = status;
+            await _context.SaveChangesAsync();
+            return document;
+        }
+
+        public async Task<BookingOffline> AssignDocumentToBookingDao(string bookingOfflineId, string documentId)
+        {
+            var booking = await _context.BookingOfflines
+                .Include(b => b.Customer).ThenInclude(c => c.Account)
+                .Include(b => b.Master).ThenInclude(m => m.Account)
+                .FirstOrDefaultAsync(b => b.BookingOfflineId == bookingOfflineId);
+
+            if (booking == null)
+                return null;
+
+            booking.DocumentId = documentId;
+            await _context.SaveChangesAsync();
+            return booking;
         }
     }
 }

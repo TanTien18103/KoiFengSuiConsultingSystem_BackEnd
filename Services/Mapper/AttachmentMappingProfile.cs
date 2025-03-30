@@ -16,7 +16,9 @@ namespace Services.Mapper
         {
             CreateMap<Attachment, AllAttachmentResponse>();
 
-            CreateMap<Attachment, AttachmentResponse>();
+            CreateMap<Attachment, AttachmentResponse>()
+                .ForMember(dest => dest.BookingOffline, opt => opt.MapFrom(src => src.BookingOfflines.FirstOrDefault()));
+            CreateMap<BookingOffline, BookingOfflineInfoForAttachment>();
         }
     }
 }

@@ -39,7 +39,10 @@ namespace DAOs.DAOs
 
         public async Task<Attachment> GetAttachmentByIdDao(string attachmentId)
         {
-            return await _context.Attachments.FirstOrDefaultAsync(x => x.AttachmentId == attachmentId);
+            return await _context.Attachments
+                .Include(x => x.BookingOfflines).ThenInclude(x => x.Master)
+                .Include(x => x.BookingOfflines).ThenInclude(x => x.Customer).ThenInclude(x => x.AccountId)
+                .FirstOrDefaultAsync(x => x.AttachmentId == attachmentId);
         }
 
         public async Task<List<Attachment>> GetAttachmentsDao()

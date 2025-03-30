@@ -203,7 +203,8 @@ namespace Services.Services.OrderService
                                 {
                                     foreach (var ticket in group)
                                     {
-                                        await _registerAttendRepo.DeleteRegisterAttend(ticket.AttendId);
+                                        ticket.Status = RegisterAttendStatusEnums.Canceled.ToString();
+                                        await _registerAttendRepo.UpdateRegisterAttend(ticket);
                                     }
 
                                     var pendingOrder = await _orderRepo.GetOrderByServiceId(group.Key);

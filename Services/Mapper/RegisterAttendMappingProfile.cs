@@ -41,6 +41,17 @@ namespace Services.Mapper
                 .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Account.FullName))
                 .ForMember(dest => dest.CustomerEmail, opt => opt.MapFrom(src => src.Customer.Account.Email))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
+
+            //CreateMap<IGrouping<string, RegisterAttend>, GroupedRegisterAttendResponse>()
+            //    .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.Key))
+            //    .ForMember(dest => dest.WorkshopId, opt => opt.MapFrom(src => src.First().WorkshopId))
+            //    .ForMember(dest => dest.WorkshopName, opt => opt.MapFrom(src => src.First().Workshop.WorkshopName))
+            //    .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.First().Status))
+            //    .ForMember(dest => dest.NumberOfTickets, opt => opt.MapFrom(src => src.Count()))
+            //    .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.First().CreatedDate))
+            //    .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(src => src.First().Workshop.Price.GetValueOrDefault() * src.Count()))
+            //    .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.First().Workshop.Location))
+            //    .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.First().Workshop.StartDate.GetValueOrDefault(DateTime.Now)));
         }
     }
 }

@@ -88,6 +88,96 @@ namespace Services.Services.RegisterAttendService
                 return res;
             }
         }
+
+        public async Task<ResultModel> GetRegisterAttendsByCurrentUser(RegisterAttendStatusEnums? status = null)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+                var customerId = await _customerRepo.GetCustomerIdByAccountId(accountId);
+                var registerAttends = await _registerAttendRepo.GetRegisterAttendByCustomerId(customerId);
+                
+                if (registerAttends == null || !registerAttends.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsRegisterAttend.REGISTERATTEND_NOT_FOUND;
+                    return res;
+                }
+                if (status.HasValue)
+                {
+                    registerAttends = registerAttends.Where(x => x.Status == status.ToString()).ToList();
+                }
+
+                var result = new List<GroupedRegisterAttendResponse>();
+                var groups = registerAttends.GroupBy(x => x.GroupId);
+
+                foreach (var group in groups)
+                {
+                    var firstTicket = group.First();
+                    var workshop = firstTicket.Workshop;
+
+                    if (workshop != null)
+                    {
+                        var ticketCount = group.Count();
+                        var workshopPrice = workshop.Price.GetValueOrDefault(0);
+                        var totalPrice = workshopPrice * ticketCount;
+
+                        var groupedTicket = new GroupedRegisterAttendResponse
+                        {
+                            GroupId = group.Key,
+                            WorkshopId = firstTicket.WorkshopId,
+                            WorkshopName = workshop.WorkshopName ?? string.Empty,
+                            Status = firstTicket.Status,
+                            NumberOfTickets = ticketCount,
+                            CreatedDate = firstTicket.CreatedDate,
+                            TotalPrice = totalPrice,
+                            Location = workshop.Location ?? string.Empty,
+                            StartDate = workshop.StartDate ?? DateTime.Now
+                        };
+
+                        result.Add(groupedTicket);
+                    }
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = result;
+                res.Message = ResponseMessageConstrantsRegisterAttend.REGISTERATTEND_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
         public async Task<ResultModel> GetRegisterAttendByCustomerId()
         {
             var res = new ResultModel();

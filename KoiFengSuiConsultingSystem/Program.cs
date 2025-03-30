@@ -60,6 +60,10 @@ using Repositories.Repositories.CategoryRepository;
 using Services.Services.CategoryService;
 using Services.ServicesHelpers.GoogleMeetService;
 using Services.ServicesHelpers.RefundSerivce;
+using Repositories.Repositories.AttachmentRepository;
+using Repositories.Repositories.FengShuiDocumentRepository;
+using Services.Services.AttachmentService;
+using Services.Services.FengShuiDocumentService;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -92,6 +96,8 @@ builder.Services.AddScoped<IEnrollChapterRepo, EnrollChapterRepo>();
 builder.Services.AddScoped<IEnrollQuizRepo, EnrollQuizRepo>();
 builder.Services.AddScoped<IEnrollAnswerRepo, EnrollAnswerRepo>();
 builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
+builder.Services.AddScoped<IAttachmentRepo, AttachmentRepo>();
+builder.Services.AddScoped<IFengShuiDocumentRepo, FengShuiDocumentRepo>();
 
 
 // Register Services
@@ -120,6 +126,8 @@ builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<IRegisterCourseService, RegisterCourseService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IRefundService, RefundService>();
+builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+builder.Services.AddScoped<IFengShuiDocumentService, FengShuiDocumentService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();

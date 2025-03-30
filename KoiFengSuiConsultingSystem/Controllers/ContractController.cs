@@ -59,5 +59,17 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _contractService.VerifyContractOtp(contractId, request);
             return StatusCode(result.StatusCode, result);
         }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetContractById([FromRoute] string id)
+        {
+            var result = await _contractService.GetContractById(id);
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpGet("get-all")]
+        public async Task<IActionResult> GetAllContracts()
+        {
+            var result = await _contractService.GetAllContracts();
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

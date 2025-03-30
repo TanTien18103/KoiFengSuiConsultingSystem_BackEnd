@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using BusinessObjects.Models;
+using Services.ApiModels.Attachment;
+using Services.ApiModels.FengShuiDocument;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +12,11 @@ namespace Services.Mapper
 {
     public class FengShuiDocumentMappingProfile : Profile
     {
+        public FengShuiDocumentMappingProfile() 
+        {
+            CreateMap<FengShuiDocument, FengShuiDocumentDetailsResponse>();
+
+            CreateMap<FengShuiDocument, FengShuiDocumentResponse>();
+        }
     }
 }

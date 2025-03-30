@@ -12,6 +12,7 @@ namespace Services.Services.RegisterAttendService
     public interface IRegisterAttendService
     {
         Task<ResultModel> GetRegisterAttends(RegisterAttendStatusEnums? status = null);
+        Task<ResultModel> GetRegisterAttendsByCurrentUser(RegisterAttendStatusEnums? status = null);
         Task<ResultModel> GetRegisterAttendById(string registerAttendId);
         Task<ResultModel> GetRegisterAttends();
         Task<ResultModel> GetRegisterAttendByCustomerId();

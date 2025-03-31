@@ -55,6 +55,15 @@ namespace DAOs.DAOs
             return await _context.KoiPonds.Include(x => x.Shape).ToListAsync();
         }
 
+        public async Task<List<KoiPond>> GetKoiPondsByNameDao(string name)
+        {
+            var koiPonds = await _context.KoiPonds
+                .Include(k => k.Shape)
+                .Where(x => x.PondName.ToLower().Contains(name.ToLower()))
+                .ToListAsync();
+            return koiPonds;
+        }
+
         public async Task<KoiPond> CreateKoiPondDao(KoiPond koiPond)
         {
             _context.KoiPonds.Add(koiPond);

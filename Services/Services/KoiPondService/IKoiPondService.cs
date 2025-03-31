@@ -17,5 +17,6 @@ namespace Services.Services.KoiPondService
         Task<ResultModel> DeleteKoiPond(string id);
         Task<ResultModel> GetKoiPondByShapeId(string shapeId);
         Task<ResultModel> GetAllShapes();
+        Task<ResultModel> GetKoiPondsByName(string name);
     }
 }

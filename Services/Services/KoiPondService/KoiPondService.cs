@@ -9,7 +9,9 @@ using Repositories.Repositories.KoiPondRepository;
 using Repositories.Repositories.ShapeRepository;
 using Services.ApiModels;
 using Services.ApiModels.KoiPond;
+using Services.ApiModels.KoiVariety;
 using Services.ApiModels.Shape;
+using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 
 namespace Services.Services.KoiPondService
 {
@@ -488,7 +490,6 @@ namespace Services.Services.KoiPondService
             }
         }
 
-
         public async Task<ResultModel> GetAllShapes()
         {
             var res = new ResultModel();
@@ -517,6 +518,48 @@ namespace Services.Services.KoiPondService
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.Message = ex.Message;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetKoiPondsByName(string name)
+        {
+            var res = new ResultModel();
+            try
+            {
+                List<KoiPond> ponds;
+
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    ponds = await _koiPondRepo.GetKoiPonds();
+                }
+                else
+                {
+                    ponds = await _koiPondRepo.GetKoiPondsByName(name);
+                }
+
+                if (ponds == null || !ponds.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsKoiPond.KOIPOND_FOUND;
+                res.Data = _mapper.Map<List<KoiPondResponse>>(ponds);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
                 return res;
             }
         }

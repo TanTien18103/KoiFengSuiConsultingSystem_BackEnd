@@ -15,6 +15,7 @@ namespace Services.ApiModels.Attachment
         public string AttachmentUrl { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
+        public string CreateBy { get; set; }
         public BookingOfflineInfoForAttachment BookingOffline { get; set; }
     }
 

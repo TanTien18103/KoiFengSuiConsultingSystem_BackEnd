@@ -187,6 +187,27 @@ namespace Services.Services.ContractService
             var res = new ResultModel();
             try
             {
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
                 var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(request.BookingOfflineId);
                 if (bookingOffline == null)
                 {
@@ -206,7 +227,8 @@ namespace Services.Services.ContractService
                     ContractName = $"Contract_{request.BookingOfflineId}_{DateTime.Now:yyyyMMdd}",
                     DocNo = $"DOC_{DateTime.Now:yyyyMMddHHmmss}",
                     CreatedDate = DateTime.Now,
-                    ContractUrl = tempPdfUrl
+                    ContractUrl = tempPdfUrl,
+                    CreateBy = accountId
                 };
 
                 var createdContract = await _contractRepo.CreateContract(contract);
@@ -226,7 +248,8 @@ namespace Services.Services.ContractService
                     ContractName = contract.ContractName,
                     ContractUrl = tempPdfUrl,
                     CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
+                    UpdatedDate = DateTime.Now,
+                    CreateBy = accountId
                 };
                 return res;
             }

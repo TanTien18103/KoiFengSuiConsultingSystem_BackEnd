@@ -60,7 +60,7 @@ namespace DAOs.DAOs
         {
             return await _context.FengShuiDocuments
                 .Include(c => c.BookingOfflines)
-                .Where(c => c.BookingOfflines.Any(b => b.MasterId == masterId))
+                .Where(c => c.CreateBy == masterId)
                 .ToListAsync();
         }
 

@@ -404,16 +404,26 @@ namespace Services.Services.RegisterAttendService
                 if (allCustomerAttends.Any())
                 {
                     var latestRegisterAttend = allCustomerAttends.OrderByDescending(x => x.CreatedDate).First();
-                    var order = await _orderRepo.GetOrderByServiceId(latestRegisterAttend.GroupId);
 
-                    if (order == null || order.Status != PaymentStatusEnums.Paid.ToString())
+                    if (latestRegisterAttend.Status == RegisterAttendStatusEnums.Pending.ToString())
                     {
                         res.IsSuccess = false;
                         res.StatusCode = StatusCodes.Status400BadRequest;
                         res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
-                        res.Message = "Vui lòng hoàn tất thanh toán cho đăng ký workshop trước đó trước khi đăng ký thêm";
+                        res.Message = "Bạn có một đăng ký workshop chưa được xử lý. Vui lòng đợi xác nhận hoặc hủy trước khi đăng ký mới.";
                         return res;
                     }
+
+                    //var order = await _orderRepo.GetOrderByServiceId(latestRegisterAttend.GroupId);
+
+                    //if (order == null || order.Status != PaymentStatusEnums.Paid.ToString())
+                    //{
+                    //    res.IsSuccess = false;
+                    //    res.StatusCode = StatusCodes.Status400BadRequest;
+                    //    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    //    res.Message = "Vui lòng hoàn tất thanh toán cho đăng ký workshop trước đó trước khi đăng ký thêm";
+                    //    return res;
+                    //}
                 }
 
                 // Thêm kiểm tra số lượng vé tối đa cho phép

@@ -74,5 +74,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _iKoiPondService.DeleteKoiPond(id);
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpGet("get-by-name")]
+        public async Task<IActionResult> GetKoiPondsByName(string? name)
+        {
+            var res = await _iKoiPondService.GetKoiPondsByName(name);
+            return StatusCode(res.StatusCode, res);
+        }
     }
 } 

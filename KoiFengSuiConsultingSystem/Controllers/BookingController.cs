@@ -20,6 +20,20 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _bookingService = bookingService;
         }
 
+        [HttpGet("get-all-onlines")]
+        public async Task<IActionResult> GetAllBookingOnlines()
+        {
+            var result = await _bookingService.GetAllBookingOnlines();
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("get-all-offlines")]
+        public async Task<IActionResult> GetAllBookingOfflines()
+        {
+            var result = await _bookingService.GetAllBookingOfflines();
+            return StatusCode(result.StatusCode, result);
+        }
+
         [HttpGet("get-all-bookingTypeEnums")]
         public IActionResult GetAllBookingTypeEnums()
         {

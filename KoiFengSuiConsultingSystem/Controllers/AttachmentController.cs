@@ -25,7 +25,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
         [HttpGet("{attachmentId}")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> GetAttachmentById(string attachmentId)
         {
             var result = await _attachmentService.GetAttachmentById(attachmentId);

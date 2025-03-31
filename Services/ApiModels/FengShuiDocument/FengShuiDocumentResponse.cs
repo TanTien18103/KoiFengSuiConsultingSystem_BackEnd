@@ -15,7 +15,7 @@ namespace Services.ApiModels.FengShuiDocument
         public string DocumentName { get; set; }
         public string DocumentUrl { get; set; }
         public DateTime CreateDate { get; set; }
-
+        public string CreateBy { get; set; }
         public DateTime? UpdateDate { get; set; }
         public BookingOfflineInfo BookingOffline { get; set; }
     }

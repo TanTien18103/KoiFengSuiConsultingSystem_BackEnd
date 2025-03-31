@@ -26,6 +26,8 @@ namespace Services.ApiModels.Workshop
 
         public decimal? Price { get; set; }
 
+        public string MasterId { get; set; }
+
         public string? MasterName { get; set; }
     }
 }

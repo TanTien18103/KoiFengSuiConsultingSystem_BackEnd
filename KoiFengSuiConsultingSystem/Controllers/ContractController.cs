@@ -71,5 +71,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _contractService.GetAllContracts();
             return StatusCode(result.StatusCode, result);
         }
+        [HttpGet("get-all-by-staff")]
+        [Authorize(Roles = "Staff")]
+        public async Task<IActionResult> GetAllContractByStaff()
+        {
+            var result = await _contractService.GetAllContractByStaff();
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

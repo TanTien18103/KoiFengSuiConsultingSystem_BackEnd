@@ -537,5 +537,60 @@ namespace Services.Services.FengShuiDocumentService
                 return res;
             }
         }
+
+        public async Task<ResultModel> GetAllFengShuiDocumentsByMaster()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var masterId = await _masterRepo.GetMasterIdByAccountId(accountId);
+
+                var fengShuiDocuments = await _fengShuiDocumentRepo.GetFengShuiDocumentsByMaster(masterId);
+                if (fengShuiDocuments != null)
+                {
+                    res.IsSuccess = true;
+                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.Data = _mapper.Map<List<AllFengShuiDocumentResponse>>(fengShuiDocuments);
+                    res.Message = ResponseMessageConstrantsFengShuiDocument.FENGSHUIDOCUMENT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                res.StatusCode = StatusCodes.Status404NotFound;
+                res.Message = ResponseMessageConstrantsFengShuiDocument.FENGSHUIDOCUMENT_NOT_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
     }
 }

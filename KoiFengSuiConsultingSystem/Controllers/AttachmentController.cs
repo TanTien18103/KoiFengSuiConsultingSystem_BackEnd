@@ -75,6 +75,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _attachmentService.VerifyAttachmentOtp(attachmentId, request);
             return StatusCode(result.StatusCode, result);
         }
-
+        [HttpGet("get-all-by-master")]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> GetAllAttachmentsByMaster()
+        {
+            var result = await _attachmentService.GetAllAttachmentsByMaster();
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

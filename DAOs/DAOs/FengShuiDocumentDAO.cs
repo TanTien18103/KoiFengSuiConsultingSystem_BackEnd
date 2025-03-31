@@ -56,6 +56,14 @@ namespace DAOs.DAOs
                 .ToListAsync();
         }
 
+        public async Task<List<FengShuiDocument>> GetFengShuiDocumentsByMasterDao(string masterId)
+        {
+            return await _context.FengShuiDocuments
+                .Include(c => c.BookingOfflines)
+                .Where(c => c.BookingOfflines.Any(b => b.MasterId == masterId))
+                .ToListAsync();
+        }
+
         public async Task<FengShuiDocument> CreateFengShuiDocumentDao(FengShuiDocument fengShuiDocument)
         {
             _context.FengShuiDocuments.Add(fengShuiDocument);

@@ -54,7 +54,7 @@ namespace DAOs.DAOs
         {
             return await _context.Attachments
                 .Include(c => c.BookingOfflines)
-                .Where(c => c.BookingOfflines.Any(b => b.MasterId == masterId))
+                .Where(c => c.CreateBy == masterId)
                 .ToListAsync();
         }
 

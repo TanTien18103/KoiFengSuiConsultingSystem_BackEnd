@@ -19,5 +19,6 @@ namespace Services.Services.FengShuiDocumentService
         Task<ResultModel> ConfirmDocumentByManager(string documentId);
         Task<ResultModel> GetFengShuiDocumentById(string id);
         Task<ResultModel> GetAllFengShuiDocuments();
+        Task<ResultModel> GetAllFengShuiDocumentsByMaster();
     }
 }

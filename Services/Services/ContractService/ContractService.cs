@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
@@ -34,6 +35,8 @@ namespace Services.Services.ContractService
         private readonly IPriceService _priceService;
         private readonly IMapper _mapper;
         private readonly ILogger<ContractService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public ContractService(
         IContractRepo contractRepo,
         IBookingOfflineRepo bookingOfflineRepo,
@@ -42,7 +45,8 @@ namespace Services.Services.ContractService
         IUploadService uploadService,
         IPriceService priceService,
         IMapper mapper,
-        ILogger<ContractService> logger)
+        ILogger<ContractService> logger,
+        IHttpContextAccessor httpContextAccessor)
         {
             _contractRepo = contractRepo;
             _bookingOfflineRepo = bookingOfflineRepo;
@@ -52,6 +56,7 @@ namespace Services.Services.ContractService
             _priceService = priceService;
             _mapper = mapper;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ResultModel> CancelContract(string contractId)
@@ -552,6 +557,59 @@ namespace Services.Services.ContractService
             try
             {
                 var contracts = await _contractRepo.GetContracts();
+                if (contracts != null)
+                {
+                    res.IsSuccess = true;
+                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.Data = _mapper.Map<List<ContractResponse>>(contracts);
+                    res.Message = ResponseMessageConstrantsContract.FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                res.StatusCode = StatusCodes.Status404NotFound;
+                res.Message = ResponseMessageConstrantsContract.NOT_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetAllContractByStaff()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var contracts = await _contractRepo.GetContractByStaffId(accountId);
                 if (contracts != null)
                 {
                     res.IsSuccess = true;

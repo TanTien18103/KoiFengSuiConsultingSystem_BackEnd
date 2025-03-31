@@ -41,13 +41,21 @@ namespace DAOs.DAOs
         {
             return await _context.Attachments
                 .Include(x => x.BookingOfflines).ThenInclude(x => x.Master)
-                .Include(x => x.BookingOfflines).ThenInclude(x => x.Customer).ThenInclude(x => x.AccountId)
+                .Include(x => x.BookingOfflines).ThenInclude(x => x.Customer).ThenInclude(x => x.Account)
                 .FirstOrDefaultAsync(x => x.AttachmentId == attachmentId);
         }
 
         public async Task<List<Attachment>> GetAttachmentsDao()
         {
             return await _context.Attachments.ToListAsync();
+        }
+
+        public async Task<List<Attachment>> GetAttachmentsByMasterDao(string masterId)
+        {
+            return await _context.Attachments
+                .Include(c => c.BookingOfflines)
+                .Where(c => c.BookingOfflines.Any(b => b.MasterId == masterId))
+                .ToListAsync();
         }
 
         public async Task<Attachment> CreateAttachmentDao(Attachment attachment)

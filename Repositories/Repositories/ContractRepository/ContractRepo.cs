@@ -34,5 +34,9 @@ namespace Repositories.Repositories.ContractRepository
         {
             return ContractDAO.Instance.GetContractByBookingOfflineIdDao(bookingOfflineId);
         }
+        public Task<List<Contract>> GetContractByStaffId(string staffId)
+        {
+            return ContractDAO.Instance.GetContractByStaffIdDao(staffId);
+        }
     }
 }

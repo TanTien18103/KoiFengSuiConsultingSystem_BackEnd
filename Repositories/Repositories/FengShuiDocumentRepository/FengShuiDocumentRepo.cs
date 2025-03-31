@@ -49,5 +49,10 @@ namespace Repositories.Repositories.FengShuiDocumentRepository
         {
             return FengShuiDocumentDAO.Instance.AssignDocumentToBookingDao(bookingOfflineId, documentId);
         }
+
+        public Task<List<FengShuiDocument>> GetFengShuiDocumentsByMaster(string masterId)
+        {
+            return FengShuiDocumentDAO.Instance.GetFengShuiDocumentsByMasterDao(masterId);
+        }
     }
 }

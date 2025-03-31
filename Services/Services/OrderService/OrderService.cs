@@ -467,7 +467,8 @@ namespace Services.Services.OrderService
 
                             foreach (var ticket in tickets)
                             {
-                                await _registerAttendRepo.DeleteRegisterAttend(ticket.AttendId);
+                                ticket.Status = RegisterAttendStatusEnums.Canceled.ToString();
+                                await _registerAttendRepo.UpdateRegisterAttend(ticket);
                             }
                         }
                         order.Status = isPaid ? PaymentStatusEnums.WaitingForRefund.ToString() : PaymentStatusEnums.Canceled.ToString();

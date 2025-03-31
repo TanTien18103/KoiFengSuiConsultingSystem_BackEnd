@@ -56,6 +56,29 @@ namespace Services.Services.FengShuiDocumentService
             var res = new ResultModel();
             try
             {
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var masterId = await _masterRepo.GetMasterIdByAccountId(accountId);
+
                 var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(request.BookingOfflineId);
                 if (bookingOffline == null)
                 {
@@ -86,7 +109,8 @@ namespace Services.Services.FengShuiDocumentService
                     DocNo = $"FS_{DateTime.Now:yyyyMMddHHmmss}",
                     DocumentName = $"FengShui_{request.BookingOfflineId}_{DateTime.Now:yyyyMMdd}",
                     DocumentUrl = pdfUrl,
-                    CreateDate = DateTime.Now
+                    CreateDate = DateTime.Now,
+                    CreateBy = masterId
                 };
 
                 var createdDocument = await _fengShuiDocumentRepo.CreateFengShuiDocument(fengShuiDocument);
@@ -109,6 +133,7 @@ namespace Services.Services.FengShuiDocumentService
                     DocumentUrl = pdfUrl,
                     CreateDate = DateTime.Now,
                     UpdateDate = DateTime.Now,
+                    CreateBy = masterId,
                     BookingOffline = new BookingOfflineInfo
                     {
                         BookingOfflineId = bookingOffline.BookingOfflineId,
@@ -512,6 +537,61 @@ namespace Services.Services.FengShuiDocumentService
             try
             {
                 var fengShuiDocuments = await _fengShuiDocumentRepo.GetFengShuiDocuments();
+                if (fengShuiDocuments != null)
+                {
+                    res.IsSuccess = true;
+                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.Data = _mapper.Map<List<AllFengShuiDocumentResponse>>(fengShuiDocuments);
+                    res.Message = ResponseMessageConstrantsFengShuiDocument.FENGSHUIDOCUMENT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                res.StatusCode = StatusCodes.Status404NotFound;
+                res.Message = ResponseMessageConstrantsFengShuiDocument.FENGSHUIDOCUMENT_NOT_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetAllFengShuiDocumentsByMaster()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var masterId = await _masterRepo.GetMasterIdByAccountId(accountId);
+
+                var fengShuiDocuments = await _fengShuiDocumentRepo.GetFengShuiDocumentsByMaster(masterId);
                 if (fengShuiDocuments != null)
                 {
                     res.IsSuccess = true;

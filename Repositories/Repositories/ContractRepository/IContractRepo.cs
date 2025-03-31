@@ -14,6 +14,7 @@ namespace Repositories.Repositories.ContractRepository
         Task<List<Contract>> GetContracts();
         Task<Contract> CreateContract(Contract contract);
         Task<Contract> UpdateContract(Contract contract);
-        Task DeleteContract(string contractId);   
+        Task DeleteContract(string contractId);
+        Task<List<Contract>> GetContractByStaffId(string staffId);
     }
 }

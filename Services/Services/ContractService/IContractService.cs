@@ -20,5 +20,6 @@ namespace Services.Services.ContractService
         Task<ResultModel> GetContractByBookingOfflineId(string bookingOfflineId);
         Task<ResultModel> GetContractById(string id);
         Task<ResultModel> GetAllContracts();
+        Task<ResultModel> GetAllContractByStaff();
     }
 }

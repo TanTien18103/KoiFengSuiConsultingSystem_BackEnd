@@ -23,5 +23,7 @@ public partial class FengShuiDocument
 
     public DateTime? UpdateDate { get; set; }
 
+    public string CreateBy { get; set; }
+
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 }

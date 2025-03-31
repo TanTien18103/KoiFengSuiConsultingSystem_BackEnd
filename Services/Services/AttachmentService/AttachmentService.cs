@@ -16,6 +16,8 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
 using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
+using System.Security.Claims;
+using Repositories.Repositories.MasterRepository;
 
 namespace Services.Services.AttachmentService
 {
@@ -27,6 +29,9 @@ namespace Services.Services.AttachmentService
         private readonly IUploadService _uploadService;
         private readonly IMapper _mapper;
         private readonly ILogger<AttachmentService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMasterRepo _masterRepo;
+
 
         public AttachmentService(
             IAttachmentRepo attachmentRepo,
@@ -34,7 +39,9 @@ namespace Services.Services.AttachmentService
             IEmailService emailService,
             IUploadService uploadService,
             IMapper mapper,
-            ILogger<AttachmentService> logger)
+            ILogger<AttachmentService> logger,
+            IHttpContextAccessor httpContextAccessor,
+            IMasterRepo masterRepo)
         {
             _attachmentRepo = attachmentRepo;
             _bookingOfflineRepo = bookingOfflineRepo;
@@ -42,6 +49,8 @@ namespace Services.Services.AttachmentService
             _uploadService = uploadService;
             _mapper = mapper;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
+            _masterRepo = masterRepo;
         }
 
         public async Task<ResultModel> CreateAttachment(AttachmentRequest request)
@@ -49,6 +58,29 @@ namespace Services.Services.AttachmentService
             var res = new ResultModel();
             try
             {
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var masterId = await _masterRepo.GetMasterIdByAccountId(accountId);
+
                 var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(request.BookingOfflineId);
                 if (bookingOffline == null)
                 {
@@ -77,7 +109,8 @@ namespace Services.Services.AttachmentService
                     AttachmentName = $"Attachment_{request.BookingOfflineId}_{DateTime.Now:yyyyMMdd}",
                     DocNo = $"DOC_{DateTime.Now:yyyyMMddHHmmss}",
                     CreatedDate = DateTime.Now,
-                    AttachmentUrl = fileUrl
+                    AttachmentUrl = fileUrl,
+                    CreateBy = masterId
                 };
 
                 var createdAttachment = await _attachmentRepo.CreateAttachment(attachment);
@@ -143,6 +176,62 @@ namespace Services.Services.AttachmentService
             try
             {
                 var attachments = await _attachmentRepo.GetAttachments();
+                if (attachments == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsAttachment.NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsAttachment.FOUND;
+                res.Data = _mapper.Map<List<AllAttachmentResponse>>(attachments);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi lấy thông tin tệp đính kèm");
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetAllAttachmentsByMaster()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var masterId = await _masterRepo.GetMasterIdByAccountId(accountId);
+
+                var attachments = await _attachmentRepo.GetAttachmentsByMaster(masterId);
                 if (attachments == null)
                 {
                     res.IsSuccess = false;

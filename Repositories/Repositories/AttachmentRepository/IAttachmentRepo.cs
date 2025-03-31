@@ -14,5 +14,6 @@ namespace Repositories.Repositories.AttachmentRepository
         Task<Attachment> CreateAttachment(Attachment attachment);
         Task<Attachment> UpdateAttachment(Attachment attachment);
         Task DeleteAttachment(string attachmentId);
+        Task<List<Attachment>> GetAttachmentsByMaster(string masterId);
     }
 }

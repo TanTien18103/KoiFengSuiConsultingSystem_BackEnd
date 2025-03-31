@@ -78,5 +78,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _fengShuiDocumentService.GetAllFengShuiDocuments();
             return StatusCode(result.StatusCode, result);
         }
+        [HttpGet("get-all-by-master")]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> GetAllFengShuiDocumentsByMaster()
+        {
+            var result = await _fengShuiDocumentService.GetAllFengShuiDocumentsByMaster();
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

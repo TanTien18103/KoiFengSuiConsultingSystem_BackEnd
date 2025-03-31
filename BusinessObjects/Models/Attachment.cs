@@ -25,5 +25,7 @@ public partial class Attachment
 
     public DateTime? OtpExpiredTime { get; set; }
 
+    public string CreateBy { get; set; }
+
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 }

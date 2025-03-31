@@ -74,5 +74,15 @@ namespace DAOs.DAOs
             _context.Contracts.Remove(contract);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<Contract>> GetContractByStaffIdDao(string staffId)
+        {
+            return await _context.Contracts
+                .Include(c => c.BookingOfflines).ThenInclude(b => b.Customer).ThenInclude(c => c.Account)
+                .Include(c => c.BookingOfflines).ThenInclude(b => b.Master)
+                .Include(c => c.BookingOfflines)
+                .Where(c => c.CreateBy == staffId)
+                .ToListAsync();
+        }
     }
 }

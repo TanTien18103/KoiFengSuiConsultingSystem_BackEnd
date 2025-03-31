@@ -18,6 +18,10 @@ namespace Repositories.Repositories.AttachmentRepository
         {
             return AttachmentDAO.Instance.GetAttachmentsDao();
         }
+        public Task<List<Attachment>> GetAttachmentsByMaster(string masterId)
+        {
+            return AttachmentDAO.Instance.GetAttachmentsByMasterDao(masterId);
+        }
         public Task<Attachment> CreateAttachment(Attachment attachment)
         {
             return AttachmentDAO.Instance.CreateAttachmentDao(attachment);

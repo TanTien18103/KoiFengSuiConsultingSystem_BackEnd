@@ -15,5 +15,6 @@ namespace Repositories.Repositories.KoiPondRepository
         Task<KoiPond> UpdateKoiPond(KoiPond koiPond);
         Task DeleteKoiPond(string koiPondId);
         Task<List<KoiPond>> GetKoiPondByShapeId(string shapeId);
+        Task<List<KoiPond>> GetKoiPondsByName(string name);
     }
 }

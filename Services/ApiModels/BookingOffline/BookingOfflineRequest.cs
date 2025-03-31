@@ -11,5 +11,9 @@ namespace Services.ApiModels.BookingOffline
     {
         [Required]
         public string Description { get; set; }
+
+        [Required]
+        public DateTime StartDate { get; set; }
+
     }
 }

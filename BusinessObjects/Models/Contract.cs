@@ -25,5 +25,7 @@ public partial class Contract
 
     public string ContractUrl { get; set; }
 
+    public string CreateBy { get; set; }
+
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 }

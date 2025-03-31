@@ -23,6 +23,7 @@ using Repositories.Repositories.ConsultationPackageRepository;
 using System.Runtime.CompilerServices;
 using System.Linq;
 using Repositories.Repositories.OrderRepository;
+using Services.ApiModels.KoiVariety;
 
 namespace Services.Services.BookingService
 {
@@ -1230,6 +1231,70 @@ namespace Services.Services.BookingService
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.Message = $"Lỗi khi lấy danh sách buổi tư vấn offline: {ex.Message}";
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetAllBookingOnlines()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var bookingOnlines = await _onlineRepo.GetBookingOnlinesRepo();
+                if (bookingOnlines == null || !bookingOnlines.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsBooking.BOOKING_FOUND;
+                res.Data = _mapper.Map<List<BookingOnlineDetailResponse>>(bookingOnlines);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetAllBookingOfflines()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var bookingOfflines = await _offlineRepo.GetBookingOfflines();
+                if (bookingOfflines == null || !bookingOfflines.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsBooking.BOOKING_FOUND;
+                res.Data = _mapper.Map<List<BookingOfflineDetailResponse>>(bookingOfflines);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.Message = ex.Message;
                 return res;
             }

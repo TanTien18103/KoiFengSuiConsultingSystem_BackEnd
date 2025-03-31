@@ -8,6 +8,7 @@ namespace Services.Services.BookingService
     public interface IBookingService
     {
         // Booking Online
+        Task<ResultModel> GetAllBookingOnlines();
         Task<ResultModel> GetBookingByIdAsync(string bookingId);
         Task<ResultModel> GetConsultingDetailByMasterScheduleIdAsync(string masterScheduleId);
         Task<ResultModel> GetBookingByStatusAsync(BookingOnlineEnums? status, BookingTypeEnums? type);
@@ -18,6 +19,7 @@ namespace Services.Services.BookingService
         Task<ResultModel> UpdateBookingOnlineMasterNote(string bookingOnlineId, UpdateMasterNoteRequest request);
         Task<ResultModel> GetBookingOnlinesByMaster();
         // Booking Offline
+        Task<ResultModel> GetAllBookingOfflines();
         Task<ResultModel> RemoveConsultationPackage(string id);
         Task<ResultModel> ProcessCompleteBooking(BookingOfflineRequest request, string packageId, decimal selectedPrice);
         Task<ResultModel> GetBookingOfflineForCurrentLogin();

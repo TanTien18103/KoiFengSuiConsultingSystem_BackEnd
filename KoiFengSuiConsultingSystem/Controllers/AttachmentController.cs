@@ -17,15 +17,15 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             _attachmentService = attachmentService;
         }
-        [HttpPost]
-        [Authorize(Roles = "Staff")]
+        [HttpPost("create")]
+        [Authorize(Roles = "Master")]
         public async Task<IActionResult> CreateAttachment([FromForm] AttachmentRequest request)
         {
             var result = await _attachmentService.CreateAttachment(request);
             return StatusCode(result.StatusCode, result);
         }
         [HttpGet("{attachmentId}")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> GetAttachmentById(string attachmentId)
         {
             var result = await _attachmentService.GetAttachmentById(attachmentId);

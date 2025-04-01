@@ -19,7 +19,9 @@ namespace Services.Mapper
             CreateMap<FengShuiDocument, FengShuiDocumentResponse>()
                 .ForMember(dest => dest.DocumentId, opt => opt.MapFrom(src => src.FengShuiDocumentId))
                 .ForMember(dest => dest.BookingOffline, opt => opt.MapFrom(src => src.BookingOfflines.FirstOrDefault()));
-            CreateMap<BookingOffline, BookingOfflineInfo>();
+            CreateMap<BookingOffline, BookingOfflineInfo>()
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Account.FullName))
+                .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.Master.MasterName));
         }
     }
 }

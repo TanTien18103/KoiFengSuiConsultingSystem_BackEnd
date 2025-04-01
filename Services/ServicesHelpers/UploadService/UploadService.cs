@@ -44,6 +44,14 @@ namespace Services.ServicesHelpers.UploadService
             return url;
         }
 
+        public string GetPdfUrl(string publicId)
+        {
+            if (string.IsNullOrEmpty(publicId))
+                return null;
+
+            return _cloudinary.Api.UrlImgUp.ResourceType("raw").BuildUrl(publicId);
+        }
+
         public string GetImageUrl(string publicId)
         {
             if (string.IsNullOrEmpty(publicId))
@@ -134,6 +142,7 @@ namespace Services.ServicesHelpers.UploadService
                 {
                     File = new FileDescription(file.FileName, stream),
                     Folder = "pdfs",
+                    Type = "upload"
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -142,8 +151,9 @@ namespace Services.ServicesHelpers.UploadService
                 {
                     throw new Exception($"Lỗi khi upload PDF: {uploadResult.Error.Message}");
                 }
-
+                
                 return uploadResult.SecureUrl.ToString();
+
             }
             catch (Exception ex)
             {

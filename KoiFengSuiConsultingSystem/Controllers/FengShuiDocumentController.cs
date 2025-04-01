@@ -19,7 +19,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _fengShuiDocumentService = fengShuiDocumentService;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         [Authorize(Roles = "Master")]
         public async Task<IActionResult> CreateFengShuiDocument([FromForm] CreateFengShuiDocumentRequest request)
         {

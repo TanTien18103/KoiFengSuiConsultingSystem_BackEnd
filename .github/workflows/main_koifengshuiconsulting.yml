@@ -22,7 +22,18 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
-          
+
+      - name: Update connection string
+        run: |
+          # Replace placeholder with GitHub secret
+          # Note: This assumes you have a connection string in appsettings.json
+          # You may need to adjust the file path and property name based on your project
+          $appSettingsPath = "./appsettings.json"
+          $appSettings = Get-Content $appSettingsPath | ConvertFrom-Json
+          $appSettings.ConnectionStrings.DefaultConnection = "${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
+          $appSettings | ConvertTo-Json -Depth 10 | Set-Content $appSettingsPath
+        shell: pwsh
+
       - name: dotnet publish
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
@@ -62,4 +73,10 @@ jobs:
           app-name: 'koifengshuiconsulting'
           slot-name: 'Production'
           package: .
+
+      - name: Configure Connection String in App Service
+        run: |
+          az webapp config connection-string set --resource-group "KoiFengShuiConsultingSystem" --name "koifengshuiconsulting" --connection-string-type SQLAzure --settings DefaultConnection="${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
+        shell: pwsh
+
           

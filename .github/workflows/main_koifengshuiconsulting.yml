@@ -58,10 +58,6 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_06D2324D67A6481EB9BD9532F7EBF5BC }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1BC21310EC454F51AB5736CAE2A8B7E4 }}
 
-      - name: Set environment variables
-        run: echo "AZURE_SQL_CONNECTION_STRING=${{ secrets.AZURE_SQL_CONNECTION_STRING }}" >> $GITHUB_ENV
-
-
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3

@@ -15,7 +15,8 @@ namespace Services.Mapper
         {
             CreateMap<Contract, ContractResponse>()
                 .ForMember(dest => dest.BookingOffline, opt => opt.MapFrom(src => src.BookingOfflines.FirstOrDefault()));
-            CreateMap<BookingOffline, BookingOfflineInfoForContract>();
+            CreateMap<BookingOffline, BookingOfflineInfoForContract>()
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Account.FullName));
         }
     }
 }

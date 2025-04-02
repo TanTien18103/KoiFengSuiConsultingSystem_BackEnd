@@ -559,7 +559,7 @@ namespace Services.Services.BookingService
 
                     foreach (var masterschedule in masterschedules)
                     {
-                        if (masterschedule.Date == DateOnly.FromDateTime((DateTime)bookingOffline.StartDate))
+                        if (masterschedule.Date == bookingOffline.StartDate)
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.EXISTED;

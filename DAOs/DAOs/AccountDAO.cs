@@ -52,6 +52,13 @@ namespace DAOs.DAOs
                 .ToListAsync();
         }
 
+        public async Task<List<Account>> GetAllStaffDao()
+        {
+            return await _context.Accounts
+               .Where(a => a.Role == "Staff")
+               .ToListAsync();
+        }
+
         public async Task<Account?> GetAccountByEmailDao(string email)
         {
             return await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);

@@ -94,7 +94,7 @@ namespace DAOs.DAOs
         public async Task<BookingCheckResult> CheckCustomerHasUncompletedBookingDao(string customerId)
         {
             var result = new BookingCheckResult();
-            
+
             // Lấy tất cả booking Pending của customer
             var customerBookings = await _context.BookingOnlines
                 .Where(b => b.CustomerId == customerId && b.Status == BookingOnlineEnums.Pending.ToString())
@@ -106,8 +106,8 @@ namespace DAOs.DAOs
             foreach (var booking in customerBookings)
             {
                 var order = await _context.Orders
-                    .FirstOrDefaultAsync(o => 
-                        o.ServiceId == booking.BookingOnlineId && 
+                    .FirstOrDefaultAsync(o =>
+                        o.ServiceId == booking.BookingOnlineId &&
                         o.ServiceType == PaymentTypeEnums.BookingOnline.ToString());
 
                 if (order == null || order.Status == PaymentStatusEnums.Pending.ToString())
@@ -119,7 +119,7 @@ namespace DAOs.DAOs
                     result.HasPendingConfirmBooking = true;
                 }
             }
-            
+
             return result;
         }
 
@@ -127,7 +127,7 @@ namespace DAOs.DAOs
         {
             var booking = await _context.BookingOnlines
                 .FirstOrDefaultAsync(b => b.BookingOnlineId == bookingOnlineId);
-            
+
             if (booking != null)
             {
                 booking.Status = status;
@@ -147,14 +147,14 @@ namespace DAOs.DAOs
                 if (bookingOnline == null)
                     return null;
 
-                
+
                 var entry = _context.BookingOnlines.FirstOrDefault(b => b.BookingOnlineId == bookingOnlineId);
                 if (entry != null)
                 {
                     entry.MasterNote = masterNote;
                     await _context.SaveChangesAsync();
 
-                    
+
                     return await _context.BookingOnlines
                         .Include(x => x.Customer).ThenInclude(x => x.Account)
                         .Include(x => x.Master).ThenInclude(x => x.Account)
@@ -217,20 +217,20 @@ namespace DAOs.DAOs
         public async Task<BookingOnline> GetBookingOnlineByMasterScheduleIdDao(string masterScheduleId)
         {
             return await _context.BookingOnlines
-                .FirstOrDefaultAsync(b => 
-                    b.MasterScheduleId == masterScheduleId && 
+                .FirstOrDefaultAsync(b =>
+                    b.MasterScheduleId == masterScheduleId &&
                     b.Status != BookingOnlineEnums.Cancelled.ToString());
         }
 
         public async Task<List<BookingOnline>> GetBookingsByMasterAndTimeDao(string masterId, TimeOnly startTime, TimeOnly endTime, DateOnly bookingDate)
         {
             return await _context.BookingOnlines
-                .Where(b => b.MasterId == masterId && 
+                .Where(b => b.MasterId == masterId &&
                            b.BookingDate == bookingDate &&
-                           ((startTime >= b.StartTime && startTime < b.EndTime) ||  
-                            (endTime > b.StartTime && endTime <= b.EndTime) ||     
+                           ((startTime >= b.StartTime && startTime < b.EndTime) ||
+                            (endTime > b.StartTime && endTime <= b.EndTime) ||
                             (startTime <= b.StartTime && endTime >= b.EndTime)) &&
-                           b.Status == BookingOnlineEnums.Confirmed.ToString())     
+                           b.Status == BookingOnlineEnums.Confirmed.ToString())
                 .ToListAsync();
         }
 
@@ -252,9 +252,18 @@ namespace DAOs.DAOs
 
         public async Task<List<BookingOnline>?> GetBookingsOnlineByCustomerIdDao(string customerId)
         {
-             return await _context.BookingOnlines
-                    .Where(b => b.CustomerId == customerId)
-                    .ToListAsync();
+            return await _context.BookingOnlines
+                   .Where(b => b.CustomerId == customerId)
+                   .ToListAsync();
+        }
+
+        public async Task<List<BookingOnline>?> GetBookingsOnlineByStaffIdDao(string staffId)
+        {
+            return await _context.BookingOnlines
+                   .Include(x => x.Customer).ThenInclude(x => x.Account)
+                   .Include(x => x.Master)
+                   .Where(b => b.AssignStaffId == staffId)
+                   .ToListAsync();
         }
     }
 }

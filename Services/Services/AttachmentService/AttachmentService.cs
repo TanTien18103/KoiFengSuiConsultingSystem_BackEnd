@@ -342,6 +342,7 @@ namespace Services.Services.AttachmentService
 
                 // Xóa liên kết với booking
                 bookingOffline.RecordId = null;
+                bookingOffline.Status = BookingOfflineEnums.AttachmentRejected.ToString();
 
                 var updatedAttachment = await _attachmentRepo.UpdateAttachment(attachment);
                 await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
@@ -392,6 +393,14 @@ namespace Services.Services.AttachmentService
                 attachment.UpdatedDate = DateTime.Now;
 
                 var updatedAttachment = await _attachmentRepo.UpdateAttachment(attachment);
+
+                var booking = updatedAttachment.BookingOfflines.FirstOrDefault();
+                if (booking != null)
+                {
+                    booking.DocumentId = null;
+                    booking.Status = BookingOfflineEnums.AttachmentConfirmed.ToString();
+                    await _bookingOfflineRepo.UpdateBookingOffline(booking);
+                }
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
@@ -444,6 +453,8 @@ namespace Services.Services.AttachmentService
                     res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
                     return res;
                 }
+                bookingOffline.Status = BookingOfflineEnums.VerifyingOTPAttachment.ToString();
+                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
 
                 // Generate OTP 6 số
                 var random = new Random();
@@ -529,6 +540,17 @@ namespace Services.Services.AttachmentService
                     res.Message = ResponseMessageConstrantsAttachment.VERIFY_OTP_FAILED;
                     return res;
                 }
+
+                var bookingOffline = attachment.BookingOfflines.FirstOrDefault();
+                if (bookingOffline == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                    return res;
+                }
+                bookingOffline.Status = BookingOfflineEnums.VerifiedOTPAttachment.ToString();
+                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
 
                 attachment.OtpCode = null;
                 attachment.OtpExpiredTime = null;

@@ -84,6 +84,26 @@ namespace Services.Services.OrderService
                     res.Message = ResponseMessageConstrantsOrder.NOT_FOUND;
                     return res;
                 }
+                
+                if (order.ServiceType == PaymentTypeEnums.BookingOffline.ToString())
+                {
+                    var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(order.ServiceId);
+                    if (bookingOffline == null)
+                    {
+                        res.IsSuccess = false;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                        return res;
+                    }
+
+                    bool isFirstPayment = order.Note.Contains("Thanh toán đặt cọc 30%");
+                    bookingOffline.Status = isFirstPayment ? 
+                        BookingOfflineEnums.FirstPaymentPending.ToString() : 
+                        BookingOfflineEnums.SecondPaymentPending.ToString();
+                    
+                    await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
+                }
 
                 order.Status = PaymentStatusEnums.PendingConfirm.ToString();
                 order.PaymentReference = null;
@@ -115,7 +135,7 @@ namespace Services.Services.OrderService
                     throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE, StatusCodes.Status404NotFound);
 
                 // Xác định trạng thái mới dựa trên lần thanh toán
-                string newStatus = isFirstPayment ? BookingOfflineEnums.Paid1st.ToString() : BookingOfflineEnums.Paid2nd.ToString();
+                string newStatus = isFirstPayment ? BookingOfflineEnums.FirstPaymentSuccess.ToString() : BookingOfflineEnums.Completed.ToString();
 
                 bookingOffline.Status = newStatus;
                 await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);

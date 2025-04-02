@@ -27,18 +27,32 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _contractService.CreateContract(request);
             return StatusCode(result.StatusCode, result);
         }
-        [Authorize(Roles = "Customer, Manager")]
-        [HttpPatch("cancel/{contractId}")]
-        public async Task<IActionResult> CancelContract(string contractId)
+        [Authorize(Roles = "Manager")]
+        [HttpPatch("master/cancel/{contractId}")]
+        public async Task<IActionResult> CancelContractByMaster(string contractId)
         {
-            var result = await _contractService.CancelContract(contractId);
+            var result = await _contractService.CancelContractByMaster(contractId);
+            return StatusCode(result.StatusCode, result);
+        }
+        [Authorize(Roles = "Manager")]
+        [HttpPatch("master/confirm/{contractId}")]
+        public async Task<IActionResult> ConfirmContractByMaster(string contractId)
+        {
+            var result = await _contractService.ConfirmContractByMaster(contractId);
+            return StatusCode(result.StatusCode, result);
+        }
+        [Authorize(Roles = "Customer")]
+        [HttpPatch("customer/cancel/{contractId}")]
+        public async Task<IActionResult> CancelContractByCustomer(string contractId)
+        {
+            var result = await _contractService.CancelContractByCustomer(contractId);
             return StatusCode(result.StatusCode, result);
         }
         [Authorize(Roles = "Customer, Manager")]
-        [HttpPatch("confirm/{contractId}")]
-        public async Task<IActionResult> ConfirmContract(string contractId)
+        [HttpPatch("customer/confirm/{contractId}")]
+        public async Task<IActionResult> ConfirmContractByCustomer(string contractId)
         {
-            var result = await _contractService.ConfirmContract(contractId);
+            var result = await _contractService.ConfirmContractByCustomer(contractId);
             return StatusCode(result.StatusCode, result);
         }
         [HttpGet("get-contract-by-booking-offline-and-update-status/{bookingOfflineId}")]

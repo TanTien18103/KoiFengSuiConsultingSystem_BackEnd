@@ -59,7 +59,7 @@ namespace Services.Services.ContractService
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<ResultModel> CancelContract(string contractId)
+        public async Task<ResultModel> CancelContractByMaster(string contractId)
         {
             var res = new ResultModel();
             try
@@ -80,6 +80,7 @@ namespace Services.Services.ContractService
                     res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
                     return res;
                 }
+                bookingOffline.Status = BookingOfflineEnums.ContractRejectedByManager.ToString();
                 contract.Status = ContractStatusEnum.Cancelled.ToString();
                 contract.UpdatedDate = DateTime.Now;
                 bookingOffline.ContractId = null;
@@ -109,7 +110,7 @@ namespace Services.Services.ContractService
             }
         }
 
-        public async Task<ResultModel> ConfirmContract(string contractId)
+        public async Task<ResultModel> ConfirmContractByMaster(string contractId)
         {
             var res = new ResultModel();
             try
@@ -122,6 +123,116 @@ namespace Services.Services.ContractService
                     res.Message = ResponseMessageConstrantsContract.NOT_FOUND;
                     return res;
                 }
+                var bookingOffline = contract.BookingOfflines.FirstOrDefault();
+                if (bookingOffline == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                    return res;
+                }
+                bookingOffline.Status = BookingOfflineEnums.ContractConfirmedByManager.ToString();
+                contract.Status = ContractStatusEnum.VerifyingOTP.ToString();
+                contract.UpdatedDate = DateTime.Now;
+                var updatedContract = await _contractRepo.UpdateContract(contract);
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsContract.CONFIRM_SUCCESS;
+                res.Data = new ContractResponse
+                {
+                    ContractId = updatedContract.ContractId,
+                    Status = updatedContract.Status,
+                    DocNo = updatedContract.DocNo,
+                    ContractName = updatedContract.ContractName,
+                    ContractUrl = updatedContract.ContractUrl,
+                    CreatedDate = updatedContract.CreatedDate,
+                    UpdatedDate = updatedContract.UpdatedDate
+                };
+                return res;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi xác nhận hợp đồng");
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> CancelContractByCustomer(string contractId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var contract = await _contractRepo.GetContractById(contractId);
+                if (contract == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsContract.NOT_FOUND;
+                    return res;
+                }
+                var bookingOffline = contract.BookingOfflines.FirstOrDefault();
+                if (bookingOffline == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                    return res;
+                }
+                bookingOffline.Status = BookingOfflineEnums.ContractRejectedByCustomer.ToString();
+                contract.Status = ContractStatusEnum.Cancelled.ToString();
+                contract.UpdatedDate = DateTime.Now;
+                bookingOffline.ContractId = null;
+                var updatedContract = await _contractRepo.UpdateContract(contract);
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsContract.CANCEL_SUCCESS;
+                res.Data = new ContractResponse
+                {
+                    ContractId = updatedContract.ContractId,
+                    Status = updatedContract.Status,
+                    DocNo = updatedContract.DocNo,
+                    ContractName = updatedContract.ContractName,
+                    ContractUrl = updatedContract.ContractUrl,
+                    CreatedDate = updatedContract.CreatedDate,
+                    UpdatedDate = updatedContract.UpdatedDate
+                };
+                return res;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi hủy hợp đồng");
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> ConfirmContractByCustomer(string contractId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var contract = await _contractRepo.GetContractById(contractId);
+                if (contract == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsContract.NOT_FOUND;
+                    return res;
+                }
+                var bookingOffline = contract.BookingOfflines.FirstOrDefault();
+                if (bookingOffline == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                    return res;
+                }
+                bookingOffline.Status = BookingOfflineEnums.ContractConfirmedByCustomer.ToString();
                 contract.Status = ContractStatusEnum.VerifyingOTP.ToString();
                 contract.UpdatedDate = DateTime.Now;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
@@ -439,6 +550,8 @@ namespace Services.Services.ContractService
                     res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
                     return res;
                 }
+                bookingOffline.Status = BookingOfflineEnums.VerifyingOTP.ToString();
+                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
 
                 //if (contract.OtpExpiredTime.HasValue && DateTime.Now > contract.OtpExpiredTime)
                 //{
@@ -520,6 +633,16 @@ namespace Services.Services.ContractService
                     res.Message = ResponseMessageConstrantsContract.VERIFY_OTP_FAILED;
                     return res;
                 }
+                var bookingOffline = contract.BookingOfflines.FirstOrDefault();
+                if (bookingOffline == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                    return res;
+                }
+                bookingOffline.Status = BookingOfflineEnums.VerifiedOTP.ToString();
+                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
 
                 contract.OtpCode = null;
                 contract.OtpExpiredTime = null;

@@ -12,8 +12,6 @@ namespace Services.ApiModels.BookingOnline
 
         public string Type { get; set; }
 
-        public string LinkMeet { get; set; }
-
         public string CustomerName { get; set; }
 
         public string Description { get; set; }

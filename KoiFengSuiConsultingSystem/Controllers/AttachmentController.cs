@@ -18,7 +18,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _attachmentService = attachmentService;
         }
         [HttpPost]
-        [Authorize(Roles = "Staff")]
+        [Authorize(Roles = "Master")]
         public async Task<IActionResult> CreateAttachment([FromForm] AttachmentRequest request)
         {
             var result = await _attachmentService.CreateAttachment(request);

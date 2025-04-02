@@ -9,11 +9,20 @@ namespace BusinessObjects.Enums
 {
     public enum BookingOfflineEnums
     {
-        Pending ,
+        Pending,
         Confirmed,
-        Completed,
         Cancelled,
+        Approved,
+        Verifying,
+        Success,
+        PendingPay1st,
         Paid1st,
-        Paid2nd
+        DocumentConfirmed,
+        DocumentRejected,
+        DocumentApproved,
+        AttachmentSigning,
+        AttachmentSigned,
+        PendingPay2nd,
+        Paid2nd,
     }
 }

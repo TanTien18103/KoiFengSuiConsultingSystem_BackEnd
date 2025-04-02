@@ -122,7 +122,7 @@ namespace Services.Services.OrderService
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error updating booking offline status: {ex.Message}");
+                throw new AppException(ResponseCodeConstants.FAILED, ex.Message, StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -221,14 +221,14 @@ namespace Services.Services.OrderService
                 }
 
                 // BookingOnline
-                if (order.ServiceType == PaymentTypeEnums.BookingOnline.ToString())
+                else if (order.ServiceType == PaymentTypeEnums.BookingOnline.ToString())
                 {
                     await HandleBookingOnlinePaid(order.ServiceId);
                 }
                 // BookingOffline
                 else if (order.ServiceType == PaymentTypeEnums.BookingOffline.ToString())
                 {
-                    bool isFirstPayment = order.Note.Contains("Thanh toán lần 1");
+                    bool isFirstPayment = order.Note.Contains("Thanh toán đặt cọc 30%");
                     await UpdateBookingOfflineStatusAfterPayment(order.ServiceId, isFirstPayment);
                 }
                 // Course
@@ -313,48 +313,63 @@ namespace Services.Services.OrderService
         {
             try
             {
-                var booking = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(bookingOnlineId);
-                if (booking == null || string.IsNullOrEmpty(booking.MasterId))
+                var paidBooking = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(bookingOnlineId);
+                if (paidBooking == null || string.IsNullOrEmpty(paidBooking.MasterId))
                     return;
 
                 await _bookingOnlineRepo.UpdateBookingOnlineStatusRepo(bookingOnlineId, BookingOnlineEnums.Confirmed.ToString());
 
-                var conflictingBookings = await _bookingOnlineRepo.GetBookingsByMasterAndTimeRepo(booking.MasterId, (TimeOnly)booking.StartTime, (TimeOnly)booking.EndTime, (DateOnly)booking.BookingDate);
+                var conflictingBookings = await _bookingOnlineRepo.GetBookingsByMasterAndTimeRepo(
+                    paidBooking.MasterId,
+                    (TimeOnly)paidBooking.StartTime,
+                    (TimeOnly)paidBooking.EndTime,
+                    (DateOnly)paidBooking.BookingDate
+                );
 
-                foreach (var otherBooking in conflictingBookings)
+                foreach (var conflictBooking in conflictingBookings)
                 {
-                    if (otherBooking.BookingOnlineId != bookingOnlineId && otherBooking.Status == BookingOnlineEnums.Pending.ToString())
+                    if (conflictBooking.BookingOnlineId == bookingOnlineId) 
+                        continue;
+
+                    try
                     {
-                        try
-                        {
-                            var masterScheduleId = otherBooking.MasterScheduleId;
+                        var masterScheduleId = conflictBooking.MasterScheduleId;
 
-                            await _bookingOnlineRepo.UpdateBookingOnlineStatusRepo(otherBooking.BookingOnlineId, BookingOnlineEnums.Cancelled.ToString());
-                            
-                            // Tạo một đối tượng mới để cập nhật thay vì sử dụng trực tiếp otherBooking
-                            var bookingToUpdate = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(otherBooking.BookingOnlineId);
-                            if (bookingToUpdate != null)
-                            {
-                                bookingToUpdate.MasterId = null;
-                                bookingToUpdate.MasterScheduleId = null;
-                                await _bookingOnlineRepo.UpdateBookingOnlineWithTrackingRepo(bookingToUpdate);
-                            }
+                        await _bookingOnlineRepo.UpdateBookingOnlineStatusRepo(
+                            conflictBooking.BookingOnlineId, 
+                            BookingOnlineEnums.Canceled.ToString()
+                        );
 
-                            if (!string.IsNullOrEmpty(masterScheduleId))
-                            {
-                                await _masterScheduleRepo.DeleteMasterSchedule(masterScheduleId);
-                            }
-                        }
-                        catch (Exception ex)
+                        var bookingToUpdate = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(conflictBooking.BookingOnlineId);
+                        if (bookingToUpdate != null)
                         {
-                            throw new AppException(ResponseCodeConstants.FAILED, ex.Message, StatusCodes.Status500InternalServerError);
+                            bookingToUpdate.MasterId = null;
+                            bookingToUpdate.MasterScheduleId = null;
+                            await _bookingOnlineRepo.UpdateBookingOnlineWithTrackingRepo(bookingToUpdate);
                         }
+
+                        if (!string.IsNullOrEmpty(masterScheduleId))
+                        {
+                            await _masterScheduleRepo.DeleteMasterSchedule(masterScheduleId);
+                        }
+
+                        var conflictOrder = await _orderRepo.GetOrderByServiceId(conflictBooking.BookingOnlineId);
+                        if (conflictOrder != null && conflictOrder.Status == PaymentStatusEnums.Pending.ToString())
+                        {
+                            conflictOrder.Status = PaymentStatusEnums.Canceled.ToString();
+                            conflictOrder.PaymentReference = null;
+                            await _orderRepo.UpdateOrder(conflictOrder);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new AppException(ResponseCodeConstants.FAILED, $"Lỗi khi xử lý booking xung đột {conflictBooking.BookingOnlineId}: {ex.Message}", StatusCodes.Status500InternalServerError);
                     }
                 }
             }
             catch (Exception ex)
             {
-                throw new AppException(ResponseCodeConstants.FAILED, ex.Message, StatusCodes.Status500InternalServerError);
+                throw new AppException(ResponseCodeConstants.FAILED, $"Lỗi khi xử lý booking đã thanh toán: {ex.Message}", StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -437,6 +452,7 @@ namespace Services.Services.OrderService
                             {
                                 booking.MasterScheduleId = null;
                                 booking.MasterId = null;
+                                booking.Status = BookingOnlineEnums.Canceled.ToString();
                                 await _bookingOnlineRepo.UpdateBookingOnlineRepo(booking);
                             }
                         }

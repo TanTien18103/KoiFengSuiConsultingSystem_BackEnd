@@ -1210,7 +1210,7 @@ namespace Services.Services.BookingService
                     {
                         await _onlineRepo.UpdateBookingOnlineStatusRepo(
                             booking.BookingOnlineId, 
-                            BookingOnlineEnums.Cancelled.ToString());
+                            BookingOnlineEnums.Canceled.ToString());
                         cancelledCount++;
                     }
                 }

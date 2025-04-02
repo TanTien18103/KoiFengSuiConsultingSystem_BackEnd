@@ -61,7 +61,6 @@ namespace Services.Mapper
             CreateMap<BookingOffline, BookingOfflineDetailResponse>()
                 .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null && src.Customer.Account != null ? src.Customer.Account.FullName : null))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => BookingTypeEnums.Offline.ToString()))
-                .ForMember(dest => dest.BookingDate, opt => opt.MapFrom(src => src.StartDate.HasValue ? DateOnly.FromDateTime(src.StartDate.Value) : (DateOnly?)null))
                 .ForMember(dest => dest.CustomerEmail, opt => opt.MapFrom(src => src.Customer != null && src.Customer.Account != null ? src.Customer.Account.Email : null))
                 .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.Master != null && src.Master.Account != null ? src.Master.Account.FullName : null));
 

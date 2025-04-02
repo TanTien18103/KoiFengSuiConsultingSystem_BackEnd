@@ -26,5 +26,6 @@ namespace Services.Services.AccountService
         Task<ResultModel> ToggleAccountStatus(string accountId, bool isActive);
         Task<ResultModel> DeleteAccount(string accountId);
         Task<ResultModel> UpdateAccountRole(string accountId, string newRole);
+        Task<ResultModel> GetAllStaff();
     }
 }

@@ -21,5 +21,6 @@ namespace Repositories.Repositories.AccountRepository
         Task<Account> ToggleAccountStatus(string accountId, bool isActive);
         Task DeleteAccount(string accountId);
         Task<Account> UpdateAccountRole(string accountId, string newRole);
+        Task<List<Account>> GetAllStaff();
     }
 }

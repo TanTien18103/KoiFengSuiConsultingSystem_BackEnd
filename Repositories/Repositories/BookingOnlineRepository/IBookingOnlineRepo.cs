@@ -27,5 +27,7 @@ namespace Repositories.Repositories.BookingOnlineRepository
         Task<List<BookingOnline>> GetBookingsByMasterAndTimeRepo(string masterId, TimeOnly startTime, TimeOnly endTime, DateOnly bookingDate);
         Task<BookingOnline> UpdateBookingOnlineWithTrackingRepo(BookingOnline bookingOnline);
         Task<List<BookingOnline>?> GetBookingsOnlineByCustomerId(string customerId);
+        Task<List<BookingOnline>?> GetBookingsOnlineByStaffId(string staffId);
+
     }
 }

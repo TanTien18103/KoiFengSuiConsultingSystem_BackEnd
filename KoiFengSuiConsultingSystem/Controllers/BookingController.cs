@@ -171,5 +171,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _bookingService.CancelUnpaidBookings();
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpGet("get-all-booking-by-staf")]
+        [Authorize(Roles = "Staff")]
+        public async Task<IActionResult> GetAllBookingByStaff()
+        {
+            var result = await _bookingService.GetAllBookingByStaff();
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

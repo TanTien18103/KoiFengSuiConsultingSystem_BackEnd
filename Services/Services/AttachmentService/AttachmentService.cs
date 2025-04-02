@@ -58,6 +58,29 @@ namespace Services.Services.AttachmentService
             var res = new ResultModel();
             try
             {
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var masterId = await _masterRepo.GetMasterIdByAccountId(accountId);
+
                 var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(request.BookingOfflineId);
                 if (bookingOffline == null)
                 {
@@ -86,7 +109,8 @@ namespace Services.Services.AttachmentService
                     AttachmentName = $"Attachment_{request.BookingOfflineId}_{DateTime.Now:yyyyMMdd}",
                     DocNo = $"DOC_{DateTime.Now:yyyyMMddHHmmss}",
                     CreatedDate = DateTime.Now,
-                    AttachmentUrl = fileUrl
+                    AttachmentUrl = fileUrl,
+                    CreateBy = masterId
                 };
 
                 var createdAttachment = await _attachmentRepo.CreateAttachment(attachment);
@@ -318,6 +342,7 @@ namespace Services.Services.AttachmentService
 
                 // Xóa liên kết với booking
                 bookingOffline.RecordId = null;
+                bookingOffline.Status = BookingOfflineEnums.AttachmentRejected.ToString();
 
                 var updatedAttachment = await _attachmentRepo.UpdateAttachment(attachment);
                 await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
@@ -368,6 +393,14 @@ namespace Services.Services.AttachmentService
                 attachment.UpdatedDate = DateTime.Now;
 
                 var updatedAttachment = await _attachmentRepo.UpdateAttachment(attachment);
+
+                var booking = updatedAttachment.BookingOfflines.FirstOrDefault();
+                if (booking != null)
+                {
+                    booking.DocumentId = null;
+                    booking.Status = BookingOfflineEnums.AttachmentConfirmed.ToString();
+                    await _bookingOfflineRepo.UpdateBookingOffline(booking);
+                }
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
@@ -420,6 +453,8 @@ namespace Services.Services.AttachmentService
                     res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
                     return res;
                 }
+                bookingOffline.Status = BookingOfflineEnums.VerifyingOTPAttachment.ToString();
+                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
 
                 // Generate OTP 6 số
                 var random = new Random();
@@ -505,6 +540,17 @@ namespace Services.Services.AttachmentService
                     res.Message = ResponseMessageConstrantsAttachment.VERIFY_OTP_FAILED;
                     return res;
                 }
+
+                var bookingOffline = attachment.BookingOfflines.FirstOrDefault();
+                if (bookingOffline == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                    return res;
+                }
+                bookingOffline.Status = BookingOfflineEnums.VerifiedOTPAttachment.ToString();
+                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
 
                 attachment.OtpCode = null;
                 attachment.OtpExpiredTime = null;

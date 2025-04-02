@@ -6,8 +6,6 @@
 
         public string Type { get; set; }
 
-        public string LinkMeet { get; set; }
-
         public string Status { get; set; }
 
         public string CustomerName { get; set; }

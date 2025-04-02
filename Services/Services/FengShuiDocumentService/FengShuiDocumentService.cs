@@ -56,6 +56,29 @@ namespace Services.Services.FengShuiDocumentService
             var res = new ResultModel();
             try
             {
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var masterId = await _masterRepo.GetMasterIdByAccountId(accountId);
+
                 var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(request.BookingOfflineId);
                 if (bookingOffline == null)
                 {
@@ -86,7 +109,8 @@ namespace Services.Services.FengShuiDocumentService
                     DocNo = $"FS_{DateTime.Now:yyyyMMddHHmmss}",
                     DocumentName = $"FengShui_{request.BookingOfflineId}_{DateTime.Now:yyyyMMdd}",
                     DocumentUrl = pdfUrl,
-                    CreateDate = DateTime.Now
+                    CreateDate = DateTime.Now,
+                    CreateBy = masterId
                 };
 
                 var createdDocument = await _fengShuiDocumentRepo.CreateFengShuiDocument(fengShuiDocument);
@@ -109,6 +133,7 @@ namespace Services.Services.FengShuiDocumentService
                     DocumentUrl = pdfUrl,
                     CreateDate = DateTime.Now,
                     UpdateDate = DateTime.Now,
+                    CreateBy = masterId,
                     BookingOffline = new BookingOfflineInfo
                     {
                         BookingOfflineId = bookingOffline.BookingOfflineId,
@@ -221,6 +246,7 @@ namespace Services.Services.FengShuiDocumentService
                 if (booking != null)
                 {
                     booking.DocumentId = null;
+                    booking.Status = BookingOfflineEnums.DocumentRejectedByManager.ToString();
                     await _bookingOfflineRepo.UpdateBookingOffline(booking);
                 }
 
@@ -299,6 +325,7 @@ namespace Services.Services.FengShuiDocumentService
                 if (updatedBooking != null)
                 {
                     updatedBooking.DocumentId = null;
+                    updatedBooking.Status = BookingOfflineEnums.DocumentRejectedByCustomer.ToString();
                     await _bookingOfflineRepo.UpdateBookingOffline(updatedBooking);
                 }
 
@@ -386,6 +413,14 @@ namespace Services.Services.FengShuiDocumentService
                     };
                 }
 
+                var booking = updatedDocument.BookingOfflines.FirstOrDefault();
+                if (booking != null)
+                {
+                    booking.DocumentId = null;
+                    booking.Status = BookingOfflineEnums.DocumentConfirmedByCustomer.ToString();
+                    await _bookingOfflineRepo.UpdateBookingOffline(booking);
+                }
+
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
@@ -454,6 +489,14 @@ namespace Services.Services.FengShuiDocumentService
                         CustomerName = bookingInfo.Customer?.Account?.FullName ?? "Không có thông tin",
                         MasterName = bookingInfo.Master?.Account?.FullName ?? "Không có thông tin"
                     };
+                }
+
+                var booking = updatedDocument.BookingOfflines.FirstOrDefault();
+                if (booking != null)
+                {
+                    booking.DocumentId = null;
+                    booking.Status = BookingOfflineEnums.DocumentConfirmedByManager.ToString();
+                    await _bookingOfflineRepo.UpdateBookingOffline(booking);
                 }
 
                 res.IsSuccess = true;

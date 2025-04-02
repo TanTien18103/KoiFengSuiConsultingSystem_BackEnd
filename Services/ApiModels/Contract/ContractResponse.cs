@@ -15,6 +15,7 @@ namespace Services.ApiModels.Contract
         public string ContractUrl { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
+        public string CreateBy { get; set; }
         public BookingOfflineInfoForContract BookingOffline { get; set; }
     }
 

@@ -1332,8 +1332,8 @@ namespace Services.Services.BookingService
                     if (order == null || order.Status != PaymentStatusEnums.Paid.ToString())
                     {
                         await _onlineRepo.UpdateBookingOnlineStatusRepo(
-                            booking.BookingOnlineId,
-                            BookingOnlineEnums.Cancelled.ToString());
+                            booking.BookingOnlineId, 
+                            BookingOnlineEnums.Canceled.ToString());
                         cancelledCount++;
                     }
                 }

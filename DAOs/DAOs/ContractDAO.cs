@@ -81,7 +81,7 @@ namespace DAOs.DAOs
                 .Include(c => c.BookingOfflines).ThenInclude(b => b.Customer).ThenInclude(c => c.Account)
                 .Include(c => c.BookingOfflines).ThenInclude(b => b.Master)
                 .Include(c => c.BookingOfflines)
-                .Where(c => c.BookingOfflines.Any(b => b.AssignStaffId == staffId))
+                .Where(c => c.CreateBy == staffId)
                 .ToListAsync();
         }
     }

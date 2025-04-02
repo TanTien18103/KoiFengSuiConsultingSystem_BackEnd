@@ -12,6 +12,6 @@ namespace BusinessObjects.Enums
         Pending,
         Confirmed,
         Completed,
-        Cancelled
+        Canceled
     }
 }

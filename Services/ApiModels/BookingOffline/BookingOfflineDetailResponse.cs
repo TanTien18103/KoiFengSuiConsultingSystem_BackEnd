@@ -17,6 +17,7 @@
         public string Location { get; set; }
 
         public string Description { get; set; }
+        public decimal? SelectedPrice { get; set; }
 
         public DateOnly? BookingDate { get; set; }
 

@@ -191,7 +191,7 @@ namespace DAOs.DAOs
                 .Where(b => b.MasterId == masterId &&
                            b.BookingDate == bookingDate &&
                            b.StartTime == startTime &&
-                           b.Status != BookingOnlineEnums.Cancelled.ToString() &&
+                           b.Status != BookingOnlineEnums.Canceled.ToString() &&
                            b.Status != BookingOnlineEnums.Completed.ToString())
                 .ToListAsync();
         }
@@ -219,7 +219,7 @@ namespace DAOs.DAOs
             return await _context.BookingOnlines
                 .FirstOrDefaultAsync(b => 
                     b.MasterScheduleId == masterScheduleId && 
-                    b.Status != BookingOnlineEnums.Cancelled.ToString());
+                    b.Status != BookingOnlineEnums.Canceled.ToString());
         }
 
         public async Task<List<BookingOnline>> GetBookingsByMasterAndTimeDao(string masterId, TimeOnly startTime, TimeOnly endTime, DateOnly bookingDate)
@@ -227,10 +227,11 @@ namespace DAOs.DAOs
             return await _context.BookingOnlines
                 .Where(b => b.MasterId == masterId && 
                            b.BookingDate == bookingDate &&
-                           ((startTime >= b.StartTime && startTime < b.EndTime) ||  
+                           ((startTime >= b.StartTime && startTime < b.EndTime) || 
                             (endTime > b.StartTime && endTime <= b.EndTime) ||     
-                            (startTime <= b.StartTime && endTime >= b.EndTime)) &&
-                           b.Status == BookingOnlineEnums.Confirmed.ToString())     
+                            (startTime <= b.StartTime && endTime >= b.EndTime) || 
+                            (startTime <= b.EndTime && endTime >= b.StartTime)) && 
+                           b.Status != BookingOnlineEnums.Canceled.ToString()) 
                 .ToListAsync();
         }
 

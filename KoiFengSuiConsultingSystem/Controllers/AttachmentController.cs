@@ -17,7 +17,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             _attachmentService = attachmentService;
         }
-        [HttpPost]
+        [HttpPost("create")]
         [Authorize(Roles = "Master")]
         public async Task<IActionResult> CreateAttachment([FromForm] AttachmentRequest request)
         {
@@ -25,7 +25,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
         [HttpGet("{attachmentId}")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> GetAttachmentById(string attachmentId)
         {
             var result = await _attachmentService.GetAttachmentById(attachmentId);

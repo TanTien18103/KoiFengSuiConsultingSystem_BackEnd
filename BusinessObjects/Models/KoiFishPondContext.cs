@@ -87,16 +87,24 @@ public partial class KoiFishPondContext : DbContext
 
     public static string GetConnectionString(string connectionStringName)
     {
+        var envConnectionString = Environment.GetEnvironmentVariable(connectionStringName);
+        if (!string.IsNullOrEmpty(envConnectionString))
+            return envConnectionString;
+
         var config = new ConfigurationBuilder()
-            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json")
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: true)
             .Build();
-        string connectionString = config.GetConnectionString(connectionStringName);
-        return connectionString;
+        return config.GetConnectionString(connectionStringName);
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-       => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"));
+    {
+        var connectionString = GetConnectionString("DefaultConnection");
+        if (string.IsNullOrEmpty(connectionString))
+            throw new InvalidOperationException("Connection string 'DefaultConnection' không được tìm thấy.");
 
+        optionsBuilder.UseSqlServer(connectionString);
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>

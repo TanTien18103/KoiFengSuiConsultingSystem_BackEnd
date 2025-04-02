@@ -87,6 +87,18 @@ namespace KoiFengSuiConsultingSystem.Controllers
             }
         }
 
+        [HttpGet("get-pdf-url/{publicId}")]
+        public IActionResult GetPdfUrl(string publicId)
+        {
+            if (string.IsNullOrEmpty(publicId))
+                return BadRequest(new { success = false, message = "Public ID is required" });
+
+            string pdfUrl = _uploadService.GetPdfUrl(publicId);
+
+            return Ok(new { success = true, url = pdfUrl });
+        }
+
+
         [HttpPost("UploadExcelFile")]
         [Consumes("multipart/form-data")]
         [Authorize(Roles = "Master")]

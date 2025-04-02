@@ -15,5 +15,7 @@ namespace Services.ApiModels.Attachment
         public string Status { get; set; }
 
         public string AttachmentName { get; set; }
+        public string AttachmentUrl { get; set; }
+
     }
 }

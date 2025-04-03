@@ -254,8 +254,10 @@ namespace DAOs.DAOs
         public async Task<List<BookingOnline>?> GetBookingsOnlineByCustomerIdDao(string customerId)
         {
             return await _context.BookingOnlines
-                   .Where(b => b.CustomerId == customerId)
-                   .ToListAsync();
+                    .Include(x => x.Customer).ThenInclude(x => x.Account)
+                    .Include(x => x.Master)
+                    .Where(b => b.CustomerId == customerId)
+                    .ToListAsync();
         }
 
         public async Task<List<BookingOnline>?> GetBookingsOnlineByStaffIdDao(string staffId)
@@ -265,11 +267,6 @@ namespace DAOs.DAOs
                    .Include(x => x.Master)
                    .Where(b => b.AssignStaffId == staffId)
                    .ToListAsync();
-             return await _context.BookingOnlines
-                    .Include(x => x.Customer).ThenInclude(x => x.Account)
-                    .Include(x => x.Master)
-                    .Where(b => b.CustomerId == customerId)
-                    .ToListAsync();
         }
     }
 }

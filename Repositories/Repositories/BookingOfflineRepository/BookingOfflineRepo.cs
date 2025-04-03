@@ -55,5 +55,10 @@ namespace Repositories.Repositories.BookingOfflineRepository
         {
             return BookingOfflineDAO.Instance.GetBookingsOfflineByCustomerIdDao(customerId);
         }
+
+        public Task<List<BookingOffline>> GetBookingsOfflineByStaffId(string staffId)
+        {
+            return BookingOfflineDAO.Instance.GetBookingsOfflineByStaffIdDao(staffId);
+        }
     }
 }

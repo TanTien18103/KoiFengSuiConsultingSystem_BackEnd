@@ -72,5 +72,9 @@ namespace Repositories.Repositories.AccountRepository
         {
             return AccountDAO.Instance.GetAccountsByIds(accountIds);
         }
+        public Task<List<Account>> GetAllStaff()
+        {
+            return AccountDAO.Instance.GetAllStaffDao();
+        }
     }
 }

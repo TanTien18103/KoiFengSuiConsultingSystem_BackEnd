@@ -13,7 +13,7 @@ namespace Services.Services.BookingService
         Task<ResultModel> GetConsultingDetailByMasterScheduleIdAsync(string masterScheduleId);
         Task<ResultModel> GetBookingByStatusAsync(BookingOnlineEnums? status, BookingTypeEnums? type);
         Task<ResultModel> GetBookingOnlinesHoverAsync();
-        Task<ResultModel> AssignMasterToBookingAsync(string? bookingonlineId, string? bookingofflineId, string masterId);
+
         Task<ResultModel> CreateBookingOnline(BookingOnlineRequest bookingOnlineRequest);
         Task<ResultModel> CompleteBookingOnlineByMaster(string bookingOnlineId);
         Task<ResultModel> UpdateBookingOnlineMasterNote(string bookingOnlineId, UpdateMasterNoteRequest request);
@@ -28,6 +28,8 @@ namespace Services.Services.BookingService
         //Filter
         Task<ResultModel> GetBookingByTypeAndStatus(BookingTypeEnums? type, BookingOnlineEnums? onlineStatus, BookingOfflineEnums? offlineStatus );
 
-
+        Task<ResultModel> AssignStaffToBookingAsync(string? bookingonlineId, string? bookingofflineId, string staffId);
+        Task<ResultModel> AssignMasterToBookingAsync(string? bookingonlineId, string? bookingofflineId, string masterId);
+        Task<ResultModel> GetAllBookingByStaff();
     }
 }

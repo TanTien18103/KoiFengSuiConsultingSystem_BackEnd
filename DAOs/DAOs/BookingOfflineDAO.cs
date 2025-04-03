@@ -87,7 +87,7 @@ namespace DAOs.DAOs
                 {
                     var package = await _context.ConsultationPackages
                         .FirstOrDefaultAsync(x => x.ConsultationPackageId == packageId);
-                    
+
                     if (package == null)
                     {
                         throw new AppException(ResponseMessageConstrantsPackage.PACKAGE_NOT_FOUND);
@@ -176,6 +176,15 @@ namespace DAOs.DAOs
            .Include(x => x.Customer).ThenInclude(x => x.Account)
            .Include(x => x.Master)
            .Where(b => b.CustomerId == customerId)
+           .ToListAsync();
+        }
+
+        public async Task<List<BookingOffline>?> GetBookingsOfflineByStaffIdDao(string staffId)
+        {
+            return await _context.BookingOfflines
+                   .Include(x => x.Customer).ThenInclude(x => x.Account)
+                   .Include(x => x.Master)
+           .Where(b => b.AssignStaffId == staffId)
            .ToListAsync();
         }
     }

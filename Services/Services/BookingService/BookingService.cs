@@ -148,7 +148,7 @@ namespace Services.Services.BookingService
                     res.StatusCode = StatusCodes.Status402PaymentRequired;
                     return res;
                 }
-                
+
                 if (hasUncompletedBooking.HasPendingConfirmBooking)
                 {
                     res.IsSuccess = false;
@@ -161,7 +161,7 @@ namespace Services.Services.BookingService
                 if (!string.IsNullOrEmpty(request.MasterId))
                 {
                     var existingBookings = await _onlineRepo.GetBookingsByMasterAndTimeRepo(
-                        request.MasterId, 
+                        request.MasterId,
                         request.StartTime,
                         request.EndTime,
                         request.BookingDate);
@@ -172,7 +172,7 @@ namespace Services.Services.BookingService
                             existingBooking.BookingOnlineId,
                             PaymentTypeEnums.BookingOnline);
 
-                        if (existingOrder != null && 
+                        if (existingOrder != null &&
                             (existingOrder.Status == PaymentStatusEnums.Paid.ToString() ||
                              existingOrder.Status == PaymentStatusEnums.PendingConfirm.ToString()))
                         {
@@ -590,6 +590,129 @@ namespace Services.Services.BookingService
             }
         }
 
+        public async Task<ResultModel> AssignStaffToBookingAsync(string? bookingonlineId, string? bookingofflineId, string staffId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                if (string.IsNullOrEmpty(bookingonlineId) && string.IsNullOrEmpty(bookingofflineId) && string.IsNullOrEmpty(staffId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.REQUIRED_DATA;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                var bookingOnline = await _onlineRepo.GetBookingOnlineByIdRepo(bookingonlineId);
+                var bookingOffline = await _offlineRepo.GetBookingOfflineById(bookingofflineId);
+
+                if (string.IsNullOrEmpty(bookingofflineId) && string.IsNullOrEmpty(bookingonlineId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.REQUIRED_ONE_ATLEAST;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                if (!string.IsNullOrEmpty(bookingofflineId) && !string.IsNullOrEmpty(bookingonlineId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.REQUIRED_ONE;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                if (string.IsNullOrEmpty(bookingofflineId) && !string.IsNullOrEmpty(bookingonlineId))
+                {
+
+                    if (bookingOnline == null)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.Message = ResponseMessageConstrantsBooking.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        return res;
+                    }
+
+                    if (!string.IsNullOrEmpty(bookingOnline.MasterId))
+                    {
+
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.EXISTED;
+                        res.Message = ResponseMessageConstrantsBooking.ALREADY_ASSIGNED;
+                        res.StatusCode = StatusCodes.Status400BadRequest;
+                        return res;
+                    }
+
+                    bookingOnline.AssignStaffId = staffId;
+                    await _onlineRepo.UpdateBookingOnlineRepo(bookingOnline);
+                }
+                if (!string.IsNullOrEmpty(bookingofflineId) && string.IsNullOrEmpty(bookingonlineId))
+                {
+                    if (bookingOffline == null)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.Message = ResponseMessageConstrantsBooking.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        return res;
+                    }
+
+                    if (!string.IsNullOrEmpty(bookingOffline.MasterId))
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.EXISTED;
+                        res.Message = ResponseMessageConstrantsBooking.ALREADY_ASSIGNED;
+                        res.StatusCode = StatusCodes.Status400BadRequest;
+                        return res;
+                    }
+
+                    bookingOffline.AssignStaffId = staffId;
+                    await _offlineRepo.UpdateBookingOffline(bookingOffline);
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsBooking.ASSIGNED_SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Lỗi khi gán Master: {ex.Message}";
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
+
+
         public async Task<ResultModel> Calculate(BookingTypeEnums bookingType, string bookingId)
         {
             var res = new ResultModel();
@@ -963,8 +1086,8 @@ namespace Services.Services.BookingService
             }
         }
 
-        public async Task<ResultModel> GetBookingByTypeAndStatus(BookingTypeEnums? type, BookingOnlineEnums? onlineStatus, BookingOfflineEnums? offlineStatus) 
-        { 
+        public async Task<ResultModel> GetBookingByTypeAndStatus(BookingTypeEnums? type, BookingOnlineEnums? onlineStatus, BookingOfflineEnums? offlineStatus)
+        {
             var res = new ResultModel();
             try
             {
@@ -1193,18 +1316,18 @@ namespace Services.Services.BookingService
                 }
                 // Lấy thời điểm 24 giờ trước
                 var cutoffDate = DateTime.Now.AddDays(-1);
-                
+
                 // Lấy các booking chưa thanh toán tạo trước thời điểm cutoff
                 var unpaidBookings = await _onlineRepo.GetUnpaidBookingsOlderThanRepo(cutoffDate);
-                
+
                 int cancelledCount = 0;
                 foreach (var booking in unpaidBookings)
                 {
                     // Tìm đơn hàng cho booking này
                     var order = await _orderRepo.GetOneOrderByService(
-                        booking.BookingOnlineId, 
+                        booking.BookingOnlineId,
                         PaymentTypeEnums.BookingOnline);
-                        
+
                     // Nếu không có đơn hàng hoặc đơn hàng chưa thanh toán, hủy booking
                     if (order == null || order.Status != PaymentStatusEnums.Paid.ToString())
                     {
@@ -1222,7 +1345,7 @@ namespace Services.Services.BookingService
                 res.Data = _mapper.Map<List<BookingOfflineDetailResponse>>(bookings);
 
                 res.Message = $"Đã hủy {cancelledCount} đặt lịch tư vấn chưa thanh toán sau 24 giờ";
-                
+
                 return res;
             }
             catch (Exception ex)
@@ -1289,6 +1412,63 @@ namespace Services.Services.BookingService
                 res.Message = ResponseMessageConstrantsBooking.BOOKING_FOUND;
                 res.Data = _mapper.Map<List<BookingOfflineDetailResponse>>(bookingOfflines);
                 return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetAllBookingByStaff()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+                var onlineBookings = await _onlineRepo.GetBookingsOnlineByStaffId(accountId) ?? new List<BookingOnline>();
+                var offlineBookings = await _offlineRepo.GetBookingsOfflineByStaffId(accountId) ?? new List<BookingOffline>();
+
+                if (onlineBookings == null && offlineBookings == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var allBookings = onlineBookings.Cast<object>().Concat(offlineBookings.Cast<object>()).ToList();
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Data = _mapper.Map<List<BookingResponse>>(allBookings);
+                res.Message = ResponseMessageConstrantsBooking.BOOKING_FOUND;
+                return res;
+
             }
             catch (Exception ex)
             {

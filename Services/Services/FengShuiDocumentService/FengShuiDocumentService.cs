@@ -246,6 +246,7 @@ namespace Services.Services.FengShuiDocumentService
                 if (booking != null)
                 {
                     booking.DocumentId = null;
+                    booking.Status = BookingOfflineEnums.DocumentRejectedByManager.ToString();
                     await _bookingOfflineRepo.UpdateBookingOffline(booking);
                 }
 
@@ -324,6 +325,7 @@ namespace Services.Services.FengShuiDocumentService
                 if (updatedBooking != null)
                 {
                     updatedBooking.DocumentId = null;
+                    updatedBooking.Status = BookingOfflineEnums.DocumentRejectedByCustomer.ToString();
                     await _bookingOfflineRepo.UpdateBookingOffline(updatedBooking);
                 }
 
@@ -411,6 +413,14 @@ namespace Services.Services.FengShuiDocumentService
                     };
                 }
 
+                var booking = updatedDocument.BookingOfflines.FirstOrDefault();
+                if (booking != null)
+                {
+                    booking.DocumentId = null;
+                    booking.Status = BookingOfflineEnums.DocumentConfirmedByCustomer.ToString();
+                    await _bookingOfflineRepo.UpdateBookingOffline(booking);
+                }
+
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
@@ -479,6 +489,14 @@ namespace Services.Services.FengShuiDocumentService
                         CustomerName = bookingInfo.Customer?.Account?.FullName ?? "Không có thông tin",
                         MasterName = bookingInfo.Master?.Account?.FullName ?? "Không có thông tin"
                     };
+                }
+
+                var booking = updatedDocument.BookingOfflines.FirstOrDefault();
+                if (booking != null)
+                {
+                    booking.DocumentId = null;
+                    booking.Status = BookingOfflineEnums.DocumentConfirmedByManager.ToString();
+                    await _bookingOfflineRepo.UpdateBookingOffline(booking);
                 }
 
                 res.IsSuccess = true;

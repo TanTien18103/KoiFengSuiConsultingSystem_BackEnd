@@ -23,6 +23,7 @@ using Services.Services.EmailService;
 using Repositories.Repositories.AccountRepository;
 using BusinessObjects.Exceptions;
 using BusinessObjects.Constants;
+using CloudinaryDotNet.Actions;
 
 namespace Services.Services.AccountService;
 
@@ -831,6 +832,35 @@ public class AccountService : IAccountService
                 ResponseCode = ResponseCodeConstants.SUCCESS,
                 Message = $"Account role updated successfully to {newRole}",
                 Data = accountResponse,
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+        catch (Exception ex)
+        {
+            return new ResultModel
+            {
+                IsSuccess = false,
+                ResponseCode = ResponseCodeConstants.FAILED,
+                Message = ex.Message,
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
+        }
+    }
+
+    public async Task<ResultModel> GetAllStaff()
+    {
+        var res = new ResultModel();
+        try
+        {
+            var accounts = await _accountRepository.GetAllStaff();
+            var accountResponses = _mapper.Map<List<AccountResponse>>(accounts);
+
+            return new ResultModel
+            {
+                IsSuccess = true,
+                ResponseCode = ResponseCodeConstants.SUCCESS,
+                Message = ResponseMessageConstantsUser.GET_USER_INFO_SUCCESS,
+                Data = accountResponses,
                 StatusCode = StatusCodes.Status200OK
             };
         }

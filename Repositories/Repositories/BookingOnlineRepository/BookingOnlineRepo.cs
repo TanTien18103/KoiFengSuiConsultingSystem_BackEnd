@@ -83,5 +83,10 @@ namespace Repositories.Repositories.BookingOnlineRepository
         {
             return BookingOnlineDAO.Instance.GetBookingsOnlineByCustomerIdDao(customerId);
         }
+
+        public Task<List<BookingOnline>?> GetBookingsOnlineByStaffId(string staffId)
+        {
+            return BookingOnlineDAO.Instance.GetBookingsOnlineByStaffIdDao(staffId);
+        }
     }
 }

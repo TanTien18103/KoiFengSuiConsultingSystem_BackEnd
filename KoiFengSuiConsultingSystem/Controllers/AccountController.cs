@@ -27,6 +27,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             _accountRepo = accountRepo;
         }
 
+
         [HttpGet("google-response")]
         public async Task<IActionResult> GoogleResponse()
         {
@@ -193,6 +194,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        [HttpGet("get-all-staff")]
+        public async Task<IActionResult> GetAllStaffs()
+        {
+            var result = await _accountService.GetAllStaff();
+            return StatusCode(result.StatusCode, result);
+        }
 
         [HttpGet("get-accounts-by-role/{role}")]
         [Authorize(Roles = "Admin")]

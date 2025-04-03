@@ -1,4 +1,4 @@
-using Services.ApiModels;
+ using Services.ApiModels;
 using BusinessObjects.Enums;
 using Services.ApiModels.BookingOnline;
 using Services.ApiModels.BookingOffline;
@@ -14,6 +14,7 @@ namespace Services.Services.BookingService
         Task<ResultModel> GetBookingByStatusAsync(BookingOnlineEnums? status, BookingTypeEnums? type);
         Task<ResultModel> GetBookingOnlinesHoverAsync();
         Task<ResultModel> AssignMasterToBookingAsync(string? bookingonlineId, string? bookingofflineId, string masterId);
+        Task<ResultModel> AssignStaffToBookingAsync(string? bookingonlineId, string? bookingofflineId, string staffId);
         Task<ResultModel> CreateBookingOnline(BookingOnlineRequest bookingOnlineRequest);
         Task<ResultModel> CompleteBookingOnlineByMaster(string bookingOnlineId);
         Task<ResultModel> UpdateBookingOnlineMasterNote(string bookingOnlineId, UpdateMasterNoteRequest request);

@@ -589,7 +589,10 @@ namespace Services.Services.BookingService
                 return res;
             }
         }
-
+        public Task<ResultModel> AssignStaffToBookingAsync(string? bookingonlineId, string? bookingofflineId, string staffId)
+        {
+            throw new NotImplementedException();
+        }
         public async Task<ResultModel> Calculate(BookingTypeEnums bookingType, string bookingId)
         {
             var res = new ResultModel();

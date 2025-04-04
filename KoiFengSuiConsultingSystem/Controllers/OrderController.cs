@@ -45,5 +45,20 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var res = await _orderService.CancelOrder(id);
             return StatusCode(res.StatusCode, res);
         }
+
+        [HttpGet("get-order/{id}")]
+        public async Task<IActionResult> GetDetailsOrder([FromRoute]string id)
+        {
+            var res = await _orderService.GetDetailsOrder(id);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpGet("get-pendingConfirm-order")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> GetPendingConfirmOrders()
+        {
+            var res = await _orderService.GetPendingConfirmOrders();
+            return StatusCode(res.StatusCode, res);
+        }
     }
 }

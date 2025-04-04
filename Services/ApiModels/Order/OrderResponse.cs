@@ -12,6 +12,8 @@ namespace Services.ApiModels.Order
 
         public string CustomerId { get; set; }
 
+        public string CustomerName { get; set; }
+
         public string ServiceId { get; set; }
 
         public string ServiceType { get; set; }

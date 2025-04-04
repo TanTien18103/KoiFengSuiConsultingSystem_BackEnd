@@ -439,27 +439,6 @@ namespace Services.Services.BookingService
             var res = new ResultModel();
             try
             {
-                var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
-                if (identity == null || !identity.IsAuthenticated)
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
-                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
-                    res.StatusCode = StatusCodes.Status401Unauthorized;
-                    return res;
-                }
-
-                var claims = identity.Claims;
-                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(accountId))
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status400BadRequest;
-                    return res;
-                }
-
                 if (string.IsNullOrEmpty(bookingonlineId) && string.IsNullOrEmpty(bookingofflineId) && string.IsNullOrEmpty(masterId))
                 {
                     res.IsSuccess = false;
@@ -534,7 +513,6 @@ namespace Services.Services.BookingService
                         }
                     }
                     bookingOnline.MasterId = masterId;
-                    bookingOnline.AssignStaffId = accountId;
                     await _onlineRepo.UpdateBookingOnlineRepo(bookingOnline);
                 }
                 if (!string.IsNullOrEmpty(bookingofflineId) && string.IsNullOrEmpty(bookingonlineId))
@@ -570,7 +548,6 @@ namespace Services.Services.BookingService
                     }
 
                     bookingOffline.MasterId = masterId;
-                    bookingOffline.AssignStaffId = accountId;
                     await _offlineRepo.UpdateBookingOffline(bookingOffline);
                 }
 

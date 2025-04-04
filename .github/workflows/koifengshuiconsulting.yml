@@ -3,49 +3,67 @@ on:
   push:
     branches:
       - main
+
 env:
   AZURE_WEBAPP_NAME: koifengshuiconsulting
-  AZURE_WEBAPP_PACKAGE_PATH: KoiFengSuiConsultingSystem\publish
+  AZURE_WEBAPP_PACKAGE_PATH: ${{ github.workspace }}/KoiFengSuiConsultingSystem/publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
   WORKING_DIRECTORY: KoiFengSuiConsultingSystem
+
 jobs:
   build:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: Restore
+
+    - name: Restore Dependencies
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
-    - name: Build
+
+    - name: Build Application
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
-    - name: Test
+
+    - name: Run Tests
       run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
-    - name: Publish
+
+    - name: Publish Application
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+
     - name: Verify Publish Output
-      run: dir "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"  # Check if files exist (Windows-specific)
-    - name: Publish Artifacts
-      uses: actions/upload-artifact@v3
+      run: |
+        echo "Listing published files:"
+        dir "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+      shell: cmd
+
+    - name: Upload Published Artifacts
+      uses: actions/upload-artifact@v4
       with:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-        if-no-files-found: error  # Fail the step if no files are found
+        if-no-files-found: error  # Fail if no files found
 
   deploy:
     runs-on: windows-latest
     needs: build
     steps:
-    - name: Download artifact from build job
-      uses: actions/download-artifact@v3
+    - name: Download Artifact from Build Job
+      uses: actions/download-artifact@v4
       with:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
     - name: Verify Downloaded Artifact
-      run: dir "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"  # Check if files were downloaded
+      run: |
+        echo "Listing downloaded files:"
+        dir "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+      shell: cmd
+
     - name: Deploy to Azure WebApp
       uses: azure/webapps-deploy@v2
       with:

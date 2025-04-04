@@ -13,8 +13,8 @@ namespace Services.Services.ContractService
         Task<ResultModel> CreateContract(ContractRequest request);
         Task<ResultModel> SendOtpForContract(string contractId);
         Task<ResultModel> VerifyContractOtp(string contractId, VerifyOtpRequest request);
-        Task<ResultModel> CancelContractByMaster(string contractId);
-        Task<ResultModel> ConfirmContractByMaster(string contractId);
+        Task<ResultModel> CancelContractByManager(string contractId);
+        Task<ResultModel> ConfirmContractByManager(string contractId);
         Task<ResultModel> CancelContractByCustomer(string contractId);
         Task<ResultModel> ConfirmContractByCustomer(string contractId);
         Task<ResultModel> GetContractByBookingOfflineIdAndUpdateStatus(string bookingOfflineId);

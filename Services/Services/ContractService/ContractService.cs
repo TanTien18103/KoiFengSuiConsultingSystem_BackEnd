@@ -59,7 +59,7 @@ namespace Services.Services.ContractService
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<ResultModel> CancelContractByMaster(string contractId)
+        public async Task<ResultModel> CancelContractByManager(string contractId)
         {
             var res = new ResultModel();
             try
@@ -110,7 +110,7 @@ namespace Services.Services.ContractService
             }
         }
 
-        public async Task<ResultModel> ConfirmContractByMaster(string contractId)
+        public async Task<ResultModel> ConfirmContractByManager(string contractId)
         {
             var res = new ResultModel();
             try

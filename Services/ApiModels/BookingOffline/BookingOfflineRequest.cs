@@ -13,7 +13,7 @@ namespace Services.ApiModels.BookingOffline
         public string Description { get; set; }
 
         [Required]
-        public DateTime StartDate { get; set; }
+        public DateOnly StartDate { get; set; }
 
     }
 }

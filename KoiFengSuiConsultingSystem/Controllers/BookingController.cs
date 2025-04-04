@@ -19,7 +19,6 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             _bookingService = bookingService;
         }
-
         [HttpGet("get-all-onlines")]
         public async Task<IActionResult> GetAllBookingOnlines()
         {
@@ -56,6 +55,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         // Booking Online
+        [HttpGet("online/{id}")]
+        public async Task<IActionResult> GetBookingOnlineById([FromRoute] string id)
+        {
+            var result = await _bookingService.GetBookingOnlineById(id);
+            return StatusCode(result.StatusCode, result);
+        }
         [HttpPost("create")]
         public async Task<IActionResult> CreateBookingOnline([FromBody] BookingOnlineRequest bookingOnlineRequest)
         {
@@ -127,7 +132,20 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _bookingService.GetBookingOnlinesByMaster();
             return StatusCode(result.StatusCode, result);
         }
+        [HttpPut("online-update-completed")]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> UpdateCompletedBookingOnline(string id)
+        {
+            var result = await _bookingService.UpdateCompletedBookingOnline(id);
+            return StatusCode(result.StatusCode, result);
+        }
         // Booking Offline
+        [HttpGet("offline/{id}")]
+        public async Task<IActionResult> GetBookingOfflineById([FromRoute] string id)
+        {
+            var result = await _bookingService.GetBookingOfflineById(id);
+            return StatusCode(result.StatusCode, result);
+        }
         [HttpPut("offline-remove-package/{id}")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> RemovePackage([FromRoute] string id)

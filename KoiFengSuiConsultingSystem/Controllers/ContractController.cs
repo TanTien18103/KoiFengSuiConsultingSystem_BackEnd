@@ -22,23 +22,24 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
         [HttpPost("create")]
+        [Authorize(Roles = "Staff")]
         public async Task<IActionResult> CreateContract([FromForm] ContractRequest request)
         {
             var result = await _contractService.CreateContract(request);
             return StatusCode(result.StatusCode, result);
         }
         [Authorize(Roles = "Manager")]
-        [HttpPatch("master/cancel/{contractId}")]
+        [HttpPatch("manager/cancel/{contractId}")]
         public async Task<IActionResult> CancelContractByMaster(string contractId)
         {
-            var result = await _contractService.CancelContractByMaster(contractId);
+            var result = await _contractService.CancelContractByManager(contractId);
             return StatusCode(result.StatusCode, result);
         }
         [Authorize(Roles = "Manager")]
-        [HttpPatch("master/confirm/{contractId}")]
+        [HttpPatch("manager/confirm/{contractId}")]
         public async Task<IActionResult> ConfirmContractByMaster(string contractId)
         {
-            var result = await _contractService.ConfirmContractByMaster(contractId);
+            var result = await _contractService.ConfirmContractByManager(contractId);
             return StatusCode(result.StatusCode, result);
         }
         [Authorize(Roles = "Customer")]

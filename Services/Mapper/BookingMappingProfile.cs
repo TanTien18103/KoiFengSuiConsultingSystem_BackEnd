@@ -35,8 +35,9 @@ namespace Services.Mapper
             CreateMap<BookingOnline, BookingOnlineDetailResponse>()
                 .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null && src.Customer.Account != null ? src.Customer.Account.FullName : null))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => BookingTypeEnums.Online.ToString()))
+                .ForMember(dest => dest.LinkMeet, opt => opt.MapFrom(src => src.Master.LinkMeet))
                 .ForMember(dest => dest.CustomerEmail, opt => opt.MapFrom(src => src.Customer != null && src.Customer.Account != null ? src.Customer.Account.Email : null))
-                .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.Master != null && src.Master.Account != null ? src.Master.Account.FullName : null));
+                .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.Master.MasterName));
 
             CreateMap<BookingOnline, ConsultingOnlineDetailResponse>()
                 .ForMember(dest => dest.ConsultingId, opt => opt.MapFrom(src => src.BookingOnlineId))
@@ -65,7 +66,7 @@ namespace Services.Mapper
                 .ForMember(dest => dest.BookingDate, opt => opt.MapFrom(src => src.StartDate))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => BookingTypeEnums.Offline.ToString()))
                 .ForMember(dest => dest.CustomerEmail, opt => opt.MapFrom(src => src.Customer != null && src.Customer.Account != null ? src.Customer.Account.Email : null))
-                .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.Master != null && src.Master.Account != null ? src.Master.Account.FullName : null));
+                .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.Master.MasterName)); ;
 
             CreateMap<BookingOfflineRequest, BookingOffline>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));

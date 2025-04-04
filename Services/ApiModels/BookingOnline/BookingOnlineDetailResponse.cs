@@ -16,6 +16,8 @@
 
         public decimal Price { get; set; }
 
+        public string LinkMeet { get; set; }
+
         public string Description { get; set; }
 
         public DateOnly? BookingDate { get; set; }

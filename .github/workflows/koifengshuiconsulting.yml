@@ -2,7 +2,7 @@ name: Build and deploy .NET Core application to Web App koifengshuiconsulting
 on:
   push:
     branches:
-    - main
+      - main
 env:
   AZURE_WEBAPP_NAME: koifengshuiconsulting
   AZURE_WEBAPP_PACKAGE_PATH: KoiFengSuiConsultingSystem\publish
@@ -26,11 +26,15 @@ jobs:
       run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
     - name: Publish
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+    - name: Verify Publish Output
+      run: dir "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"  # Check if files exist (Windows-specific)
     - name: Publish Artifacts
       uses: actions/upload-artifact@v3
       with:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        if-no-files-found: error  # Fail the step if no files are found
+
   deploy:
     runs-on: windows-latest
     needs: build
@@ -40,6 +44,8 @@ jobs:
       with:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    - name: Verify Downloaded Artifact
+      run: dir "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"  # Check if files were downloaded
     - name: Deploy to Azure WebApp
       uses: azure/webapps-deploy@v2
       with:

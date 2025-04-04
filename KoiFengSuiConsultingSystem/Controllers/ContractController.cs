@@ -28,14 +28,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
         [Authorize(Roles = "Manager")]
-        [HttpPatch("master/cancel/{contractId}")]
+        [HttpPatch("manager/cancel/{contractId}")]
         public async Task<IActionResult> CancelContractByMaster(string contractId)
         {
             var result = await _contractService.CancelContractByMaster(contractId);
             return StatusCode(result.StatusCode, result);
         }
         [Authorize(Roles = "Manager")]
-        [HttpPatch("master/confirm/{contractId}")]
+        [HttpPatch("manager/confirm/{contractId}")]
         public async Task<IActionResult> ConfirmContractByMaster(string contractId)
         {
             var result = await _contractService.ConfirmContractByMaster(contractId);

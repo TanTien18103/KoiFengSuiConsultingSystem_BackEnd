@@ -14,5 +14,7 @@ namespace Services.Services.OrderService
         Task<ResultModel> GetPendingOrders();
         Task<ResultModel> CancelOrder(string orderId);
         Task<ResultModel> CheckAndUpdateExpiredOrders();
+        Task<ResultModel> GetPendingConfirmOrders();
+        Task<ResultModel> GetDetailsOrder(string id);
     }
 }

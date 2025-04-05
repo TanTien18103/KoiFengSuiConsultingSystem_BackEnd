@@ -76,7 +76,7 @@ namespace Services.Services.KoiVarietyService
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
-                res.Data = _mapper.Map<List<KoiVarietyDto>>(kois);
+                res.Data = _mapper.Map<List<KoiVarietyResponse>>(kois);
                 return res;
             }
             catch (Exception ex)

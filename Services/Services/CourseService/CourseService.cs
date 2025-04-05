@@ -21,6 +21,7 @@ using Services.ApiModels.Order;
 using BusinessObjects.Exceptions;
 using Repositories.Repositories.CustomerRepository;
 using Repositories.Repositories.OrderRepository;
+using Services.ServicesHelpers.UploadService;
 
 namespace Services.Services.CourseService
 {
@@ -34,8 +35,9 @@ namespace Services.Services.CourseService
         private readonly ICategoryRepo _categoryRepo;
         private readonly ICustomerRepo _customerRepo;
         private readonly IOrderRepo _orderRepo;
+        private readonly IUploadService _uploadService;
 
-        public CourseService(ICourseRepo courseRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo, IMasterRepo masterRepo, ICategoryRepo categoryRepo, ICustomerRepo customerRepo, IOrderRepo orderRepo)
+        public CourseService(ICourseRepo courseRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo, IMasterRepo masterRepo, ICategoryRepo categoryRepo, ICustomerRepo customerRepo, IOrderRepo orderRepo, IUploadService uploadService)
         {
             _courseRepo = courseRepo;
             _mapper = mapper;
@@ -45,6 +47,7 @@ namespace Services.Services.CourseService
             _categoryRepo = categoryRepo;
             _customerRepo = customerRepo;
             _orderRepo = orderRepo;
+            _uploadService = uploadService;
         }
         public static string GenerateShortGuid()
         {
@@ -165,6 +168,7 @@ namespace Services.Services.CourseService
                 course.Status = CourseStatusEnum.Inactive.ToString();
                 course.CreateBy = masterid;
                 course.CategoryId = request.CourseCategory;
+                course.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
                 if (course.CreateBy == null)
                 {
@@ -222,6 +226,8 @@ namespace Services.Services.CourseService
                 _mapper.Map(request, course);
                 course.UpdateAt = DateTime.UtcNow;
                 course.CategoryId = request.CourseCategory;
+                course.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+
                 await _courseRepo.UpdateCourse(course);
                 var response = await _courseRepo.GetCourseById(id);
 

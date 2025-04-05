@@ -15,6 +15,8 @@ namespace Services.Mapper
         public ConsultationPackageMappingProfile() 
         {
             CreateMap<ConsultationPackage, ConsultationPackageResponse>();
+
+            CreateMap<ConsultationPackageRequest, ConsultationPackage>();
         }
     }
 }

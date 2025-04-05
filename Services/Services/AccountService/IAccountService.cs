@@ -1,5 +1,6 @@
 ﻿using Services.ApiModels;
 using Services.ApiModels.Account;
+using Services.ApiModels.Master;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,5 +28,8 @@ namespace Services.Services.AccountService
         Task<ResultModel> DeleteAccount(string accountId);
         Task<ResultModel> UpdateAccountRole(string accountId, string newRole);
         Task<ResultModel> GetAllStaff();
+
+        //Master
+        Task<ResultModel> UpdateMasterProfile( MasterRequest request);
     }
 }

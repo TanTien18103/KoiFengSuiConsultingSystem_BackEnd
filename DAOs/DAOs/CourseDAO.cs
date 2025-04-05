@@ -93,7 +93,9 @@ namespace DAOs.DAOs
 
         public async Task<List<Course>> GetCoursesByMasterIdDao(string masterId)
         {
-            return _context.Courses.Where(c => c.CreateBy == masterId).ToList();
+            return _context.Courses
+                .Include(x => x.Category)
+                .Where(c => c.CreateBy == masterId).ToList();
         }
 
         public async Task<List<Course>> GetCoursesByIdsDao(List<string> courseIds)

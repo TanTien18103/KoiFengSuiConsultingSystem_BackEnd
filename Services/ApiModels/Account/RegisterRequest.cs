@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace Services.ApiModels.Account
 {
@@ -30,5 +31,8 @@ namespace Services.ApiModels.Account
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
         public string ConfirmedPassword { get; set; }
+
+        public IFormFile ImageUrl { get; set; }
+
     }
 }

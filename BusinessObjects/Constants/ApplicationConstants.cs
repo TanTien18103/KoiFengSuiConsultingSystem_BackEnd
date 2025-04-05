@@ -85,6 +85,9 @@ namespace BusinessObjects.Constants
         public const string SESSION_NOT_FOUND = "Không tìm thấy session.";
         public const string SESSION_INVALID = "Session không hợp lệ, hãy đăng nhập lại.";
         public const string EMAIL_VALIDATION_REQUIRED = "Vui lòng nhập mã OTP được gửi đến email của bạn để kích hoạt tài khoản.";
+
+        public static string? MASTER_NOT_FOUND { get; set; }
+        public static string? UPDATE_MASTER_SUCCESS { get; set; }
     }
 
     //Auth-Account Controllers
@@ -199,6 +202,12 @@ namespace BusinessObjects.Constants
         public const string PACKAGE_EXISTED = "Bạn đã chọn gói tư vấn cho buổi tư vấn này. Nếu bạn muốn đặt gói mới, hãy hủy gói cũ";
         public const string REMOVED_PACKAGE = "Hủy gói tư vấn thành công";
         public const string PRICE_CHOSEN_SUCCESS = "Chọn giá thành công";
+
+        public static string? PACKAGE_INVALID { get; set; }
+        public static string? PACKAGE_CREATE_FAILED { get; set; }
+        public static string? PACKAGE_CREATED { get; set; }
+        public static string? PACKAGE_DELETED { get; set; }
+        public static string? PACKAGE_UPDATED { get; set; }
     }
 
     public class ResponseMessageConstrantsCompatibility

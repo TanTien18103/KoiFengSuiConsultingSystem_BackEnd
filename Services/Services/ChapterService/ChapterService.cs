@@ -8,6 +8,7 @@ using Repositories.Repositories.CourseRepository;
 using Services.ApiModels;
 using Services.ApiModels.Chapter;
 using Services.ApiModels.Course;
+using Services.ServicesHelpers.UploadService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,12 +23,14 @@ namespace Services.Services.ChapterService
         private readonly IChapterRepo _chapterRepo;
         private readonly IMapper _mapper;
         private readonly ICourseRepo _courseRepo;
+        private readonly IUploadService _uploadService;
 
-        public ChapterService(IChapterRepo chapterRepo, IMapper mapper, ICourseRepo courseRepo)
+        public ChapterService(IChapterRepo chapterRepo, IMapper mapper, ICourseRepo courseRepo, IUploadService uploadService)
         {
             _chapterRepo = chapterRepo;
             _mapper = mapper;
             _courseRepo = courseRepo;
+            _uploadService = uploadService;
         }
 
 
@@ -139,6 +142,7 @@ namespace Services.Services.ChapterService
 
                 var chapter = _mapper.Map<Chapter>(request);
                 chapter.ChapterId = GenerateShortGuid();
+                chapter.Video = await _uploadService.UploadVideoAsync(request.Video);
                 await _chapterRepo.CreateChapter(chapter);
 
                 res.IsSuccess = true;
@@ -193,6 +197,7 @@ namespace Services.Services.ChapterService
                 }
 
                 _mapper.Map(chapter, chapterInfo);
+                chapterInfo.Video = await _uploadService.UploadVideoAsync(chapter.Video);
 
                 await _chapterRepo.UpdateChapter(chapterInfo);
 

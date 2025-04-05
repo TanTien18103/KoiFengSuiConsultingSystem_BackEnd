@@ -16,6 +16,8 @@ using BusinessObjects.Constants;
 using Repositories.Repositories.RegisterAttendRepository;
 using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 using Repositories.Repositories.MasterRepository;
+using Services.ServicesHelpers.UploadService;
+using Repositories.Repositories.MasterScheduleRepository;
 
 namespace Services.Services.WorkshopService
 {
@@ -26,14 +28,18 @@ namespace Services.Services.WorkshopService
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRegisterAttendRepo _registerAttendRepo;
         private readonly IMasterRepo _masterRepo;
+        private readonly IUploadService _uploadService;
+        private readonly IMasterScheduleRepo _masterScheduleRepo;
 
-        public WorkshopService(IWorkShopRepo workShopRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IRegisterAttendRepo registerAttendRepo, IMasterRepo masterRepo)
+        public WorkshopService(IWorkShopRepo workShopRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IRegisterAttendRepo registerAttendRepo, IMasterRepo masterRepo, IUploadService uploadService, IMasterScheduleRepo masterScheduleRepo)
         {
             _workShopRepo = workShopRepo;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _registerAttendRepo = registerAttendRepo;
             _masterRepo = masterRepo;
+            _uploadService = uploadService;
+            _masterScheduleRepo = masterScheduleRepo;
         }
 
 
@@ -292,11 +298,36 @@ namespace Services.Services.WorkshopService
                     }
                 }
 
+                var masterschedules = await _masterScheduleRepo.GetMasterScheduleByMasterId(masterId);
+
+                foreach (var masterschedule in masterschedules)
+                {
+                    if (masterschedule.Date == DateOnly.FromDateTime(request.StartDate.Value))
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.EXISTED;
+                        res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_EXISTED_SLOT;
+                        res.StatusCode = StatusCodes.Status409Conflict;
+                        return res;
+                    }
+                }
+
+                var masterSchedule = new MasterSchedule
+                {
+                    MasterScheduleId = GenerateShortGuid(),
+                    MasterId = masterId,
+                    Date = DateOnly.FromDateTime(request.StartDate.Value),
+                    Type = MasterScheduleTypeEnums.Workshop.ToString(),
+                    Status = MasterScheduleEnums.Pending.ToString(),
+                };
+                var createmasterSchedule = await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
+
                 var newWorkshop = _mapper.Map<WorkShop>(request);
                 newWorkshop.WorkshopId = GenerateShortGuid();
                 newWorkshop.CreatedDate = DateTime.UtcNow;
                 newWorkshop.Status = WorkshopStatusEnums.Pending.ToString();
                 newWorkshop.MasterId = masterId;
+                newWorkshop.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
                 if (newWorkshop.MasterId == null)
                 {
@@ -370,6 +401,7 @@ namespace Services.Services.WorkshopService
                 }
 
                 _mapper.Map(request, workshop);
+                workshop.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
                 await _workShopRepo.UpdateWorkShop(workshop);
 

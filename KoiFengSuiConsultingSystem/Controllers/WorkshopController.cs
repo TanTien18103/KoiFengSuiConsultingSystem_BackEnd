@@ -52,14 +52,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateWorkshop([FromBody] WorkshopRequest request)
+        public async Task<IActionResult> CreateWorkshop([FromForm] WorkshopRequest request)
         {
             var result = await _workshopService.CreateWorkshop(request);
             return StatusCode(result.StatusCode, result);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateWorkshop([FromRoute] string id, [FromBody] WorkshopRequest request)
+        public async Task<IActionResult> UpdateWorkshop([FromRoute] string id, [FromForm] WorkshopRequest request)
         {
             var result = await _workshopService.UpdateWorkshop(id, request);
             return StatusCode(result.StatusCode, result);

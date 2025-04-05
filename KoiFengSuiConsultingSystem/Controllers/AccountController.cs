@@ -11,6 +11,7 @@ using Services.ApiModels;
 using BusinessObjects.Enums;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Repositories.AccountRepository;
+using Services.ApiModels.Master;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -81,7 +82,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
       
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] Services.ApiModels.Account.RegisterRequest registerRequest)
+        public async Task<IActionResult> Register([FromForm] Services.ApiModels.Account.RegisterRequest registerRequest)
         {
             try
             {
@@ -230,6 +231,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
         public async Task<IActionResult> UpdateAccountRole(string accountId, [FromQuery] string newRole)
         {
             var result = await _accountService.UpdateAccountRole(accountId, newRole);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("update-master-profile")]
+        [Authorize(Roles = "Master")]
+        public async Task<IActionResult> UpdateMasterProfile([FromForm] MasterRequest request)
+        {
+            var result = await _accountService.UpdateMasterProfile(request);
             return StatusCode(result.StatusCode, result);
         }
     }

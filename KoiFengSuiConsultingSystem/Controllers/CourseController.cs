@@ -68,14 +68,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPost("create-course")]
-        public async Task<IActionResult> CreateCourse([FromBody] CourseRequest courseRequest)
+        public async Task<IActionResult> CreateCourse([FromForm] CourseRequest courseRequest)
         {
             var result = await _courseService.CreateCourse(courseRequest);
             return Ok(result);
         }
 
         [HttpPut("update-course/{id}")]
-        public async Task<IActionResult> UpdateCourse(string id, [FromBody] CourseRequest courseRequest)
+        public async Task<IActionResult> UpdateCourse(string id, [FromForm] CourseRequest courseRequest)
         {
             var result = await _courseService.UpdateCourse(id, courseRequest);
             return Ok(result);

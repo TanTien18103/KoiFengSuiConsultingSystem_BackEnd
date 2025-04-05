@@ -149,7 +149,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateKoiVariety([FromBody] KoiVarietyRequest request)
+        public async Task<IActionResult> CreateKoiVariety([FromForm] KoiVarietyRequest request)
         {
 
             var result = await _koiVarietyService.CreateKoiVarietyAsync(request);
@@ -158,7 +158,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateKoiVariety(string id, [FromBody] KoiVarietyRequest request)
+        public async Task<IActionResult> UpdateKoiVariety(string id, [FromForm] KoiVarietyRequest request)
         {
             var result = await _koiVarietyService.UpdateKoiVarietyAsync(id, request);
             return StatusCode(result.StatusCode, result);

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Services.ApiModels.ConsultationPackage;
 using Services.Services.ConsultationPackageService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
@@ -25,6 +26,27 @@ namespace KoiFengSuiConsultingSystem.Controllers
         public async Task<IActionResult> GetPackages()
         {
             var res = await _consultationPackageService.GetConsultationPackages();
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreatePackage([FromForm] ConsultationPackageRequest consultationPackageRequest)
+        {
+            var res = await _consultationPackageService.CreateConsultationPackage(consultationPackageRequest);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdatePackage([FromRoute] string id, [FromForm] ConsultationPackageRequest consultationPackageRequest)
+        {
+            var res = await _consultationPackageService.UpdateConsultationPackage(id, consultationPackageRequest);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeletePackage([FromRoute] string id)
+        {
+            var res = await _consultationPackageService.DeleteConsultationPackage(id);
             return StatusCode(res.StatusCode, res);
         }
     }

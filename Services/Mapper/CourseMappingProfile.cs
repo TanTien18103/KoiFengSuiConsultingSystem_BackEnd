@@ -31,7 +31,9 @@ namespace Services.Mapper
             CreateMap<CourseRequest, Course>()
                 .ForMember(dest => dest.CourseId, opt => opt.Ignore());
 
-            CreateMap<Course, CourseByMasterResponse>();
+            CreateMap<Course, CourseByMasterResponse>()
+                .ForMember(dest => dest.CourseCategory, opt => opt.MapFrom(src => src.Category.CategoryName));
+
         }
     }
 }

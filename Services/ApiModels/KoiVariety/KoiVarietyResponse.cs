@@ -8,6 +8,7 @@ namespace Services.ApiModels.KoiVariety
 {
     public class KoiVarietyResponse
     {
+        public string KoiVarietyId { get; set; }
         public string VarietyName { get; set; }
         public string Description { get; set; }
         public List<VarietyColorResponse> VarietyColors { get; set; }

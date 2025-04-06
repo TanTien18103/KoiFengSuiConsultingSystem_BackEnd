@@ -35,7 +35,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory([FromRoute] string id, [FromBody] CategoryRequest category)
+        public async Task<IActionResult> UpdateCategory([FromRoute] string id, [FromForm] CategoryRequest category)
         {
             var res = await _categorySerivce.UpdateCategory(id, category);
             return StatusCode(res.StatusCode, res);

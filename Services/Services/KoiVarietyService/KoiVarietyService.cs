@@ -16,6 +16,7 @@ using Services.ApiModels;
 using Services.ApiModels.Color;
 using Services.ApiModels.KoiVariety;
 using Services.ServicesHelpers.FengShuiHelper;
+using Services.ServicesHelpers.UploadService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,8 +37,9 @@ namespace Services.Services.KoiVarietyService
         private readonly IAccountRepo _accountRepo;
         private readonly IVarietyColorRepo _varietyColorRepo;
         private readonly IColorRepo _colorRepo;
+        private readonly IUploadService _uploadService;
 
-        public KoiVarietyService(IKoiVarietyRepo koiVarietyRepo, ICustomerRepo customerRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo, IVarietyColorRepo varietyColorRepo, IColorRepo colorRepo)
+        public KoiVarietyService(IKoiVarietyRepo koiVarietyRepo, ICustomerRepo customerRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo, IVarietyColorRepo varietyColorRepo, IColorRepo colorRepo, IUploadService uploadService)
         {
             _koiVarietyRepo = koiVarietyRepo;
             _customerRepo = customerRepo;
@@ -46,6 +48,7 @@ namespace Services.Services.KoiVarietyService
             _accountRepo = accountRepo;
             _varietyColorRepo = varietyColorRepo;
             _colorRepo = colorRepo;
+            _uploadService = uploadService;
         }
 
 
@@ -76,7 +79,7 @@ namespace Services.Services.KoiVarietyService
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
-                res.Data = _mapper.Map<List<KoiVarietyDto>>(kois);
+                res.Data = _mapper.Map<List<KoiVarietyResponse>>(kois);
                 return res;
             }
             catch (Exception ex)
@@ -936,7 +939,8 @@ namespace Services.Services.KoiVarietyService
                 {
                     KoiVarietyId = GenerateShortGuid(),
                     VarietyName = koiVariety.VarietyName,
-                    Description = koiVariety.Description
+                    Description = koiVariety.Description,
+                    ImageUrl = await _uploadService.UploadImageAsync(koiVariety.ImageUrl)
                 };
 
                 foreach (var varietyColor in koiVariety.VarietyColors)

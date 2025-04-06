@@ -26,7 +26,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetPondById([FromRoute]string id)
+        public async Task<IActionResult> GetPondById([FromRoute] string id)
         {
             var res = await _iKoiPondService.GetKoiPondById(id);
             return StatusCode(res.StatusCode, res);
@@ -48,14 +48,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpGet("get-by-shape/{id}")]
-        public async Task<IActionResult> GetPondsByShape([FromRoute]string id)
+        public async Task<IActionResult> GetPondsByShape([FromRoute] string id)
         {
             var res = await _iKoiPondService.GetKoiPondByShapeId(id);
             return StatusCode(res.StatusCode, res);
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateKoiPond([FromBody] KoiPondRequest koiPond)
+        public async Task<IActionResult> CreateKoiPond([FromForm] KoiPondRequest koiPond)
         {
             var result = await _iKoiPondService.CreateKoiPond(koiPond);
             return StatusCode(result.StatusCode, result);
@@ -82,4 +82,4 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
     }
-} 
+}

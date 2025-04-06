@@ -29,7 +29,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCategory([FromBody] CategoryRequest category)
+        public async Task<IActionResult> CreateCategory([FromForm] CategoryRequest category)
         {
             var res = await _categorySerivce.CreateCategory(category);
             return StatusCode(res.StatusCode, res);

@@ -26,6 +26,13 @@ namespace Services.Services.ConsultationPackageService
             _uploadService = uploadService;
         }
 
+        public static string GenerateShortGuid()
+        {
+            Guid guid = Guid.NewGuid();
+            string base64 = Convert.ToBase64String(guid.ToByteArray());
+            return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
+        }
+
         public async Task<ResultModel> CreateConsultationPackage(ConsultationPackageRequest consultationPackageRequest)
         {
             var res = new ResultModel();
@@ -41,6 +48,7 @@ namespace Services.Services.ConsultationPackageService
                 }
 
                 var package = _mapper.Map<ConsultationPackage>(consultationPackageRequest);
+                package.ConsultationPackageId = GenerateShortGuid();
                 package.ImageUrl = await _uploadService.UploadImageAsync(consultationPackageRequest.ImageUrl);
                 var createdPackage = await _consultationPackageRepo.CreateConsultationPackage(package);
 

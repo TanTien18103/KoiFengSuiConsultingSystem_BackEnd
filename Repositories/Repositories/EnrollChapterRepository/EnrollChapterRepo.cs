@@ -46,5 +46,10 @@ namespace Repositories.Repositories.EnrollChapterRepository
         {
             return EnrollChapterDAO.Instance.CountCompletedChaptersByResgisterCourseIdDao(enrollCourseId);
         }
+
+        public Task<List<EnrollChapter>> GetEnrollChaptersByEnrollCourseId(string enrollCourseId)
+        {
+            return EnrollChapterDAO.Instance.GetEnrollChaptersByEnrollCourseId(enrollCourseId);
+        }
     }
 }

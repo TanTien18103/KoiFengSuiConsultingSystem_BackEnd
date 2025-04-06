@@ -114,30 +114,56 @@ namespace Services.Services.PaymentService
                 if (serviceType == PaymentTypeEnums.BookingOffline)
                 {
                     var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
-                    decimal? selectedPrice = bookingOffline.SelectedPrice;
                     if (bookingOffline == null)
                         throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE, StatusCodes.Status404NotFound);
 
-                    // Xác định lần thanh toán dựa trên trạng thái BookingOffline
-                    if (bookingOffline.Status == BookingOfflineEnums.FirstPaymentPendingConfirm.ToString())
+                    decimal? selectedPrice = bookingOffline.SelectedPrice;
+
+                    // Kiểm tra theo trạng thái của BookingOffline
+                    switch (bookingOffline.Status)
                     {
-                        isFirstPayment = false;
+                        case var status when status == BookingOfflineEnums.VerifiedOTP.ToString():
+                            // Trạng thái sau khi xác nhận OTP - thanh toán lần 1
+                            isFirstPayment = true;
+                            break;
 
-                        // Lấy giá đã chọn từ đơn hàng trước đó nếu không có selectedPrice mới
-                        if (selectedPrice == null)
-                        {
-                            var previousOrder = await _orderRepo.GetOrderByServiceIdAndStatus(serviceId, PaymentTypeEnums.BookingOffline.ToString(), PaymentStatusEnums.Paid.ToString());
+                        case var status when status == BookingOfflineEnums.VerifiedOTPAttachment.ToString():
+                            // Trạng thái sau khi hoàn thành thanh toán lần 1 - có thể thanh toán lần 2
+                            isFirstPayment = false;
+                            
+                            // Lấy thông tin đơn hàng trước đó để tính lại giá nếu cần
+                            if (selectedPrice == null)
+                            {
+                                var previousOrder = await _orderRepo.GetOrderByServiceIdAndStatus(
+                                    serviceId, 
+                                    PaymentTypeEnums.BookingOffline.ToString(), 
+                                    PaymentStatusEnums.Paid1st.ToString());
 
-                            if (previousOrder == null)
-                                throw new AppException(ResponseCodeConstants.NOT_FOUND, "Không tìm thấy thông tin thanh toán trước đó", StatusCodes.Status404NotFound);
+                                if (previousOrder == null)
+                                    throw new AppException(ResponseCodeConstants.NOT_FOUND, "Không tìm thấy thông tin thanh toán lần 1", StatusCodes.Status404NotFound);
 
-                            // Tính lại selectedPrice dựa trên amount trước đó (amount = 30% của selectedPrice)
-                            selectedPrice = previousOrder.Amount / 0.3m;
-                        }
-                    }
-                    else if (bookingOffline.Status == BookingOfflineEnums.SecondPaymentPendingConfirm.ToString())
-                    {
-                        throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Đã thanh toán đầy đủ cho gói tư vấn này", StatusCodes.Status400BadRequest);
+                                // Tính lại selectedPrice từ số tiền đã thanh toán (amount = 30% của selectedPrice)
+                                selectedPrice = previousOrder.Amount / 0.3m;
+                            }
+                            break;
+
+                        case var status when status == BookingOfflineEnums.Completed.ToString():
+                            // Đã hoàn thành cả 2 lần thanh toán
+                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Gói tư vấn này đã được thanh toán đầy đủ", StatusCodes.Status400BadRequest);
+
+                        case var status when status == BookingOfflineEnums.FirstPaymentPending.ToString():
+                            // Đang chờ xác nhận thanh toán lần 1
+                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Đang chờ xác nhận thanh toán lần 1", StatusCodes.Status400BadRequest);
+
+                        case var status when status == BookingOfflineEnums.SecondPaymentPending.ToString():
+                            // Đang chờ xác nhận thanh toán lần 2
+                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Đang chờ xác nhận thanh toán lần 2", StatusCodes.Status400BadRequest);
+
+                        default:
+                            // Trạng thái không phù hợp để thanh toán
+                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, 
+                                $"Trạng thái booking ({bookingOffline.Status}) không hợp lệ để thanh toán", 
+                                StatusCodes.Status400BadRequest);
                     }
                 }
 
@@ -187,41 +213,21 @@ namespace Services.Services.PaymentService
 
                     case PaymentTypeEnums.BookingOffline:
                         var bookingOfflineInCase = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
-                        decimal? selectedPrice = bookingOfflineInCase.SelectedPrice;
                         if (bookingOfflineInCase == null)
                             throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE, StatusCodes.Status404NotFound);
 
-                        // Xác định lần thanh toán và giá
+                        decimal? selectedPrice = bookingOfflineInCase.SelectedPrice;
+                        
+                        // Cập nhật trạng thái booking
                         if (isFirstPayment)
                         {
-                            if (bookingOfflineInCase.Status != BookingOfflineEnums.Pending.ToString())
-                                throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsBooking.NOT_PENDING_TO_PAY1ST, StatusCodes.Status400BadRequest);
+                            bookingOfflineInCase.Status = BookingOfflineEnums.FirstPaymentPending.ToString();
                         }
                         else
                         {
-                            if (bookingOfflineInCase.Status != BookingOfflineEnums.FirstPaymentPendingConfirm.ToString())
-                                throw new AppException(ResponseCodeConstants.BAD_REQUEST, "", StatusCodes.Status400BadRequest);
-
-                            // Lấy giá từ đơn hàng trước
-                            var previousOrder = await _orderRepo.GetOrderByServiceIdAndStatus(serviceId, PaymentTypeEnums.BookingOffline.ToString(), PaymentStatusEnums.Paid1st.ToString());
-                            if (previousOrder == null)
-                                throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_PAID1ST_OR_PAID2ND, StatusCodes.Status404NotFound);
-
-                            selectedPrice = previousOrder.Amount / 0.3m; // Tính ngược lại từ số tiền đã thanh toán
+                            bookingOfflineInCase.Status = BookingOfflineEnums.SecondPaymentPending.ToString();
                         }
-
-                        if (serviceType == PaymentTypeEnums.BookingOffline)
-                        {
-                            if (isFirstPayment)
-                            {
-                                bookingOfflineInCase.Status = BookingOfflineEnums.FirstPaymentPending.ToString();
-                            }
-                            else
-                            {
-                                bookingOfflineInCase.Status = BookingOfflineEnums.SecondPaymentPending.ToString();
-                            }
-                            await _bookingOfflineRepo.UpdateBookingOffline(bookingOfflineInCase);
-                        }
+                        await _bookingOfflineRepo.UpdateBookingOffline(bookingOfflineInCase);
 
                         // Xác định mô tả dựa trên lần thanh toán
                         description = isFirstPayment ? "Thanh toán đặt cọc 30%" : "Thanh toán 70% còn lại";
@@ -294,7 +300,9 @@ namespace Services.Services.PaymentService
                     CreatedDate = DateTime.Now,
                     Description = description,
                     PaymentId = GenerateShortGuid(),
-                    Note = $"{description}"
+                    Note = serviceType == PaymentTypeEnums.BookingOffline ? 
+                          (isFirstPayment ? "Thanh toán đặt cọc 30%" : "Thanh toán 70% còn lại") :
+                          description
                 };
 
                 // Lưu Order vào database

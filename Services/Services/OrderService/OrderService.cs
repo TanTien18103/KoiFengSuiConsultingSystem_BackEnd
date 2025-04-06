@@ -248,8 +248,19 @@ namespace Services.Services.OrderService
                 // BookingOffline
                 else if (order.ServiceType == PaymentTypeEnums.BookingOffline.ToString())
                 {
-                    bool isFirstPayment = order.Note.Contains("Thanh toán đặt cọc 30%");
+                    bool isFirstPayment = order.Note != null && order.Note.Contains("Thanh toán đặt cọc 30%");
                     await UpdateBookingOfflineStatusAfterPayment(order.ServiceId, isFirstPayment);
+
+                    if (isFirstPayment)
+                    {
+                        order.Status = PaymentStatusEnums.Paid1st.ToString();
+                    }
+                    else
+                    {
+                        order.Status = PaymentStatusEnums.Paid2nd.ToString();
+                    }
+
+                    await _orderRepo.UpdateOrder(order);
                 }
                 // Course
                 else if (order.ServiceType == PaymentTypeEnums.Course.ToString())

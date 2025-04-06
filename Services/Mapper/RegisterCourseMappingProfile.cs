@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using BusinessObjects.Models;
+using Services.ApiModels.RegisterCourse;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +11,9 @@ namespace Services.Mapper
 {
     public class RegisterCourseMappingProfile : Profile
     {
+        public RegisterCourseMappingProfile() 
+        { 
+            CreateMap<RegisterCourse, RegisterCourseResponse>();
+        }
     }
 }

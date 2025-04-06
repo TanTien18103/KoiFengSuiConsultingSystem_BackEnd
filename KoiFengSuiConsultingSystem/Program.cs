@@ -152,6 +152,8 @@ builder.Services.AddAutoMapper(typeof(ConsultationPackageMappingProfile));
 builder.Services.AddAutoMapper(typeof(AnswerMappingProfile));
 builder.Services.AddAutoMapper(typeof(FengShuiDocumentMappingProfile));
 builder.Services.AddAutoMapper(typeof(AttachmentMappingProfile));
+builder.Services.AddAutoMapper(typeof(EnrollChapterMappingProfile));
+
 builder.Services.AddHttpClient();
 
 builder.Services.AddDistributedMemoryCache();

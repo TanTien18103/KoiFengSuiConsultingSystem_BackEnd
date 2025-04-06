@@ -512,6 +512,19 @@ namespace Services.Services.BookingService
                             return res;
                         }
                     }
+
+                    var masterSchedule = new MasterSchedule
+                    {
+                        MasterScheduleId = GenerateShortGuid(),
+                        MasterId = masterId,
+                        Date = bookingOnline.BookingDate,
+                        StartTime = bookingOnline.StartTime,
+                        EndTime = bookingOnline.EndTime,
+                        Type = MasterScheduleTypeEnums.BookingOnline.ToString(),
+                        Status = MasterScheduleEnums.Pending.ToString(),
+                    };
+                    var createmasterSchedule = await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
+
                     bookingOnline.MasterId = masterId;
                     await _onlineRepo.UpdateBookingOnlineRepo(bookingOnline);
                 }
@@ -546,6 +559,17 @@ namespace Services.Services.BookingService
                             return res;
                         }
                     }
+
+                    var masterSchedule = new MasterSchedule
+                    {
+                        MasterScheduleId = GenerateShortGuid(),
+                        MasterId = masterId,
+                        Date = bookingOffline.StartDate,
+                        Type = MasterScheduleTypeEnums.BookingOffline.ToString(),
+                        Status = MasterScheduleEnums.Pending.ToString(),
+                    };
+                    
+                    var createmasterSchedule = await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
 
                     bookingOffline.MasterId = masterId;
                     await _offlineRepo.UpdateBookingOffline(bookingOffline);

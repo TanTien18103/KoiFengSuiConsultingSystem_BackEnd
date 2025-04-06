@@ -17,5 +17,6 @@ namespace Repositories.Repositories.EnrollChapterRepository
         Task<EnrollChapter> GetEnrollChapterByChapterIdAndEnrollCourseId( string chapterId, string enrollCourseId);
         Task<int> CountTotalChaptersByRegisterCourseId(string courseId);
         Task<int> CountCompletedChaptersByRegisterCourseId(string courseId);
+        Task<List<EnrollChapter>> GetEnrollChaptersByEnrollCourseId(string enrollCourseId);
     }
 }

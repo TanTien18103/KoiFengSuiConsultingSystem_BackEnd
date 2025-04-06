@@ -85,6 +85,8 @@ namespace BusinessObjects.Constants
         public const string SESSION_NOT_FOUND = "Không tìm thấy session.";
         public const string SESSION_INVALID = "Session không hợp lệ, hãy đăng nhập lại.";
         public const string EMAIL_VALIDATION_REQUIRED = "Vui lòng nhập mã OTP được gửi đến email của bạn để kích hoạt tài khoản.";
+        public const string MASTER_NOT_FOUND = "Không tìm thấy Master";
+        public const string UPDATE_MASTER_SUCCESS = "Cập nhật thông tin Master thành công";
     }
 
     //Auth-Account Controllers
@@ -199,6 +201,12 @@ namespace BusinessObjects.Constants
         public const string PACKAGE_EXISTED = "Bạn đã chọn gói tư vấn cho buổi tư vấn này. Nếu bạn muốn đặt gói mới, hãy hủy gói cũ";
         public const string REMOVED_PACKAGE = "Hủy gói tư vấn thành công";
         public const string PRICE_CHOSEN_SUCCESS = "Chọn giá thành công";
+
+        public const string PACKAGE_INVALID = "Không tìm thấy gói tư vấn nào phù hợp với yêu cầu của bạn";
+        public const string PACKAGE_CREATE_FAILED = "Không thể tạo gói tư vấn";
+        public const string PACKAGE_CREATED = "Thêm gói tư vấn thành công";
+        public const string PACKAGE_DELETED = "Xóa gói tư vấn thành công";
+        public const string PACKAGE_UPDATED = "Cập nhật gói tư vấn thành công";
     }
 
     public class ResponseMessageConstrantsCompatibility
@@ -431,6 +439,9 @@ namespace BusinessObjects.Constants
             public const string REGISTER_COURSE_CREATE_FAILED = "Tạo đăng ký khóa học thất bại!";
             public const string REGISTER_COURSE_UPDATE_FAILED = "Cập nhật đăng ký khóa học thất bại!";
             public const string REGISTER_COURSE_DELETE_FAILED = "Xóa đăng ký khóa học thất bại!";
+            public const string ENROLL_CHAPTERS_NOT_FOUND = "Không tìm thấy chương học!";
+            public const string ENROLL_CHAPTERS_FOUND = "Tìm thấy chương học thành công!";
+
         }
         // Contract Service
         public static class ResponseMessageConstrantsContract
@@ -444,7 +455,7 @@ namespace BusinessObjects.Constants
             public const string VERIFY_SUCCESS = "Xác thực hợp đồng thành công";
             public const string CANCEL_SUCCESS = "Hủy hợp đồng thành công";
             public const string CONFIRM_SUCCESS = "Xác nhận hợp đồng thành công";
-            public const string CHECK_STATUS= "Hợp đồng này không ở trạng thái chờ xác nhận";
+            public const string CHECK_STATUS = "Hợp đồng này không ở trạng thái chờ xác nhận";
             public const string CONTRACT_INFORMATION_SUCCESS = "Lấy thông tin hợp đồng thành công";
             public const string SEND_OTP_SUCCESS = "Gửi OTP cho hợp đồng thành công";
             public const string OTP_EXPIRED = "Mã OTP đã hết hạn";
@@ -461,9 +472,9 @@ namespace BusinessObjects.Constants
             public const string NO_DATA_TO_UPLOAD = "Không có dữ liệu để upload";
             public const string UPLOAD_SUCCESS = "Upload thành công";
             public const string NO_QUES_FOR_ANS = "Không thể thêm câu trả lời khi chưa có câu hỏi";
-            public const string NO_QUIZ_FOR_QUES= "Không thể thêm câu hỏi khi chưa có bài kiểm tra";
-            public const string EXISTED_QUIZ_TITLE= "Tiêu đề của bài kiểm tra đã tồn tại";
-            public const string FILE_INVALID= "File phải có định dạng .xls hoặc .xlsx";
+            public const string NO_QUIZ_FOR_QUES = "Không thể thêm câu hỏi khi chưa có bài kiểm tra";
+            public const string EXISTED_QUIZ_TITLE = "Tiêu đề của bài kiểm tra đã tồn tại";
+            public const string FILE_INVALID = "File phải có định dạng .xls hoặc .xlsx";
         }
         // Attachment Service
         public class ResponseMessageConstrantsAttachment

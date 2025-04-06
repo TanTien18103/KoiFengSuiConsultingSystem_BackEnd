@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -24,5 +25,7 @@ namespace Services.ApiModels.Workshop
         public int? Capacity { get; set; }
         [Required]
         public decimal? Price { get; set; }
+        public IFormFile ImageUrl { get; set; }
+
     }
 }

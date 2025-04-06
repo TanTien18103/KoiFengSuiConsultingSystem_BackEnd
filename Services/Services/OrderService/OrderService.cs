@@ -32,7 +32,7 @@ using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 
 namespace Services.Services.OrderService
 {
-    public class OrderService : IOrderService
+    public class OrderService : IOrderService       
     {
         private readonly IOrderRepo _orderRepo;
         private readonly IMapper _mapper;
@@ -248,8 +248,19 @@ namespace Services.Services.OrderService
                 // BookingOffline
                 else if (order.ServiceType == PaymentTypeEnums.BookingOffline.ToString())
                 {
-                    bool isFirstPayment = order.Note.Contains("Thanh toán đặt cọc 30%");
+                    bool isFirstPayment = order.Note != null && order.Note.Contains("Thanh toán đặt cọc 30%");
                     await UpdateBookingOfflineStatusAfterPayment(order.ServiceId, isFirstPayment);
+
+                    if (isFirstPayment)
+                    {
+                        order.Status = PaymentStatusEnums.Paid1st.ToString();
+                    }
+                    else
+                    {
+                        order.Status = PaymentStatusEnums.Paid2nd.ToString();
+                    }
+
+                    await _orderRepo.UpdateOrder(order);
                 }
                 // Course
                 else if (order.ServiceType == PaymentTypeEnums.Course.ToString())
@@ -423,6 +434,72 @@ namespace Services.Services.OrderService
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.Data = _mapper.Map<List<OrderResponse>>(pendingOrders);
+                res.Message = ResponseMessageConstrantsOrder.FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetPendingConfirmOrders()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var orders = await _orderRepo.GetAllOrders();
+                var pendingConfirmOrders = orders.Where(x => x.Status == PaymentStatusEnums.PendingConfirm.ToString()).ToList();
+
+                if (pendingConfirmOrders == null || !pendingConfirmOrders.Any() || pendingConfirmOrders.Count == 0)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsOrder.NOT_FOUND_PENDING;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Data = _mapper.Map<List<OrderResponse>>(pendingConfirmOrders);
+                res.Message = ResponseMessageConstrantsOrder.FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetDetailsOrder(string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var orders = await _orderRepo.GetOrderById(id);
+                if (orders == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsOrder.NOT_FOUND_PENDING;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Data = _mapper.Map<OrderResponse>(orders);
                 res.Message = ResponseMessageConstrantsOrder.FOUND;
                 return res;
             }

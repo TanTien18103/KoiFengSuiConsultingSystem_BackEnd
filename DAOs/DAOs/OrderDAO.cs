@@ -39,7 +39,9 @@ namespace DAOs.DAOs
         }
         public async Task<List<Order>> GetAllOrdersDao()
         {
-            return await _context.Orders.Include(x => x.Customer).ToListAsync();
+            return await _context.Orders
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .ToListAsync();
         }
 
         public async Task<Order> CreateOrderDao(Order order)
@@ -59,7 +61,7 @@ namespace DAOs.DAOs
         public async Task<Order> GetOrderByIdDao(string id)
         {
             return await _context.Orders
-                .Include(o => o.Customer)
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 

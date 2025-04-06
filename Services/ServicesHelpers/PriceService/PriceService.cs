@@ -42,9 +42,13 @@ namespace Services.ServicesHelpers.PriceService
 
                     case PaymentTypeEnums.BookingOffline:
                         var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
-                        var selectedPrice = bookingOffline.SelectedPrice;
-                        if (bookingOffline?.ConsultationPackage == null)
+                        if (bookingOffline == null || bookingOffline.ConsultationPackage == null)
                             throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsBooking.BOOKING_NO_PACKAGE, StatusCodes.Status400BadRequest);
+                        
+                        var selectedPrice = bookingOffline.SelectedPrice;
+                        if (selectedPrice == null || selectedPrice <= 0)
+                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Không tìm thấy giá dịch vụ đã chọn", StatusCodes.Status400BadRequest);
+                        
                         return isFirstPayment ? selectedPrice * 3m / 10m : selectedPrice * 7m / 10m;
 
                     case PaymentTypeEnums.Course:

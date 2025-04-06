@@ -14,7 +14,8 @@ namespace Services.Mapper
     {
         public OrderMappingProfile() 
         {
-            CreateMap<Order, OrderResponse>();
+            CreateMap<Order, OrderResponse>()
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Account.FullName));
         }
     }
 }

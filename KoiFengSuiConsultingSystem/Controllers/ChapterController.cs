@@ -32,14 +32,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPost("create-chapter")]
-        public async Task<IActionResult> Createchapter([FromBody] ChapterRequest chapterRequest)
+        public async Task<IActionResult> Createchapter([FromForm] ChapterRequest chapterRequest)
         {
             var result = await _chapterService.CreateChapter(chapterRequest);
             return Ok(result);
         }
 
         [HttpPut("update-chapter/{id}")]
-        public async Task<IActionResult> Updatechapter(string id, [FromBody] ChapterRequest chapterRequest)
+        public async Task<IActionResult> Updatechapter(string id, [FromForm] ChapterRequest chapterRequest)
         {
             var result = await _chapterService.UpdateChapter(id, chapterRequest);
             return Ok(result);

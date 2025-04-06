@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace Services.ApiModels.Category
     {
         [Required]
         public string CategoryName { get; set; }
+        public IFormFile ImageUrl { get; set; }
 
     }
 }

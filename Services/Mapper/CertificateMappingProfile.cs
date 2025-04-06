@@ -9,5 +9,6 @@ namespace Services.Mapper
 {
     public class CertificateMappingProfile : Profile
     {
+
     }
 }

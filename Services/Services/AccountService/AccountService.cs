@@ -24,6 +24,9 @@ using Repositories.Repositories.AccountRepository;
 using BusinessObjects.Exceptions;
 using BusinessObjects.Constants;
 using CloudinaryDotNet.Actions;
+using Services.ServicesHelpers.UploadService;
+using Repositories.Repositories.MasterRepository;
+using Services.ApiModels.Master;
 
 namespace Services.Services.AccountService;
 
@@ -34,13 +37,17 @@ public class AccountService : IAccountService
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
-    public AccountService(IAccountRepo accountRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IMapper mapper, IEmailService emailService)
+    private readonly IUploadService _uploadService;
+    private readonly IMasterRepo _masterRepo;
+    public AccountService(IAccountRepo accountRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IMapper mapper, IEmailService emailService, IUploadService uploadService, IMasterRepo masterRepo)
     {
         _accountRepository = accountRepository;
         _configuration = configuration;
         _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
         _emailService = emailService;
+        _uploadService = uploadService;
+        _masterRepo = masterRepo;
     }
 
     private bool VerifyPassword(string inputPassword, string storedPasswordHash)
@@ -154,7 +161,8 @@ public class AccountService : IAccountService
         {
             CustomerId = GenerateShortGuid(),
             LifePalace = lifePalace,
-            Element = element
+            Element = element,
+            ImageUrl = await _uploadService.UploadImageAsync(registerRequest.ImageUrl),
         };
 
         var newUser = new Account
@@ -507,8 +515,8 @@ public class AccountService : IAccountService
             {
                 IsSuccess = true,
                 ResponseCode = ResponseCodeConstants.SUCCESS,
-                Message = string.IsNullOrEmpty(role) ? 
-                    "Get all accounts successfully" : 
+                Message = string.IsNullOrEmpty(role) ?
+                    "Get all accounts successfully" :
                     $"Get all accounts with role {role} successfully",
                 Data = accountResponses,
                 StatusCode = StatusCodes.Status200OK
@@ -811,6 +819,41 @@ public class AccountService : IAccountService
                 };
             }
 
+            if (newRole == RoleEnums.Master.ToString())
+            {
+                var newMaster = new Master
+                {
+                    MasterId = GenerateShortGuid(),
+                    AccountId = accountId,
+                };
+
+                // Lưu vào database
+                var result =  await _masterRepo.Create(newMaster);
+
+                if(result == null)
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        ResponseCode = ResponseCodeConstants.NOT_FOUND,
+                        Message = "Account not found",
+                        StatusCode = StatusCodes.Status404NotFound
+                    };
+                }
+
+                var account = await _accountRepository.GetAccountById(accountId);
+                await _emailService.SendEmail(account.Email, "Chúc mừng bạn trở thành Master", "Chúc mừng bạn đã trở thành Master. Hãy vào cung cấp thêm thông tin của bạn !");
+
+                return new ResultModel
+                {
+                    IsSuccess = true,
+                    ResponseCode = ResponseCodeConstants.SUCCESS,
+                    Message = $"Account role updated successfully to {newRole}",
+                    Data = _mapper.Map<MasterDetailReponseDTO>(result),
+                    StatusCode = StatusCodes.Status200OK
+                };
+            }
+
             // Cập nhật role của tài khoản
             var updatedAccount = await _accountRepository.UpdateAccountRole(accountId, newRole);
             if (updatedAccount == null)
@@ -873,6 +916,83 @@ public class AccountService : IAccountService
                 Message = ex.Message,
                 StatusCode = StatusCodes.Status500InternalServerError
             };
+        }
+    }
+
+    public async Task<ResultModel> UpdateMasterProfile(MasterRequest request)
+    {
+        var res = new ResultModel();
+        try
+        {
+            var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                res.Message = ResponseMessageIdentity.TOKEN_NOT_SEND;
+                res.StatusCode = StatusCodes.Status401Unauthorized;
+                return res;
+            }
+
+            var token = authHeader.Substring("Bearer ".Length);
+            if (string.IsNullOrEmpty(token))
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                res.Message = ResponseMessageIdentity.TOKEN_INVALID;
+                res.StatusCode = StatusCodes.Status401Unauthorized;
+                return res;
+            }
+
+            var accountId = await _accountRepository.GetAccountIdFromToken(token);
+            if (string.IsNullOrEmpty(accountId))
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                res.StatusCode = StatusCodes.Status401Unauthorized;
+                return res;
+            }
+
+            var existingAccount = await _accountRepository.GetAccountById(accountId);
+            if (existingAccount == null)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                res.Message = ResponseMessageIdentity.ACCOUNT_NOT_FOUND;
+                res.StatusCode = StatusCodes.Status404NotFound;
+                return res;
+            }
+
+            var master = await _masterRepo.GetMasterByAccountId(accountId);
+            if (master == null)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                res.Message = ResponseMessageIdentity.MASTER_NOT_FOUND;
+                res.StatusCode = StatusCodes.Status404NotFound;
+                return res;
+            }
+
+            _mapper.Map(request, master);
+            
+            master.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+
+            await _masterRepo.Update(master);
+
+            res.IsSuccess = true;
+            res.ResponseCode = ResponseCodeConstants.SUCCESS;
+            res.Message = ResponseMessageIdentity.UPDATE_MASTER_SUCCESS;
+            res.StatusCode = StatusCodes.Status200OK;
+            return res;
+        }
+        catch (Exception ex)
+        {
+            res.IsSuccess = false;
+            res.ResponseCode = ResponseCodeConstants.FAILED;
+            res.Message = ex.Message;
+            res.StatusCode = StatusCodes.Status500InternalServerError;
+            return res;
         }
     }
 }

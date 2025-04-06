@@ -11,6 +11,7 @@ using Services.ApiModels;
 using Services.ApiModels.KoiPond;
 using Services.ApiModels.KoiVariety;
 using Services.ApiModels.Shape;
+using Services.ServicesHelpers.UploadService;
 using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 
 namespace Services.Services.KoiPondService
@@ -23,8 +24,9 @@ namespace Services.Services.KoiPondService
         private readonly IAccountRepo _accountRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly IUploadService _uploadService;
 
-        public KoiPondService(IKoiPondRepo koiPondRepo, IShapeRepo shapeRepo, ICustomerRepo customerRepo, IAccountRepo accountRepository, IHttpContextAccessor httpContextAccessor, IMapper mapper)
+        public KoiPondService(IKoiPondRepo koiPondRepo, IShapeRepo shapeRepo, ICustomerRepo customerRepo, IAccountRepo accountRepository, IHttpContextAccessor httpContextAccessor, IMapper mapper, IUploadService uploadService)
         {
             _koiPondRepo = koiPondRepo;
             _shapeRepo = shapeRepo;
@@ -32,6 +34,7 @@ namespace Services.Services.KoiPondService
             _accountRepository = accountRepository;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
+            _uploadService = uploadService;
         }
         public static string GenerateShortGuid()
         {
@@ -354,9 +357,9 @@ namespace Services.Services.KoiPondService
                     res.StatusCode = StatusCodes.Status400BadRequest;
                     return res;
                 }
-
                 var koiPondModel = _mapper.Map<KoiPond>(koiPond);
                 koiPondModel.KoiPondId = GenerateShortGuid();
+                koiPondModel.ImageUrl = await _uploadService.UploadImageAsync(koiPond.ImageUrl);
                 var createdKoiPond = await _koiPondRepo.CreateKoiPond(koiPondModel);
                 if (createdKoiPond == null)
                 {

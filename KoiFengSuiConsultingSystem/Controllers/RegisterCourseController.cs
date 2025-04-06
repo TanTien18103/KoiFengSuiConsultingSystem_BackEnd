@@ -29,5 +29,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _registerCourseService.UpdateUserQuiz(quizid, registerQuizRequest);
             return Ok(result);
         }
+
+        [HttpGet("get-enroll-chapters-by/{enrollCourseId}")]
+        public async Task<IActionResult> GetEnrollChaptersByEnrollCourseId(string enrollCourseId)
+        {
+            var result = await _registerCourseService.GetEnrollChaptersByEnrollCourseId(enrollCourseId);
+            return Ok(result);
+        }
     }
 }

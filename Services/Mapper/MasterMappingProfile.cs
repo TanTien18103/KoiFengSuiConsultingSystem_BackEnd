@@ -15,7 +15,10 @@ namespace Services.Mapper
         public MasterMappingProfile()
         {
             CreateMap<Master, MasterListReponseDTO>();
+
             CreateMap<Master, MasterDetailReponseDTO>();
+
+            CreateMap<MasterRequest, Master>();
         }
     }
 }

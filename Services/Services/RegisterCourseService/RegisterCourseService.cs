@@ -15,6 +15,9 @@ using Repositories.Repositories.QuestionRepository;
 using Repositories.Repositories.QuizRepository;
 using Repositories.Repositories.RegisterCourseRepository;
 using Services.ApiModels;
+using Services.ApiModels.Contract;
+using Services.ApiModels.EnrollChapter;
+using Services.ApiModels.Quiz;
 using Services.ApiModels.RegisterCourse;
 using System;
 using System.Collections.Generic;
@@ -220,6 +223,7 @@ namespace Services.Services.RegisterCourseService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<RegisterCourseResponse>(RegisterCourse);
                 res.Message = ResponseMessageConstrantsChapter.CHAPTER_UPDATED_PROGRESS_SUCCESS;
                 return res;
 
@@ -385,6 +389,38 @@ namespace Services.Services.RegisterCourseService
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.Message = ex.InnerException?.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetEnrollChaptersByEnrollCourseId(string enrollCourseId)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var enrollChapters = await _enrollChapterRepo.GetEnrollChaptersByEnrollCourseId(enrollCourseId);
+                if (enrollChapters == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsRegisterCourse.ENROLL_CHAPTERS_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsRegisterCourse.ENROLL_CHAPTERS_FOUND;
+                res.Data = _mapper.Map<List<EnrollChapterResponse>>(enrollChapters);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
                 return res;
             }
         }

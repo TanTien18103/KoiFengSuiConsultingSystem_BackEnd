@@ -3,10 +3,12 @@ using BusinessObjects.Constants;
 using BusinessObjects.Models;
 using DAOs.DAOs;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Repositories.Repositories.CategoryRepository;
 using Services.ApiModels;
 using Services.ApiModels.Answer;
 using Services.ApiModels.Category;
+using Services.ServicesHelpers.UploadService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,10 +22,12 @@ namespace Services.Services.CategoryService
     {
         private readonly ICategoryRepo _categoryRepo;
         private readonly IMapper _mapper;
-        public CategoryService(ICategoryRepo categoryRepo, IMapper mapper) 
+        private readonly IUploadService _uploadService;
+        public CategoryService(ICategoryRepo categoryRepo, IMapper mapper, IUploadService uploadService) 
         {
             _categoryRepo = categoryRepo;
             _mapper = mapper;
+            _uploadService = uploadService;
         }
 
         public static string GenerateShortGuid()
@@ -117,6 +121,7 @@ namespace Services.Services.CategoryService
                 var category = _mapper.Map<Category>(request);
                 category.CategoryId = GenerateShortGuid();
                 category.CategoryName = request.CategoryName;
+                category.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
                 await _categoryRepo.CreateCategory(category);
 
                 res.IsSuccess = true;

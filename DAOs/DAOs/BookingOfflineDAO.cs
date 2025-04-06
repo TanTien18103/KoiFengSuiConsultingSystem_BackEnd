@@ -140,9 +140,37 @@ namespace DAOs.DAOs
 
         public async Task<BookingOffline> UpdateBookingOfflineDao(BookingOffline bookingOffline)
         {
-            _context.BookingOfflines.Update(bookingOffline);
+            var entity = new BookingOffline
+            {
+                BookingOfflineId = bookingOffline.BookingOfflineId
+            };
+
+            var local = _context.BookingOfflines.Local
+                .FirstOrDefault(e => e.BookingOfflineId == entity.BookingOfflineId);
+
+            if (local != null)
+            {
+                _context.Entry(local).State = EntityState.Detached;
+            }
+
+            _context.Attach(entity);
+
+            var scalarProps = _context.Entry(entity).Metadata.GetProperties()
+                .Select(p => p.Name)
+                .Where(name => name != nameof(BookingOffline.BookingOfflineId));
+
+            foreach (var propName in scalarProps)
+            {
+                var value = typeof(BookingOffline).GetProperty(propName)?.GetValue(bookingOffline);
+                if (value != null)
+                {
+                    typeof(BookingOffline).GetProperty(propName)?.SetValue(entity, value);
+                    _context.Entry(entity).Property(propName).IsModified = true;
+                }
+            }
+
             await _context.SaveChangesAsync();
-            return bookingOffline;
+            return entity;
         }
 
         public async Task DeleteBookingOfflineDao(string bookingOfflineId)

@@ -117,6 +117,7 @@ namespace Services.Services.AttachmentService
 
                 // Update booking với RecordId
                 bookingOffline.RecordId = attachment.AttachmentId;
+                bookingOffline.Status = BookingOfflineEnums.DocumentConfirmedByCustomer.ToString();
                 await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
 
                 res.IsSuccess = true;

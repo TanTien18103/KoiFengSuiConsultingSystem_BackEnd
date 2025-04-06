@@ -49,7 +49,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _contractService.CancelContractByCustomer(contractId);
             return StatusCode(result.StatusCode, result);
         }
-        [Authorize(Roles = "Customer, Manager")]
+        [Authorize(Roles = "Customer")]
         [HttpPatch("customer/confirm/{contractId}")]
         public async Task<IActionResult> ConfirmContractByCustomer(string contractId)
         {

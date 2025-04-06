@@ -15,6 +15,7 @@ using Repositories.Repositories.QuestionRepository;
 using Repositories.Repositories.QuizRepository;
 using Repositories.Repositories.RegisterCourseRepository;
 using Services.ApiModels;
+using Services.ApiModels.Contract;
 using Services.ApiModels.RegisterCourse;
 using System;
 using System.Collections.Generic;
@@ -220,6 +221,7 @@ namespace Services.Services.RegisterCourseService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<RegisterCourseResponse>(RegisterCourse);
                 res.Message = ResponseMessageConstrantsChapter.CHAPTER_UPDATED_PROGRESS_SUCCESS;
                 return res;
 

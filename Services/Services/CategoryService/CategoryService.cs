@@ -168,6 +168,8 @@ namespace Services.Services.CategoryService
                 }
 
                 _mapper.Map(request, category);
+                category.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+
                 await _categoryRepo.UpdateCategory(category);
 
                 res.IsSuccess = true;

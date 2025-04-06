@@ -439,6 +439,9 @@ namespace BusinessObjects.Constants
             public const string REGISTER_COURSE_CREATE_FAILED = "Tạo đăng ký khóa học thất bại!";
             public const string REGISTER_COURSE_UPDATE_FAILED = "Cập nhật đăng ký khóa học thất bại!";
             public const string REGISTER_COURSE_DELETE_FAILED = "Xóa đăng ký khóa học thất bại!";
+            public const string ENROLL_CHAPTERS_NOT_FOUND = "Không tìm thấy chương học!";
+            public const string ENROLL_CHAPTERS_FOUND = "Tìm thấy chương học thành công!";
+
         }
         // Contract Service
         public static class ResponseMessageConstrantsContract
@@ -452,7 +455,7 @@ namespace BusinessObjects.Constants
             public const string VERIFY_SUCCESS = "Xác thực hợp đồng thành công";
             public const string CANCEL_SUCCESS = "Hủy hợp đồng thành công";
             public const string CONFIRM_SUCCESS = "Xác nhận hợp đồng thành công";
-            public const string CHECK_STATUS= "Hợp đồng này không ở trạng thái chờ xác nhận";
+            public const string CHECK_STATUS = "Hợp đồng này không ở trạng thái chờ xác nhận";
             public const string CONTRACT_INFORMATION_SUCCESS = "Lấy thông tin hợp đồng thành công";
             public const string SEND_OTP_SUCCESS = "Gửi OTP cho hợp đồng thành công";
             public const string OTP_EXPIRED = "Mã OTP đã hết hạn";
@@ -469,9 +472,9 @@ namespace BusinessObjects.Constants
             public const string NO_DATA_TO_UPLOAD = "Không có dữ liệu để upload";
             public const string UPLOAD_SUCCESS = "Upload thành công";
             public const string NO_QUES_FOR_ANS = "Không thể thêm câu trả lời khi chưa có câu hỏi";
-            public const string NO_QUIZ_FOR_QUES= "Không thể thêm câu hỏi khi chưa có bài kiểm tra";
-            public const string EXISTED_QUIZ_TITLE= "Tiêu đề của bài kiểm tra đã tồn tại";
-            public const string FILE_INVALID= "File phải có định dạng .xls hoặc .xlsx";
+            public const string NO_QUIZ_FOR_QUES = "Không thể thêm câu hỏi khi chưa có bài kiểm tra";
+            public const string EXISTED_QUIZ_TITLE = "Tiêu đề của bài kiểm tra đã tồn tại";
+            public const string FILE_INVALID = "File phải có định dạng .xls hoặc .xlsx";
         }
         // Attachment Service
         public class ResponseMessageConstrantsAttachment

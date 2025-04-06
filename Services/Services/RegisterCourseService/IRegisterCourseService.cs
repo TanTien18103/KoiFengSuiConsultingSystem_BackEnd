@@ -1,4 +1,5 @@
-﻿using Services.ApiModels;
+﻿using BusinessObjects.Models;
+using Services.ApiModels;
 using Services.ApiModels.Account;
 using Services.ApiModels.RegisterCourse;
 using System;
@@ -13,5 +14,6 @@ namespace Services.Services.RegisterCourseService
     {
         Task<ResultModel> UpdateUserCourseStatus(string chapterId);
         Task<ResultModel> UpdateUserQuiz(string quizid, RegisterQuizRequest registerQuizRequest);
+        Task<ResultModel> GetEnrollChaptersByEnrollCourseId(string enrollCourseId);
     }
 }

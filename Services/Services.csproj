@@ -23,7 +23,6 @@
     <Folder Include="ApiModels\Certificate\" />
     <Folder Include="ApiModels\EnrollAnswer\" />
     <Folder Include="ApiModels\EnrollCert\" />
-    <Folder Include="ApiModels\EnrollChapter\" />
     <Folder Include="ApiModels\EnrollQuiz\" />
     <Folder Include="ApiModels\MasterSchedule\" />
     <Folder Include="ApiModels\Membership\" />

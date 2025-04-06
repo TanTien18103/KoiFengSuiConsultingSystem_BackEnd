@@ -93,5 +93,14 @@ namespace DAOs.DAOs
                 .Where(ec => ec.EnrollCourseId == enrollCourseId && ec.Status == EnrollChapterStatusEnums.Done.ToString())
                 .CountAsync();
         }
+
+        public async Task<List<EnrollChapter>> GetEnrollChaptersByEnrollCourseId(string enrollCourseId)
+        {
+            return await _context.EnrollChapters
+               .Include(x => x.EnrollCourse)
+               .Include(x => x.Chapter)
+               .Where(ec => ec.EnrollCourseId == enrollCourseId)
+               .ToListAsync();
+        }
     }
 }

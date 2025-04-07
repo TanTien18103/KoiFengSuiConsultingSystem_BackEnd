@@ -30,8 +30,7 @@ namespace Services.Mapper
             CreateMap<VarietyColor, VarietyColorResponse>();
             CreateMap<Color, ColorResponse>();
 
-            CreateMap<KoiVarietyRequest, KoiVariety>()
-                .ForMember(dest => dest.VarietyColors, opt => opt.MapFrom(src => src.VarietyColors));
+            CreateMap<KoiVarietyRequest, KoiVariety>();
 
             CreateMap<KoiVarietyRequest.VarietyColorRequest, VarietyColor>();
 

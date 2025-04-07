@@ -22,6 +22,7 @@ namespace Services.ApiModels.KoiVariety
     }
     public class ColorResponse
     {
+        public string ColorId { get; set; }
         public string ColorName { get; set; }
         public string Element { get; set; }
     }

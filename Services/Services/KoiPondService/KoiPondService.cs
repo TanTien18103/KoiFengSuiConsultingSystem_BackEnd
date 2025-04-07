@@ -422,6 +422,7 @@ namespace Services.Services.KoiPondService
 
                 // Cập nhật thuộc tính của existingKoiPond thay vì tạo một instance mới
                 _mapper.Map(koiPond, existingKoiPond);
+                existingKoiPond.ImageUrl = await _uploadService.UploadImageAsync(koiPond.ImageUrl);
 
                 var updatedKoiPond = await _koiPondRepo.UpdateKoiPond(existingKoiPond);
                 if (updatedKoiPond == null)

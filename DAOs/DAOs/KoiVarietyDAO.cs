@@ -106,7 +106,7 @@ namespace DAOs.DAOs
 
         public async Task<KoiVariety> CreateKoiVarietyDao(KoiVariety koiVariety)
         {
-            _context.KoiVarieties.Add(koiVariety);
+            await _context.KoiVarieties.AddAsync(koiVariety);
             await _context.SaveChangesAsync();
             return koiVariety;
         }

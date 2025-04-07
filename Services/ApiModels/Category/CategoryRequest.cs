@@ -12,6 +12,7 @@ namespace Services.ApiModels.Category
     {
         [Required]
         public string CategoryName { get; set; }
+
         public IFormFile ImageUrl { get; set; }
 
     }

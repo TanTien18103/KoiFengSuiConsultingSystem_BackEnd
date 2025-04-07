@@ -151,7 +151,6 @@ namespace KoiFengSuiConsultingSystem.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateKoiVariety([FromForm] KoiVarietyRequest request)
         {
-
             var result = await _koiVarietyService.CreateKoiVarietyAsync(request);
             return StatusCode(result.StatusCode, result);
         }

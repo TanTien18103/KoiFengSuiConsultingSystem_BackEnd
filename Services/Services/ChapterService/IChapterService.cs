@@ -13,7 +13,7 @@ namespace Services.Services.ChapterService
         Task<ResultModel> GetChapterById(string chapterId);
         Task<ResultModel> GetChaptersByCourseId(string courseId);
         Task<ResultModel> CreateChapter(ChapterRequest chapter);
-        Task<ResultModel> UpdateChapter(string chapterId, ChapterRequest chapter);
+        Task<ResultModel> UpdateChapter(string chapterId, ChapterUpdateRequest chapter);
         Task<ResultModel> DeleteChapter(string chapterId);
     }
 }

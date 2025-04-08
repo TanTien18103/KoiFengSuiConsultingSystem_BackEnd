@@ -76,7 +76,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPut("update-course/{id}")]
-        public async Task<IActionResult> UpdateCourse(string id, [FromForm] CourseRequest courseRequest)
+        public async Task<IActionResult> UpdateCourse(string id, [FromForm] CourseUpdateRequest courseRequest)
         {
             var result = await _courseService.UpdateCourse(id, courseRequest);
             return Ok(result);

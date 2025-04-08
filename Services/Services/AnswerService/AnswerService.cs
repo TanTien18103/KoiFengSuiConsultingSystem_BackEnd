@@ -150,9 +150,10 @@ namespace Services.Services.AnswerService
             }
         }
 
-        public async Task<ResultModel> UpdateAnswer(string answerid, AnswerRequest answer)
+        public async Task<ResultModel> UpdateAnswer(string answerid, AnswerUpdateRequest answer)
         {
             var res = new ResultModel();
+
             try
             {
                 var answerData = await _answerRepo.GetAnswerById(answerid);
@@ -165,12 +166,19 @@ namespace Services.Services.AnswerService
                     return res;
                 }
 
-                _mapper.Map(answer, answerData); 
-                answerData.QuestionId = answerData.QuestionId; 
-                answerData.CreateAt = answerData.CreateAt;
+                // Chỉ cập nhật các trường có giá trị
+                if (!string.IsNullOrWhiteSpace(answer.OptionText))
+                    answerData.OptionText = answer.OptionText;
 
-                var result = await _answerRepo.UpdateAnswer(answerData); 
-                if (result == null)
+                if (!string.IsNullOrWhiteSpace(answer.OptionType))
+                    answerData.OptionType = answer.OptionType;
+
+                if (answer.IsCorrect.HasValue)
+                    answerData.IsCorrect = answer.IsCorrect.Value;
+
+                var updatedAnswer = await _answerRepo.UpdateAnswer(answerData);
+
+                if (updatedAnswer == null)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.FAILED;
@@ -179,7 +187,7 @@ namespace Services.Services.AnswerService
                     return res;
                 }
 
-                res.Data = _mapper.Map<AnswerResponse>(result);
+                res.Data = _mapper.Map<AnswerResponse>(updatedAnswer);
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
@@ -191,7 +199,7 @@ namespace Services.Services.AnswerService
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = ex.InnerException?.Message ?? ex.Message;
+                res.Message = $"Đã xảy ra lỗi khi cập nhật câu trả lời: {ex.Message}";
                 return res;
             }
         }

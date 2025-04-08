@@ -16,7 +16,7 @@ namespace Services.Services.WorkshopService
         Task<ResultModel> TrendingWorkshop(bool? trending = null);
         Task<ResultModel> GetWorkshopById(string id);
         Task<ResultModel> CreateWorkshop(WorkshopRequest workshopRequest);
-        Task<ResultModel> UpdateWorkshop(string id, WorkshopRequest workshopRequest);
+        Task<ResultModel> UpdateWorkshop(string id, WorkshopUpdateRequest workshopRequest);
         Task<ResultModel> DeleteWorkshop(string id);
         Task<ResultModel> CheckIn(string workshopId, string registerId);
 

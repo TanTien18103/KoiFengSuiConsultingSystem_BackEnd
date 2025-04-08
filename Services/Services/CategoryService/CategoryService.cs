@@ -141,9 +141,10 @@ namespace Services.Services.CategoryService
             }
         }
 
-        public async Task<ResultModel> UpdateCategory(string id, CategoryRequest request)
+        public async Task<ResultModel> UpdateCategory(string id, CategoryUpdateRequest request)
         {
             var res = new ResultModel();
+
             try
             {
                 var category = await _categoryRepo.GetCategoryById(id);
@@ -155,28 +156,39 @@ namespace Services.Services.CategoryService
                     res.Message = ResponseMessageConstrantsCategory.CATEGORY_NOT_FOUND;
                     return res;
                 }
-                var categories = await _categoryRepo.GetAllCatogories();
-                var existingCategoryName = categories.FirstOrDefault(x => x.CategoryName == request.CategoryName && x.CategoryId != id);
 
-                if (existingCategoryName != null)
+                // Kiểm tra trùng tên nếu có truyền CategoryName
+                if (!string.IsNullOrWhiteSpace(request.CategoryName))
                 {
-                    res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status400BadRequest;
-                    res.ResponseCode = ResponseCodeConstants.FAILED;
-                    res.Message = ResponseMessageConstrantsCategory.CATEGORY_ALREADY_EXIST;
-                    return res;
+                    var categories = await _categoryRepo.GetAllCatogories();
+                    var existingCategoryName = categories.FirstOrDefault(x =>
+                        x.CategoryName == request.CategoryName && x.CategoryId != id);
+
+                    if (existingCategoryName != null)
+                    {
+                        res.IsSuccess = false;
+                        res.StatusCode = StatusCodes.Status400BadRequest;
+                        res.ResponseCode = ResponseCodeConstants.FAILED;
+                        res.Message = ResponseMessageConstrantsCategory.CATEGORY_ALREADY_EXIST;
+                        return res;
+                    }
+
+                    category.CategoryName = request.CategoryName;
                 }
 
-                _mapper.Map(request, category);
-                category.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+                // Nếu có ảnh mới thì upload
+                if (request.ImageUrl != null)
+                {
+                    category.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+                }
 
                 await _categoryRepo.UpdateCategory(category);
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                res.Data = _mapper.Map<CategoryResponse>(category);
                 res.Message = ResponseMessageConstrantsCategory.CATEGORY_UPDATED_SUCCESS;
+                res.Data = _mapper.Map<CategoryResponse>(category);
                 return res;
             }
             catch (Exception ex)
@@ -184,7 +196,7 @@ namespace Services.Services.CategoryService
                 res.IsSuccess = false;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
-                res.Message = ex.Message;
+                res.Message = $"Đã xảy ra lỗi khi cập nhật danh mục: {ex.Message}";
                 return res;
             }
         }

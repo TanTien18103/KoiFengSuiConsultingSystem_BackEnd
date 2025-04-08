@@ -37,7 +37,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdatePackage([FromRoute] string id, [FromForm] ConsultationPackageRequest consultationPackageRequest)
+        public async Task<IActionResult> UpdatePackage([FromRoute] string id, [FromForm] ConsultationPackageUpdateRequest consultationPackageRequest)
         {
             var res = await _consultationPackageService.UpdateConsultationPackage(id, consultationPackageRequest);
             return StatusCode(res.StatusCode, res);

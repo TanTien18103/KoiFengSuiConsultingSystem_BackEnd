@@ -207,6 +207,7 @@ namespace BusinessObjects.Constants
         public const string PACKAGE_CREATED = "Thêm gói tư vấn thành công";
         public const string PACKAGE_DELETED = "Xóa gói tư vấn thành công";
         public const string PACKAGE_UPDATED = "Cập nhật gói tư vấn thành công";
+        public const string INVALID_PRICE_RANGE = "Giá tối đa phải lớn hơn hoặc bằng giá tối thiểu.";
     }
 
     public class ResponseMessageConstrantsCompatibility

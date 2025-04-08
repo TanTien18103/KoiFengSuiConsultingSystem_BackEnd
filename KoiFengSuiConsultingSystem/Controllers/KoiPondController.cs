@@ -62,7 +62,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateKoiPond([FromRoute] string id, [FromForm] KoiPondRequest koiPond)
+        public async Task<IActionResult> UpdateKoiPond([FromRoute] string id, [FromForm] KoiPondUpdateRequest koiPond)
         {
             var result = await _iKoiPondService.UpdateKoiPond(id, koiPond);
             return StatusCode(result.StatusCode, result);

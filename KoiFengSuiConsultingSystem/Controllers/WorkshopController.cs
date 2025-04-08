@@ -59,7 +59,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateWorkshop([FromRoute] string id, [FromForm] WorkshopRequest request)
+        public async Task<IActionResult> UpdateWorkshop([FromRoute] string id, [FromForm] WorkshopUpdateRequest request)
         {
             var result = await _workshopService.UpdateWorkshop(id, request);
             return StatusCode(result.StatusCode, result);

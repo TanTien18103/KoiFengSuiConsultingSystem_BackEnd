@@ -198,7 +198,7 @@ namespace Services.Services.CourseService
             }
         }
 
-        public async Task<ResultModel> UpdateCourse(string id, CourseRequest request)
+        public async Task<ResultModel> UpdateCourse(string id, CourseUpdateRequest request)
         {
             var res = new ResultModel();
             try
@@ -223,10 +223,22 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                _mapper.Map(request, course);
+                if (!string.IsNullOrEmpty(request.CourseName))
+                    course.CourseName = request.CourseName;
+
+                if (!string.IsNullOrEmpty(request.CourseCategory))
+                    course.CategoryId = request.CourseCategory;
+
+                if (!string.IsNullOrEmpty(request.Description))
+                    course.Description = request.Description;
+
+                if (request.Price.HasValue)
+                    course.Price = request.Price.Value;
+
+                if (request.ImageUrl != null)
+                    course.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+
                 course.UpdateAt = DateTime.UtcNow;
-                course.CategoryId = request.CourseCategory;
-                course.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
                 await _courseRepo.UpdateCourse(course);
                 var response = await _courseRepo.GetCourseById(id);

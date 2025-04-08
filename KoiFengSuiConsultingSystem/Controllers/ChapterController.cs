@@ -39,7 +39,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPut("update-chapter/{id}")]
-        public async Task<IActionResult> Updatechapter(string id, [FromForm] ChapterRequest chapterRequest)
+        public async Task<IActionResult> Updatechapter(string id, [FromForm] ChapterUpdateRequest chapterRequest)
         {
             var result = await _chapterService.UpdateChapter(id, chapterRequest);
             return Ok(result);

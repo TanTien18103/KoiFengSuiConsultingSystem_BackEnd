@@ -193,7 +193,7 @@ namespace Services.Services.CourseService
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message =ex.InnerException?.Message;
+                res.Message = ex.InnerException?.Message;
                 return res;
             }
         }
@@ -392,7 +392,7 @@ namespace Services.Services.CourseService
             try
             {
                 var category = await _categoryRepo.GetCategoryById(id);
-                if(category == null)
+                if (category == null)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -500,7 +500,7 @@ namespace Services.Services.CourseService
                         courseDetail.TotalDuration = new TimeOnly(totalTimeSpan.Hours, totalTimeSpan.Minutes, totalTimeSpan.Seconds);
                     }
                 }
-                int totalQuestions = 0; 
+                int totalQuestions = 0;
                 if (course.Quizzes != null && course.Quizzes.Any())
                 {
                     totalQuestions = course.Quizzes
@@ -595,6 +595,75 @@ namespace Services.Services.CourseService
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> UpdateCourseStatus(string id, CourseStatusEnum status)
+        {
+            var res = new ResultModel();
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsCourse.COURSE_ID_INVALID;
+                    return res;
+                }
+
+                // Làm sạch id
+                id = id.Trim();
+
+                // Validate status enum (phòng trường hợp nhận từ body dạng int bị sai)
+                if (!Enum.IsDefined(typeof(CourseStatusEnum), status))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsCourse.STATUS_INVALID;
+                    return res;
+                }
+
+                var course = await _courseRepo.GetCourseById(id);
+                if (course == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsCourse.COURSE_NOT_FOUND;
+                    return res;
+                }
+
+                var newStatus = status.ToString();
+
+                if (course.Status == newStatus)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsCourse.COURSE_ALREADY_HAS_THIS_STATUS;
+                    return res;
+                }
+
+                course.Status = newStatus;
+                await _courseRepo.UpdateCourse(course);
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<CourseResponse>(course);
+                res.Message = ResponseMessageConstrantsCourse.COURSE_STATUS_UPDATED_SUCCESS;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = "Đã xảy ra lỗi nội bộ: " + ex.Message;
                 return res;
             }
         }

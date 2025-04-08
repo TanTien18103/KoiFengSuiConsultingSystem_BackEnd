@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Constants;
+using BusinessObjects.Enums;
 using BusinessObjects.Exceptions;
 using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
@@ -214,6 +215,16 @@ namespace DAOs.DAOs
                    .Include(x => x.Master)
            .Where(b => b.AssignStaffId == staffId)
            .ToListAsync();
+        }
+
+        public async Task<BookingOffline> GetPendingBookingByCustomerIdDao(string customerId)
+        {
+            return await _context.BookingOfflines
+                .Include(x => x.Customer).ThenInclude(x => x.Account)
+                .Include(x => x.Master).ThenInclude(x => x.Account)
+                .Include(x => x.ConsultationPackage)
+                .Include(x => x.Contract)
+                .FirstOrDefaultAsync(b => b.CustomerId == customerId && b.Status == BookingOfflineEnums.Pending.ToString());
         }
     }
 }

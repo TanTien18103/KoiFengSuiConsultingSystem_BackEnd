@@ -139,9 +139,9 @@ namespace Services.Services.ChapterService
                     return res;
                 }
 
-
                 var chapter = _mapper.Map<Chapter>(request);
                 chapter.ChapterId = GenerateShortGuid();
+                chapter.CreateDate = DateTime.UtcNow;
                 chapter.Video = await _uploadService.UploadVideoAsync(request.Video);
                 await _chapterRepo.CreateChapter(chapter);
 

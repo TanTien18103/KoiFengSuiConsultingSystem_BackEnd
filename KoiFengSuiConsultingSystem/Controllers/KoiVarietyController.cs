@@ -155,9 +155,8 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateKoiVariety(string id, [FromForm] KoiVarietyRequest request)
+        public async Task<IActionResult> UpdateKoiVariety(string id, [FromForm] KoiVarietyUpdateRequest request)
         {
             var result = await _koiVarietyService.UpdateKoiVarietyAsync(id, request);
             return StatusCode(result.StatusCode, result);

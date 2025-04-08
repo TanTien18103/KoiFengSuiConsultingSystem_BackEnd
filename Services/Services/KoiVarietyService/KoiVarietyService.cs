@@ -995,7 +995,7 @@ namespace Services.Services.KoiVarietyService
             }
         }
 
-        public async Task<ResultModel> UpdateKoiVarietyAsync(string id, KoiVarietyRequest koiVariety)
+        public async Task<ResultModel> UpdateKoiVarietyAsync(string id, KoiVarietyUpdateRequest koiVariety)
         {
             var res = new ResultModel();
             try
@@ -1010,27 +1010,36 @@ namespace Services.Services.KoiVarietyService
                     return res;
                 }
 
-                existingKoiVariety.VarietyName = koiVariety.VarietyName;
-                existingKoiVariety.Description = koiVariety.Description;
-                existingKoiVariety.Introduction = koiVariety.Introduction;
+                // Chỉ cập nhật nếu có dữ liệu
+                if (!string.IsNullOrWhiteSpace(koiVariety.VarietyName))
+                    existingKoiVariety.VarietyName = koiVariety.VarietyName;
+
+                if (!string.IsNullOrWhiteSpace(koiVariety.Description))
+                    existingKoiVariety.Description = koiVariety.Description;
+
+                if (!string.IsNullOrWhiteSpace(koiVariety.Introduction))
+                    existingKoiVariety.Introduction = koiVariety.Introduction;
 
                 if (koiVariety.ImageUrl != null)
                 {
                     existingKoiVariety.ImageUrl = await _uploadService.UploadImageAsync(koiVariety.ImageUrl);
                 }
 
-                // Cập nhật danh sách màu sắc
-                existingKoiVariety.VarietyColors.Clear();
-                var varietyColors = koiVariety.GetVarietyColors();
-
-                foreach (var varietyColor in varietyColors)
+                // Nếu có danh sách màu thì mới cập nhật
+                if (!string.IsNullOrWhiteSpace(koiVariety.VarietyColorsJson))
                 {
-                    existingKoiVariety.VarietyColors.Add(new VarietyColor
+                    existingKoiVariety.VarietyColors.Clear();
+                    var varietyColors = koiVariety.GetVarietyColors();
+
+                    foreach (var varietyColor in varietyColors)
                     {
-                        KoiVarietyId = existingKoiVariety.KoiVarietyId,
-                        ColorId = varietyColor.ColorId,
-                        Percentage = varietyColor.Percentage
-                    });
+                        existingKoiVariety.VarietyColors.Add(new VarietyColor
+                        {
+                            KoiVarietyId = existingKoiVariety.KoiVarietyId,
+                            ColorId = varietyColor.ColorId,
+                            Percentage = varietyColor.Percentage
+                        });
+                    }
                 }
 
                 var updatedKoiVariety = await _koiVarietyRepo.UpdateKoiVariety(existingKoiVariety);

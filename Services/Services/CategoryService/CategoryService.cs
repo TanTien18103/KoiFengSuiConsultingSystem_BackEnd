@@ -188,5 +188,38 @@ namespace Services.Services.CategoryService
                 return res;
             }
         }
+
+        public async Task<ResultModel> DeleteCategory(string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var category = await _categoryRepo.GetCategoryById(id);
+                if (category == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsCategory.CATEGORY_NOT_FOUND;
+                    return res;
+                }
+
+                await _categoryRepo.DeleteCategory(id);
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsCategory.CATEGORY_DELETED_SUCCESS;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
     }
 }

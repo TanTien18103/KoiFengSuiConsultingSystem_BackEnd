@@ -483,23 +483,6 @@ namespace Services.Services.CourseService
 
                 courseDetail.TotalChapters = course.Chapters?.Count ?? 0;
 
-                if (course.Chapters != null && course.Chapters.Any())
-                {
-                    var durations = course.Chapters
-                        .Where(c => c.Duration.HasValue)
-                        .Select(c => c.Duration.Value);
-
-                    if (durations.Any())
-                    {
-                        TimeSpan totalTimeSpan = TimeSpan.Zero;
-                        foreach (var duration in durations)
-                        {
-                            totalTimeSpan = totalTimeSpan.Add(new TimeSpan(duration.Hour, duration.Minute, duration.Second));
-                        }
-
-                        courseDetail.TotalDuration = new TimeOnly(totalTimeSpan.Hours, totalTimeSpan.Minutes, totalTimeSpan.Seconds);
-                    }
-                }
                 int totalQuestions = 0;
                 if (course.Quizzes != null && course.Quizzes.Any())
                 {

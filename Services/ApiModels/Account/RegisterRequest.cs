@@ -32,7 +32,7 @@ namespace Services.ApiModels.Account
         [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
         public string ConfirmedPassword { get; set; }
 
-        public IFormFile ImageUrl { get; set; }
+        public IFormFile? ImageUrl { get; set; }
 
     }
 }

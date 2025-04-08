@@ -13,8 +13,6 @@ public partial class Chapter
 
     public string Description { get; set; }
 
-    public TimeOnly? Duration { get; set; }
-
     public string Video { get; set; }
 
     public string CourseId { get; set; }

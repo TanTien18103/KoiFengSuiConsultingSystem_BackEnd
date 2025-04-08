@@ -354,6 +354,7 @@ namespace BusinessObjects.Constants
         public const string CATEGORY_FOUND = "Lấy danh sách danh mục thành công!";
         public const string CATEGORY_NOT_FOUND = "Không tìm thấy danh sách danh mục!";
         public const string CATEGORY_ALREADY_EXIST = "Tên danh mục đã tồn tại!";
+        public const string CATEGORY_DELETED_SUCCESS = "Xóa danh mục thành công!";
     }
 
     //Image

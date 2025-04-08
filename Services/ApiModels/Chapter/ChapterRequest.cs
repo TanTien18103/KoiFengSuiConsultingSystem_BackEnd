@@ -15,8 +15,6 @@ namespace Services.ApiModels.Chapter
         [Required]
         public string Description { get; set; }
         [Required]
-        public TimeOnly? Duration { get; set; }
-        [Required]
         public IFormFile Video { get; set; }
         [Required]
         public string CourseId { get; set; }

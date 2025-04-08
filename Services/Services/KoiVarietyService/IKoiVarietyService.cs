@@ -25,7 +25,7 @@ namespace Services.Services.KoiVarietyService
         Task<ResultModel> FilterByColorAndElement(NguHanh? nguHanh = null, List<ColorEnums>? colors = null);
 
         Task<ResultModel> CreateKoiVarietyAsync(KoiVarietyRequest koiVariety);
-        Task<ResultModel> UpdateKoiVarietyAsync(string id, KoiVarietyRequest koiVariety);
+        Task<ResultModel> UpdateKoiVarietyAsync(string id, KoiVarietyUpdateRequest koiVariety);
         Task<ResultModel> DeleteKoiVarietyAsync(string id);
 
 

@@ -241,7 +241,7 @@ namespace Services.Services.QuizService
                 newQuiz.CourseId = courseId;
                 newQuiz.CreateBy = master.MasterId;
                 newQuiz.CreateAt = DateTime.Now;
-
+                newQuiz.Score = 100;
                 var createdQuiz = await _quizRepo.CreateQuiz(newQuiz);
 
                 if (createdQuiz == null)
@@ -402,7 +402,6 @@ namespace Services.Services.QuizService
                 }
 
                 existingQuiz.Title = quiz.Title;
-                existingQuiz.Score = quiz.Score;
                 var updatedQuiz = await _quizRepo.UpdateQuiz(existingQuiz);
                 if (updatedQuiz == null)
                 {

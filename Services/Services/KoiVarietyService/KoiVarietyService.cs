@@ -111,7 +111,7 @@ namespace Services.Services.KoiVarietyService
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
-                res.Data = _mapper.Map<KoiVarietyDto>(koi);
+                res.Data = _mapper.Map<KoiVarietyResponse>(koi);
                 return res;
             }
             catch (Exception ex)
@@ -338,7 +338,7 @@ namespace Services.Services.KoiVarietyService
             decimal totalPercentage = 0;
 
             if (!FengShuiHelper.ElementColorPoints.ContainsKey(personElementString))
-                return 0; 
+                return 0;
 
             var elementColorScores = FengShuiHelper.ElementColorPoints[personElementString];
 
@@ -356,8 +356,8 @@ namespace Services.Services.KoiVarietyService
 
                 var color = colorVariety.Color.Element;
                 var colorScore = elementColorScores.ContainsKey(color) ? elementColorScores[color] : 0;
-                    
-                score += (percentage * (decimal)colorScore / 10); 
+
+                score += (percentage * (decimal)colorScore / 10);
             }
 
             // Chuẩn hóa điểm số
@@ -477,7 +477,7 @@ namespace Services.Services.KoiVarietyService
                 res.Data = _mapper.Map<List<KoiVarietyDto>>(kois);
                 return res;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
@@ -731,8 +731,8 @@ namespace Services.Services.KoiVarietyService
                     if (koiList.Any())
                     {
                         // Lọc từ danh sách đã có
-                        koiList = koiList.Where(k => 
-                            k.VarietyColors.Any(vc => 
+                        koiList = koiList.Where(k =>
+                            k.VarietyColors.Any(vc =>
                                 colors.Contains(Enum.Parse<ColorEnums>(vc.ColorId))
                             )
                         ).ToList();
@@ -752,7 +752,7 @@ namespace Services.Services.KoiVarietyService
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Data = _mapper.Map<List<KoiVarietyDto>>(koiList);
-                
+
                 if (!koiList.Any())
                 {
                     res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
@@ -761,7 +761,7 @@ namespace Services.Services.KoiVarietyService
                 {
                     res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
                 }
-                
+
                 return res;
             }
             catch (Exception ex)
@@ -940,10 +940,22 @@ namespace Services.Services.KoiVarietyService
                     KoiVarietyId = GenerateShortGuid(),
                     VarietyName = koiVariety.VarietyName,
                     Description = koiVariety.Description,
+                    Introduction = koiVariety.Introduction,
                     ImageUrl = await _uploadService.UploadImageAsync(koiVariety.ImageUrl)
                 };
 
-                foreach (var varietyColor in koiVariety.VarietyColors)
+                var colors = koiVariety.GetVarietyColors();
+
+                if (colors == null || !colors.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsKoiVariety.COLOR_NOT_FOUND;
+                    return res;
+                }
+
+                foreach (var varietyColor in colors)
                 {
                     newKoiVariety.VarietyColors.Add(new VarietyColor
                     {
@@ -983,7 +995,7 @@ namespace Services.Services.KoiVarietyService
             }
         }
 
-        public async Task<ResultModel> UpdateKoiVarietyAsync(string id, KoiVarietyRequest koiVariety)
+        public async Task<ResultModel> UpdateKoiVarietyAsync(string id, KoiVarietyUpdateRequest koiVariety)
         {
             var res = new ResultModel();
             try
@@ -998,23 +1010,40 @@ namespace Services.Services.KoiVarietyService
                     return res;
                 }
 
-                existingKoiVariety.VarietyName = koiVariety.VarietyName;
-                existingKoiVariety.Description = koiVariety.Description;
+                // Chỉ cập nhật nếu có dữ liệu
+                if (!string.IsNullOrWhiteSpace(koiVariety.VarietyName))
+                    existingKoiVariety.VarietyName = koiVariety.VarietyName;
 
-                existingKoiVariety.VarietyColors.Clear();
+                if (!string.IsNullOrWhiteSpace(koiVariety.Description))
+                    existingKoiVariety.Description = koiVariety.Description;
 
-                foreach (var varietyColor in koiVariety.VarietyColors)
+                if (!string.IsNullOrWhiteSpace(koiVariety.Introduction))
+                    existingKoiVariety.Introduction = koiVariety.Introduction;
+
+                if (koiVariety.ImageUrl != null)
                 {
-                    existingKoiVariety.VarietyColors.Add(new VarietyColor
+                    existingKoiVariety.ImageUrl = await _uploadService.UploadImageAsync(koiVariety.ImageUrl);
+                }
+
+                // Nếu có danh sách màu thì mới cập nhật
+                if (!string.IsNullOrWhiteSpace(koiVariety.VarietyColorsJson))
+                {
+                    existingKoiVariety.VarietyColors.Clear();
+                    var varietyColors = koiVariety.GetVarietyColors();
+
+                    foreach (var varietyColor in varietyColors)
                     {
-                        KoiVarietyId = existingKoiVariety.KoiVarietyId,
-                        ColorId = varietyColor.ColorId,
-                        Percentage = varietyColor.Percentage
-                    });
+                        existingKoiVariety.VarietyColors.Add(new VarietyColor
+                        {
+                            KoiVarietyId = existingKoiVariety.KoiVarietyId,
+                            ColorId = varietyColor.ColorId,
+                            Percentage = varietyColor.Percentage
+                        });
+                    }
                 }
 
                 var updatedKoiVariety = await _koiVarietyRepo.UpdateKoiVariety(existingKoiVariety);
-                var KoiVarietyresponse = await _koiVarietyRepo.GetKoiVarietyById(updatedKoiVariety.KoiVarietyId);
+                var koiVarietyResponse = await _koiVarietyRepo.GetKoiVarietyById(updatedKoiVariety.KoiVarietyId);
 
                 if (updatedKoiVariety == null)
                 {
@@ -1029,7 +1058,7 @@ namespace Services.Services.KoiVarietyService
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Message = ResponseMessageConstrantsKoiVariety.UPDATE_KOIVARIETY_SUCCESS;
-                res.Data = _mapper.Map<KoiVarietyResponse>(KoiVarietyresponse);
+                res.Data = _mapper.Map<KoiVarietyResponse>(koiVarietyResponse);
                 return res;
             }
             catch (Exception ex)
@@ -1041,6 +1070,7 @@ namespace Services.Services.KoiVarietyService
                 return res;
             }
         }
+
 
         public async Task<ResultModel> DeleteKoiVarietyAsync(string id)
         {

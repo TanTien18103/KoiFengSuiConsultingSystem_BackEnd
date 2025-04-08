@@ -369,7 +369,7 @@ namespace Services.Services.WorkshopService
             return identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         }
 
-        public async Task<ResultModel> UpdateWorkshop(string id, WorkshopRequest request)
+        public async Task<ResultModel> UpdateWorkshop(string id, WorkshopUpdateRequest request)
         {
             var res = new ResultModel();
             try
@@ -404,8 +404,27 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                _mapper.Map(request, workshop);
-                workshop.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+                // Partial update
+                if (!string.IsNullOrEmpty(request.WorkshopName))
+                    workshop.WorkshopName = request.WorkshopName;
+
+                if (request.StartDate.HasValue)
+                    workshop.StartDate = request.StartDate.Value;
+
+                if (!string.IsNullOrEmpty(request.Location))
+                    workshop.Location = request.Location;
+
+                if (!string.IsNullOrEmpty(request.Description))
+                    workshop.Description = request.Description;
+
+                if (request.Capacity.HasValue)
+                    workshop.Capacity = request.Capacity.Value;
+
+                if (request.Price.HasValue)
+                    workshop.Price = request.Price.Value;
+
+                if (request.ImageUrl != null)
+                    workshop.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
                 await _workShopRepo.UpdateWorkShop(workshop);
 

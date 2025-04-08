@@ -14,7 +14,9 @@ namespace Services.Mapper
         public ChapterMappingProfile()
         {
             CreateMap<Chapter, ChapterRespone>();
+
             CreateMap<ChapterRequest, Chapter>();
+                 
         }
     }
 }

@@ -32,6 +32,9 @@ namespace Repositories.Repositories.CategoryRepository
             return CategoryDao.Instance.GetAllCatogoriesDao();
         }
 
-     
+        public Task DeleteCategory(string id)
+        {
+            return CategoryDao.Instance.DeleteCategory(id);
+        }
     }
 }

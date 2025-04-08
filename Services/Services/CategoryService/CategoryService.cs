@@ -141,7 +141,67 @@ namespace Services.Services.CategoryService
             }
         }
 
-        public async Task<ResultModel> UpdateCategory(string id, CategoryRequest request)
+        public async Task<ResultModel> UpdateCategory(string id, CategoryUpdateRequest request)
+        {
+            var res = new ResultModel();
+
+            try
+            {
+                var category = await _categoryRepo.GetCategoryById(id);
+                if (category == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsCategory.CATEGORY_NOT_FOUND;
+                    return res;
+                }
+
+                // Kiểm tra trùng tên nếu có truyền CategoryName
+                if (!string.IsNullOrWhiteSpace(request.CategoryName))
+                {
+                    var categories = await _categoryRepo.GetAllCatogories();
+                    var existingCategoryName = categories.FirstOrDefault(x =>
+                        x.CategoryName == request.CategoryName && x.CategoryId != id);
+
+                    if (existingCategoryName != null)
+                    {
+                        res.IsSuccess = false;
+                        res.StatusCode = StatusCodes.Status400BadRequest;
+                        res.ResponseCode = ResponseCodeConstants.FAILED;
+                        res.Message = ResponseMessageConstrantsCategory.CATEGORY_ALREADY_EXIST;
+                        return res;
+                    }
+
+                    category.CategoryName = request.CategoryName;
+                }
+
+                // Nếu có ảnh mới thì upload
+                if (request.ImageUrl != null)
+                {
+                    category.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+                }
+
+                await _categoryRepo.UpdateCategory(category);
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsCategory.CATEGORY_UPDATED_SUCCESS;
+                res.Data = _mapper.Map<CategoryResponse>(category);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Đã xảy ra lỗi khi cập nhật danh mục: {ex.Message}";
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> DeleteCategory(string id)
         {
             var res = new ResultModel();
             try
@@ -155,26 +215,13 @@ namespace Services.Services.CategoryService
                     res.Message = ResponseMessageConstrantsCategory.CATEGORY_NOT_FOUND;
                     return res;
                 }
-                var categories = await _categoryRepo.GetAllCatogories();
-                var existingCategoryName = categories.FirstOrDefault(x => x.CategoryName == request.CategoryName && x.CategoryId != id);
 
-                if (existingCategoryName != null)
-                {
-                    res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status400BadRequest;
-                    res.ResponseCode = ResponseCodeConstants.FAILED;
-                    res.Message = ResponseMessageConstrantsCategory.CATEGORY_ALREADY_EXIST;
-                    return res;
-                }
-
-                _mapper.Map(request, category);
-                await _categoryRepo.UpdateCategory(category);
+                await _categoryRepo.DeleteCategory(id);
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                res.Data = _mapper.Map<CategoryResponse>(category);
-                res.Message = ResponseMessageConstrantsCategory.CATEGORY_UPDATED_SUCCESS;
+                res.Message = ResponseMessageConstrantsCategory.CATEGORY_DELETED_SUCCESS;
                 return res;
             }
             catch (Exception ex)

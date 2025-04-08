@@ -8,9 +8,9 @@ namespace Services.ApiModels.Question
 {
     public class AnswerUpdateRequest
     {
-        public string AnswerId { get; set; }
-        public string OptionText { get; set; }
-        public string OptionType { get; set; }
+        public string? AnswerId { get; set; }
+        public string? OptionText { get; set; }
+        public string? OptionType { get; set; }
         public bool? IsCorrect { get; set; }
     }
 }

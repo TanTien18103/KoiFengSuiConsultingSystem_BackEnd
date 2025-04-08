@@ -13,7 +13,7 @@ namespace Services.Services.AnswerService
     {
         Task<ResultModel> GetAnswerById(string answerId);
         Task<ResultModel> CreateAnswer(string questionid,AnswerRequest answer);
-        Task<ResultModel> UpdateAnswer(string answerid, AnswerRequest answer);
+        Task<ResultModel> UpdateAnswer(string answerid, AnswerUpdateRequest answer);
         Task<ResultModel> DeleteAnswer(string answerId);
         Task<ResultModel> GetAnswersByQuestionId(string questionId);
     }

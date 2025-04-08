@@ -396,7 +396,7 @@ namespace Services.Services.KoiPondService
             }
         }
 
-        public async Task<ResultModel> UpdateKoiPond(string id, KoiPondRequest koiPond)
+        public async Task<ResultModel> UpdateKoiPond(string id, KoiPondUpdateRequest koiPond)
         {
             var res = new ResultModel();
             try
@@ -420,8 +420,21 @@ namespace Services.Services.KoiPondService
                     return res;
                 }
 
-                // Cập nhật thuộc tính của existingKoiPond thay vì tạo một instance mới
-                _mapper.Map(koiPond, existingKoiPond);
+                // Chỉ cập nhật những trường có giá trị
+                if (!string.IsNullOrEmpty(koiPond.ShapeId))
+                    existingKoiPond.ShapeId = koiPond.ShapeId;
+
+                if (!string.IsNullOrEmpty(koiPond.PondName))
+                    existingKoiPond.PondName = koiPond.PondName;
+
+                if (!string.IsNullOrEmpty(koiPond.Introduction))
+                    existingKoiPond.Introduction = koiPond.Introduction;
+
+                if (!string.IsNullOrEmpty(koiPond.Description))
+                    existingKoiPond.Description = koiPond.Description;
+
+                if (koiPond.ImageUrl != null)
+                    existingKoiPond.ImageUrl = await _uploadService.UploadImageAsync(koiPond.ImageUrl);
 
                 var updatedKoiPond = await _koiPondRepo.UpdateKoiPond(existingKoiPond);
                 if (updatedKoiPond == null)

@@ -28,7 +28,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 
 namespace Services.Services.OrderService
 {
@@ -243,6 +242,15 @@ namespace Services.Services.OrderService
                 // BookingOnline
                 else if (order.ServiceType == PaymentTypeEnums.BookingOnline.ToString())
                 {
+                    var bookingOnline = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(order.ServiceId);
+                    if (string.IsNullOrEmpty(bookingOnline.MasterId))
+                    {
+                        res.IsSuccess = false;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.ResponseCode = ResponseCodeConstants.FAILED;
+                        res.Message = ResponseMessageConstrantsBooking.MISSINNG_MASTERID;
+                        return res;
+                    }
                     await HandleBookingOnlinePaid(order.ServiceId);
                 }
                 // BookingOffline

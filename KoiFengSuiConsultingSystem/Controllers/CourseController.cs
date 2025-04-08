@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using BusinessObjects.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.ApiModels.Course;
@@ -75,9 +76,15 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPut("update-course/{id}")]
-        public async Task<IActionResult> UpdateCourse(string id, [FromForm] CourseRequest courseRequest)
+        public async Task<IActionResult> UpdateCourse(string id, [FromForm] CourseUpdateRequest courseRequest)
         {
             var result = await _courseService.UpdateCourse(id, courseRequest);
+            return Ok(result);
+        }
+        [HttpPut("update-course-status/{id}")]
+        public async Task<IActionResult> UpdateCourseStatus(string id, [FromQuery] CourseStatusEnum status)
+        {
+            var result = await _courseService.UpdateCourseStatus(id, status);
             return Ok(result);
         }
 

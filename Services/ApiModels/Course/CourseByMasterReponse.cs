@@ -14,5 +14,8 @@ namespace Services.ApiModels.Course
         public string Description { get; set; }
         public decimal? Price { get; set; }
         public string ImageUrl { get; set; }
+        public DateTime CreateAt { get; set; }
+        public string Status { get; set; }
+
     }
 }

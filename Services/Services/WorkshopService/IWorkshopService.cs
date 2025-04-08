@@ -13,7 +13,7 @@ namespace Services.Services.WorkshopService
         Task<ResultModel> SortingWorkshopByCreatedDate();
         Task<ResultModel> ApprovedWorkshop(string id);
         Task<ResultModel> RejectedWorkshop(string id);
-        Task<ResultModel> TrendingWorkshop(bool? trending = null);
+        Task<ResultModel> TrendingWorkshop();
         Task<ResultModel> GetWorkshopById(string id);
         Task<ResultModel> CreateWorkshop(WorkshopRequest workshopRequest);
         Task<ResultModel> UpdateWorkshop(string id, WorkshopRequest workshopRequest);

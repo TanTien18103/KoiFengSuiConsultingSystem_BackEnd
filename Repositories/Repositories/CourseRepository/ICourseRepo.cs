@@ -18,5 +18,6 @@ namespace Repositories.Repositories.CourseRepository
         Task<Course> GetCourseByChapterId(string chapterId);
         Task<List<Course>> GetCoursesByIds(List<string> courseIds);
         Task<bool> CheckCourseExists(string courseId);
+        Task<string> GetEnrollCourseId(string courseId, string customerId);
     }
 }

@@ -22,6 +22,7 @@ using BusinessObjects.Exceptions;
 using Repositories.Repositories.CustomerRepository;
 using Repositories.Repositories.OrderRepository;
 using Services.ServicesHelpers.UploadService;
+using Azure;
 
 namespace Services.Services.CourseService
 {
@@ -467,6 +468,37 @@ namespace Services.Services.CourseService
             var res = new ResultModel();
             try
             {
+                var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_NOT_SEND;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var token = authHeader.Substring("Bearer ".Length);
+                if (string.IsNullOrEmpty(token))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var accountId = await _accountRepo.GetAccountIdFromToken(token);
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+                var customerId = await _customerRepo.GetCustomerIdByAccountId(accountId);
+
                 var course = await _courseRepo.GetCourseById(courseId);
                 if (course == null)
                 {
@@ -478,6 +510,8 @@ namespace Services.Services.CourseService
                 }
 
                 var courseDetail = _mapper.Map<CourseDetailResponse>(course);
+
+                courseDetail.EnrollCourseId = await _courseRepo.GetEnrollCourseId(courseId, customerId);
 
                 courseDetail.EnrolledStudents = course.RegisterCourses?.Count ?? 0;
 

@@ -886,7 +886,6 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
-            entity.Property(e => e.CompletedAt).HasColumnName("Completed_At");
             entity.Property(e => e.CourseId)
                 .HasMaxLength(20)
                 .IsUnicode(false)

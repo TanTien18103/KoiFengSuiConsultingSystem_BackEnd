@@ -151,7 +151,7 @@ namespace Services.Services.WorkshopService
                 return res;
             }
         }
-        public async Task<ResultModel> TrendingWorkshop(bool? trending = null)
+        public async Task<ResultModel> TrendingWorkshop()
         {
             var res = new ResultModel();
             try
@@ -165,14 +165,18 @@ namespace Services.Services.WorkshopService
                     res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND;
                     return res;
                 }
-
-                if (trending == true)
+                bool trending = true;
+                if (trending)
                 {
                     workshops = workshops.Where(x => x.Trending == trending).ToList();
-                }
-                if (trending == false)
-                {
-                    workshops = workshops.Where(x => x.Trending == trending).ToList();
+                    if(!workshops.Any() || workshops == null)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND;
+                        return res;
+                    }
                 }
 
                 res.IsSuccess = true;

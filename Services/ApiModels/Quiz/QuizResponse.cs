@@ -12,6 +12,11 @@ namespace Services.ApiModels.Quiz
         public string CourseId { get; set; }
         public string CourseName { get; set; }
         public string Title { get; set; }
+
+        public string Description { get; set; }
+
+        public int QuestionCount { get; set; }
+
         public string MasterId { get; set; }
         public string MasterName { get; set; }
         public DateTime? CreateAt { get; set; }

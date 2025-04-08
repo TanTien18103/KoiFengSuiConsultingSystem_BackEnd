@@ -24,9 +24,9 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpGet("trending")]
-        public async Task<IActionResult> GetTrendingWorkshop([FromQuery]bool? trening = null)
+        public async Task<IActionResult> GetTrendingWorkshop()
         {
-            var res = await _workshopService.TrendingWorkshop(trening);
+            var res = await _workshopService.TrendingWorkshop();
             return StatusCode(res.StatusCode, res);
         }
 

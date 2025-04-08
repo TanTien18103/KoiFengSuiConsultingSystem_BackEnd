@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.Enums;
+using BusinessObjects.Models;
 using Services.ApiModels;
 using Services.ApiModels.Course;
 using System;
@@ -15,6 +16,7 @@ namespace Services.Services.CourseService
         Task<ResultModel> GetCourses();
         Task<ResultModel> CreateCourse(CourseRequest course);
         Task<ResultModel> UpdateCourse(string id, CourseRequest course);
+        Task<ResultModel> UpdateCourseStatus(string id, CourseStatusEnum status);
         Task<ResultModel> DeleteCourse(string courseId);
         Task<ResultModel> GetCoursesByMaster();
         Task<ResultModel> GetIsBestSellerCourses();

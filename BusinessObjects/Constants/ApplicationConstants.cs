@@ -342,8 +342,11 @@ namespace BusinessObjects.Constants
             public const string PROCEED_TO_QUIZ_SUCCESS = "Bạn đã hoàn thành xong các chương, hãy làm quiz!";
             public const string PAID_COURSES_NOT_FOUND = "Chưa có khóa học nào được mua!";
             public const string PAID_COURSES_FOUND = "Lấy danh sách khóa học đã mua thành công!";
+            public const string COURSE_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái khóa học thành công!";
+            public const string COURSE_ID_INVALID = "Khóa học không hợp lệ!";
+            public const string STATUS_INVALID = "Trạng thái không hợp lệ!";
+            public const string COURSE_ALREADY_HAS_THIS_STATUS = "Khóa học đã có trạng thái này!";
         }
-
         public class ResponseMessageConstrantsCategory
         {
             public const string CATEGORY_CREATED_SUCCESS = "Tạo danh mục thành công!";

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BusinessObjects.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.ApiModels.ConsultationPackage;
 using Services.Services.ConsultationPackageService;
@@ -48,6 +49,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             var res = await _consultationPackageService.DeleteConsultationPackage(id);
             return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpPut("update-package-status/{id}")]
+        public async Task<IActionResult> UpdatePackageStatus(string id, [FromQuery] ConsultationPackageStatusEnums status)
+        {
+            var result = await _consultationPackageService.UpdateConsultationPackageStatus(id, status);
+            return Ok(result);
         }
     }
 }

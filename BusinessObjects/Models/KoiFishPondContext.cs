@@ -337,6 +337,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsRequired()
                 .HasMaxLength(100);
             entity.Property(e => e.ImageUrl).HasMaxLength(255);
+            entity.Property(e => e.Status).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Certificate>(entity =>
@@ -419,6 +420,7 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.MaxPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.MinPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.PackageName).HasMaxLength(100);
+            entity.Property(e => e.Status).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Contract>(entity =>

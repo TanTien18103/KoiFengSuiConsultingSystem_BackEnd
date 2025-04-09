@@ -203,13 +203,17 @@ namespace BusinessObjects.Constants
         public const string PACKAGE_EXISTED = "Bạn đã chọn gói tư vấn cho buổi tư vấn này. Nếu bạn muốn đặt gói mới, hãy hủy gói cũ";
         public const string REMOVED_PACKAGE = "Hủy gói tư vấn thành công";
         public const string PRICE_CHOSEN_SUCCESS = "Chọn giá thành công";
-
         public const string PACKAGE_INVALID = "Không tìm thấy gói tư vấn nào phù hợp với yêu cầu của bạn";
         public const string PACKAGE_CREATE_FAILED = "Không thể tạo gói tư vấn";
         public const string PACKAGE_CREATED = "Thêm gói tư vấn thành công";
         public const string PACKAGE_DELETED = "Xóa gói tư vấn thành công";
         public const string PACKAGE_UPDATED = "Cập nhật gói tư vấn thành công";
         public const string INVALID_PRICE_RANGE = "Giá tối đa phải lớn hơn hoặc bằng giá tối thiểu.";
+        public const string CONSULTATION_PACKAGE_ID_INVALID = "ID gói tư vấn không hợp lệ";
+        public const string STATUS_INVALID = "Trạng thái không hợp lệ";
+        public const string CONSULTATION_PACKAGE_NOT_FOUND = "Không tìm thấy gói tư vấn";
+        public const string CONSULTATION_PACKAGE_ALREADY_HAS_THIS_STATUS = "Gói tư vấn đã có trạng thái này";
+        public const string PACKAGE_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái gói tư vấn thành công";
     }
 
     public class ResponseMessageConstrantsCompatibility
@@ -358,6 +362,10 @@ namespace BusinessObjects.Constants
         public const string CATEGORY_NOT_FOUND = "Không tìm thấy danh sách danh mục!";
         public const string CATEGORY_ALREADY_EXIST = "Tên danh mục đã tồn tại!";
         public const string CATEGORY_DELETED_SUCCESS = "Xóa danh mục thành công!";
+        public const string CATEGORY_ID_INVALID = "ID danh mục không hợp lệ!";
+        public const string STATUS_INVALID = "Trạng thái không hợp lệ!";
+        public const string CATEGORY_ALREADY_HAS_THIS_STATUS = "Danh mục đã có trạng thái này!";
+        public const string CATEGORY_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái danh mục thành công!";
     }
 
     //Image

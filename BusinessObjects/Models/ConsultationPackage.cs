@@ -25,5 +25,7 @@ public partial class ConsultationPackage
 
     public string ImageUrl { get; set; }
 
+    public string Status { get; set; }
+
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 }

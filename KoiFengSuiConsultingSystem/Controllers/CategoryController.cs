@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.Enums;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.ApiModels.Category;
@@ -46,6 +47,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
         {
             var res = await _categorySerivce.DeleteCategory(id);
             return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpPut("update-category-status/{id}")]
+        public async Task<IActionResult> UpdateCategoryStatus(string id, [FromQuery] CategoryStatusEnums status)
+        {
+            var result = await _categorySerivce.UpdateCategoryStatus(id, status);
+            return Ok(result);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.Enums;
+using BusinessObjects.Models;
 using Services.ApiModels;
 using Services.ApiModels.Category;
 using System;
@@ -16,6 +17,7 @@ namespace Services.Services.CategoryService
         Task<ResultModel> CreateCategory(CategoryRequest request);
         Task<ResultModel> UpdateCategory(string id, CategoryUpdateRequest request);
         Task<ResultModel> DeleteCategory(string id);
+        Task<ResultModel> UpdateCategoryStatus(string id, CategoryStatusEnums status);
 
     }
 }

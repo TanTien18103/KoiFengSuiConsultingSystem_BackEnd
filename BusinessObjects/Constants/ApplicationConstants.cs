@@ -279,6 +279,7 @@ namespace BusinessObjects.Constants
     public class ResponseMessageConstrantsMaster
     {
         public const string MASTER_NOT_FOUND = "Không tìm thấy Master!";
+        public const string MANAGER_NOT_FOUND = "Không tìm thấy Manager!";
         public const string MASTER_INFO_NOT_FOUND = "Không tìm thấy thông tin Master!";
         public const string MASTER_FOUND = "Lấy danh sách Master thành công!";
         public const string EXISTING_SCHEDULE = "Thời gian biểu của Master đã được đặt, vui lòng chọn thời gian khác!";

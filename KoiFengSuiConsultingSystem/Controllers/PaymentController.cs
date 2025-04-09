@@ -39,7 +39,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPost("refund")]
-        [Authorize(Roles = "Master")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> ProcessRefund([FromBody] RefundRequest request)
         {
             try

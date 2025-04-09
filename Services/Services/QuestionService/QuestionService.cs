@@ -207,10 +207,22 @@ namespace Services.Services.QuestionService
                     return res;
                 }
 
+                var existingQuestions = await _questionRepository.GetQuestionsByQuizId(quizId);
+                int totalQuestionCount = existingQuestions.Count() + 1;
+
+                decimal pointPerQuestion = totalQuestionCount > 0 ? quiz.Score.Value / totalQuestionCount : 0m;
+
+                foreach (var q in existingQuestions)
+                {
+                    q.Point = pointPerQuestion;
+                    await _questionRepository.UpdateQuestion(q);
+                }
+
                 var question = _mapper.Map<Question>(questionRequest);
                 question.QuestionId = GenerateShortGuid();
                 question.QuizId = quizId;
                 question.CreateAt = DateTime.UtcNow;
+                question.Point = pointPerQuestion;
 
                 if (question.Answers != null && question.Answers.Any())
                 {

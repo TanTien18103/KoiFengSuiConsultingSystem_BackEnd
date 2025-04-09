@@ -11,8 +11,6 @@ namespace Services.ApiModels.Quiz
     {
         [Required]
         public string Title { get; set; }
-        [Required]
-        public decimal? Score { get; set; }
         
     }
 }

@@ -22,6 +22,7 @@ using BusinessObjects.Exceptions;
 using Repositories.Repositories.CustomerRepository;
 using Repositories.Repositories.OrderRepository;
 using Services.ServicesHelpers.UploadService;
+using Azure;
 
 namespace Services.Services.CourseService
 {
@@ -193,12 +194,12 @@ namespace Services.Services.CourseService
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message =ex.InnerException?.Message;
+                res.Message = ex.InnerException?.Message;
                 return res;
             }
         }
 
-        public async Task<ResultModel> UpdateCourse(string id, CourseRequest request)
+        public async Task<ResultModel> UpdateCourse(string id, CourseUpdateRequest request)
         {
             var res = new ResultModel();
             try
@@ -223,10 +224,22 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                _mapper.Map(request, course);
+                if (!string.IsNullOrEmpty(request.CourseName))
+                    course.CourseName = request.CourseName;
+
+                if (!string.IsNullOrEmpty(request.CourseCategory))
+                    course.CategoryId = request.CourseCategory;
+
+                if (!string.IsNullOrEmpty(request.Description))
+                    course.Description = request.Description;
+
+                if (request.Price.HasValue)
+                    course.Price = request.Price.Value;
+
+                if (request.ImageUrl != null)
+                    course.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+
                 course.UpdateAt = DateTime.UtcNow;
-                course.CategoryId = request.CourseCategory;
-                course.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
                 await _courseRepo.UpdateCourse(course);
                 var response = await _courseRepo.GetCourseById(id);
@@ -392,7 +405,7 @@ namespace Services.Services.CourseService
             try
             {
                 var category = await _categoryRepo.GetCategoryById(id);
-                if(category == null)
+                if (category == null)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -467,6 +480,37 @@ namespace Services.Services.CourseService
             var res = new ResultModel();
             try
             {
+                var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_NOT_SEND;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var token = authHeader.Substring("Bearer ".Length);
+                if (string.IsNullOrEmpty(token))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var accountId = await _accountRepo.GetAccountIdFromToken(token);
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+                var customerId = await _customerRepo.GetCustomerIdByAccountId(accountId);
+
                 var course = await _courseRepo.GetCourseById(courseId);
                 if (course == null)
                 {
@@ -479,28 +523,13 @@ namespace Services.Services.CourseService
 
                 var courseDetail = _mapper.Map<CourseDetailResponse>(course);
 
+                courseDetail.EnrollCourseId = await _courseRepo.GetEnrollCourseId(courseId, customerId);
+
                 courseDetail.EnrolledStudents = course.RegisterCourses?.Count ?? 0;
 
                 courseDetail.TotalChapters = course.Chapters?.Count ?? 0;
 
-                if (course.Chapters != null && course.Chapters.Any())
-                {
-                    var durations = course.Chapters
-                        .Where(c => c.Duration.HasValue)
-                        .Select(c => c.Duration.Value);
-
-                    if (durations.Any())
-                    {
-                        TimeSpan totalTimeSpan = TimeSpan.Zero;
-                        foreach (var duration in durations)
-                        {
-                            totalTimeSpan = totalTimeSpan.Add(new TimeSpan(duration.Hour, duration.Minute, duration.Second));
-                        }
-
-                        courseDetail.TotalDuration = new TimeOnly(totalTimeSpan.Hours, totalTimeSpan.Minutes, totalTimeSpan.Seconds);
-                    }
-                }
-                int totalQuestions = 0; 
+                int totalQuestions = 0;
                 if (course.Quizzes != null && course.Quizzes.Any())
                 {
                     totalQuestions = course.Quizzes
@@ -595,6 +624,75 @@ namespace Services.Services.CourseService
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> UpdateCourseStatus(string id, CourseStatusEnum status)
+        {
+            var res = new ResultModel();
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsCourse.COURSE_ID_INVALID;
+                    return res;
+                }
+
+                // Làm sạch id
+                id = id.Trim();
+
+                // Validate status enum (phòng trường hợp nhận từ body dạng int bị sai)
+                if (!Enum.IsDefined(typeof(CourseStatusEnum), status))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsCourse.STATUS_INVALID;
+                    return res;
+                }
+
+                var course = await _courseRepo.GetCourseById(id);
+                if (course == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsCourse.COURSE_NOT_FOUND;
+                    return res;
+                }
+
+                var newStatus = status.ToString();
+
+                if (course.Status == newStatus)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsCourse.COURSE_ALREADY_HAS_THIS_STATUS;
+                    return res;
+                }
+
+                course.Status = newStatus;
+                await _courseRepo.UpdateCourse(course);
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<CourseResponse>(course);
+                res.Message = ResponseMessageConstrantsCourse.COURSE_STATUS_UPDATED_SUCCESS;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = "Đã xảy ra lỗi nội bộ: " + ex.Message;
                 return res;
             }
         }

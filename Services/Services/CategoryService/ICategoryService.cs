@@ -14,6 +14,8 @@ namespace Services.Services.CategoryService
         Task<ResultModel> GetCategoryById(string id);
         Task<ResultModel> GetAllCategories();
         Task<ResultModel> CreateCategory(CategoryRequest request);
-        Task<ResultModel> UpdateCategory(string id, CategoryRequest request);
+        Task<ResultModel> UpdateCategory(string id, CategoryUpdateRequest request);
+        Task<ResultModel> DeleteCategory(string id);
+
     }
 }

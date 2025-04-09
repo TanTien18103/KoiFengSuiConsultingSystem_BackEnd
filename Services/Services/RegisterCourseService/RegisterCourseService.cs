@@ -366,12 +366,13 @@ namespace Services.Services.RegisterCourseService
                 await _enrollAnswerRepo.AddRangeEnrollAnswers(enrollAnswers);
 
                 enrollQuiz.Point = totalScore;
+                
                 await _enrollQuizRepo.UpdateEnrollQuiz(enrollQuiz);
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                res.Message = "Quiz submitted successfully!";
+                res.Message = ResponseMessageConstrantQuiz.QUIZ_SUBMITED_SUCCESS;
                 res.Data = new QuizResultResponse
                 {
                     QuizId = quizid,

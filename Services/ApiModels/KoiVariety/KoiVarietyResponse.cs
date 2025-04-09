@@ -11,6 +11,7 @@ namespace Services.ApiModels.KoiVariety
         public string KoiVarietyId { get; set; }
         public string VarietyName { get; set; }
         public string Description { get; set; }
+        public string ImageUrl { get; set; }
         public List<VarietyColorResponse> VarietyColors { get; set; }
         public decimal TotalPercentage { get; set; }
         public decimal CompatibilityScore { get; set; }
@@ -24,6 +25,7 @@ namespace Services.ApiModels.KoiVariety
     {
         public string ColorId { get; set; }
         public string ColorName { get; set; }
+        public string ColorCode { get; set; }
         public string Element { get; set; }
     }
 }

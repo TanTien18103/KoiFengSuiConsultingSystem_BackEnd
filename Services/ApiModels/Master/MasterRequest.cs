@@ -27,6 +27,6 @@ namespace Services.ApiModels.Master
         [Required]
         [RegularExpression(@"^[\p{L}0-9 ,.\\-_]+$", ErrorMessage = "lý lịch không được chứa ký tự đặc biệt")]
         public string Biography { get; set; }
-        public IFormFile ImageUrl { get; set; }
+        public IFormFile? ImageUrl { get; set; }
     }
 }

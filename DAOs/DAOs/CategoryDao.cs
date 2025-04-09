@@ -61,5 +61,15 @@ namespace DAOs.DAOs
             await _context.SaveChangesAsync();
             return category;
         }
+
+        public async Task DeleteCategory(string id)
+        {
+            var category = await _context.Categories.FirstOrDefaultAsync(x => x.CategoryId == id);
+            if (category != null)
+            {
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

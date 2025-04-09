@@ -568,7 +568,7 @@ namespace Services.Services.BookingService
                         Type = MasterScheduleTypeEnums.BookingOffline.ToString(),
                         Status = MasterScheduleEnums.Pending.ToString(),
                     };
-                    
+
                     var createmasterSchedule = await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
 
                     bookingOffline.MasterId = masterId;
@@ -1119,6 +1119,17 @@ namespace Services.Services.BookingService
                 }
 
                 var customerId = await _customerRepo.GetCustomerIdByAccountId(accountId);
+
+                var existingPendingBooking = await _offlineRepo.GetPendingBookingByCustomerId(customerId);
+                if (existingPendingBooking != null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsBooking.PENDING_BOOKING_EXISTS;
+                    return res;
+                }
+
                 var consultationPackage = await _consultationPackageRepo.GetConsultationPackageById(packageId);
                 if (consultationPackage == null)
                 {
@@ -1459,7 +1470,7 @@ namespace Services.Services.BookingService
                     if (order == null || order.Status != PaymentStatusEnums.Paid.ToString())
                     {
                         await _onlineRepo.UpdateBookingOnlineStatusRepo(
-                            booking.BookingOnlineId, 
+                            booking.BookingOnlineId,
                             BookingOnlineEnums.Canceled.ToString());
                         cancelledCount++;
                     }

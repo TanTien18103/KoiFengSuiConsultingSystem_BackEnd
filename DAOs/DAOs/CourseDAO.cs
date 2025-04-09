@@ -110,5 +110,12 @@ namespace DAOs.DAOs
         {
             return await _context.Courses.AnyAsync(c => c.CourseId == courseId);
         }
+
+        public async Task<string> GetEnrollCourseIdDao(string courseId, string customerId)
+        {
+            var enrollCourse = await _context.RegisterCourses
+                .FirstOrDefaultAsync(rc => rc.CourseId == courseId && rc.CustomerId == customerId);
+            return enrollCourse?.EnrollCourseId;
+        }
     }
 }

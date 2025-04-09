@@ -139,9 +139,9 @@ namespace Services.Services.ChapterService
                     return res;
                 }
 
-
                 var chapter = _mapper.Map<Chapter>(request);
                 chapter.ChapterId = GenerateShortGuid();
+                chapter.CreateDate = DateTime.UtcNow;
                 chapter.Video = await _uploadService.UploadVideoAsync(request.Video);
                 await _chapterRepo.CreateChapter(chapter);
 
@@ -161,7 +161,7 @@ namespace Services.Services.ChapterService
                 return res;
             }
         }
-        public async Task<ResultModel> UpdateChapter(string chapterId, ChapterRequest chapter)
+        public async Task<ResultModel> UpdateChapter(string chapterId, ChapterUpdateRequest chapter)
         {
             var res = new ResultModel();
 
@@ -186,26 +186,44 @@ namespace Services.Services.ChapterService
                     return res;
                 }
 
-                var course = await _courseRepo.GetCourseById(chapter.CourseId);
-                if (course == null)
+                // Nếu người dùng truyền CourseId thì mới kiểm tra
+                if (!string.IsNullOrWhiteSpace(chapter.CourseId))
                 {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = ResponseMessageConstrantsCourse.COURSE_NOT_FOUND;
-                    return res;
+                    var course = await _courseRepo.GetCourseById(chapter.CourseId);
+                    if (course == null)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.Message = ResponseMessageConstrantsCourse.COURSE_NOT_FOUND;
+                        return res;
+                    }
+
+                    chapterInfo.CourseId = chapter.CourseId;
                 }
 
-                _mapper.Map(chapter, chapterInfo);
-                chapterInfo.Video = await _uploadService.UploadVideoAsync(chapter.Video);
+                if (!string.IsNullOrWhiteSpace(chapter.Title))
+                {
+                    chapterInfo.Title = chapter.Title;
+                }
+
+                if (!string.IsNullOrWhiteSpace(chapter.Description))
+                {
+                    chapterInfo.Description = chapter.Description;
+                }
+
+                if (chapter.Video != null)
+                {
+                    chapterInfo.Video = await _uploadService.UploadVideoAsync(chapter.Video);
+                }
 
                 await _chapterRepo.UpdateChapter(chapterInfo);
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<ChapterRespone>(chapterInfo);
                 res.Message = ResponseMessageConstrantsChapter.CHAPTER_UPDATED_PROGRESS_SUCCESS;
+                res.Data = _mapper.Map<ChapterRespone>(chapterInfo);
                 return res;
             }
             catch (Exception ex)

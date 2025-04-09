@@ -174,9 +174,10 @@ namespace Services.Services.ConsultationPackageService
             }
         }
 
-        public async Task<ResultModel> UpdateConsultationPackage(string id, ConsultationPackageRequest consultationPackageRequest)
+        public async Task<ResultModel> UpdateConsultationPackage(string id, ConsultationPackageUpdateRequest consultationPackageRequest)
         {
             var res = new ResultModel();
+
             try
             {
                 var package = await _consultationPackageRepo.GetConsultationPackageById(id);
@@ -189,15 +190,55 @@ namespace Services.Services.ConsultationPackageService
                     return res;
                 }
 
-                var updatedPackage = _mapper.Map(consultationPackageRequest, package);
-                updatedPackage.ImageUrl = await _uploadService.UploadImageAsync(consultationPackageRequest.ImageUrl);
-                await _consultationPackageRepo.UpdateConsultationPackage(updatedPackage);
+                // Gán giá trị tạm thời để check logic Min < Max
+                var tempMin = consultationPackageRequest.MinPrice ?? package.MinPrice;
+                var tempMax = consultationPackageRequest.MaxPrice ?? package.MaxPrice;
+
+                if (tempMin > tempMax)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsPackage.INVALID_PRICE_RANGE;
+                    return res;
+                }
+
+
+                // Cập nhật từng trường nếu có giá trị
+                if (!string.IsNullOrWhiteSpace(consultationPackageRequest.PackageName))
+                    package.PackageName = consultationPackageRequest.PackageName;
+
+                if (consultationPackageRequest.MinPrice.HasValue)
+                    package.MinPrice = consultationPackageRequest.MinPrice.Value;
+
+                if (consultationPackageRequest.MaxPrice.HasValue)
+                    package.MaxPrice = consultationPackageRequest.MaxPrice.Value;
+
+                if (!string.IsNullOrWhiteSpace(consultationPackageRequest.Description))
+                    package.Description = consultationPackageRequest.Description;
+
+                if (!string.IsNullOrWhiteSpace(consultationPackageRequest.SuitableFor))
+                    package.SuitableFor = consultationPackageRequest.SuitableFor;
+
+                if (!string.IsNullOrWhiteSpace(consultationPackageRequest.RequiredInfo))
+                    package.RequiredInfo = consultationPackageRequest.RequiredInfo;
+
+                if (!string.IsNullOrWhiteSpace(consultationPackageRequest.PricingDetails))
+                    package.PricingDetails = consultationPackageRequest.PricingDetails;
+
+                // Nếu có ảnh mới thì upload
+                if (consultationPackageRequest.ImageUrl != null)
+                {
+                    package.ImageUrl = await _uploadService.UploadImageAsync(consultationPackageRequest.ImageUrl);
+                }
+
+                await _consultationPackageRepo.UpdateConsultationPackage(package);
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Message = ResponseMessageConstrantsPackage.PACKAGE_UPDATED;
-                res.Data = _mapper.Map<ConsultationPackageResponse>(updatedPackage);
+                res.Data = _mapper.Map<ConsultationPackageResponse>(package);
                 return res;
             }
             catch (Exception ex)
@@ -205,7 +246,7 @@ namespace Services.Services.ConsultationPackageService
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = ex.Message;
+                res.Message = $"Lỗi khi cập nhật gói tư vấn: {ex.Message}";
                 return res;
             }
         }

@@ -17,6 +17,7 @@ namespace Services.ApiModels.Course
         public decimal? Price { get; set; }
         public decimal? Rating { get; set; }
         public int? EnrolledStudents { get; set; }
+        public string EnrollCourseId { get; set; }
         public int? TotalChapters { get; set; }
         public int? TotalQuestions { get; set; }
         public TimeOnly? TotalDuration { get; set; }

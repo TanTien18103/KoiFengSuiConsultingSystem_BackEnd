@@ -9,19 +9,13 @@ using System.Threading.Tasks;
 
 namespace Services.ApiModels.KoiVariety
 {
-    public class KoiVarietyRequest
+    public class KoiVarietyUpdateRequest
     {
-        [Required]
-        public string VarietyName { get; set; }
-        [Required]
-        public string Description { get; set; }
-        [Required]
-        public string Introduction { get; set; }
-        [Required]
-        public IFormFile ImageUrl { get; set; }
-        [Required]
-        public string VarietyColorsJson { get; set; } 
-
+        public string? VarietyName { get; set; }
+        public string? Description { get; set; }
+        public string? Introduction { get; set; }
+        public IFormFile? ImageUrl { get; set; }
+        public string? VarietyColorsJson { get; set; }
         public List<VarietyColorRequest> GetVarietyColors()
         {
             return JsonConvert.DeserializeObject<List<VarietyColorRequest>>(VarietyColorsJson);

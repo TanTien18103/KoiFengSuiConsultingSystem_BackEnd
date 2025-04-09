@@ -16,7 +16,9 @@ namespace Services.Mapper
         {
             CreateMap<Quiz, QuizResponse>()
                 .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.CreateByNavigation.MasterName))
+                .ForMember(dest => dest.QuestionCount, opt => opt.MapFrom(src => src.Questions.Count))
                 .ForMember(dest => dest.CourseName, opt => opt.MapFrom(src => src.Course.CourseName))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Course.Description))
                 .ForMember(dest => dest.MasterId, opt => opt.MapFrom(src => src.CreateBy));
 
             CreateMap<QuizRequest, Quiz>();

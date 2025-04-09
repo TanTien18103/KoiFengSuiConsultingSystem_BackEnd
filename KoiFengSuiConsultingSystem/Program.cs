@@ -173,6 +173,8 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
+// Add Response Caching Middleware
+builder.Services.AddResponseCaching();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -276,7 +278,7 @@ if (app.Environment.IsDevelopment() || true)
         c.DisplayRequestDuration();
     });
 }
-
+app.UseResponseCaching();
 app.UseHttpsRedirection();
 // Use CORS before other middleware
 app.UseCors("AllowAllOrigins");

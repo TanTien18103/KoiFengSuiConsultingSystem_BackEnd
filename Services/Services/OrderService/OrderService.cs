@@ -233,6 +233,12 @@ namespace Services.Services.OrderService
                                         pendingOrder.PaymentReference = null;
                                         await _orderRepo.UpdateOrder(pendingOrder);
                                     }
+                                    if (pendingOrder != null && pendingOrder.Status == PaymentStatusEnums.PendingConfirm.ToString())
+                                    {
+                                        pendingOrder.Status = PaymentStatusEnums.WaitingForRefund.ToString();
+                                        pendingOrder.PaymentReference = null;
+                                        await _orderRepo.UpdateOrder(pendingOrder);
+                                    }
                                 }
                             }
                         }
@@ -399,6 +405,12 @@ namespace Services.Services.OrderService
                             conflictOrder.PaymentReference = null;
                             await _orderRepo.UpdateOrder(conflictOrder);
                         }
+                        if (conflictOrder != null && conflictOrder.Status == PaymentStatusEnums.PendingConfirm.ToString())
+                        {
+                            conflictOrder.Status = PaymentStatusEnums.WaitingForRefund.ToString();
+                            conflictOrder.PaymentReference = null;
+                            await _orderRepo.UpdateOrder(conflictOrder);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -461,7 +473,7 @@ namespace Services.Services.OrderService
             try
             {
                 var orders = await _orderRepo.GetAllOrders();
-                var pendingConfirmOrders = orders.Where(x => x.Status == PaymentStatusEnums.PendingConfirm.ToString()).ToList();
+                var pendingConfirmOrders = orders.Where(x => x.Status == PaymentStatusEnums.PendingConfirm.ToString()).OrderByDescending(x => x.CreatedDate).ToList();
 
                 if (pendingConfirmOrders == null || !pendingConfirmOrders.Any() || pendingConfirmOrders.Count == 0)
                 {

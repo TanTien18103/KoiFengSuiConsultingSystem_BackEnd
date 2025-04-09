@@ -494,7 +494,6 @@ namespace Services.Services.FengShuiDocumentService
                 var booking = updatedDocument.BookingOfflines.FirstOrDefault();
                 if (booking != null)
                 {
-                    booking.DocumentId = null;
                     booking.Status = BookingOfflineEnums.DocumentConfirmedByManager.ToString();
                     await _bookingOfflineRepo.UpdateBookingOffline(booking);
                 }

@@ -127,6 +127,7 @@ namespace BusinessObjects.Constants
     {
         public const string NOT_FOUND = "Không tìm thấy đơn hàng";
         public const string NOT_FOUND_PENDING = "Không tìm thấy đơn hàng đang chờ được xử lý";
+        public const string NOT_FOUND_WAITINGFORREFUND = "Không tìm thấy đơn hàng đang chờ hoàn tiền";
         public const string FOUND = "Tìm thấy đơn hàng: ";
         public const string INVALID_DATA = "Dữ liệu không hợp lệ";
         public const string NOTALLOWED = "Bạn không được phép xem đơn hàng này";

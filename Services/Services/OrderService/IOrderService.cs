@@ -12,6 +12,7 @@ namespace Services.Services.OrderService
         Task<ResultModel> UpdateOrderToPaid(string id);
         Task<ResultModel> UpdateOrderToPendingConfirm(string id);
         Task<ResultModel> GetPendingOrders();
+        Task<ResultModel> GetWaitingForRefundOrders();
         Task<ResultModel> CancelOrder(string orderId);
         Task<ResultModel> CheckAndUpdateExpiredOrders();
         Task<ResultModel> GetPendingConfirmOrders();

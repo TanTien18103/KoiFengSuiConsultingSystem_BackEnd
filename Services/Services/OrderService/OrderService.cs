@@ -501,6 +501,40 @@ namespace Services.Services.OrderService
             }
         }
 
+        public async Task<ResultModel> GetWaitingForRefundOrders()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var orders = await _orderRepo.GetAllOrders();
+                var pendingConfirmOrders = orders.Where(x => x.Status == PaymentStatusEnums.WaitingForRefund.ToString()).OrderByDescending(x => x.CreatedDate).ToList();
+
+                if (pendingConfirmOrders == null || !pendingConfirmOrders.Any() || pendingConfirmOrders.Count == 0)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsOrder.NOT_FOUND_WAITINGFORREFUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Data = _mapper.Map<List<OrderResponse>>(pendingConfirmOrders);
+                res.Message = ResponseMessageConstrantsOrder.FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
         public async Task<ResultModel> GetDetailsOrder(string id)
         {
             var res = new ResultModel();

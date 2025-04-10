@@ -40,7 +40,7 @@ namespace Services.ServicesHelpers.UploadService
             if (string.IsNullOrEmpty(publicId))
                 return null;
 
-            var url = _cloudinary.Api.Url.BuildUrl(publicId);
+            var url = _cloudinary.Api.Url.Secure(true).BuildUrl(publicId);
             return url;
         }
 
@@ -49,7 +49,10 @@ namespace Services.ServicesHelpers.UploadService
             if (string.IsNullOrEmpty(publicId))
                 return null;
 
-            return _cloudinary.Api.UrlImgUp.ResourceType("raw").BuildUrl(publicId);
+            return _cloudinary.Api.UrlImgUp
+                .ResourceType("raw")
+                .Secure(true)
+                .BuildUrl(publicId);
         }
 
         public string GetImageUrl(string publicId)
@@ -57,12 +60,14 @@ namespace Services.ServicesHelpers.UploadService
             if (string.IsNullOrEmpty(publicId))
                 return null;
 
-            var url = _cloudinary.Api.UrlImgUp.Transform(new Transformation()
-                .Quality("auto")
-                .FetchFormat("auto"))
+            var url = _cloudinary.Api.UrlImgUp
+                .Secure(true)
+                .Transform(new Transformation()
+                    .Quality("auto")
+                    .FetchFormat("auto"))
                 .BuildUrl(publicId);
 
-            return url; 
+            return url;
         }
 
         public string GetVideoUrl(string publicId)
@@ -70,7 +75,10 @@ namespace Services.ServicesHelpers.UploadService
             if (string.IsNullOrEmpty(publicId))
                 return null;
 
-            var url = _cloudinary.Api.Url.BuildUrl(publicId);
+            var url = _cloudinary.Api.Url
+                .Secure(true)
+                .BuildUrl(publicId);
+
             return url;
         }
 
@@ -86,15 +94,13 @@ namespace Services.ServicesHelpers.UploadService
                 {
                     File = new FileDescription(file.FileName, stream),
                     Folder = "documents",
-                    PublicId = Path.GetFileNameWithoutExtension(file.FileName)
+                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.UtcNow.Ticks}"
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
                 if (uploadResult.Error != null)
-                {
                     throw new Exception($"Lỗi khi upload tài liệu: {uploadResult.Error.Message}");
-                }
 
                 return uploadResult.SecureUrl.ToString();
             }
@@ -108,6 +114,7 @@ namespace Services.ServicesHelpers.UploadService
         {
             if (file == null || file.Length == 0)
                 return null;
+
             try
             {
                 using var stream = file.OpenReadStream();
@@ -115,13 +122,18 @@ namespace Services.ServicesHelpers.UploadService
                 {
                     File = new FileDescription(file.FileName, stream),
                     Folder = "images",
-                    Transformation = new Transformation().Quality("auto").Crop("fill").FetchFormat("auto")
+                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.UtcNow.Ticks}",
+                    // Gợi ý: nếu crop không cần thiết thì có thể bỏ đi
+                    Transformation = new Transformation()
+                        .Quality("auto")
+                        .FetchFormat("auto")
                 };
+
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
                 if (uploadResult.Error != null)
-                {
                     throw new Exception($"Lỗi khi upload ảnh: {uploadResult.Error.Message}");
-                }
+
                 return uploadResult.SecureUrl.ToString();
             }
             catch (Exception ex)
@@ -142,18 +154,16 @@ namespace Services.ServicesHelpers.UploadService
                 {
                     File = new FileDescription(file.FileName, stream),
                     Folder = "pdfs",
-                    Type = "upload"
+                    Type = "upload",
+                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.UtcNow.Ticks}"
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
                 if (uploadResult.Error != null)
-                {
                     throw new Exception($"Lỗi khi upload PDF: {uploadResult.Error.Message}");
-                }
-                
-                return uploadResult.SecureUrl.ToString();
 
+                return uploadResult.SecureUrl.ToString();
             }
             catch (Exception ex)
             {
@@ -165,6 +175,7 @@ namespace Services.ServicesHelpers.UploadService
         {
             if (file == null || file.Length == 0)
                 return null;
+
             try
             {
                 using var stream = file.OpenReadStream();
@@ -172,13 +183,13 @@ namespace Services.ServicesHelpers.UploadService
                 {
                     File = new FileDescription(file.FileName, stream),
                     Folder = "videos",
+                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.UtcNow.Ticks}"
                 };
+
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
                 if (uploadResult.Error != null)
-                {
                     throw new Exception($"Lỗi khi upload video: {uploadResult.Error.Message}");
-                }
 
                 return uploadResult.SecureUrl.ToString();
             }
@@ -187,7 +198,6 @@ namespace Services.ServicesHelpers.UploadService
                 throw new Exception($"Lỗi khi upload video: {ex.Message}");
             }
         }
-
         public async Task<List<Quiz>> UploadExcelAsync(IFormFile file)
         {
             try

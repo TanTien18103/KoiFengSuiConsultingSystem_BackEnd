@@ -718,7 +718,6 @@ namespace Services.Services.BookingService
                     res.Message = ResponseMessageConstrantsBooking.ONLINE_GET_SUCCESS;
                     return res;
                 }
-
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
                 res.StatusCode = StatusCodes.Status404NotFound;
@@ -804,7 +803,6 @@ namespace Services.Services.BookingService
                 return res;
             }
         }
-
         public async Task<ResultModel> Calculate(BookingTypeEnums bookingType, string bookingId)
         {
             var res = new ResultModel();

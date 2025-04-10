@@ -112,6 +112,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
         [HttpPut("assign-staff")]
+
         [Authorize(Roles = "Manager")]
         public async Task<IActionResult> AssignStaff(string? bookingonline, string? bookingoffline, string staffId)
         {

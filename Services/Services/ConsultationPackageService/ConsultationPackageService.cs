@@ -52,7 +52,7 @@ namespace Services.Services.ConsultationPackageService
                 var package = _mapper.Map<ConsultationPackage>(consultationPackageRequest);
                 package.ConsultationPackageId = GenerateShortGuid();
                 package.ImageUrl = await _uploadService.UploadImageAsync(consultationPackageRequest.ImageUrl);
-                package.Status = CategoryStatusEnums.Inactive.ToString();
+                package.Status = ConsultationPackageStatusEnums.Inactive.ToString();
                 var createdPackage = await _consultationPackageRepo.CreateConsultationPackage(package);
 
                 if (createdPackage == null)
@@ -273,7 +273,7 @@ namespace Services.Services.ConsultationPackageService
                 id = id.Trim();
 
                 // Validate status enum (phòng trường hợp nhận từ body dạng int bị sai)
-                if (!Enum.IsDefined(typeof(CategoryStatusEnums), status))
+                if (!Enum.IsDefined(typeof(ConsultationPackageStatusEnums), status))
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;

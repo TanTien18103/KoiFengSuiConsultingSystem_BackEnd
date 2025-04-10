@@ -52,6 +52,7 @@ namespace Services.Services.ConsultationPackageService
                 var package = _mapper.Map<ConsultationPackage>(consultationPackageRequest);
                 package.ConsultationPackageId = GenerateShortGuid();
                 package.ImageUrl = await _uploadService.UploadImageAsync(consultationPackageRequest.ImageUrl);
+                package.Status = CategoryStatusEnums.Inactive.ToString();
                 var createdPackage = await _consultationPackageRepo.CreateConsultationPackage(package);
 
                 if (createdPackage == null)

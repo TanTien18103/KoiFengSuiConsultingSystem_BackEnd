@@ -124,6 +124,7 @@ namespace Services.Services.CategoryService
                 category.CategoryId = GenerateShortGuid();
                 category.CategoryName = request.CategoryName;
                 category.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+                category.Status = CategoryStatusEnums.Inactive.ToString();
                 await _categoryRepo.CreateCategory(category);
 
                 res.IsSuccess = true;

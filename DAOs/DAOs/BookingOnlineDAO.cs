@@ -185,12 +185,15 @@ namespace DAOs.DAOs
             }
         }
 
-        public async Task<List<BookingOnline>> GetConflictingBookingsDao(string masterId, DateOnly bookingDate, TimeOnly startTime)
+        public async Task<List<BookingOnline>> GetConflictingBookingsDao(string masterId, DateOnly bookingDate, TimeOnly startTime, TimeOnly endTime)
         {
             return await _context.BookingOnlines
                 .Where(b => b.MasterId == masterId &&
                            b.BookingDate == bookingDate &&
-                           b.StartTime == startTime &&
+                           ((startTime >= b.StartTime && startTime < b.EndTime) || 
+                            (endTime > b.StartTime && endTime <= b.EndTime) ||     
+                            (startTime <= b.StartTime && endTime >= b.EndTime) || 
+                            (startTime <= b.EndTime && endTime >= b.StartTime)) && 
                            b.Status != BookingOnlineEnums.Canceled.ToString() &&
                            b.Status != BookingOnlineEnums.Completed.ToString())
                 .ToListAsync();
@@ -231,7 +234,7 @@ namespace DAOs.DAOs
                             (endTime > b.StartTime && endTime <= b.EndTime) ||     
                             (startTime <= b.StartTime && endTime >= b.EndTime) || 
                             (startTime <= b.EndTime && endTime >= b.StartTime)) && 
-                           b.Status != BookingOnlineEnums.Canceled.ToString()) 
+                           b.Status == BookingOnlineEnums.Pending.ToString()) 
                 .ToListAsync();
         }
 

@@ -56,7 +56,8 @@ namespace Services.Services.WorkshopService
             try
             {
                 var workshops = await _workShopRepo.SortingWorkshopByCreatedDate();
-                if (workshops == null)
+                var approvedWorkshops = workshops.Where(x => x.Status == WorkshopStatusEnums.Approved.ToString()).ToList();
+                if (approvedWorkshops == null)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -68,7 +69,7 @@ namespace Services.Services.WorkshopService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<WorkshopResponse>>(workshops);
+                res.Data = _mapper.Map<List<WorkshopResponse>>(approvedWorkshops);
                 res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_FOUND;
                 return res;
             }
@@ -157,7 +158,8 @@ namespace Services.Services.WorkshopService
             try
             {
                 var workshops = await _workShopRepo.GetWorkShops();
-                if (workshops == null || !workshops.Any())
+                var approvedWorkshops = workshops.Where(x => x.Status == WorkshopStatusEnums.Approved.ToString()).ToList();
+                if (approvedWorkshops == null || !approvedWorkshops.Any())
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -168,8 +170,8 @@ namespace Services.Services.WorkshopService
                 bool trending = true;
                 if (trending)
                 {
-                    workshops = workshops.Where(x => x.Trending == trending).ToList();
-                    if(!workshops.Any() || workshops == null)
+                    approvedWorkshops = approvedWorkshops.Where(x => x.Trending == trending).ToList();
+                    if(!approvedWorkshops.Any() || approvedWorkshops == null)
                     {
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -182,7 +184,7 @@ namespace Services.Services.WorkshopService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<WorkshopResponse>>(workshops);
+                res.Data = _mapper.Map<List<WorkshopResponse>>(approvedWorkshops);
                 res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_FOUND;
                 return res;
             }

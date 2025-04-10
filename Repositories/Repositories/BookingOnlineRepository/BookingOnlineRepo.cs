@@ -51,9 +51,9 @@ namespace Repositories.Repositories.BookingOnlineRepository
         {
             return BookingOnlineDAO.Instance.GetBookingOnlinesByMasterIdDao(masterId);
         }
-        public Task<List<BookingOnline>> GetConflictingBookingsRepo(string masterId, DateOnly bookingDate, TimeOnly startTime)
+        public Task<List<BookingOnline>> GetConflictingBookingsRepo(string masterId, DateOnly bookingDate, TimeOnly startTime, TimeOnly endTime)
         {
-            return BookingOnlineDAO.Instance.GetConflictingBookingsDao(masterId, bookingDate, startTime);
+            return BookingOnlineDAO.Instance.GetConflictingBookingsDao(masterId, bookingDate, startTime, endTime);
         }
         public Task<List<BookingOnline>> GetUnpaidBookingsOlderThanRepo(DateTime cutoffDate)
         {

@@ -23,5 +23,7 @@ namespace Services.ApiModels.ConsultationPackage
         public string RequiredInfo { get; set; }
 
         public string PricingDetails { get; set; }
+        public string Status { get; set; }
+
     }
 }

@@ -166,22 +166,13 @@ namespace Services.Services.BookingService
                         request.EndTime,
                         request.BookingDate);
 
-                    foreach (var existingBooking in existingBookings)
+                    if (existingBookings.Any(x => x.Status == BookingOnlineEnums.Confirmed.ToString()))
                     {
-                        var existingOrder = await _orderRepo.GetOneOrderByService(
-                            existingBooking.BookingOnlineId,
-                            PaymentTypeEnums.BookingOnline);
-
-                        if (existingOrder != null &&
-                            (existingOrder.Status == PaymentStatusEnums.Paid.ToString() ||
-                             existingOrder.Status == PaymentStatusEnums.PendingConfirm.ToString()))
-                        {
-                            res.IsSuccess = false;
-                            res.ResponseCode = ResponseCodeConstants.FAILED;
-                            res.Message = ResponseMessageConstrantsMaster.EXISTING_SCHEDULE;
-                            res.StatusCode = StatusCodes.Status400BadRequest;
-                            return res;
-                        }
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.FAILED;
+                        res.Message = ResponseMessageConstrantsMaster.EXISTING_SCHEDULE;
+                        res.StatusCode = StatusCodes.Status400BadRequest;
+                        return res;
                     }
                 }
 
@@ -792,6 +783,9 @@ namespace Services.Services.BookingService
 
                 onlineBooking.Status = BookingOnlineEnums.Completed.ToString();
                 await _onlineRepo.UpdateBookingOnlineRepo(onlineBooking);
+
+                var masterSchdule = await _masterScheduleRepo.GetMasterScheduleById(onlineBooking.MasterScheduleId);
+                masterSchdule.Status = MasterScheduleEnums.Done.ToString();
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;

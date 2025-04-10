@@ -60,7 +60,7 @@ namespace Services.ServicesHelpers.RefundSerivce
 
             var accountId = GetAuthenticatedAccountId();
             var account = await _accountRepo.GetAccountById(accountId);
-            if (account.Role != "Manager")
+            if (account.Role != RoleEnums.Manager.ToString())
             {
                 throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsMaster.MASTER_NOT_FOUND, StatusCodes.Status404NotFound);
             }

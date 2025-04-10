@@ -3,6 +3,7 @@ using BusinessObjects.Enums;
 using BusinessObjects.Exceptions;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Http;
+using Repositories.Repositories.AccountRepository;
 using Repositories.Repositories.MasterRepository;
 using Repositories.Repositories.OrderRepository;
 using Services.ApiModels;
@@ -21,12 +22,14 @@ namespace Services.ServicesHelpers.RefundSerivce
         private readonly IOrderRepo _orderRepo;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMasterRepo _masterRepo;
+        private readonly IAccountRepo _accountRepo;
 
-        public RefundService(IOrderRepo orderRepo, IHttpContextAccessor httpContextAccessor, IMasterRepo masterRepo) 
+        public RefundService(IOrderRepo orderRepo, IHttpContextAccessor httpContextAccessor, IMasterRepo masterRepo, IAccountRepo accountRepo) 
         { 
             _orderRepo = orderRepo;
             _httpContextAccessor = httpContextAccessor;
             _masterRepo = masterRepo;
+            _accountRepo = accountRepo;
         }
 
         private string GetAuthenticatedAccountId()
@@ -56,8 +59,8 @@ namespace Services.ServicesHelpers.RefundSerivce
             }
 
             var accountId = GetAuthenticatedAccountId();
-            var master = await _masterRepo.GetMasterIdByAccountId(accountId);
-            if (master == null)
+            var account = await _accountRepo.GetAccountById(accountId);
+            if (account.Role != "Manager")
             {
                 throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsMaster.MASTER_NOT_FOUND, StatusCodes.Status404NotFound);
             }

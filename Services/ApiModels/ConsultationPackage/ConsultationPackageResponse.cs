@@ -24,6 +24,5 @@ namespace Services.ApiModels.ConsultationPackage
 
         public string PricingDetails { get; set; }
         public string Status { get; set; }
-
     }
 }

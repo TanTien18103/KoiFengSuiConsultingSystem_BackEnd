@@ -11,5 +11,7 @@ namespace Services.ApiModels.Category
         public string CategoryId { get; set; }
 
         public string CategoryName { get; set; }
+        public string Status { get; set; }
+
     }
 }

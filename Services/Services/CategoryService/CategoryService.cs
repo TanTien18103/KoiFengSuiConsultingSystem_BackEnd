@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects.Constants;
+using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using DAOs.DAOs;
 using Microsoft.AspNetCore.Http;
@@ -8,6 +9,7 @@ using Repositories.Repositories.CategoryRepository;
 using Services.ApiModels;
 using Services.ApiModels.Answer;
 using Services.ApiModels.Category;
+using Services.ApiModels.Course;
 using Services.ServicesHelpers.UploadService;
 using System;
 using System.Collections.Generic;
@@ -122,6 +124,7 @@ namespace Services.Services.CategoryService
                 category.CategoryId = GenerateShortGuid();
                 category.CategoryName = request.CategoryName;
                 category.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+                category.Status = CategoryStatusEnums.Inactive.ToString();
                 await _categoryRepo.CreateCategory(category);
 
                 res.IsSuccess = true;
@@ -230,6 +233,75 @@ namespace Services.Services.CategoryService
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> UpdateCategoryStatus(string id, CategoryStatusEnums status)
+        {
+            var res = new ResultModel();
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsCategory.CATEGORY_ID_INVALID;
+                    return res;
+                }
+
+                // Làm sạch id
+                id = id.Trim();
+
+                // Validate status enum (phòng trường hợp nhận từ body dạng int bị sai)
+                if (!Enum.IsDefined(typeof(CategoryStatusEnums), status))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsCategory.STATUS_INVALID;
+                    return res;
+                }
+
+                var category = await _categoryRepo.GetCategoryById(id);
+                if (category == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsCategory.CATEGORY_NOT_FOUND;
+                    return res;
+                }
+
+                var newStatus = status.ToString();
+
+                if (category.Status == newStatus)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsCategory.CATEGORY_ALREADY_HAS_THIS_STATUS;
+                    return res;
+                }
+
+                category.Status = newStatus;
+                await _categoryRepo.UpdateCategory(category);
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<CategoryResponse>(category);
+                res.Message = ResponseMessageConstrantsCategory.CATEGORY_STATUS_UPDATED_SUCCESS;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = "Đã xảy ra lỗi nội bộ: " + ex.Message;
                 return res;
             }
         }

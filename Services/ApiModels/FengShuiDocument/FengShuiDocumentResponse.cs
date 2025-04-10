@@ -23,6 +23,7 @@ namespace Services.ApiModels.FengShuiDocument
     public class BookingOfflineInfo
     {
         public string BookingOfflineId { get; set; }
+        public string Status { get; set; }
         public string CustomerName { get; set; }
         public string MasterName { get; set; }
     }

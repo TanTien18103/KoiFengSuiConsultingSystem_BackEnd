@@ -13,5 +13,7 @@ public partial class Category
 
     public string ImageUrl { get; set; }
 
+    public string Status { get; set; }
+
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 }

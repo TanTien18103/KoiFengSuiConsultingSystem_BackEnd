@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using Services.ApiModels.Attachment;
 using Services.ApiModels.FengShuiDocument;
@@ -21,6 +22,7 @@ namespace Services.Mapper
                 .ForMember(dest => dest.BookingOffline, opt => opt.MapFrom(src => src.BookingOfflines.FirstOrDefault()));
             CreateMap<BookingOffline, BookingOfflineInfo>()
                 .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Account.FullName))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => BookingOfflineEnums.DocumentConfirmedByManager.ToString()))
                 .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.Master.MasterName));
         }
     }

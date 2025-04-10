@@ -251,9 +251,15 @@ namespace DAOs.DAOs
             return bookingOnline;
         }
 
+        private void RefreshContext()
+        {
+            _context.ChangeTracker.Clear();
+        }
         public async Task<List<BookingOnline>?> GetBookingsOnlineByCustomerIdDao(string customerId)
         {
+            RefreshContext();
             return await _context.BookingOnlines
+                    .AsNoTracking()
                     .Include(x => x.Customer).ThenInclude(x => x.Account)
                     .Include(x => x.Master)
                     .Where(b => b.CustomerId == customerId)

@@ -1230,7 +1230,6 @@ namespace Services.Services.BookingService
             var res = new ResultModel();
             try
             {
-
                 var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
                 if (identity == null || !identity.IsAuthenticated)
                 {
@@ -1256,104 +1255,172 @@ namespace Services.Services.BookingService
                 var onlineBookings = await _onlineRepo.GetBookingsOnlineByCustomerId(customerId) ?? new List<BookingOnline>();
                 var offlineBookings = await _offlineRepo.GetBookingsOfflineByCustomerId(customerId) ?? new List<BookingOffline>();
 
-                // Nếu cả 3 tham số đều null, lấy toàn bộ danh sách online & offline
                 if (!type.HasValue && !onlineStatus.HasValue && !offlineStatus.HasValue)
                 {
                     if (!onlineBookings.Any() && !offlineBookings.Any())
                     {
-                        return new ResultModel
-                        {
-                            IsSuccess = false,
-                            ResponseCode = ResponseCodeConstants.NOT_FOUND,
-                            StatusCode = StatusCodes.Status404NotFound,
-                            Message = ResponseMessageConstrantsBooking.NOT_FOUND
-                        };
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.Message = ResponseMessageConstrantsBooking.NOT_FOUND;
+                        return res;
                     }
 
-                    var allBookings = onlineBookings.Cast<object>().Concat(offlineBookings.Cast<object>()).ToList();
-
-                    return new ResultModel
+                    var onlineResponses = _mapper.Map<List<BookingResponse>>(onlineBookings);
+                    var offlineResponses = _mapper.Map<List<BookingResponse>>(offlineBookings);
+                    
+                    foreach (var booking in onlineResponses)
                     {
-                        IsSuccess = true,
-                        StatusCode = StatusCodes.Status200OK,
-                        ResponseCode = ResponseCodeConstants.SUCCESS,
-                        Data = _mapper.Map<List<BookingResponse>>(allBookings),
-                        Message = ResponseMessageConstrantsBooking.BOOKING_FOUND
-                    };
+                        booking.Type = BookingTypeEnums.Online.ToString();
+                    }
+                    
+                    foreach (var booking in offlineResponses)
+                    {
+                        booking.Type = BookingTypeEnums.Offline.ToString();
+                    }
+
+                    var allBookings = onlineResponses.Concat(offlineResponses).ToList();
+                    res.IsSuccess = true;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                    res.Data = allBookings;
+                    res.Message = ResponseMessageConstrantsBooking.BOOKING_FOUND;
+                    return res;
                 }
 
-                List<object> filteredBookings = new();
-
-                switch (type)
+                if (type == BookingTypeEnums.Online || !type.HasValue)
                 {
-                    case BookingTypeEnums.Online:
-                        if (!onlineBookings.Any())
-                        {
-                            return new ResultModel
-                            {
-                                IsSuccess = false,
-                                ResponseCode = ResponseCodeConstants.NOT_FOUND,
-                                StatusCode = StatusCodes.Status404NotFound,
-                                Message = ResponseMessageConstrantsBooking.NOT_FOUND + " online"
-                            };
-                        }
-
+                    if (onlineBookings.Any())
+                    {
                         if (onlineStatus.HasValue)
                         {
                             onlineBookings = onlineBookings.Where(x => x.Status == onlineStatus.Value.ToString()).ToList();
                         }
 
-                        filteredBookings = onlineBookings.Cast<object>().ToList();
-                        break;
-
-                    case BookingTypeEnums.Offline:
-                        if (!offlineBookings.Any())
+                        if (onlineBookings.Any())
                         {
-                            return new ResultModel
+                            var onlineResponses = _mapper.Map<List<BookingResponse>>(onlineBookings);
+                            foreach (var booking in onlineResponses)
                             {
-                                IsSuccess = false,
-                                ResponseCode = ResponseCodeConstants.NOT_FOUND,
-                                StatusCode = StatusCodes.Status404NotFound,
-                                Message = ResponseMessageConstrantsBooking.NOT_FOUND + " offline"
-                            };
-                        }
+                                booking.Type = BookingTypeEnums.Online.ToString();
+                            }
 
+                            if (type.HasValue) 
+                            {
+
+                                res.IsSuccess = true;
+                                res.StatusCode = StatusCodes.Status200OK;
+                                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                                res.Data = onlineResponses;
+                                res.Message = ResponseMessageConstrantsBooking.ONLINE_GET_SUCCESS;
+                                return res;
+                            }
+                        }
+                        else if (type.HasValue) 
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                            res.StatusCode = StatusCodes.Status404NotFound;
+                            res.Message = ResponseMessageConstrantsBooking.NOT_FOUND + " online" + (onlineStatus.HasValue ? " với trạng thái " + onlineStatus.Value : "");
+                            return res;
+                        }
+                    }
+                    else if (type.HasValue) 
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.Message = ResponseMessageConstrantsBooking.NOT_FOUND + " online";
+                        return res;
+                    }
+                }
+
+                if (type == BookingTypeEnums.Offline || !type.HasValue)
+                {
+                    if (offlineBookings.Any())
+                    {
                         if (offlineStatus.HasValue)
                         {
                             offlineBookings = offlineBookings.Where(x => x.Status == offlineStatus.Value.ToString()).ToList();
                         }
 
-                        filteredBookings = offlineBookings.Cast<object>().ToList();
-                        break;
-
-                    default:
-                        return new ResultModel
+                        if (offlineBookings.Any())
                         {
-                            IsSuccess = false,
-                            ResponseCode = ResponseCodeConstants.INVALID_INPUT,
-                            StatusCode = StatusCodes.Status400BadRequest,
-                            Message = "Invalid booking type"
-                        };
+                            var offlineResponses = _mapper.Map<List<BookingResponse>>(offlineBookings);
+                            foreach (var booking in offlineResponses)
+                            {
+                                booking.Type = BookingTypeEnums.Offline.ToString();
+                            }
+
+                            if (type.HasValue) 
+                            {
+                                res.IsSuccess = true;
+                                res.StatusCode = StatusCodes.Status200OK;
+                                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                                res.Data = offlineResponses;
+                                res.Message = ResponseMessageConstrantsBooking.OFFLINE_GET_SUCCESS;
+                                return res;
+                            }
+                            
+                            if (!type.HasValue && onlineBookings.Any())
+                            {
+                                var onlineResponses = _mapper.Map<List<BookingResponse>>(onlineBookings);
+                                foreach (var booking in onlineResponses)
+                                {
+                                    booking.Type = BookingTypeEnums.Online.ToString();
+                                }
+                                
+                                var combinedResults = onlineResponses.Concat(offlineResponses).ToList();
+
+                                res.IsSuccess = true;
+                                res.StatusCode = StatusCodes.Status200OK;
+                                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                                res.Data = combinedResults;
+                                res.Message = ResponseMessageConstrantsBooking.BOOKING_FOUND;
+                                return res;
+                            }
+
+
+                            res.IsSuccess = true;
+                            res.StatusCode = StatusCodes.Status200OK;
+                            res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                            res.Data = offlineResponses;
+                            res.Message = ResponseMessageConstrantsBooking.OFFLINE_GET_SUCCESS;
+                            return res;
+                        }
+                        else if (type.HasValue) 
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                            res.StatusCode = StatusCodes.Status404NotFound;
+                            res.Message = ResponseMessageConstrantsBooking.NOT_FOUND + " offline" + (offlineStatus.HasValue ? " với trạng thái " + offlineStatus.Value : "");
+                            return res;
+                        }
+                    }
+                    else if (type.HasValue) 
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.Message = ResponseMessageConstrantsBooking.NOT_FOUND + " offline";
+                        return res;
+                    }
                 }
 
-                return new ResultModel
-                {
-                    IsSuccess = true,
-                    StatusCode = StatusCodes.Status200OK,
-                    ResponseCode = ResponseCodeConstants.SUCCESS,
-                    Data = _mapper.Map<List<BookingResponse>>(filteredBookings),
-                    Message = type == BookingTypeEnums.Online ? ResponseMessageConstrantsBooking.ONLINE_GET_SUCCESS : ResponseMessageConstrantsBooking.OFFLINE_GET_SUCCESS
-                };
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                res.StatusCode = StatusCodes.Status404NotFound;
+                res.Message = ResponseMessageConstrantsBooking.NOT_FOUND;
+                return res;
             }
             catch (Exception ex)
             {
-                return new ResultModel
-                {
-                    IsSuccess = false,
-                    ResponseCode = ResponseCodeConstants.FAILED,
-                    StatusCode = StatusCodes.Status500InternalServerError,
-                    Message = ex.Message
-                };
+
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
             }
         }
 

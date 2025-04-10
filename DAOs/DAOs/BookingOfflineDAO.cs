@@ -199,13 +199,19 @@ namespace DAOs.DAOs
             }
         }
 
+        private void RefreshContext()
+        {
+            _context.ChangeTracker.Clear();
+        }
         public async Task<List<BookingOffline>?> GetBookingsOfflineByCustomerIdDao(string customerId)
         {
+            RefreshContext();
             return await _context.BookingOfflines
-           .Include(x => x.Customer).ThenInclude(x => x.Account)
-           .Include(x => x.Master)
-           .Where(b => b.CustomerId == customerId)
-           .ToListAsync();
+               .AsNoTracking()
+               .Include(x => x.Customer).ThenInclude(x => x.Account)
+               .Include(x => x.Master)
+               .Where(b => b.CustomerId == customerId)
+               .ToListAsync();
         }
 
         public async Task<List<BookingOffline>?> GetBookingsOfflineByStaffIdDao(string staffId)

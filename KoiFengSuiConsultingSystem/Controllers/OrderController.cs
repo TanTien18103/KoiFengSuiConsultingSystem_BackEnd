@@ -60,5 +60,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var res = await _orderService.GetPendingConfirmOrders();
             return StatusCode(res.StatusCode, res);
         }
+
+        [HttpGet("get-waitingForRefund-order")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> GetWaitingForRefundOrders()
+        {
+            var res = await _orderService.GetWaitingForRefundOrders();
+            return StatusCode(res.StatusCode, res);
+        }
     }
 }

@@ -67,6 +67,8 @@ namespace DAOs.DAOs
             return await _context.Quizzes
                 .Include(q => q.Course)
                 .Include(q => q.CreateByNavigation)
+                .Include(q => q.EnrollQuizzes)
+                .Include(q => q.Questions)
                 .Where(q => q.CourseId == courseId)
                 .FirstOrDefaultAsync();
         }

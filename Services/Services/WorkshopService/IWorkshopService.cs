@@ -19,6 +19,6 @@ namespace Services.Services.WorkshopService
         Task<ResultModel> UpdateWorkshop(string id, WorkshopUpdateRequest workshopRequest);
         Task<ResultModel> DeleteWorkshop(string id);
         Task<ResultModel> CheckIn(string workshopId, string registerId);
-
+        Task<ResultModel> SortingWorkshopByCreatedDateForWeb();
     }
 }

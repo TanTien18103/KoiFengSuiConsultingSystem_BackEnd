@@ -38,6 +38,10 @@ namespace Repositories.Repositories.BookingOfflineRepository
         {
             return BookingOfflineDAO.Instance.UpdateBookingOfflineDao(bookingOffline);
         }
+        public Task<BookingOffline> UpdateBookingOfflineDocument(string bookingOfflineId, string documentId, string status)
+        {
+            return BookingOfflineDAO.Instance.UpdateBookingOfflineDocumentDao(bookingOfflineId, documentId, status);
+        }
         public Task DeleteBookingOffline(string bookingOfflineId)
         {
             return BookingOfflineDAO.Instance.DeleteBookingOfflineDao(bookingOfflineId);

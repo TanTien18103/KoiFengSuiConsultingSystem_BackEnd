@@ -44,7 +44,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _attachmentService.GetAttachmentByBookingOfflineId(bookingOfflineId);
             return StatusCode(result.StatusCode, result);
         }
-        [HttpPut("cancel/{attachmentId}")]
+        [HttpPatch("cancel/{attachmentId}")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> CancelAttachment(string attachmentId)
         {
@@ -52,7 +52,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPut("confirm/{attachmentId}")]
+        [HttpPatch("confirm/{attachmentId}")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> ConfirmAttachment(string attachmentId)
         {

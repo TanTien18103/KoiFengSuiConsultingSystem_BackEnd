@@ -23,6 +23,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
+        [HttpGet("sort-createdDate-for-web")]
+        public async Task<IActionResult> SortingWorkshopByCreatedDateForWeb()
+        {
+            var res = await _workshopService.SortingWorkshopByCreatedDateForWeb();
+            return StatusCode(res.StatusCode, res);
+        }
+
         [HttpGet("trending")]
         public async Task<IActionResult> GetTrendingWorkshop()
         {

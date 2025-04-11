@@ -35,7 +35,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPut("{documentId}/cancel-by-manager")]
+        [HttpPatch("{documentId}/cancel-by-manager")]
         [Authorize(Roles = "Manager")]
         public async Task<IActionResult> CancelDocumentByManager(string documentId)
         {
@@ -43,7 +43,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPut("{documentId}/cancel-by-customer")]
+        [HttpPatch("{documentId}/cancel-by-customer")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> CancelDocumentByCustomer(string documentId)
         {
@@ -51,7 +51,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPut("{documentId}/confirm-by-customer")]
+        [HttpPatch("{documentId}/confirm-by-customer")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> ConfirmDocumentByCustomer(string documentId)
         {
@@ -59,7 +59,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPut("{documentId}/confirm-by-manager")]
+        [HttpPatch("{documentId}/confirm-by-manager")]
         [Authorize(Roles = "Manager")]
         public async Task<IActionResult> ConfirmDocumentByManager(string documentId)
         {

@@ -373,7 +373,8 @@ namespace Services.Services.CourseService
             {
                 var courses = await _courseRepo.GetCourses();
                 var bestSeller = courses.Where(x => x.IsBestSeller == true).ToList();
-                if (bestSeller == null)
+                var activeBestSeller = bestSeller.Where(x => x.Status == CourseStatusEnum.Active.ToString()).ToList();
+                if (activeBestSeller == null)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -385,7 +386,7 @@ namespace Services.Services.CourseService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<CourseResponse>>(bestSeller);
+                res.Data = _mapper.Map<List<CourseResponse>>(activeBestSeller);
                 res.Message = ResponseMessageConstrantsCourse.COURSE_INFO_FOUND;
                 return res;
             }
@@ -416,7 +417,8 @@ namespace Services.Services.CourseService
 
                 var courses = await _courseRepo.GetCourses();
                 var coursesByCategoryId = courses.Where(x => x.CategoryId == id).ToList();
-                if (coursesByCategoryId == null)
+                var activeCoursesByCategoryId = coursesByCategoryId.Where(x => x.Status == CourseStatusEnum.Active.ToString()).ToList();
+                if (activeCoursesByCategoryId == null)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -428,7 +430,7 @@ namespace Services.Services.CourseService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<CourseResponse>>(coursesByCategoryId);
+                res.Data = _mapper.Map<List<CourseResponse>>(activeCoursesByCategoryId);
                 res.Message = ResponseMessageConstrantsCourse.COURSE_INFO_FOUND;
                 return res;
             }
@@ -448,8 +450,9 @@ namespace Services.Services.CourseService
             try
             {
                 var courses = await _courseRepo.GetCourses();
-                var bestSeller = courses.OrderByDescending(x => x.Rating).ToList();
-                if (bestSeller == null)
+                var bestRating = courses.OrderByDescending(x => x.Rating).ToList();
+                var activeBestRating = bestRating.Where(x => x.Status == CourseStatusEnum.Active.ToString()).ToList();
+                if (activeBestRating == null)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -461,7 +464,7 @@ namespace Services.Services.CourseService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<CourseResponse>>(bestSeller);
+                res.Data = _mapper.Map<List<CourseResponse>>(activeBestRating);
                 res.Message = ResponseMessageConstrantsCourse.COURSE_INFO_FOUND;
                 return res;
             }

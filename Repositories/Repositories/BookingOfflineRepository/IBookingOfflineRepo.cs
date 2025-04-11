@@ -16,6 +16,7 @@ namespace Repositories.Repositories.BookingOfflineRepository
         Task<List<BookingOffline>> GetBookingOfflinesByUserId(string userId);
         Task<BookingOffline> CreateBookingOffline(BookingOffline bookingOffline);
         Task<BookingOffline> UpdateBookingOffline(BookingOffline bookingOffline);
+        Task<BookingOffline> UpdateBookingOfflineDocument(string bookingOfflineId, string documentId, string status);
         Task DeleteBookingOffline(string bookingOfflineId);
         Task<(BookingOffline booking, string message)> ProcessBookingTransaction(BookingOffline booking, string packageId, decimal selectedPrice);
         Task<List<BookingOffline>> GetBookingOfflinesByMasterIdRepo(string masterId);

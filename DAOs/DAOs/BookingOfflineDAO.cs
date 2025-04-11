@@ -174,6 +174,25 @@ namespace DAOs.DAOs
             return entity;
         }
 
+        public async Task<BookingOffline> UpdateBookingOfflineDocumentDao(string bookingOfflineId, string documentId, string status)
+        {
+            var booking = await _context.BookingOfflines
+                .Include(b => b.Customer).ThenInclude(c => c.Account)
+                .Include(b => b.Master).ThenInclude(m => m.Account)
+                .Include(b => b.ConsultationPackage)
+                .Include(b => b.Contract)
+                .Include(b => b.Document)
+                .FirstOrDefaultAsync(b => b.BookingOfflineId == bookingOfflineId);
+
+            if (booking == null)
+                return null;
+
+            booking.DocumentId = documentId;
+            booking.Status = status;
+            await _context.SaveChangesAsync();
+            return booking;
+        }
+
         public async Task DeleteBookingOfflineDao(string bookingOfflineId)
         {
             var bookingOffline = await GetBookingOfflineByIdDao(bookingOfflineId);

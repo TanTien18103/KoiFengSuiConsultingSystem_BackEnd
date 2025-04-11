@@ -46,6 +46,10 @@ namespace DAOs.DAOs
                 .Include(d => d.BookingOfflines)
                     .ThenInclude(b => b.Master)
                         .ThenInclude(m => m.Account)
+                .Include(d => d.BookingOfflines)
+                    .ThenInclude(b => b.ConsultationPackage)
+                .Include(d => d.BookingOfflines)
+                    .ThenInclude(b => b.Contract)
                 .FirstOrDefaultAsync(d => d.FengShuiDocumentId == fengShuiDocumentId);
         }
 

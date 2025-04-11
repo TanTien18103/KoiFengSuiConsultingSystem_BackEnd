@@ -21,6 +21,10 @@ public partial class MasterSchedule
 
     public string Status { get; set; }
 
+    public DateTime? CreateDate { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
+
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 
     public virtual ICollection<BookingOnline> BookingOnlines { get; set; } = new List<BookingOnline>();

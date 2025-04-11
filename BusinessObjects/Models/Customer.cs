@@ -19,6 +19,10 @@ public partial class Customer
 
     public string ImageUrl { get; set; }
 
+    public DateTime? CreateDate { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
+
     public virtual Account Account { get; set; }
 
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();

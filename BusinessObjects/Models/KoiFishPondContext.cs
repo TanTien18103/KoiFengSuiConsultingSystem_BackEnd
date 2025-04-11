@@ -9,9 +9,11 @@ namespace BusinessObjects.Models;
 
 public partial class KoiFishPondContext : DbContext
 {
+
     public KoiFishPondContext()
     {
     }
+
     public KoiFishPondContext(DbContextOptions<KoiFishPondContext> options)
         : base(options)
     {
@@ -61,6 +63,8 @@ public partial class KoiFishPondContext : DbContext
 
     public virtual DbSet<KoiVariety> KoiVarieties { get; set; }
 
+    public virtual DbSet<Location> Locations { get; set; }
+
     public virtual DbSet<MansionsPoint> MansionsPoints { get; set; }
 
     public virtual DbSet<Master> Masters { get; set; }
@@ -105,6 +109,7 @@ public partial class KoiFishPondContext : DbContext
 
         optionsBuilder.UseSqlServer(connectionString);
     }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -119,6 +124,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsFixedLength();
             entity.Property(e => e.AccountName).HasMaxLength(255);
             entity.Property(e => e.AccountNo).HasMaxLength(19);
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -127,6 +133,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.Role).HasMaxLength(20);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
             entity.Property(e => e.UserName).HasMaxLength(50);
         });
 
@@ -141,6 +148,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.CreateAt).HasColumnName("Create_At");
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.IsCorrect).HasColumnName("Is_Correct");
             entity.Property(e => e.OptionText).HasColumnName("Option_Text");
             entity.Property(e => e.OptionType)
@@ -150,6 +158,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Question).WithMany(p => p.Answers)
                 .HasForeignKey(d => d.QuestionId)
@@ -232,7 +241,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.SelectedPrice).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.Status).HasMaxLength(255);
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.AssignStaff).WithMany(p => p.BookingOfflines)
@@ -304,6 +313,7 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.AssignStaff).WithMany(p => p.BookingOnlines)
                 .HasForeignKey(d => d.AssignStaffId)
@@ -336,8 +346,10 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.CategoryName)
                 .IsRequired()
                 .HasMaxLength(100);
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.ImageUrl).HasMaxLength(255);
             entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Certificate>(entity =>
@@ -351,7 +363,9 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.CertificateImage).HasMaxLength(255);
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Chapter>(entity =>
@@ -371,6 +385,7 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.Title).HasMaxLength(100);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
             entity.Property(e => e.Video).HasMaxLength(255);
 
             entity.HasOne(d => d.Course).WithMany(p => p.Chapters)
@@ -392,7 +407,9 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(7)
                 .IsUnicode(false);
             entity.Property(e => e.ColorName).HasMaxLength(50);
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Element).HasMaxLength(20);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<CompatibilityPoint>(entity =>
@@ -416,11 +433,13 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.ImageUrl).HasMaxLength(255);
             entity.Property(e => e.MaxPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.MinPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.PackageName).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Contract>(entity =>
@@ -518,6 +537,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Element).HasMaxLength(20);
             entity.Property(e => e.ImageUrl).HasMaxLength(255);
             entity.Property(e => e.LifePalace).HasMaxLength(20);
@@ -525,6 +545,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Account).WithMany(p => p.Customers)
                 .HasForeignKey(d => d.AccountId)
@@ -594,10 +615,12 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.CustomerId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Certificate).WithMany(p => p.EnrollCerts)
                 .HasForeignKey(d => d.CertificateId)
@@ -622,11 +645,13 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.EnrollCourseId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Chapter).WithMany(p => p.EnrollChapters)
                 .HasForeignKey(d => d.ChapterId)
@@ -648,6 +673,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.ParticipantId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -657,6 +683,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Participant).WithMany(p => p.EnrollQuizzes)
                 .HasForeignKey(d => d.ParticipantId)
@@ -706,6 +733,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.ImageUrl).HasMaxLength(255);
             entity.Property(e => e.Introduction).HasMaxLength(255);
@@ -714,6 +742,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Shape).WithMany(p => p.KoiPonds)
                 .HasForeignKey(d => d.ShapeId)
@@ -731,10 +760,25 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("KoiVarietyID");
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.ImageUrl).HasMaxLength(255);
             entity.Property(e => e.Introduction).HasMaxLength(255);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
             entity.Property(e => e.VarietyName).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Location>(entity =>
+        {
+            entity.HasKey(e => e.LocationId).HasName("PK__Location__E7FEA4979F6E573E");
+
+            entity.ToTable("Location");
+
+            entity.Property(e => e.LocationId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.LocationName).IsRequired();
         });
 
         modelBuilder.Entity<MansionsPoint>(entity =>
@@ -762,6 +806,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Experience).HasMaxLength(50);
             entity.Property(e => e.Expertise).HasMaxLength(255);
             entity.Property(e => e.ImageUrl).HasMaxLength(255);
@@ -769,6 +814,7 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.MasterName).HasMaxLength(100);
             entity.Property(e => e.ServiceType).HasMaxLength(50);
             entity.Property(e => e.Title).HasMaxLength(100);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Account).WithMany(p => p.Masters)
                 .HasForeignKey(d => d.AccountId)
@@ -785,12 +831,14 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.MasterId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.Status).HasMaxLength(20);
             entity.Property(e => e.Type).HasMaxLength(50);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Master).WithMany(p => p.MasterSchedules)
                 .HasForeignKey(d => d.MasterId)
@@ -807,8 +855,10 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Discount).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.MembershipName).HasMaxLength(50);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Order>(entity =>
@@ -845,6 +895,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.ServiceType).HasMaxLength(255);
             entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.CustomerId)
@@ -872,6 +923,9 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.UpdateAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Update_At");
 
             entity.HasOne(d => d.Quiz).WithMany(p => p.Questions)
                 .HasForeignKey(d => d.QuizId)
@@ -900,6 +954,9 @@ public partial class KoiFishPondContext : DbContext
                 .HasColumnName("Create_By");
             entity.Property(e => e.Score).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.Title).HasMaxLength(100);
+            entity.Property(e => e.UpdateAt)
+                .HasColumnType("datetime")
+                .HasColumnName("Update_At");
 
             entity.HasOne(d => d.Course).WithMany(p => p.Quizzes)
                 .HasForeignKey(d => d.CourseId)
@@ -932,6 +989,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
             entity.Property(e => e.WorkshopId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -960,6 +1018,7 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.CustomerId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -974,6 +1033,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsFixedLength();
             entity.Property(e => e.Percentage).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Course).WithMany(p => p.RegisterCourses)
                 .HasForeignKey(d => d.CourseId)
@@ -1003,8 +1063,10 @@ public partial class KoiFishPondContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .IsFixedLength();
+            entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Element).HasMaxLength(20);
             entity.Property(e => e.ShapeName).HasMaxLength(50);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<VarietyColor>(entity =>
@@ -1053,7 +1115,10 @@ public partial class KoiFishPondContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.ImageUrl).HasMaxLength(255);
-            entity.Property(e => e.Location).HasMaxLength(255);
+            entity.Property(e => e.LocationId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.MasterId)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -1063,6 +1128,10 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.Trending).HasDefaultValue(false);
             entity.Property(e => e.UpdateAt).HasColumnType("datetime");
             entity.Property(e => e.WorkshopName).HasMaxLength(100);
+
+            entity.HasOne(d => d.Location).WithMany(p => p.WorkShops)
+                .HasForeignKey(d => d.LocationId)
+                .HasConstraintName("FK_Workshop_Location");
 
             entity.HasOne(d => d.Master).WithMany(p => p.WorkShops)
                 .HasForeignKey(d => d.MasterId)

@@ -15,6 +15,10 @@ public partial class EnrollQuiz
 
     public string ParticipantId { get; set; }
 
+    public DateTime? CreateDate { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
+
     public virtual ICollection<EnrollAnswer> EnrollAnswers { get; set; } = new List<EnrollAnswer>();
 
     public virtual Customer Participant { get; set; }

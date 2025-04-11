@@ -64,6 +64,8 @@ using Repositories.Repositories.FengShuiDocumentRepository;
 using Services.Services.FengShuiDocumentService;
 using Repositories.Repositories.AttachmentRepository;
 using Services.Services.AttachmentService;
+using Repositories.Repositories.LocationRepository;
+using Services.Services.LocationService;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -98,6 +100,8 @@ builder.Services.AddScoped<IEnrollAnswerRepo, EnrollAnswerRepo>();
 builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
 builder.Services.AddScoped<IFengShuiDocumentRepo, FengShuiDocumentRepo>();
 builder.Services.AddScoped<IAttachmentRepo, AttachmentRepo>();
+builder.Services.AddScoped<ILocationRepo, LocationRepo>();
+
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
@@ -126,6 +130,8 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IRefundService, RefundService>();
 builder.Services.AddScoped<IFengShuiDocumentService, FengShuiDocumentService>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
 builder.Services.AddHostedService<BookingCleanupService>();
@@ -153,6 +159,7 @@ builder.Services.AddAutoMapper(typeof(AnswerMappingProfile));
 builder.Services.AddAutoMapper(typeof(FengShuiDocumentMappingProfile));
 builder.Services.AddAutoMapper(typeof(AttachmentMappingProfile));
 builder.Services.AddAutoMapper(typeof(EnrollChapterMappingProfile));
+builder.Services.AddAutoMapper(typeof(LocationMappingProfile));
 
 builder.Services.AddHttpClient();
 

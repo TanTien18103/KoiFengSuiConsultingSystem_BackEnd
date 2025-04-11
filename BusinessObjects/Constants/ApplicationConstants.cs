@@ -331,6 +331,7 @@ namespace BusinessObjects.Constants
         public const string WORKSHOP_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật workshop này.";
         public const string ALREADY_STARTED = "Workshop đã bắt đầu, không thể đăng ký hay chỉnh sửa.";
         public const string CAPACITY_LEFT = "Vé còn trống cho workshop này là ";
+        public const string LOCATION_NOT_FOUND = "Không tìm thấy địa điểm!";
     }
 
     public class ResponseMessageConstrantsCourse
@@ -506,6 +507,19 @@ namespace BusinessObjects.Constants
         public const string OTP_EXPIRED = "Mã OTP đã hết hạn";
         public const string VERIFY_OTP_FAILED = "Mã OTP không chính xác";
         public const string VERIFY_OTP_SUCCESS = "Xác thực OTP thành công";
+    }
+
+    //Location
+    public class ResponseMessageConstrantsLocation
+    {
+        public const string LOCATION_NOT_FOUND = "Không tìm thấy địa điểm";
+        public const string LOCATION_FOUND = "Tìm thấy địa điểm";
+        public const string LOCATION_CREATED_SUCCESS = "Tạo địa điểm thành công";
+        public const string LOCATION_UPDATED_SUCCESS = "Cập nhật địa điểm thành công";
+        public const string LOCATION_DELETED_SUCCESS = "Xóa địa điểm thành công";
+        public const string LOCATION_INFO_FOUND = "Lấy thông tin địa điểm thành công";
+        public const string LOCATION_INFO_INVALID = "Dữ liệu địa điểm không hợp lệ";
+        public const string LOCATION_ALREADY_EXIST = "Tên địa điểm đã tồn tại";
     }
 }
 

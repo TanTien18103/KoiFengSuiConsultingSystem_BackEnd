@@ -12,8 +12,7 @@ namespace Services.ApiModels.Workshop
     {
         public string? WorkshopName { get; set; }
         public DateTime? StartDate { get; set; }
-        [RegularExpression(@"^[\p{L}0-9 ,.\\-_]+$", ErrorMessage = "Địa chỉ không được chứa ký tự đặc biệt")]
-        public string? Location { get; set; }
+        public string? LocationId { get; set; }
         [RegularExpression(@"^[\p{L}0-9 ,.\\-_]+$", ErrorMessage = "Mô tả không được chứa ký tự đặc biệt")]
         public string? Description { get; set; }
         [Range(1, int.MaxValue, ErrorMessage = "Sức chứa phải là số nguyên dương")]

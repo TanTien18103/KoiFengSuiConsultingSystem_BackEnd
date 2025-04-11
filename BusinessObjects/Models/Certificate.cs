@@ -15,6 +15,10 @@ public partial class Certificate
 
     public string CertificateImage { get; set; }
 
+    public DateTime? CreateDate { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
+
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 
     public virtual ICollection<EnrollCert> EnrollCerts { get; set; } = new List<EnrollCert>();

@@ -17,5 +17,9 @@ public partial class KoiVariety
 
     public string ImageUrl { get; set; }
 
+    public DateTime? CreateDate { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
+
     public virtual ICollection<VarietyColor> VarietyColors { get; set; } = new List<VarietyColor>();
 }

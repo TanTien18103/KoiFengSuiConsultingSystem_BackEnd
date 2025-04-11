@@ -19,6 +19,8 @@ public partial class Question
 
     public decimal? Point { get; set; }
 
+    public DateTime? UpdateAt { get; set; }
+
     public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
 
     public virtual Quiz Quiz { get; set; }

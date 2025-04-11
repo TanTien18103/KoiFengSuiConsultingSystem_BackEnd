@@ -18,6 +18,7 @@ using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 using Repositories.Repositories.MasterRepository;
 using Services.ServicesHelpers.UploadService;
 using Repositories.Repositories.MasterScheduleRepository;
+using Repositories.Repositories.LocationRepository;
 
 namespace Services.Services.WorkshopService
 {
@@ -30,8 +31,11 @@ namespace Services.Services.WorkshopService
         private readonly IMasterRepo _masterRepo;
         private readonly IUploadService _uploadService;
         private readonly IMasterScheduleRepo _masterScheduleRepo;
+        private readonly ILocationRepo _locationRepo;
 
-        public WorkshopService(IWorkShopRepo workShopRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IRegisterAttendRepo registerAttendRepo, IMasterRepo masterRepo, IUploadService uploadService, IMasterScheduleRepo masterScheduleRepo)
+        public WorkshopService(IWorkShopRepo workShopRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor,
+            IRegisterAttendRepo registerAttendRepo, IMasterRepo masterRepo, IUploadService uploadService,
+            IMasterScheduleRepo masterScheduleRepo, ILocationRepo locationRepo)
         {
             _workShopRepo = workShopRepo;
             _mapper = mapper;
@@ -40,9 +44,8 @@ namespace Services.Services.WorkshopService
             _masterRepo = masterRepo;
             _uploadService = uploadService;
             _masterScheduleRepo = masterScheduleRepo;
+            _locationRepo = locationRepo;
         }
-
-
         public static string GenerateShortGuid()
         {
             Guid guid = Guid.NewGuid();
@@ -289,6 +292,16 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
+                var location = await _locationRepo.GetLocationByIdRepo(request.LocationId);
+                if (location == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsWorkshop.LOCATION_NOT_FOUND;
+                    return res;
+                }
+
                 var masterId = await _masterRepo.GetMasterIdByAccountId(accountId);
                 if (masterId == null)
                 {
@@ -299,7 +312,7 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                var existingWorkshop = await _workShopRepo.GetWorkshopByMasterLocationAndDate(masterId, request.Location, request.StartDate);
+                var existingWorkshop = await _workShopRepo.GetWorkshopByMasterLocationAndDate(masterId, request.LocationId, request.StartDate);
                 if (existingWorkshop != null)
                 {
                     res.IsSuccess = false;
@@ -309,7 +322,7 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                var existingWorkshopOtherMaster = await _workShopRepo.GetWorkshopByLocationAndDate(request.Location, request.StartDate);
+                var existingWorkshopOtherMaster = await _workShopRepo.GetWorkshopByLocationAndDate(request.LocationId, request.StartDate);
                 if (existingWorkshopOtherMaster != null)
                 {
                     res.IsSuccess = false;
@@ -322,7 +335,7 @@ namespace Services.Services.WorkshopService
                 var workshopsByMaster = await _workShopRepo.GetWorkshopsByMaster(masterId);
                 foreach (var ws in workshopsByMaster)
                 {
-                    if (ws.Location != request.Location && request.StartDate.HasValue && ws.StartDate.HasValue)
+                    if (ws.LocationId != request.LocationId && request.StartDate.HasValue && ws.StartDate.HasValue)
                     {
                         var timeDifference = (request.StartDate.Value - ws.StartDate.Value).TotalHours;
                         if (Math.Abs(timeDifference) < 5)
@@ -438,6 +451,16 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
+                var location = await _locationRepo.GetLocationByIdRepo(request.LocationId);
+                if (location == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsWorkshop.LOCATION_NOT_FOUND;
+                    return res;
+                }
+
                 // Partial update
                 if (!string.IsNullOrEmpty(request.WorkshopName))
                     workshop.WorkshopName = request.WorkshopName;
@@ -445,8 +468,8 @@ namespace Services.Services.WorkshopService
                 if (request.StartDate.HasValue)
                     workshop.StartDate = request.StartDate.Value;
 
-                if (!string.IsNullOrEmpty(request.Location))
-                    workshop.Location = request.Location;
+                if (!string.IsNullOrEmpty(request.LocationId))
+                    workshop.LocationId = request.LocationId;
 
                 if (!string.IsNullOrEmpty(request.Description))
                     workshop.Description = request.Description;

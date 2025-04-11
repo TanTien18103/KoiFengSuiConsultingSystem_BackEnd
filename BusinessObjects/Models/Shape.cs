@@ -13,5 +13,9 @@ public partial class Shape
 
     public string Element { get; set; }
 
+    public DateTime? CreateDate { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
+
     public virtual ICollection<KoiPond> KoiPonds { get; set; } = new List<KoiPond>();
 }

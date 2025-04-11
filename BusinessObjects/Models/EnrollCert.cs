@@ -15,6 +15,10 @@ public partial class EnrollCert
 
     public string CustomerId { get; set; }
 
+    public DateTime? CreateDate { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
+
     public virtual Certificate Certificate { get; set; }
 
     public virtual Customer Customer { get; set; }

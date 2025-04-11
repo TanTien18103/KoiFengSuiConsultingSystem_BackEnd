@@ -19,5 +19,9 @@ public partial class KoiPond
 
     public string ImageUrl { get; set; }
 
+    public DateTime? CreateDate { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
+
     public virtual Shape Shape { get; set; }
 }

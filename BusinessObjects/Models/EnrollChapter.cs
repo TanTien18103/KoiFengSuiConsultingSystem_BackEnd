@@ -15,6 +15,10 @@ public partial class EnrollChapter
 
     public string EnrollCourseId { get; set; }
 
+    public DateTime? CreateDate { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
+
     public virtual Chapter Chapter { get; set; }
 
     public virtual RegisterCourse EnrollCourse { get; set; }

@@ -33,5 +33,7 @@ public partial class Order
 
     public string Description { get; set; }
 
+    public DateTime? UpdateDate { get; set; }
+
     public virtual Customer Customer { get; set; }
 }

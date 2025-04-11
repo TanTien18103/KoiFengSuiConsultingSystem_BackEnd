@@ -16,10 +16,12 @@ namespace Services.Mapper
         {
             CreateMap<WorkShop, WorkshopResponse>()
                 .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.Master.MasterName))
-                .ForMember(dest => dest.MasterId, opt => opt.MapFrom(src => src.Master.MasterId));
+                .ForMember(dest => dest.MasterId, opt => opt.MapFrom(src => src.Master.MasterId))
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location.LocationName));
 
             CreateMap<WorkshopRequest, WorkShop>()
                 .ForMember(dest => dest.WorkshopId, opt => opt.Ignore());
+                
         }
     }
 }

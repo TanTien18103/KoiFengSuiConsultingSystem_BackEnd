@@ -15,8 +15,7 @@ namespace Services.ApiModels.Workshop
         [Required]
         public DateTime? StartDate { get; set; }
         [Required]
-        [RegularExpression(@"^[\p{L}0-9 ,.\\-_]+$", ErrorMessage = "Địa chỉ không được chứa ký tự đặc biệt")]
-        public string Location { get; set; }
+        public string LocationId { get; set; }
         [Required]
         [RegularExpression(@"^[\p{L}0-9 ,.\\-_]+$", ErrorMessage = "Mô tả không được chứa ký tự đặc biệt")]
         public string Description { get; set; }

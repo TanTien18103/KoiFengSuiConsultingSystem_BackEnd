@@ -19,6 +19,10 @@ public partial class Answer
 
     public bool? IsCorrect { get; set; }
 
+    public DateTime? CreateDate { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
+
     public virtual ICollection<EnrollAnswer> EnrollAnswers { get; set; } = new List<EnrollAnswer>();
 
     public virtual Question Question { get; set; }

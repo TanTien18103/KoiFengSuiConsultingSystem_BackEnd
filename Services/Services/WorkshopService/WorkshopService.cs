@@ -82,6 +82,38 @@ namespace Services.Services.WorkshopService
                 return res;
             }
         }
+
+        public async Task<ResultModel> SortingWorkshopByCreatedDateForWeb()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var workshops = await _workShopRepo.SortingWorkshopByCreatedDate();
+                if (workshops == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<List<WorkshopResponse>>(workshops);
+                res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
         public async Task<ResultModel> ApprovedWorkshop(string id)
         {
             var res = new ResultModel();

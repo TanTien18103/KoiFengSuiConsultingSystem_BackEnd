@@ -294,10 +294,12 @@ namespace Services.Services.OrderService
                         {
                             if (conflictOrder.Status == PaymentStatusEnums.Pending.ToString())
                             {
+                                conflictOrder.PaymentReference = null;
                                 conflictOrder.Status = PaymentStatusEnums.Canceled.ToString();
                             }
                             else if (conflictOrder.Status == PaymentStatusEnums.PendingConfirm.ToString())
                             {
+                                conflictOrder.PaymentReference = null;
                                 conflictOrder.Status = PaymentStatusEnums.WaitingForRefund.ToString();
                             }
                             await _orderRepo.UpdateOrder(conflictOrder);
@@ -448,7 +450,7 @@ namespace Services.Services.OrderService
             try
             {
                 var orders = await _orderRepo.GetAllOrders();
-                var pendingConfirmOrders = orders.Where(x => x.Status == PaymentStatusEnums.PendingConfirm.ToString()).OrderByDescending(x => x.CreatedDate).ToList();
+                var pendingConfirmOrders = orders.Where(x => x.Status == PaymentStatusEnums.PendingConfirm.ToString()).OrderByDescending(x => x.PaymentDate).ToList();
 
                 if (pendingConfirmOrders == null || !pendingConfirmOrders.Any() || pendingConfirmOrders.Count == 0)
                 {
@@ -617,16 +619,15 @@ namespace Services.Services.OrderService
                         break;
 
                     case nameof(PaymentTypeEnums.Course):
-                        var existingRegistration = await _registerCourseRepo.GetRegisterCourseByCourseIdAndCustomerId(order.ServiceId, order.CustomerId);
-                        if (existingRegistration != null)
+                        if (order.Status == PaymentStatusEnums.Paid.ToString() || order.Status == PaymentStatusEnums.PendingConfirm.ToString())
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.FAILED;
                             res.StatusCode = StatusCodes.Status400BadRequest;
-                            res.Message = ResponseMessageConstrantsOrder.COURSE_CONFIRMED;
+                            res.Message = "Bạn không thể hủy khóa học bạn đã thanh toán";
                             return res;
                         }
-                        order.Status = isPaid ? PaymentStatusEnums.WaitingForRefund.ToString() : PaymentStatusEnums.Canceled.ToString();
+                        order.Status = PaymentStatusEnums.Canceled.ToString();
                         break;
 
                     case nameof(PaymentTypeEnums.BookingOffline):

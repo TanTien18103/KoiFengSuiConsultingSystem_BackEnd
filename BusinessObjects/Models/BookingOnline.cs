@@ -33,6 +33,8 @@ public partial class BookingOnline
 
     public DateTime? CreateDate { get; set; }
 
+    public DateTime? UpdateDate { get; set; }
+
     public virtual Account AssignStaff { get; set; }
 
     public virtual Customer Customer { get; set; }

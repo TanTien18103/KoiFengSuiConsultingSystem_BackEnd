@@ -153,7 +153,7 @@ namespace Services.Services.RegisterAttendService
                             NumberOfTickets = ticketCount,
                             CreatedDate = firstTicket.CreatedDate,
                             TotalPrice = totalPrice,
-                            Location = workshop.Location ?? string.Empty,
+                            Location = workshop.LocationId ?? string.Empty,
                             StartDate = workshop.StartDate ?? DateTime.Now
                         };
 

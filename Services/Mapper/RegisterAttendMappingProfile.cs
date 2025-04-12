@@ -27,7 +27,7 @@ namespace Services.Mapper
                 .ForMember(dest => dest.WorkshopName, opt => opt.MapFrom(src => src.Workshop.WorkshopName))
                 .ForMember(dest => dest.MasterName, opt => opt.MapFrom(src => src.Workshop.Master.Account.FullName))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.Workshop.StartDate))
-                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Workshop.Location));
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Workshop.Location.LocationName));
 
             CreateMap<RegisterAttendRequest, RegisterAttend>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => RegisterAttendStatusEnums.Pending.ToString()));
@@ -36,7 +36,7 @@ namespace Services.Mapper
                 .ForMember(dest => dest.AttendId, opt => opt.MapFrom(src => src.AttendId))
                 .ForMember(dest => dest.WorkshopName, opt => opt.MapFrom(src => src.Workshop.WorkshopName))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.Workshop.StartDate))
-                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Workshop.Location))
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Workshop.Location.LocationName))
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Customer.Account.PhoneNumber))
                 .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Account.FullName))
                 .ForMember(dest => dest.CustomerEmail, opt => opt.MapFrom(src => src.Customer.Account.Email))

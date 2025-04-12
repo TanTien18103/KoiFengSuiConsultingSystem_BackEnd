@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObjects.Models;
+using Services.ApiModels.Answer;
 using Services.ApiModels.Question;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace Services.Mapper
             CreateMap<Question, QuestionResponse>();
             CreateMap<QuestionUpdateRequest, Question>();
             CreateMap<AnswerUpdateRequest, Answer>();
+            CreateMap<Answer, AnswerResponse>();
         }
     }
 }

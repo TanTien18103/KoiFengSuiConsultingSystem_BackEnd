@@ -15,6 +15,4 @@ namespace Services.ApiModels.Question
         public decimal? Point { get; set; }
         public List<AnswerResponse> Answers { get; set; }
     }
-
-   
 }

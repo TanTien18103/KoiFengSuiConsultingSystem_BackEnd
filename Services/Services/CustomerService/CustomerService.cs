@@ -13,6 +13,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Services.ServicesHelpers.FengShuiHelper;
+using BusinessObjects.Enums;
 
 namespace Services.Services.CustomerService;
 
@@ -107,22 +108,36 @@ public class CustomerService : ICustomerService
         return await _customerRepo.UpdateCustomer(customer);
     }
 
+
     public async Task<ResultModel> CalculateCompatibility(CompatibilityRequest request)
     {
         var res = new ResultModel();
         double compatibilityScore = 0;
 
-        var result = await GetCurrentCustomerElement();
-        if (!result.IsSuccess || result.Data == null)
-        {
-            res.IsSuccess = false;
-            res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-            res.Message = ResponseMessageConstrantsCompatibility.DESTINY_NOT_FOUND;
-            res.StatusCode = StatusCodes.Status404NotFound;
-            return res;
-        }
+        ElementLifePalaceDto elementLifePalace = null;
 
-        var elementLifePalace = result.Data as ElementLifePalaceDto;
+        if (request.BirthDate.HasValue)
+        {
+            var nguHanh = AmDuongNienHelper.GetNguHanh(request.BirthDate.Value.Year).NguHanh;
+            elementLifePalace = new ElementLifePalaceDto
+            {
+                Element = nguHanh.ToString(),
+            };
+        }
+        else
+        {
+            var result = await GetCurrentCustomerElement();
+            if (!result.IsSuccess || result.Data == null)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                res.Message = ResponseMessageConstrantsCompatibility.DESTINY_NOT_FOUND;
+                res.StatusCode = StatusCodes.Status404NotFound;
+                return res;
+            }
+
+            elementLifePalace = result.Data as ElementLifePalaceDto;
+        }
         if (elementLifePalace == null || string.IsNullOrEmpty(elementLifePalace.Element))
         {
             res.IsSuccess = false;

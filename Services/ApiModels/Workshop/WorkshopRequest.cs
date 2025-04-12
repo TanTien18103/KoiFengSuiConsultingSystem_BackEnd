@@ -23,6 +23,10 @@ namespace Services.ApiModels.Workshop
         [Range(1, int.MaxValue, ErrorMessage = "Sức chứa phải là số nguyên dương")]
         public int? Capacity { get; set; }
         [Required]
+        public TimeOnly StartTime { get; set; }
+        [Required]
+        public TimeOnly EndTime { get; set; }
+        [Required]
         public decimal? Price { get; set; }
         public IFormFile ImageUrl { get; set; }
 

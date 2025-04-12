@@ -206,7 +206,7 @@ namespace Services.Services.WorkshopService
                 if (trending)
                 {
                     approvedWorkshops = approvedWorkshops.Where(x => x.Trending == trending).ToList();
-                    if(!approvedWorkshops.Any() || approvedWorkshops == null)
+                    if (!approvedWorkshops.Any() || approvedWorkshops == null)
                     {
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -476,6 +476,14 @@ namespace Services.Services.WorkshopService
 
                 if (request.Capacity.HasValue)
                     workshop.Capacity = request.Capacity.Value;
+                if (request.Capacity.HasValue)
+                    workshop.Capacity = request.Capacity.Value;
+
+                if (request.StartTime.HasValue)
+                    workshop.StartTime = request.StartTime.Value;
+
+                if (request.EndTime.HasValue)
+                    workshop.EndTime = request.EndTime.Value;
 
                 if (request.Price.HasValue)
                     workshop.Price = request.Price.Value;
@@ -580,7 +588,7 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                register.Status = RegisterAttendStatusEnums.Confirmed.ToString(); 
+                register.Status = RegisterAttendStatusEnums.Confirmed.ToString();
                 await _registerAttendRepo.UpdateRegisterAttend(register);
 
                 res.IsSuccess = true;

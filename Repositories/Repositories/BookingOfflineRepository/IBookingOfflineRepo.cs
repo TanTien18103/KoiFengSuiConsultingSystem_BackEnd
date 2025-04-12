@@ -23,5 +23,7 @@ namespace Repositories.Repositories.BookingOfflineRepository
         Task<List<BookingOffline>?> GetBookingsOfflineByCustomerId(string customerId);
         Task<List<BookingOffline>?> GetBookingsOfflineByStaffId(string staffId);
         Task<BookingOffline> GetPendingBookingByCustomerId(string customerId);
+        Task<BookingOffline?> UpdateBookingOfflineContract(string bookingOfflineId, string contractId, string status);
+        Task<BookingOffline?> UpdateBookingOfflineAttachment(string bookingOfflineId, string attachmentId, string status);
     }
 }

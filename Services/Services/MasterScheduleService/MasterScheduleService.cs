@@ -78,6 +78,38 @@ namespace Services.Services.MasterScheduleService
             }
         }
 
+        public async Task<ResultModel> GetAllMasterSchedulesForMobile()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var masterSchedules = await _masterScheduleRepo.GetAllSchedules();
+                if (masterSchedules == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<List<MasterSchedulesListDTO>>(masterSchedules);
+                res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = $"Lỗi khi lấy danh sách lịch làm việc: {ex.Message}";
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                return res;
+            }
+        }
+
         public async Task<ResultModel> GetMasterSchedulesByCurrentMasterLogin()
         {
             var res = new ResultModel();

@@ -251,5 +251,43 @@ namespace DAOs.DAOs
                 .Include(x => x.Contract)
                 .FirstOrDefaultAsync(b => b.CustomerId == customerId && b.Status == BookingOfflineEnums.Pending.ToString());
         }
+
+        public async Task<BookingOffline?> UpdateBookingOfflineContractDao(string bookingOfflineId, string contractId, string status)
+        {
+            RefreshContext();
+            
+            var booking = await _context.BookingOfflines
+                .Include(b => b.Customer)
+                .Include(b => b.Master)
+                .Include(b => b.Document)
+                .Include(b => b.Contract)
+                .FirstOrDefaultAsync(b => b.BookingOfflineId == bookingOfflineId);
+
+            if (booking == null)
+                return null;
+
+            booking.ContractId = contractId;
+            booking.Status = status;
+            await _context.SaveChangesAsync();
+            return booking;
+        }
+
+        public async Task<BookingOffline?> UpdateBookingOfflineAttachmentDao(string bookingOfflineId, string attachmentId, string status)
+        {
+            var booking = await _context.BookingOfflines
+                .Include(b => b.Customer)
+                .Include(b => b.Master)
+                .Include(b => b.Document)
+                .Include(b => b.Contract)
+                .FirstOrDefaultAsync(b => b.BookingOfflineId == bookingOfflineId);
+
+            if (booking == null)
+                return null;
+
+            booking.RecordId = attachmentId;
+            booking.Status = status;
+            await _context.SaveChangesAsync();
+            return booking;
+        }
     }
 }

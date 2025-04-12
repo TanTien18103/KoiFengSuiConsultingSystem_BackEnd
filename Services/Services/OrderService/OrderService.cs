@@ -285,7 +285,7 @@ namespace Services.Services.OrderService
                         var conflictMasterSchedule = await _masterScheduleRepo.GetMasterScheduleById(conflictBooking.MasterScheduleId);
                         if (conflictMasterSchedule != null)
                         {
-                            conflictMasterSchedule.Status = MasterScheduleEnums.Cancelled.ToString();
+                            conflictMasterSchedule.Status = MasterScheduleEnums.Canceled.ToString();
                             await _masterScheduleRepo.UpdateMasterSchedule(conflictMasterSchedule);
                         }
 

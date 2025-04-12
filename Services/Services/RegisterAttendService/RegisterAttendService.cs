@@ -389,6 +389,15 @@ namespace Services.Services.RegisterAttendService
                     return res;
                 }
 
+                if (workshop.StartDate.HasValue && (workshop.StartDate.Value - DateTime.Now).TotalDays < 1)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = "Thời gian đăng ký mua vé tham dự buổi hội thảo đã kết thúc";
+                    return res;
+                }
+
                 // Kiểm tra capacity trước khi tạo
                 if (workshop.Capacity < request.NumberOfTicket)
                 {

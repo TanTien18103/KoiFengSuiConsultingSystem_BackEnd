@@ -69,5 +69,15 @@ namespace Repositories.Repositories.BookingOfflineRepository
         {
             return BookingOfflineDAO.Instance.GetPendingBookingByCustomerIdDao(customerId);
         }
+
+        public Task<BookingOffline?> UpdateBookingOfflineContract(string bookingOfflineId, string contractId, string status)
+        {
+            return BookingOfflineDAO.Instance.UpdateBookingOfflineContractDao(bookingOfflineId, contractId, status);
+        }
+
+        public Task<BookingOffline?> UpdateBookingOfflineAttachment(string bookingOfflineId, string attachmentId, string status)
+        {
+            return BookingOfflineDAO.Instance.UpdateBookingOfflineAttachmentDao(bookingOfflineId, attachmentId, status);
+        }
     }
 }

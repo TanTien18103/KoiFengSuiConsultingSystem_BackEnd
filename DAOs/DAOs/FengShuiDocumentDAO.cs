@@ -82,6 +82,33 @@ namespace DAOs.DAOs
             return fengShuiDocument;
         }
 
+        public async Task<FengShuiDocument> UpdateFengShuiDocumentWithBookingDao(string documentId, string bookingOfflineId)
+        {
+            // Lấy document hiện tại từ database
+            var existingDocument = await _context.FengShuiDocuments
+                .Include(d => d.BookingOfflines)
+                .FirstOrDefaultAsync(d => d.FengShuiDocumentId == documentId);
+
+            if (existingDocument == null)
+                return null;
+
+            // Lấy booking từ database
+            var existingBooking = await _context.BookingOfflines
+                .FirstOrDefaultAsync(b => b.BookingOfflineId == bookingOfflineId);
+
+            if (existingBooking == null)
+                return null;
+
+            // Xóa tất cả các booking cũ
+            existingDocument.BookingOfflines.Clear();
+
+            // Thêm booking mới
+            existingDocument.BookingOfflines.Add(existingBooking);
+
+            await _context.SaveChangesAsync();
+            return existingDocument;
+        }
+
         public async Task DeleteFengShuiDocumentDao(string fengShuiDocumentId)
         {
             var fengShuiDocument = await GetFengShuiDocumentByIdDao(fengShuiDocumentId);

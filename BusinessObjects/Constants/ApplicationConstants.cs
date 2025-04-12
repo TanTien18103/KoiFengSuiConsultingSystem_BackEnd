@@ -336,6 +336,7 @@ namespace BusinessObjects.Constants
         public static string? STARTTIME_INFO_INVALID { get; set; }
         public static string? ENDTIME_INFO_INVALID { get; set; }
         public static string? TIME_INVALID { get; set; }
+        public const string WORKSHOP_CANCELED_SUCCESS = "Buổi hội thảo bị hủy thành công";
     }
 
     public class ResponseMessageConstrantsCourse

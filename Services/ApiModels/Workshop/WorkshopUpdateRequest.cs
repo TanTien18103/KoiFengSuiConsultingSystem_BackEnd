@@ -17,6 +17,8 @@ namespace Services.ApiModels.Workshop
         public string? Description { get; set; }
         [Range(1, int.MaxValue, ErrorMessage = "Sức chứa phải là số nguyên dương")]
         public int? Capacity { get; set; }
+        public TimeOnly? StartTime { get; set; }
+        public TimeOnly? EndTime { get; set; }
         public decimal? Price { get; set; }
         public IFormFile? ImageUrl { get; set; }
     }

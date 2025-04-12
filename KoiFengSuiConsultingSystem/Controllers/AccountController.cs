@@ -12,6 +12,7 @@ using BusinessObjects.Enums;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Repositories.AccountRepository;
 using Services.ApiModels.Master;
+using Repositories.Repositories.CustomerRepository;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -21,11 +22,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly IAccountRepo _accountRepo;
+        private readonly ICustomerRepo _customerRepo;
 
-        public AccountController(IAccountService accountService, IAccountRepo accountRepo)
+        public AccountController(IAccountService accountService, IAccountRepo accountRepo, ICustomerRepo customerRepo)
         {
             _accountService = accountService;
             _accountRepo = accountRepo;
+            _customerRepo = customerRepo;
         }
 
 
@@ -123,6 +126,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
                 var user = await _accountRepo.GetAccountById(accountId);
 
+                var customer = await _customerRepo.GetCustomerByAccountId(accountId);
                 if (user != null)
                 {
                     return Ok(new
@@ -132,7 +136,11 @@ namespace KoiFengSuiConsultingSystem.Controllers
                         Role = role,
                         PhoneNumber = user.PhoneNumber,
                         FullName = user.FullName,
-                        Dob = user.Dob
+                        Dob = user.Dob,
+                        ImageUrl = customer.ImageUrl,
+                        bankId = user.BankId,
+                        AccountNo = user.AccountNo,
+                        AccountName = user.AccountName
                     });
                 }
 
@@ -143,7 +151,11 @@ namespace KoiFengSuiConsultingSystem.Controllers
                     Role = role,
                     PhoneNumber = (string)null,
                     FullName = (string)null,
-                    Dob = user.Dob
+                    Dob = user.Dob,
+                    ImageUrl = customer.ImageUrl,
+                    bankId = user.BankId,
+                    AccountNo = user.AccountNo,
+                    AccountName = user.AccountName,
                 });
             }
 

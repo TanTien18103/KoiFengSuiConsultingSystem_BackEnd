@@ -53,6 +53,14 @@ namespace Services.Services.WorkshopService
             return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
         }
 
+        private string GetAuthenticatedAccountId()
+        {
+            var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+            if (identity == null || !identity.IsAuthenticated) return null;
+
+            return identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        }
+
         public async Task<ResultModel> SortingWorkshopByCreatedDate()
         {
             var res = new ResultModel();
@@ -282,6 +290,25 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
+                if (!TimeOnly.TryParse(request.StartTime, out var startTime))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.STARTTIME_INFO_INVALID;
+                    return res;
+                }
+
+                if (!TimeOnly.TryParse(request.EndTime, out var endTime))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.ENDTIME_INFO_INVALID;
+                    return res;
+                }
+
+
                 var accountId = GetAuthenticatedAccountId();
                 if (string.IsNullOrEmpty(accountId))
                 {
@@ -349,6 +376,15 @@ namespace Services.Services.WorkshopService
                     }
                 }
 
+                if(endTime <= startTime)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.TIME_INVALID;
+                    return res;
+                }
+
                 var masterschedules = await _masterScheduleRepo.GetMasterScheduleByMasterId(masterId);
 
                 foreach (var masterschedule in masterschedules)
@@ -378,6 +414,8 @@ namespace Services.Services.WorkshopService
                 newWorkshop.CreatedDate = DateTime.UtcNow;
                 newWorkshop.Status = WorkshopStatusEnums.Pending.ToString();
                 newWorkshop.MasterId = masterId;
+                newWorkshop.StartTime = startTime;
+                newWorkshop.EndTime = endTime;
                 newWorkshop.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
                 if (newWorkshop.MasterId == null)
@@ -391,10 +429,12 @@ namespace Services.Services.WorkshopService
 
                 await _workShopRepo.CreateWorkShop(newWorkshop);
 
+                var workshopResponse = await _workShopRepo.GetWorkShopById(newWorkshop.WorkshopId);
+
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status201Created;
-                res.Data = _mapper.Map<WorkshopResponse>(newWorkshop);
+                res.Data = _mapper.Map<WorkshopResponse>(workshopResponse);
                 res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_CREATED_SUCCESS;
                 return res;
             }
@@ -406,14 +446,6 @@ namespace Services.Services.WorkshopService
                 res.Message = $"Đã xảy ra lỗi khi tạo hội thảo: {ex.Message}";
                 return res;
             }
-        }
-
-        private string GetAuthenticatedAccountId()
-        {
-            var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
-            if (identity == null || !identity.IsAuthenticated) return null;
-
-            return identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         }
 
         public async Task<ResultModel> UpdateWorkshop(string id, WorkshopUpdateRequest request)
@@ -451,13 +483,21 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                var location = await _locationRepo.GetLocationByIdRepo(request.LocationId);
-                if (location == null)
+                if (!TimeOnly.TryParse(request.StartTime, out var startTime))
                 {
                     res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = ResponseMessageConstrantsWorkshop.LOCATION_NOT_FOUND;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.STARTTIME_INFO_INVALID;
+                    return res;
+                }
+
+                if (!TimeOnly.TryParse(request.EndTime, out var endTime))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.ENDTIME_INFO_INVALID;
                     return res;
                 }
 
@@ -476,14 +516,15 @@ namespace Services.Services.WorkshopService
 
                 if (request.Capacity.HasValue)
                     workshop.Capacity = request.Capacity.Value;
+
                 if (request.Capacity.HasValue)
                     workshop.Capacity = request.Capacity.Value;
 
-                if (request.StartTime.HasValue)
-                    workshop.StartTime = request.StartTime.Value;
+                if (!string.IsNullOrEmpty(request.StartTime))
+                    workshop.StartTime = startTime;
 
-                if (request.EndTime.HasValue)
-                    workshop.EndTime = request.EndTime.Value;
+                if (!string.IsNullOrEmpty(request.EndTime))
+                    workshop.EndTime = endTime;
 
                 if (request.Price.HasValue)
                     workshop.Price = request.Price.Value;
@@ -491,6 +532,18 @@ namespace Services.Services.WorkshopService
                 if (request.ImageUrl != null)
                     workshop.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
+                if (endTime <= startTime)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.TIME_INVALID;
+                    return res;
+                }
+
+                workshop.UpdateAt = DateTime.UtcNow;
+                workshop.StartTime = startTime;
+                workshop.EndTime = endTime;
                 await _workShopRepo.UpdateWorkShop(workshop);
 
                 res.IsSuccess = true;

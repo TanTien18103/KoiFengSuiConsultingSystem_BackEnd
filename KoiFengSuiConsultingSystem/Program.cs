@@ -66,6 +66,7 @@ using Repositories.Repositories.AttachmentRepository;
 using Services.Services.AttachmentService;
 using Repositories.Repositories.LocationRepository;
 using Services.Services.LocationService;
+using Services.ServicesHelpers.TimeOnlyJsonConverter;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -178,6 +179,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
     });
 
 // Add Response Caching Middleware

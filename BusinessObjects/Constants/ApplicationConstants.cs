@@ -331,6 +331,7 @@ namespace BusinessObjects.Constants
         public const string WORKSHOP_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật workshop này.";
         public const string ALREADY_STARTED = "Workshop đã bắt đầu, không thể đăng ký hay chỉnh sửa.";
         public const string CAPACITY_LEFT = "Vé còn trống cho workshop này là ";
+        public const string WORKSHOP_CANCELED_SUCCESS = "Buổi hội thảo bị hủy thành công";
     }
 
     public class ResponseMessageConstrantsCourse

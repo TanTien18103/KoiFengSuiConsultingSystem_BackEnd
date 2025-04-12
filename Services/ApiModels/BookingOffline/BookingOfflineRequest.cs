@@ -15,5 +15,7 @@ namespace Services.ApiModels.BookingOffline
         [Required]
         public DateOnly StartDate { get; set; }
 
+        [Required]
+        public string Location { get; set; }
     }
 }

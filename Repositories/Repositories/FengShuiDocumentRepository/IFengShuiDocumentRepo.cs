@@ -18,5 +18,6 @@ namespace Repositories.Repositories.FengShuiDocumentRepository
         Task<FengShuiDocument> UpdateFengShuiDocumentStatus(string documentId, string status);
         Task<BookingOffline> AssignDocumentToBooking(string bookingOfflineId, string documentId);
         Task<List<FengShuiDocument>> GetFengShuiDocumentsByMaster(string masterId);
+        Task<FengShuiDocument> UpdateFengShuiDocumentWithBooking(string documentId, string bookingOfflineId);
     }
 }

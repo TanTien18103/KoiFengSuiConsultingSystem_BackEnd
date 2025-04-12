@@ -203,7 +203,7 @@ namespace Services.Services.WorkshopService
                 if (trending)
                 {
                     approvedWorkshops = approvedWorkshops.Where(x => x.Trending == trending).ToList();
-                    if(!approvedWorkshops.Any() || approvedWorkshops == null)
+                    if (!approvedWorkshops.Any() || approvedWorkshops == null)
                     {
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -557,7 +557,7 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                register.Status = RegisterAttendStatusEnums.Confirmed.ToString(); 
+                register.Status = RegisterAttendStatusEnums.Confirmed.ToString();
                 await _registerAttendRepo.UpdateRegisterAttend(register);
 
                 res.IsSuccess = true;
@@ -565,6 +565,68 @@ namespace Services.Services.WorkshopService
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Message = ResponseMessageConstrantsWorkshop.CHECK_IN_SUCCESS;
                 return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> CancelWorkshop()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var workshops = await _workShopRepo.GetWorkShops();
+                var approvedWorkshops = workshops.Where(x => x.Status == WorkshopStatusEnums.Approved.ToString()).ToList();
+
+                if (approvedWorkshops == null || !approvedWorkshops.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND;
+                    return res;
+                }
+
+                foreach (var workshop in approvedWorkshops)
+                {
+                    if (workshop.StartDate.HasValue)
+                    {
+                        var oneDayBefore = workshop.StartDate.Value.AddDays(-1);
+                        if (DateTime.UtcNow >= oneDayBefore && workshop.StartDate > DateTime.UtcNow)
+                        {
+                            var registerAttends = await _registerAttendRepo.GetRegisterAttendsByWorkShopId(workshop.WorkshopId);
+                            if (registerAttends == null || !registerAttends.Any())
+                            {
+                                workshop.Status = WorkshopStatusEnums.Canceled.ToString();
+                                await _workShopRepo.UpdateWorkShop(workshop);
+
+                                var masterSchedules = await _masterScheduleRepo.GetMasterScheduleByMasterId(workshop.MasterId);
+                                var scheduleToUpdate = masterSchedules.FirstOrDefault(ms =>
+                                    ms.Date == DateOnly.FromDateTime(workshop.StartDate.Value) &&
+                                    ms.Type == MasterScheduleTypeEnums.Workshop.ToString());
+
+                                if (scheduleToUpdate != null)
+                                {
+                                    scheduleToUpdate.Status = MasterScheduleEnums.Canceled.ToString();
+                                    await _masterScheduleRepo.UpdateMasterSchedule(scheduleToUpdate);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_CANCELED_SUCCESS;
+                return res;
+
             }
             catch (Exception ex)
             {

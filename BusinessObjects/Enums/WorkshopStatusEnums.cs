@@ -10,6 +10,7 @@ namespace BusinessObjects.Enums
     {
         Approved, 
         Pending, 
-        Rejected
+        Rejected,
+        Canceled,
     }
 }

@@ -91,6 +91,7 @@ namespace Services.Services.FengShuiDocumentService
 
                 // Kiểm tra trạng thái hiện tại của booking
                 if (bookingOffline.Status != BookingOfflineEnums.FirstPaymentSuccess.ToString() && 
+                    bookingOffline.Status != BookingOfflineEnums.DocumentRejectedByManager.ToString() &&
                     bookingOffline.Status != BookingOfflineEnums.DocumentRejectedByCustomer.ToString())
                 {
                     res.IsSuccess = false;
@@ -143,8 +144,18 @@ namespace Services.Services.FengShuiDocumentService
                 }
 
                 // Cập nhật lại document với thông tin booking
-                createdDocument.BookingOfflines.Add(updatedBooking);
-                await _fengShuiDocumentRepo.UpdateFengShuiDocument(createdDocument);
+                var updatedDocument = await _fengShuiDocumentRepo.UpdateFengShuiDocumentWithBooking(
+                    createdDocument.FengShuiDocumentId,
+                    updatedBooking.BookingOfflineId);
+
+                if (updatedDocument == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = "Không thể cập nhật tài liệu với thông tin booking";
+                    return res;
+                }
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status201Created;

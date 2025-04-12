@@ -29,6 +29,7 @@ namespace BusinessObjects.Enums
         VerifiedOTPAttachment,
         SecondPaymentPending,
         SecondPaymentPendingConfirm,
-        Completed
+        Completed,
+        Canceled,
     }
 }

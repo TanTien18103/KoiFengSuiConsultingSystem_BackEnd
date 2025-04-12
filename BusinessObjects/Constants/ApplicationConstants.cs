@@ -332,6 +332,10 @@ namespace BusinessObjects.Constants
         public const string ALREADY_STARTED = "Workshop đã bắt đầu, không thể đăng ký hay chỉnh sửa.";
         public const string CAPACITY_LEFT = "Vé còn trống cho workshop này là ";
         public const string LOCATION_NOT_FOUND = "Không tìm thấy địa điểm!";
+
+        public static string? STARTTIME_INFO_INVALID { get; set; }
+        public static string? ENDTIME_INFO_INVALID { get; set; }
+        public static string? TIME_INVALID { get; set; }
     }
 
     public class ResponseMessageConstrantsCourse

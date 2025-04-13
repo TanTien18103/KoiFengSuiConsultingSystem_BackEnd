@@ -18,5 +18,6 @@ namespace Repositories.Repositories.WorkShopRepository
         Task<WorkShop> CreateWorkShop(WorkShop workShop);
         Task<WorkShop> UpdateWorkShop(WorkShop workShop);
         Task DeleteWorkShop(string workShopId);
+        Task<List<WorkShop>> GetWorkshopsByDate(DateTime value);
     }
 }

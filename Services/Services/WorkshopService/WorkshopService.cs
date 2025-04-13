@@ -33,6 +33,8 @@ namespace Services.Services.WorkshopService
         private readonly IMasterScheduleRepo _masterScheduleRepo;
         private readonly ILocationRepo _locationRepo;
 
+        public string? WORKSHOP_DUPLICATE_SCHEDULE_SAME_MASTER { get; private set; }
+
         public WorkshopService(IWorkShopRepo workShopRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor,
             IRegisterAttendRepo registerAttendRepo, IMasterRepo masterRepo, IUploadService uploadService,
             IMasterScheduleRepo masterScheduleRepo, ILocationRepo locationRepo)
@@ -52,7 +54,10 @@ namespace Services.Services.WorkshopService
             string base64 = Convert.ToBase64String(guid.ToByteArray());
             return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
         }
-
+        private bool IsTimeOverlap(DateTime startA, DateTime endA, DateTime startB, DateTime endB)
+        {
+            return startA < endB && endA > startB;
+        }
         private string GetAuthenticatedAccountId()
         {
             var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
@@ -240,7 +245,6 @@ namespace Services.Services.WorkshopService
                 return res;
             }
         }
-
         public async Task<ResultModel> GetWorkshopById(string id)
         {
             var res = new ResultModel();
@@ -274,7 +278,6 @@ namespace Services.Services.WorkshopService
             }
 
         }
-
         public async Task<ResultModel> CreateWorkshop(WorkshopRequest request)
         {
             var res = new ResultModel();
@@ -308,7 +311,6 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-
                 var accountId = GetAuthenticatedAccountId();
                 if (string.IsNullOrEmpty(accountId))
                 {
@@ -339,44 +341,7 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                var existingWorkshop = await _workShopRepo.GetWorkshopByMasterLocationAndDate(masterId, request.LocationId, request.StartDate);
-                if (existingWorkshop != null)
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.EXISTED;
-                    res.StatusCode = StatusCodes.Status409Conflict;
-                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_DUPLICATE_LOCATION_DATE_SAME_MASTER;
-                    return res;
-                }
-
-                var existingWorkshopOtherMaster = await _workShopRepo.GetWorkshopByLocationAndDate(request.LocationId, request.StartDate);
-                if (existingWorkshopOtherMaster != null)
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.EXISTED;
-                    res.StatusCode = StatusCodes.Status409Conflict;
-                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_DUPLICATE_LOCATION_DATE_OTHER_MASTER;
-                    return res;
-                }
-
-                var workshopsByMaster = await _workShopRepo.GetWorkshopsByMaster(masterId);
-                foreach (var ws in workshopsByMaster)
-                {
-                    if (ws.LocationId != request.LocationId && request.StartDate.HasValue && ws.StartDate.HasValue)
-                    {
-                        var timeDifference = (request.StartDate.Value - ws.StartDate.Value).TotalHours;
-                        if (Math.Abs(timeDifference) < 5)
-                        {
-                            res.IsSuccess = false;
-                            res.ResponseCode = ResponseCodeConstants.EXISTED;
-                            res.StatusCode = StatusCodes.Status409Conflict;
-                            res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_MINIMUM_HOURS_DIFFERENCE;
-                            return res;
-                        }
-                    }
-                }
-
-                if(endTime <= startTime)
+                if (endTime <= startTime)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
@@ -385,11 +350,71 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
+                // Lấy tất cả workshop trùng ngày
+                var workshopsInSameDate = await _workShopRepo.GetWorkshopsByDate(request.StartDate.Value);
+
+                // Convert thời gian để so sánh
+                var newStart = request.StartDate.Value.Add(startTime.ToTimeSpan());
+                var newEnd = request.StartDate.Value.Add(endTime.ToTimeSpan());
+
+                var duration = newEnd - newStart;
+                if (duration.TotalMinutes < 30 || duration.TotalHours > 3)
+                {
+                    res.IsSuccess = false;
+                    res.Message = ResponseMessageConstrantsWorkshop.DURATION_INVALID;
+                    return res;
+                }
+
+                // Lặp qua các workshop
+                foreach (var ws in workshopsInSameDate)
+                {
+                    var existingStart = ws.StartDate.Value.Add(ws.StartTime!.Value.ToTimeSpan());
+                    var existingEnd = ws.StartDate.Value.Add(ws.EndTime!.Value.ToTimeSpan());
+
+                    // 1. Nếu cùng location cùng master
+                    if (ws.LocationId == request.LocationId && ws.MasterId == masterId)
+                    {
+                        if (IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.EXISTED;
+                            res.StatusCode = StatusCodes.Status409Conflict;
+                            res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_DUPLICATE_LOCATION;
+                            return res;
+                        }
+                    }
+                    // 2. Nếu khác location nhưng cùng master
+                    else if (ws.MasterId == masterId)
+                    {
+                        double gapHours = Math.Abs((newStart - existingStart).TotalHours);
+                        if (gapHours < 1 || IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.EXISTED;
+                            res.StatusCode = StatusCodes.Status409Conflict;
+                            res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_DUPLICATE_SCHEDULE_SAME_MASTER;
+                            return res;
+                        }
+                    }
+                    // 3. Nếu cùng location nhưng khác master
+                    else if (ws.LocationId == request.LocationId && ws.MasterId != masterId)
+                    {
+                        if (IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.EXISTED;
+                            res.StatusCode = StatusCodes.Status409Conflict;
+                            res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_DUPLICATE_LOCATION_DATE_OTHER_MASTER;
+                            return res;
+                        }
+                    }
+                }
+               
                 var masterschedules = await _masterScheduleRepo.GetMasterScheduleByMasterId(masterId);
 
                 foreach (var masterschedule in masterschedules)
                 {
-                    if (masterschedule.Date == DateOnly.FromDateTime(request.StartDate.Value))
+                    if (masterschedule.Date == DateOnly.FromDateTime(request.StartDate.Value) && masterschedule.StartTime == startTime && masterschedule.EndTime == endTime)
                     {
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.EXISTED;
@@ -404,8 +429,11 @@ namespace Services.Services.WorkshopService
                     MasterScheduleId = GenerateShortGuid(),
                     MasterId = masterId,
                     Date = DateOnly.FromDateTime(request.StartDate.Value),
+                    StartTime = startTime,
+                    EndTime = endTime,
                     Type = MasterScheduleTypeEnums.Workshop.ToString(),
                     Status = MasterScheduleEnums.Pending.ToString(),
+                    CreateDate = DateTime.UtcNow,
                 };
                 var createmasterSchedule = await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
 
@@ -540,6 +568,96 @@ namespace Services.Services.WorkshopService
                     res.Message = ResponseMessageConstrantsWorkshop.TIME_INVALID;
                     return res;
                 }
+
+                var workshopsInSameDate = await _workShopRepo.GetWorkshopsByDate(request.StartDate.Value);
+
+                // Convert thời gian để so sánh
+                var newStart = request.StartDate.Value.Add(startTime.ToTimeSpan());
+                var newEnd = request.StartDate.Value.Add(endTime.ToTimeSpan());
+
+                var duration = newEnd - newStart;
+                if (duration.TotalMinutes < 30 || duration.TotalHours > 3)
+                {
+                    res.IsSuccess = false;
+                    res.Message = ResponseMessageConstrantsWorkshop.DURATION_INVALID;
+                    return res;
+                }
+
+                // Lặp qua các workshop
+                foreach (var ws in workshopsInSameDate)
+                {
+                    var existingStart = ws.StartDate.Value.Add(ws.StartTime!.Value.ToTimeSpan());
+                    var existingEnd = ws.StartDate.Value.Add(ws.EndTime!.Value.ToTimeSpan());
+
+                    // 1. Nếu cùng location cùng master
+                    if (ws.LocationId == request.LocationId && ws.MasterId == masterId)
+                    {
+                        if (IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.EXISTED;
+                            res.StatusCode = StatusCodes.Status409Conflict;
+                            res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_DUPLICATE_LOCATION;
+                            return res;
+                        }
+                    }
+                    // 2. Nếu khác location nhưng cùng master
+                    else if (ws.MasterId == masterId)
+                    {
+                        double gapHours = Math.Abs((newStart - existingStart).TotalHours);
+                        if (gapHours < 1 || IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.EXISTED;
+                            res.StatusCode = StatusCodes.Status409Conflict;
+                            res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_DUPLICATE_SCHEDULE_SAME_MASTER;
+                            return res;
+                        }
+                    }
+                    // 3. Nếu cùng location nhưng khác master
+                    else if (ws.LocationId == request.LocationId && ws.MasterId != masterId)
+                    {
+                        if (IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.EXISTED;
+                            res.StatusCode = StatusCodes.Status409Conflict;
+                            res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_DUPLICATE_LOCATION_DATE_OTHER_MASTER;
+                            return res;
+                        }
+                    }
+                }
+                var Date = DateOnly.FromDateTime(request.StartDate.Value);
+
+                var masterschedule = await _masterScheduleRepo.GetMasterScheduleByMasterIdAndStartTimeEndTimeAndDate(masterId, startTime,endTime, Date);
+
+                var masterSchedule = new MasterSchedule
+                {
+                    MasterScheduleId = masterschedule.MasterScheduleId,
+                    MasterId = masterId,
+                    Date = Date,
+                    Type = MasterScheduleTypeEnums.Workshop.ToString(),
+                    StartTime = startTime,
+                    EndTime = endTime,
+                    Status = MasterScheduleEnums.Pending.ToString(),
+                    UpdateDate = DateTime.UtcNow,
+                };
+
+                var masterschedules = await _masterScheduleRepo.GetMasterScheduleByMasterId(masterId);
+
+                foreach (var ms in masterschedules)
+                {
+                    if (ms.Date == masterSchedule.Date.GetValueOrDefault() && ms.StartTime == startTime && ms.EndTime == endTime)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.EXISTED;
+                        res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_EXISTED_SLOT;
+                        res.StatusCode = StatusCodes.Status409Conflict;
+                        return res;
+                    }
+                }
+
+                var createmasterSchedule = await _masterScheduleRepo.UpdateMasterSchedule(masterSchedule);
 
                 workshop.UpdateAt = DateTime.UtcNow;
                 workshop.StartTime = startTime;

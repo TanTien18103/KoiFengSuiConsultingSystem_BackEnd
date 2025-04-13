@@ -46,5 +46,10 @@ namespace Repositories.Repositories.WorkShopRepository
         {
             return WorkShopDAO.Instance.DeleteWorkShopDao(workShopId);
         }
+
+        public Task<List<WorkShop>> GetWorkshopsByDate(DateTime value)
+        {
+            return WorkShopDAO.Instance.GetWorkshopsByDateDao(value);
+        }
     }
 }

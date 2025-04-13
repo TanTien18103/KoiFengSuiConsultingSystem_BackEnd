@@ -414,7 +414,7 @@ namespace Services.Services.WorkshopService
 
                 foreach (var masterschedule in masterschedules)
                 {
-                    if (masterschedule.Date == DateOnly.FromDateTime(request.StartDate.Value))
+                    if (masterschedule.Date == DateOnly.FromDateTime(request.StartDate.Value) && masterschedule.StartTime == startTime && masterschedule.EndTime == endTime)
                     {
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.EXISTED;
@@ -642,6 +642,21 @@ namespace Services.Services.WorkshopService
                     Status = MasterScheduleEnums.Pending.ToString(),
                     UpdateDate = DateTime.UtcNow,
                 };
+
+                var masterschedules = await _masterScheduleRepo.GetMasterScheduleByMasterId(masterId);
+
+                foreach (var ms in masterschedules)
+                {
+                    if (ms.Date == masterSchedule.Date.GetValueOrDefault() && ms.StartTime == startTime && ms.EndTime == endTime)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.EXISTED;
+                        res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_EXISTED_SLOT;
+                        res.StatusCode = StatusCodes.Status409Conflict;
+                        return res;
+                    }
+                }
+
                 var createmasterSchedule = await _masterScheduleRepo.UpdateMasterSchedule(masterSchedule);
 
                 workshop.UpdateAt = DateTime.UtcNow;

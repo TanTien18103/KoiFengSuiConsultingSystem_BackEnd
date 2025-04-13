@@ -150,5 +150,15 @@ namespace DAOs.DAOs
                     ms.StartTime == startTime && 
                     ms.MasterId == masterId);
         }
+
+        public async Task<MasterSchedule> GetMasterScheduleByMasterIdAndStartTimeEndTimeAndDate(string masterId, TimeOnly startTime, TimeOnly endTime, DateOnly date)
+        {
+            return await _context.MasterSchedules
+                .FirstOrDefaultAsync(ms =>
+                    ms.MasterId == masterId &&
+                    ms.StartTime == startTime &&
+                    ms.EndTime == endTime &&
+                    ms.Date == date);
+        }
     }
 }

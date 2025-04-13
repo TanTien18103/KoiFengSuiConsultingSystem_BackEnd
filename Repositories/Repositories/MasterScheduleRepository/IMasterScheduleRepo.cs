@@ -20,5 +20,6 @@ namespace Repositories.Repositories.MasterScheduleRepository
         Task<List<MasterSchedule>> GetMasterScheduleByMasterId(string masterId);
         Task<bool> CheckMasterScheduleAvailabilityRepo(string masterId, DateOnly? bookingDate, TimeOnly? startTime, TimeOnly? endTime);
         Task<MasterSchedule> GetMasterScheduleByDateAndTimeRepo(DateOnly bookingDate, TimeOnly startTime, string masterId);
+        Task<MasterSchedule> GetMasterScheduleByMasterIdAndStartTimeEndTimeAndDate(string masterId, TimeOnly startTime, TimeOnly endTime, DateOnly date);
     }
 }

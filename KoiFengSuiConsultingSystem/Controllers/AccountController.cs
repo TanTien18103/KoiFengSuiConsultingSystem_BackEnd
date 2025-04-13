@@ -98,7 +98,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
             }
         }
 
-        
+        [HttpPut("edit-profile")]
+        public async Task<IActionResult> EditProfile([FromForm] EditProfileRequest request)
+        {
+            var res = await _accountService.EditProfile(request);
+            return StatusCode(res.StatusCode, res);
+        }
+
+
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {
@@ -123,9 +130,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
                 var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
                 var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
                 var role = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
                 var user = await _accountRepo.GetAccountById(accountId);
-
                 var customer = await _customerRepo.GetCustomerByAccountId(accountId);
                 if (user != null)
                 {
@@ -136,11 +141,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
                         Role = role,
                         PhoneNumber = user.PhoneNumber,
                         FullName = user.FullName,
+                        Gender = user.Gender,
                         Dob = user.Dob,
-                        ImageUrl = customer.ImageUrl,
-                        bankId = user.BankId,
+                        ImageUrl = customer?.ImageUrl,
+                        BankId = user.BankId,
                         AccountNo = user.AccountNo,
-                        AccountName = user.AccountName
+                        AccountName = user.AccountName,
                     });
                 }
 
@@ -151,9 +157,10 @@ namespace KoiFengSuiConsultingSystem.Controllers
                     Role = role,
                     PhoneNumber = (string)null,
                     FullName = (string)null,
+                    Gender = user.Gender,
                     Dob = user.Dob,
-                    ImageUrl = customer.ImageUrl,
-                    bankId = user.BankId,
+                    ImageUrl = customer?.ImageUrl,
+                    BankId = user.BankId,
                     AccountNo = user.AccountNo,
                     AccountName = user.AccountName,
                 });
@@ -175,14 +182,6 @@ namespace KoiFengSuiConsultingSystem.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
-        }
-
-        [Authorize]
-        [HttpPut("edit-profile")]
-        public async Task<IActionResult> EditProfile([FromBody]EditProfileRequest request)
-        {
-            var res = await _accountService.EditProfile(request);
-            return StatusCode(res.StatusCode, res);
         }
 
         [Authorize]

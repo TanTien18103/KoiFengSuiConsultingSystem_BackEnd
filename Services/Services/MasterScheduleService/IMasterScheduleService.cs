@@ -16,5 +16,7 @@ namespace Services.Services.MasterScheduleService
         Task<ResultModel> GetMasterSchedulesByCurrentMasterLogin();
         Task<ResultModel> GetMasterSchedulesByMasterAndDate(string masterId, DateTime date);
         Task<MasterSchedule> CreateMasterSchedule(MasterSchedule schedule);
+        Task<ResultModel> GetAllMasterSchedulesForMobile();
+        Task<ResultModel> GetMasterSchedulesByMaster(string id);
     }
 }

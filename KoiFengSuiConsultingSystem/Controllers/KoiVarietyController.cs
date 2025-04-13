@@ -61,11 +61,6 @@ namespace KoiFengSuiConsultingSystem.Controllers
         [HttpGet("filter")]
         public async Task<IActionResult> FilterKoiVarieties([FromQuery] NguHanh? nguHanh = null, [FromQuery] List<ColorEnums>? colors = null)
         {
-            if (colors != null && colors.Contains(default(ColorEnums)))
-            {
-                colors = null;
-            }
-
             var result = await _koiVarietyService.FilterByColorAndElement(nguHanh, colors);
             return StatusCode(result.StatusCode, result);
         }

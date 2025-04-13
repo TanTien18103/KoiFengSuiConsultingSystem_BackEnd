@@ -730,11 +730,23 @@ namespace Services.Services.KoiVarietyService
             var res = new ResultModel();
             try
             {
-                // Nếu không có bất kỳ điều kiện lọc nào hoặc colors là null/rỗng/chứa chuỗi rỗng
-                if (!nguHanh.HasValue && (colors == null || !colors.Any() || colors.Contains(default(ColorEnums))))
+                // Trường hợp 2: Chỉ có Color - Tìm theo màu
+                if (!nguHanh.HasValue && colors != null && colors.Any())
+                {
+                    return await GetKoiVarietiesByColorsAsync(colors);
+                }
+
+                // Trường hợp 1: Chỉ có nguHanh - Tìm theo mệnh
+                if (nguHanh.HasValue && (colors == null || !colors.Any()))
+                {
+                    return await GetKoiVarietiesByElementAsync(nguHanh.Value);
+                }
+
+                // Trường hợp 4: Không có điều kiện lọc nào - Lấy tất cả
+                if (!nguHanh.HasValue && (colors == null || !colors.Any()))
                 {
                     var allKois = await _koiVarietyRepo.GetKoiVarieties();
-                    if (allKois == null)
+                    if (allKois == null || !allKois.Any())
                     {
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -742,6 +754,7 @@ namespace Services.Services.KoiVarietyService
                         res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
                         return res;
                     }
+                    
                     res.IsSuccess = true;
                     res.ResponseCode = ResponseCodeConstants.SUCCESS;
                     res.StatusCode = StatusCodes.Status200OK;
@@ -750,55 +763,51 @@ namespace Services.Services.KoiVarietyService
                     return res;
                 }
 
-                List<KoiVariety> koiList = new List<KoiVariety>();
-
-                // Lọc theo Bản mệnh
-                if (nguHanh.HasValue)
+                // Trường hợp 3: Có cả nguHanh và Color - Tìm theo cả hai
+                if (nguHanh.HasValue && colors != null && colors.Any())
                 {
+                    var koiList = new List<KoiVariety>();
+                    
+                    // Tìm theo mệnh trước
                     var koisByElement = await GetKoiVarietiesByElementAsync(nguHanh.Value);
                     if (koisByElement != null && koisByElement.IsSuccess && koisByElement.Data != null)
                     {
                         koiList = _mapper.Map<List<KoiVariety>>(koisByElement.Data);
+                        
+                        // Lọc tiếp theo màu từ kết quả tìm theo mệnh
+                        if (koiList.Any())
+                        {
+                            koiList = koiList.Where(k =>
+                                k.VarietyColors.Any(vc =>
+                                    colors.Contains(Enum.Parse<ColorEnums>(vc.Color.ColorName))
+                                )
+                            ).ToList();
+                        }
                     }
-                }
-
-                // Chỉ lọc theo màu sắc nếu colors có giá trị và không null
-                if (colors != null && colors.Any())
-                {
-                    if (koiList.Any())
+                    
+                    res.IsSuccess = true;
+                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.Data = _mapper.Map<List<KoiVarietyDto>>(koiList);
+                    
+                    if (!koiList.Any())
                     {
-                        // Lọc từ danh sách đã có
-                        koiList = koiList.Where(k =>
-                            k.VarietyColors.Any(vc =>
-                                colors.Contains(Enum.Parse<ColorEnums>(vc.ColorId))
-                            )
-                        ).ToList();
+                        res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
                     }
                     else
                     {
-                        // Lấy danh sách mới theo màu
-                        var koisByColor = await GetKoiVarietiesByColorsAsync(colors);
-                        if (koisByColor != null && koisByColor.IsSuccess && koisByColor.Data != null)
-                        {
-                            koiList = _mapper.Map<List<KoiVariety>>(koisByColor.Data);
-                        }
+                        res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
                     }
+                    
+                    return res;
                 }
 
+                // Mặc định trả về danh sách rỗng nếu không khớp với bất kỳ trường hợp nào ở trên
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<KoiVarietyDto>>(koiList);
-
-                if (!koiList.Any())
-                {
-                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_NOT_FOUND;
-                }
-                else
-                {
-                    res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
-                }
-
+                res.Data = new List<KoiVarietyDto>();
+                res.Message = ResponseMessageConstrantsKoiVariety.KOIVARIETY_FOUND;
                 return res;
             }
             catch (Exception ex)

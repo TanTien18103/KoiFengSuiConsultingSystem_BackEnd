@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repositories.Repositories.AccountRepository;
@@ -64,6 +65,7 @@ using Repositories.Repositories.FengShuiDocumentRepository;
 using Services.Services.FengShuiDocumentService;
 using Repositories.Repositories.AttachmentRepository;
 using Services.Services.AttachmentService;
+using Services.ServicesHelpers.BunnyCdnService;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -133,6 +135,13 @@ builder.Services.AddHostedService<BookingCleanupService>();
 // Register GoogleMeetService
 builder.Services.AddSingleton<GoogleMeetService>();
 
+// BunnyCdn Configuration
+builder.Services.Configure<BunnyCdnSettings>(builder.Configuration.GetSection("BunnyCdn"));
+// Register BunnyCdnService
+builder.Services.AddSingleton<IBunnyCdnService>(provider => {
+    var settings = provider.GetRequiredService<IOptions<BunnyCdnSettings>>().Value;
+    return new BunnyCdnService(settings);
+});
 
 //Register Mapper
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));
@@ -250,10 +259,28 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAllOrigins",
         builder =>
         {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+});
+    options.AddPolicy("AllowVercel", policy =>
+    {
+        policy.WithOrigins("https://koi-feng-sui-consulting-system-front-dq5ch5q4n.vercel.app")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+    options.AddPolicy("UploadPolicy", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost",          
+                "https://koi-feng-sui-consulting-system-front-dq5ch5q4n.vercel.app"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .WithExposedHeaders("Content-Disposition")
+            .SetPreflightMaxAge(TimeSpan.FromHours(1));
+    });
 });
 
 // Cloudinary Configuration
@@ -282,6 +309,8 @@ app.UseResponseCaching();
 app.UseHttpsRedirection();
 // Use CORS before other middleware
 app.UseCors("AllowAllOrigins");
+app.UseCors("AllowVercel");
+app.UseCors("UploadPolicy");
 app.UseSession();
 
 app.UseAuthentication();

@@ -384,38 +384,7 @@ namespace Services.Services.KoiVarietyService
                     var koi = await _koiVarietyRepo.GetKoiVarietiesByElement(elementString);
                     if (koi != null && koi.Any())
                     {
-                        foreach (var koiVariety in koi)
-                        {
-                            // Kiểm tra tỷ lệ màu hợp
-                            var compatibleColorCount = 0;
-                            var totalColorCount = koiVariety.VarietyColors.Count;
-                            double totalCompatiblePercentage = 0;
-
-                            foreach (var varietyColor in koiVariety.VarietyColors)
-                            {
-                                if (IsColorCompatible(varietyColor.Color, elementStrings))
-                                {
-                                    compatibleColorCount++;
-                                    totalCompatiblePercentage += (double)varietyColor.Percentage; // giả sử Percentage là từ 0 đến 100
-                                }
-                            }
-                            // Nếu cá có tổng màu là 2
-                            if (totalColorCount == 2)
-                            {
-                                if (compatibleColorCount >= 1 && totalCompatiblePercentage > 50)
-                                {
-                                    allKoi.Add(koiVariety);
-                                }
-                            }
-                            // Nếu cá có tổng màu > 2
-                            else if (totalColorCount > 2)
-                            {
-                                if (compatibleColorCount > (totalColorCount / 2) && totalCompatiblePercentage > 50)
-                                {
-                                    allKoi.Add(koiVariety);
-                                }
-                            }
-                        }
+                       allKoi.AddRange(koi);
                     }
                 }
                 allKoi = allKoi.DistinctBy(k => k.KoiVarietyId).ToList();
@@ -891,7 +860,38 @@ namespace Services.Services.KoiVarietyService
                     var koi = await _koiVarietyRepo.GetKoiVarietiesByElement(elementString);
                     if (koi != null && koi.Any())
                     {
-                        allKoi.AddRange(koi);
+                        foreach (var koiVariety in koi)
+                        {
+                            // Kiểm tra tỷ lệ màu hợp
+                            var compatibleColorCount = 0;
+                            var totalColorCount = koiVariety.VarietyColors.Count;
+                            double totalCompatiblePercentage = 0;
+
+                            foreach (var varietyColor in koiVariety.VarietyColors)
+                            {
+                                if (IsColorCompatible(varietyColor.Color, elementStrings))
+                                {
+                                    compatibleColorCount++;
+                                    totalCompatiblePercentage += (double)varietyColor.Percentage; // giả sử Percentage là từ 0 đến 100
+                                }
+                            }
+                            // Nếu cá có tổng màu là 2
+                            if (totalColorCount == 2)
+                            {
+                                if (compatibleColorCount >= 1 && totalCompatiblePercentage > 50)
+                                {
+                                    allKoi.Add(koiVariety);
+                                }
+                            }
+                            // Nếu cá có tổng màu > 2
+                            else if (totalColorCount > 2)
+                            {
+                                if (compatibleColorCount > (totalColorCount / 2) && totalCompatiblePercentage > 50)
+                                {
+                                    allKoi.Add(koiVariety);
+                                }
+                            }
+                        }
                     }
                 }
                 var kois = await _koiVarietyRepo.GetKoiVarieties();

@@ -332,6 +332,12 @@ namespace Services.Services.KoiVarietyService
             return elementEnums.Select(e => EnumToString(e)).ToList();
         }
 
+        private bool IsColorCompatible(Color color, List<string> elementStrings)
+        {
+            // Kiểm tra xem màu sắc có hợp với bất kỳ mệnh nào không
+            return elementStrings.Contains(color.Element);
+        }
+
         private decimal CalculateCompatibilityScore(KoiVariety variety, string personElementString)
         {
             decimal score = 0;
@@ -378,7 +384,38 @@ namespace Services.Services.KoiVarietyService
                     var koi = await _koiVarietyRepo.GetKoiVarietiesByElement(elementString);
                     if (koi != null && koi.Any())
                     {
-                        allKoi.AddRange(koi);
+                        foreach (var koiVariety in koi)
+                        {
+                            // Kiểm tra tỷ lệ màu hợp
+                            var compatibleColorCount = 0;
+                            var totalColorCount = koiVariety.VarietyColors.Count;
+                            double totalCompatiblePercentage = 0;
+
+                            foreach (var varietyColor in koiVariety.VarietyColors)
+                            {
+                                if (IsColorCompatible(varietyColor.Color, elementStrings))
+                                {
+                                    compatibleColorCount++;
+                                    totalCompatiblePercentage += (double)varietyColor.Percentage; // giả sử Percentage là từ 0 đến 100
+                                }
+                            }
+                            // Nếu cá có tổng màu là 2
+                            if (totalColorCount == 2)
+                            {
+                                if (compatibleColorCount >= 1 && totalCompatiblePercentage > 50)
+                                {
+                                    allKoi.Add(koiVariety);
+                                }
+                            }
+                            // Nếu cá có tổng màu > 2
+                            else if (totalColorCount > 2)
+                            {
+                                if (compatibleColorCount > (totalColorCount / 2) && totalCompatiblePercentage > 50)
+                                {
+                                    allKoi.Add(koiVariety);
+                                }
+                            }
+                        }
                     }
                 }
                 allKoi = allKoi.DistinctBy(k => k.KoiVarietyId).ToList();

@@ -19,6 +19,8 @@ public partial class RegisterAttend
 
     public string GroupId { get; set; }
 
+    public DateTime? UpdateDate { get; set; }
+
     public virtual Customer Customer { get; set; }
 
     public virtual WorkShop Workshop { get; set; }

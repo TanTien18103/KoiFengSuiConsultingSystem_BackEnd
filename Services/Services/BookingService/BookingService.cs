@@ -166,22 +166,13 @@ namespace Services.Services.BookingService
                         request.EndTime,
                         request.BookingDate);
 
-                    foreach (var existingBooking in existingBookings)
+                    if (existingBookings.Any(x => x.Status == BookingOnlineEnums.Confirmed.ToString()))
                     {
-                        var existingOrder = await _orderRepo.GetOneOrderByService(
-                            existingBooking.BookingOnlineId,
-                            PaymentTypeEnums.BookingOnline);
-
-                        if (existingOrder != null &&
-                            (existingOrder.Status == PaymentStatusEnums.Paid.ToString() ||
-                             existingOrder.Status == PaymentStatusEnums.PendingConfirm.ToString()))
-                        {
-                            res.IsSuccess = false;
-                            res.ResponseCode = ResponseCodeConstants.FAILED;
-                            res.Message = ResponseMessageConstrantsMaster.EXISTING_SCHEDULE;
-                            res.StatusCode = StatusCodes.Status400BadRequest;
-                            return res;
-                        }
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.FAILED;
+                        res.Message = ResponseMessageConstrantsMaster.EXISTING_SCHEDULE;
+                        res.StatusCode = StatusCodes.Status400BadRequest;
+                        return res;
                     }
                 }
 
@@ -792,6 +783,9 @@ namespace Services.Services.BookingService
 
                 onlineBooking.Status = BookingOnlineEnums.Completed.ToString();
                 await _onlineRepo.UpdateBookingOnlineRepo(onlineBooking);
+
+                var masterSchdule = await _masterScheduleRepo.GetMasterScheduleById(onlineBooking.MasterScheduleId);
+                masterSchdule.Status = MasterScheduleEnums.Done.ToString();
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
@@ -1681,6 +1675,109 @@ namespace Services.Services.BookingService
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> CancelPendingBooking(string bookingId, BookingTypeEnums bookingType)
+        {
+            var res = new ResultModel();
+            try
+            {
+                if (string.IsNullOrEmpty(bookingId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsBooking.REQUIRED_DATA;
+                    return res;
+                }
+
+                if (bookingType == BookingTypeEnums.Offline)
+                {
+                    var bookingOffline = await _offlineRepo.GetBookingOfflineById(bookingId);
+                    if (bookingOffline == null)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                        return res;
+                    }
+
+                    if (bookingOffline.Status != BookingOfflineEnums.Pending.ToString())
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                        res.StatusCode = StatusCodes.Status400BadRequest;
+                        res.Message = "Chỉ có thể hủy các đặt lịch đang ở trạng thái chờ xử lý";
+                        return res;
+                    }
+
+                    bookingOffline.Status = BookingOfflineEnums.Canceled.ToString();
+                    await _offlineRepo.UpdateBookingOffline(bookingOffline);
+
+                    res.IsSuccess = true;
+                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.Message = "Đã hủy đặt lịch tư vấn offline thành công";
+                    return res;
+                }
+                else if (bookingType == BookingTypeEnums.Online)
+                {
+                    var bookingOnline = await _onlineRepo.GetBookingOnlineByIdRepo(bookingId);
+                    if (bookingOnline == null)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE;
+                        return res;
+                    }
+
+                    if (bookingOnline.Status != BookingOnlineEnums.Pending.ToString())
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                        res.StatusCode = StatusCodes.Status400BadRequest;
+                        res.Message = "Chỉ có thể hủy các đặt lịch đang ở trạng thái chờ xử lý";
+                        return res;
+                    }
+
+                    bookingOnline.Status = BookingOnlineEnums.Canceled.ToString();
+                    await _onlineRepo.UpdateBookingOnlineRepo(bookingOnline);
+
+                    if (!string.IsNullOrEmpty(bookingOnline.MasterId) && !string.IsNullOrEmpty(bookingOnline.MasterScheduleId))
+                    {
+                        var masterSchedule = await _masterScheduleRepo.GetMasterScheduleById(bookingOnline.MasterScheduleId);
+                        if (masterSchedule != null)
+                        {
+                            masterSchedule.Status = MasterScheduleEnums.Canceled.ToString();
+                            await _masterScheduleRepo.UpdateMasterSchedule(masterSchedule);
+                        }
+                    }
+
+                    res.IsSuccess = true;
+                    res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                    res.StatusCode = StatusCodes.Status200OK;
+                    res.Message = "Đã hủy đặt lịch tư vấn online thành công";
+                    return res;
+                }
+                else
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = "Loại đặt lịch không hợp lệ";
+                    return res;
+                }
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = $"Lỗi khi hủy đặt lịch: {ex.Message}";
                 return res;
             }
         }

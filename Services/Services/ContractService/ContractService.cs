@@ -80,11 +80,17 @@ namespace Services.Services.ContractService
                     res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
                     return res;
                 }
+                
+                // Cập nhật trạng thái của bookingOffline và hủy liên kết với contract
                 bookingOffline.Status = BookingOfflineEnums.ContractRejectedByManager.ToString();
+                bookingOffline.ContractId = null;
+                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
+                
+                // Cập nhật trạng thái của contract
                 contract.Status = ContractStatusEnum.Cancelled.ToString();
                 contract.UpdatedDate = DateTime.Now;
-                bookingOffline.ContractId = null;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
+                
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Message = ResponseMessageConstrantsContract.CANCEL_SUCCESS;
@@ -123,7 +129,30 @@ namespace Services.Services.ContractService
                     res.Message = ResponseMessageConstrantsContract.NOT_FOUND;
                     return res;
                 }
-                var bookingOffline = contract.BookingOfflines.FirstOrDefault();
+                
+                BookingOffline bookingOffline = null;
+                
+                // Kiểm tra xem contract có booking nào không
+                if (contract.BookingOfflines == null || !contract.BookingOfflines.Any())
+                {
+                    // Nếu không có, tìm booking từ database dựa vào contractId
+                    var bookings = await _bookingOfflineRepo.GetBookingOfflines();
+                    bookingOffline = bookings.FirstOrDefault(b => b.ContractId == contractId);
+                    
+                    if (bookingOffline == null)
+                    {
+                        res.IsSuccess = false;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                        return res;
+                    }
+                }
+                else
+                {
+                    // Nếu có, lấy booking đầu tiên
+                    bookingOffline = contract.BookingOfflines.FirstOrDefault();
+                }
+                
                 if (bookingOffline == null)
                 {
                     res.IsSuccess = false;
@@ -131,10 +160,14 @@ namespace Services.Services.ContractService
                     res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
                     return res;
                 }
+                
                 bookingOffline.Status = BookingOfflineEnums.ContractConfirmedByManager.ToString();
+                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
+                
                 contract.Status = ContractStatusEnum.VerifyingOTP.ToString();
                 contract.UpdatedDate = DateTime.Now;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
+                
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Message = ResponseMessageConstrantsContract.CONFIRM_SUCCESS;
@@ -181,11 +214,17 @@ namespace Services.Services.ContractService
                     res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
                     return res;
                 }
+                
+                // Cập nhật trạng thái của bookingOffline và hủy liên kết với contract
                 bookingOffline.Status = BookingOfflineEnums.ContractRejectedByCustomer.ToString();
+                bookingOffline.ContractId = null;
+                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
+                
+                // Cập nhật trạng thái của contract
                 contract.Status = ContractStatusEnum.Cancelled.ToString();
                 contract.UpdatedDate = DateTime.Now;
-                bookingOffline.ContractId = null;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
+                
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Message = ResponseMessageConstrantsContract.CANCEL_SUCCESS;
@@ -224,7 +263,30 @@ namespace Services.Services.ContractService
                     res.Message = ResponseMessageConstrantsContract.NOT_FOUND;
                     return res;
                 }
-                var bookingOffline = contract.BookingOfflines.FirstOrDefault();
+                
+                BookingOffline bookingOffline = null;
+                
+                // Kiểm tra xem contract có booking nào không
+                if (contract.BookingOfflines == null || !contract.BookingOfflines.Any())
+                {
+                    // Nếu không có, tìm booking từ database dựa vào contractId
+                    var bookings = await _bookingOfflineRepo.GetBookingOfflines();
+                    bookingOffline = bookings.FirstOrDefault(b => b.ContractId == contractId);
+                    
+                    if (bookingOffline == null)
+                    {
+                        res.IsSuccess = false;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                        return res;
+                    }
+                }
+                else
+                {
+                    // Nếu có, lấy booking đầu tiên
+                    bookingOffline = contract.BookingOfflines.FirstOrDefault();
+                }
+                
                 if (bookingOffline == null)
                 {
                     res.IsSuccess = false;
@@ -232,10 +294,14 @@ namespace Services.Services.ContractService
                     res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
                     return res;
                 }
+                
                 bookingOffline.Status = BookingOfflineEnums.ContractConfirmedByCustomer.ToString();
+                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
+                
                 contract.Status = ContractStatusEnum.VerifyingOTP.ToString();
                 contract.UpdatedDate = DateTime.Now;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
+                
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Message = ResponseMessageConstrantsContract.CONFIRM_SUCCESS;
@@ -331,6 +397,7 @@ namespace Services.Services.ContractService
                 // Upload file tạm thời
                 string tempPdfUrl = await _uploadService.UploadPdfAsync(request.PdfFile);
 
+                // Tạo đối tượng contract mới
                 var contract = new BusinessObjects.Models.Contract
                 {
                     ContractId = Guid.NewGuid().ToString("N").Substring(0, 20),
@@ -342,11 +409,23 @@ namespace Services.Services.ContractService
                     CreateBy = accountId
                 };
 
+                // Tạo contract trong database
                 var createdContract = await _contractRepo.CreateContract(contract);
 
-                // Update booking với contractId
-                bookingOffline.ContractId = contract.ContractId;
-                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
+                // Update booking với ContractId
+                var updatedBooking = await _bookingOfflineRepo.UpdateBookingOfflineContract(
+                    bookingOffline.BookingOfflineId,
+                    createdContract.ContractId,
+                    bookingOffline.Status); // Giữ nguyên trạng thái hiện tại
+
+                if (updatedBooking == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = "Không thể gắn hợp đồng vào buổi tư vấn";
+                    return res;
+                }
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status201Created;

@@ -39,24 +39,34 @@ namespace DAOs.DAOs
 
         public async Task<WorkShop> GetWorkShopByIdDao(string workShopId)
         {
-            return await _context.WorkShops.Include(x => x.Master).ThenInclude(x => x.Account)
+            return await _context.WorkShops
+                .Include(x => x.Master).ThenInclude(x => x.Account)
+                .Include(x => x.Location)
                 .FirstOrDefaultAsync(x => x.WorkshopId == workShopId);
         }
 
         public async Task<List<WorkShop>> GetWorkShopsDao()
         {
-            return await _context.WorkShops.Include(x => x.Master).ToListAsync();
+            return await _context.WorkShops
+                .Include(x => x.Master)
+                .Include(x => x.Location)
+                .ToListAsync();
         }
 
-        public async Task<WorkShop> GetWorkshopByMasterLocationAndDateDao(string masterId, string location, DateTime? startDate)
+        // Hàm tìm theo MasterId, LocationId và StartDate
+        public async Task<WorkShop> GetWorkshopByMasterLocationAndDateDao(string masterId, string locationId, DateTime? startDate)
         {
-            return await _context.WorkShops.FirstOrDefaultAsync(w => w.MasterId == masterId && w.Location == location && w.StartDate == startDate);
+            return await _context.WorkShops
+                .FirstOrDefaultAsync(w => w.MasterId == masterId && w.LocationId == locationId && w.StartDate == startDate);
         }
 
-        public async Task<WorkShop> GetWorkshopByLocationAndDate(string location, DateTime? startDate)
+        // Hàm tìm theo LocationId và StartDate
+        public async Task<WorkShop> GetWorkshopByLocationAndDate(string locationId, DateTime? startDate)
         {
-            return await _context.WorkShops.FirstOrDefaultAsync(w => w.Location == location && w.StartDate == startDate);
+            return await _context.WorkShops
+                .FirstOrDefaultAsync(w => w.LocationId == locationId && w.StartDate == startDate);
         }
+
 
         public async Task<List<WorkShop>> GetWorkshopsByMasterDao(string masterId)
         {
@@ -67,6 +77,7 @@ namespace DAOs.DAOs
         {
             return await _context.WorkShops
                 .Include(x => x.Master).ThenInclude(x => x.Account)
+                .Include(x => x.Location)
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
         }

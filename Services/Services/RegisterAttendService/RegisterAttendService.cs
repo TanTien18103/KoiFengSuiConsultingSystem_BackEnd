@@ -153,7 +153,7 @@ namespace Services.Services.RegisterAttendService
                             NumberOfTickets = ticketCount,
                             CreatedDate = firstTicket.CreatedDate,
                             TotalPrice = totalPrice,
-                            Location = workshop.Location ?? string.Empty,
+                            Location = workshop.LocationId ?? string.Empty,
                             StartDate = workshop.StartDate ?? DateTime.Now
                         };
 
@@ -386,6 +386,15 @@ namespace Services.Services.RegisterAttendService
                     res.StatusCode = StatusCodes.Status400BadRequest;
                     res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
                     res.Message = ResponseMessageConstrantsWorkshop.ALREADY_STARTED;
+                    return res;
+                }
+
+                if (workshop.StartDate.HasValue && (workshop.StartDate.Value - DateTime.Now).TotalDays < 1)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = "Thời gian đăng ký mua vé tham dự buổi hội thảo đã kết thúc";
                     return res;
                 }
 

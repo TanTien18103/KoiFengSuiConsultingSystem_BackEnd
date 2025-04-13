@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 using System.Security.Claims;
 using Repositories.Repositories.MasterRepository;
+using BusinessObjects.Models;
 
 namespace Services.Services.AttachmentService
 {
@@ -91,6 +92,14 @@ namespace Services.Services.AttachmentService
                     return res;
                 }
 
+                // Kiểm tra xem booking có liên kết với attachment cũ không
+                if (!string.IsNullOrEmpty(bookingOffline.RecordId))
+                {
+                    // Đảm bảo gỡ bỏ liên kết với attachment cũ trước khi tạo mới
+                    bookingOffline.RecordId = null;
+                    await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
+                }
+
                 // Upload file PDF
                 string fileUrl = await _uploadService.UploadPdfAsync(request.PdfFile);
                 if (string.IsNullOrEmpty(fileUrl))
@@ -113,12 +122,30 @@ namespace Services.Services.AttachmentService
                     CreateBy = masterId
                 };
 
+                // Tạo attachment trước
                 var createdAttachment = await _attachmentRepo.CreateAttachment(attachment);
 
-                // Update booking với RecordId
-                bookingOffline.RecordId = attachment.AttachmentId;
-                bookingOffline.Status = BookingOfflineEnums.DocumentConfirmedByCustomer.ToString();
-                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
+                // Cập nhật trạng thái booking: Nếu trạng thái là AttachmentRejected, đổi thành DocumentConfirmedByCustomer
+                string updatedStatus = bookingOffline.Status;
+                if (bookingOffline.Status == BookingOfflineEnums.AttachmentRejected.ToString())
+                {
+                    updatedStatus = BookingOfflineEnums.DocumentConfirmedByCustomer.ToString();
+                }
+
+                // Update booking với RecordId và trạng thái mới
+                var updatedBooking = await _bookingOfflineRepo.UpdateBookingOfflineAttachment(
+                    bookingOffline.BookingOfflineId,
+                    createdAttachment.AttachmentId,
+                    updatedStatus);
+
+                if (updatedBooking == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = "Không thể gắn tệp đính kèm vào buổi tư vấn";
+                    return res;
+                }
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status201Created;
@@ -338,15 +365,15 @@ namespace Services.Services.AttachmentService
                     return res;
                 }
 
-                attachment.Status = AttachmentStatusEnums.Cancelled.ToString();
-                attachment.UpdatedDate = DateTime.Now;
-
-                // Xóa liên kết với booking
+                // Cập nhật booking trước: gỡ bỏ liên kết với attachment
                 bookingOffline.RecordId = null;
                 bookingOffline.Status = BookingOfflineEnums.AttachmentRejected.ToString();
-
-                var updatedAttachment = await _attachmentRepo.UpdateAttachment(attachment);
                 await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
+
+                // Sau đó cập nhật attachment
+                attachment.Status = AttachmentStatusEnums.Cancelled.ToString();
+                attachment.UpdatedDate = DateTime.Now;
+                var updatedAttachment = await _attachmentRepo.UpdateAttachment(attachment);
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
@@ -398,7 +425,6 @@ namespace Services.Services.AttachmentService
                 var booking = updatedAttachment.BookingOfflines.FirstOrDefault();
                 if (booking != null)
                 {
-                    booking.DocumentId = null;
                     booking.Status = BookingOfflineEnums.AttachmentConfirmed.ToString();
                     await _bookingOfflineRepo.UpdateBookingOffline(booking);
                 }

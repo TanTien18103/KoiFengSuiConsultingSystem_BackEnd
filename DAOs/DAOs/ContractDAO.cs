@@ -63,6 +63,8 @@ namespace DAOs.DAOs
 
         public async Task<Contract> UpdateContractDao(Contract contract)
         {
+            RefreshContext();
+            
             _context.Contracts.Update(contract);
             await _context.SaveChangesAsync();
             return contract;
@@ -83,6 +85,20 @@ namespace DAOs.DAOs
                 .Include(c => c.BookingOfflines)
                 .Where(c => c.CreateBy == staffId)
                 .ToListAsync();
+        }
+
+        public async Task<Contract> GetContractByIdNoTrackingDao(string contractId)
+        {
+            return await _context.Contracts
+                .Include(c => c.BookingOfflines).ThenInclude(b => b.Customer).ThenInclude(c => c.Account)
+                .Include(c => c.BookingOfflines).ThenInclude(b => b.Master)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.ContractId == contractId);
+        }
+        
+        private void RefreshContext()
+        {
+            _context.ChangeTracker.Clear();
         }
     }
 }

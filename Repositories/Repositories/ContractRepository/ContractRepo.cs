@@ -38,5 +38,9 @@ namespace Repositories.Repositories.ContractRepository
         {
             return ContractDAO.Instance.GetContractByStaffIdDao(staffId);
         }
+        public async Task<Contract> GetContractByIdNoTracking(string contractId)
+        {
+            return await ContractDAO.Instance.GetContractByIdNoTrackingDao(contractId);
+        }
     }
 }

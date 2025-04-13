@@ -8,6 +8,7 @@ using Repositories.Repositories.MasterRepository;
 using Repositories.Repositories.QuestionRepository;
 using Repositories.Repositories.QuizRepository;
 using Services.ApiModels;
+using Services.ApiModels.Answer;
 using Services.ApiModels.Question;
 using System;
 using System.Collections.Generic;
@@ -68,7 +69,35 @@ namespace Services.Services.QuestionService
                     res.Message = ResponseMessageConstrantsQuestion.QUESTION_NOT_FOUND;
                     return res;
                 }
-                res.Data = _mapper.Map<QuestionResponse>(question);
+
+                // Create a fresh response with updated data
+                var Question = await _questionRepository.GetQuestionById(questionId);
+
+                if (Question == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsQuestion.QUESTION_NOT_FOUND;
+                    return res;
+                }
+
+                var Answers = await _answerRepo.GetAnswersByQuestionId(questionId);
+
+                if (Answers == null || !Answers.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsAnswer.ANSWER_NOT_FOUND;
+                    return res;
+                }
+                // Map the question to response
+                var questionResponse = _mapper.Map<QuestionResponse>(Question);
+                // Manually set the updated answers to ensure they reflect the latest changes
+                questionResponse.Answers = _mapper.Map<List<AnswerResponse>>(Answers);
+
+                res.Data = questionResponse;
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
@@ -294,7 +323,6 @@ namespace Services.Services.QuestionService
 
         public async Task<ResultModel> UpdateQuestion(string questionId, QuestionUpdateRequest questionRequest)
         {
-            var res = new ResultModel();
             try
             {
                 var question = await _questionRepository.GetQuestionById(questionId);
@@ -311,7 +339,7 @@ namespace Services.Services.QuestionService
 
                 var answers = await _answerRepo.GetAnswersByQuestionId(questionId);
 
-                if(answers == null || !answers.Any())
+                if (answers == null || !answers.Any())
                 {
                     return new ResultModel
                     {
@@ -322,6 +350,7 @@ namespace Services.Services.QuestionService
                     };
                 }
 
+                // Update answers
                 foreach (var answer in answers)
                 {
                     var answerRequest = questionRequest.answerUpdateRequests.FirstOrDefault(x => x.AnswerId == answer.AnswerId);
@@ -334,26 +363,24 @@ namespace Services.Services.QuestionService
                     }
                 }
 
+                // Update question
                 question.QuestionText = questionRequest.QuestionText;
                 question.QuestionType = questionRequest.QuestionType;
-                question.Point = questionRequest.Point;
+                await _questionRepository.UpdateQuestion(question);
 
-                var updatedQuestion = await _questionRepository.UpdateQuestion(question);
-                if (updatedQuestion != null)
-                {
-                    return new ResultModel
-                    {
-                        Data = _mapper.Map<QuestionResponse>(updatedQuestion),
-                        IsSuccess = true,
-                        ResponseCode = ResponseCodeConstants.SUCCESS,
-                        StatusCode = StatusCodes.Status200OK,
-                        Message = ResponseMessageConstrantsQuestion.QUESTION_UPDATED_SUCCESS
-                    };
-                }
+                // Create a fresh response with updated data
+                var updatedQuestion = await _questionRepository.GetQuestionById(questionId);
+                var updatedAnswers = await _answerRepo.GetAnswersByQuestionId(questionId);
+
+                // Map the question to response
+                var questionResponse = _mapper.Map<QuestionResponse>(updatedQuestion);
+
+                // Manually set the updated answers to ensure they reflect the latest changes
+                questionResponse.Answers = _mapper.Map<List<AnswerResponse>>(updatedAnswers);
 
                 return new ResultModel
                 {
-                    Data = _mapper.Map<QuestionResponse>(updatedQuestion),
+                    Data = questionResponse,
                     IsSuccess = true,
                     ResponseCode = ResponseCodeConstants.SUCCESS,
                     StatusCode = StatusCodes.Status200OK,
@@ -371,7 +398,6 @@ namespace Services.Services.QuestionService
                 };
             }
         }
-
         public async Task<ResultModel> GetQuestionsByQuizId(string quizId)
         {
             var res = new ResultModel();

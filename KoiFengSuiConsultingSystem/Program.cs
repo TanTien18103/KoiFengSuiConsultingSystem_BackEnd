@@ -45,7 +45,6 @@ using Repositories.Repositories.ConsultationPackageRepository;
 using Services.Services.ConsultationPackageService;
 using CloudinaryDotNet;
 using BusinessObjects.Models;
-using Microsoft.Extensions.Options;
 using Services.ServicesHelpers.UploadService;
 using System.Text.Json.Serialization;
 using Repositories.Repositories.AnswerRepository;
@@ -66,6 +65,10 @@ using Services.Services.FengShuiDocumentService;
 using Repositories.Repositories.AttachmentRepository;
 using Services.Services.AttachmentService;
 using Services.ServicesHelpers.BunnyCdnService;
+using Repositories.Repositories.LocationRepository;
+using Services.Services.LocationService;
+using Services.ServicesHelpers.TimeOnlyJsonConverter;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -100,6 +103,8 @@ builder.Services.AddScoped<IEnrollAnswerRepo, EnrollAnswerRepo>();
 builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
 builder.Services.AddScoped<IFengShuiDocumentRepo, FengShuiDocumentRepo>();
 builder.Services.AddScoped<IAttachmentRepo, AttachmentRepo>();
+builder.Services.AddScoped<ILocationRepo, LocationRepo>();
+
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
@@ -128,6 +133,8 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IRefundService, RefundService>();
 builder.Services.AddScoped<IFengShuiDocumentService, FengShuiDocumentService>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
 builder.Services.AddHostedService<BookingCleanupService>();
@@ -162,6 +169,7 @@ builder.Services.AddAutoMapper(typeof(AnswerMappingProfile));
 builder.Services.AddAutoMapper(typeof(FengShuiDocumentMappingProfile));
 builder.Services.AddAutoMapper(typeof(AttachmentMappingProfile));
 builder.Services.AddAutoMapper(typeof(EnrollChapterMappingProfile));
+builder.Services.AddAutoMapper(typeof(LocationMappingProfile));
 
 builder.Services.AddHttpClient();
 
@@ -180,6 +188,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
     });
 
 // Add Response Caching Middleware

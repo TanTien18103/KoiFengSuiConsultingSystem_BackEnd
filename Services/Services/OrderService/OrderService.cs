@@ -257,8 +257,56 @@ namespace Services.Services.OrderService
                         res.Message = ResponseMessageConstrantsBooking.MISSINNG_MASTERID;
                         return res;
                     }
-                    await HandleBookingOnlinePaid(order.ServiceId);
+
+                    bookingOnline.Status = BookingOnlineEnums.Confirmed.ToString();
+                    await _bookingOnlineRepo.UpdateBookingOnlineRepo(bookingOnline);
+
+                    var masterSchedule = await _masterScheduleRepo.GetMasterScheduleById(bookingOnline.MasterScheduleId);
+                    if (masterSchedule != null)
+                    {
+                        masterSchedule.Status = MasterScheduleEnums.InProgress.ToString();
+                        await _masterScheduleRepo.UpdateMasterSchedule(masterSchedule);
+                    }
+
+                    var conflictingBookings = await _bookingOnlineRepo.GetBookingsByMasterAndTimeRepo(
+                        bookingOnline.MasterId,
+                        (TimeOnly)bookingOnline.StartTime,
+                        (TimeOnly)bookingOnline.EndTime,
+                        (DateOnly)bookingOnline.BookingDate);
+
+                    foreach (var conflictBooking in conflictingBookings)
+                    {
+                        if (conflictBooking.BookingOnlineId == bookingOnline.BookingOnlineId)
+                            continue;
+
+                        conflictBooking.Status = BookingOnlineEnums.Canceled.ToString();
+                        await _bookingOnlineRepo.UpdateBookingOnlineRepo(conflictBooking);
+
+                        var conflictMasterSchedule = await _masterScheduleRepo.GetMasterScheduleById(conflictBooking.MasterScheduleId);
+                        if (conflictMasterSchedule != null)
+                        {
+                            conflictMasterSchedule.Status = MasterScheduleEnums.Canceled.ToString();
+                            await _masterScheduleRepo.UpdateMasterSchedule(conflictMasterSchedule);
+                        }
+
+                        var conflictOrder = await _orderRepo.GetOneOrderByService(conflictBooking.BookingOnlineId, PaymentTypeEnums.BookingOnline);
+                        if (conflictOrder != null)
+                        {
+                            if (conflictOrder.Status == PaymentStatusEnums.Pending.ToString())
+                            {
+                                conflictOrder.PaymentReference = null;
+                                conflictOrder.Status = PaymentStatusEnums.Canceled.ToString();
+                            }
+                            else if (conflictOrder.Status == PaymentStatusEnums.PendingConfirm.ToString())
+                            {
+                                conflictOrder.PaymentReference = null;
+                                conflictOrder.Status = PaymentStatusEnums.WaitingForRefund.ToString();
+                            }
+                            await _orderRepo.UpdateOrder(conflictOrder);
+                        }
+                    }
                 }
+
                 // BookingOffline
                 else if (order.ServiceType == PaymentTypeEnums.BookingOffline.ToString())
                 {
@@ -353,77 +401,6 @@ namespace Services.Services.OrderService
             }
         }
 
-        // Thêm phương thức mới để xử lý BookingOnline đã thanh toán
-        private async Task HandleBookingOnlinePaid(string bookingOnlineId)
-        {
-            try
-            {
-                var paidBooking = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(bookingOnlineId);
-                if (paidBooking == null || string.IsNullOrEmpty(paidBooking.MasterId))
-                    return;
-
-                await _bookingOnlineRepo.UpdateBookingOnlineStatusRepo(bookingOnlineId, BookingOnlineEnums.Confirmed.ToString());
-
-                var conflictingBookings = await _bookingOnlineRepo.GetBookingsByMasterAndTimeRepo(
-                    paidBooking.MasterId,
-                    (TimeOnly)paidBooking.StartTime,
-                    (TimeOnly)paidBooking.EndTime,
-                    (DateOnly)paidBooking.BookingDate
-                );
-
-                foreach (var conflictBooking in conflictingBookings)
-                {
-                    if (conflictBooking.BookingOnlineId == bookingOnlineId) 
-                        continue;
-
-                    try
-                    {
-                        var masterScheduleId = conflictBooking.MasterScheduleId;
-
-                        await _bookingOnlineRepo.UpdateBookingOnlineStatusRepo(
-                            conflictBooking.BookingOnlineId, 
-                            BookingOnlineEnums.Canceled.ToString()
-                        );
-
-                        var bookingToUpdate = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(conflictBooking.BookingOnlineId);
-                        if (bookingToUpdate != null)
-                        {
-                            bookingToUpdate.MasterId = null;
-                            bookingToUpdate.MasterScheduleId = null;
-                            await _bookingOnlineRepo.UpdateBookingOnlineWithTrackingRepo(bookingToUpdate);
-                        }
-
-                        if (!string.IsNullOrEmpty(masterScheduleId))
-                        {
-                            await _masterScheduleRepo.DeleteMasterSchedule(masterScheduleId);
-                        }
-
-                        var conflictOrder = await _orderRepo.GetOrderByServiceId(conflictBooking.BookingOnlineId);
-                        if (conflictOrder != null && conflictOrder.Status == PaymentStatusEnums.Pending.ToString())
-                        {
-                            conflictOrder.Status = PaymentStatusEnums.Canceled.ToString();
-                            conflictOrder.PaymentReference = null;
-                            await _orderRepo.UpdateOrder(conflictOrder);
-                        }
-                        if (conflictOrder != null && conflictOrder.Status == PaymentStatusEnums.PendingConfirm.ToString())
-                        {
-                            conflictOrder.Status = PaymentStatusEnums.WaitingForRefund.ToString();
-                            conflictOrder.PaymentReference = null;
-                            await _orderRepo.UpdateOrder(conflictOrder);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new AppException(ResponseCodeConstants.FAILED, $"Lỗi khi xử lý booking xung đột {conflictBooking.BookingOnlineId}: {ex.Message}", StatusCodes.Status500InternalServerError);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new AppException(ResponseCodeConstants.FAILED, $"Lỗi khi xử lý booking đã thanh toán: {ex.Message}", StatusCodes.Status500InternalServerError);
-            }
-        }
-
         public async Task<ResultModel> GetPendingOrders()
         {
             var res = new ResultModel();
@@ -473,7 +450,7 @@ namespace Services.Services.OrderService
             try
             {
                 var orders = await _orderRepo.GetAllOrders();
-                var pendingConfirmOrders = orders.Where(x => x.Status == PaymentStatusEnums.PendingConfirm.ToString()).OrderByDescending(x => x.CreatedDate).ToList();
+                var pendingConfirmOrders = orders.Where(x => x.Status == PaymentStatusEnums.PendingConfirm.ToString()).OrderByDescending(x => x.PaymentDate).ToList();
 
                 if (pendingConfirmOrders == null || !pendingConfirmOrders.Any() || pendingConfirmOrders.Count == 0)
                 {
@@ -642,16 +619,15 @@ namespace Services.Services.OrderService
                         break;
 
                     case nameof(PaymentTypeEnums.Course):
-                        var existingRegistration = await _registerCourseRepo.GetRegisterCourseByCourseIdAndCustomerId(order.ServiceId, order.CustomerId);
-                        if (existingRegistration != null)
+                        if (order.Status == PaymentStatusEnums.Paid.ToString() || order.Status == PaymentStatusEnums.PendingConfirm.ToString())
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.FAILED;
                             res.StatusCode = StatusCodes.Status400BadRequest;
-                            res.Message = ResponseMessageConstrantsOrder.COURSE_CONFIRMED;
+                            res.Message = "Bạn không thể hủy khóa học bạn đã thanh toán";
                             return res;
                         }
-                        order.Status = isPaid ? PaymentStatusEnums.WaitingForRefund.ToString() : PaymentStatusEnums.Canceled.ToString();
+                        order.Status = PaymentStatusEnums.Canceled.ToString();
                         break;
 
                     case nameof(PaymentTypeEnums.BookingOffline):

@@ -16,11 +16,14 @@ namespace Repositories.Repositories.BookingOfflineRepository
         Task<List<BookingOffline>> GetBookingOfflinesByUserId(string userId);
         Task<BookingOffline> CreateBookingOffline(BookingOffline bookingOffline);
         Task<BookingOffline> UpdateBookingOffline(BookingOffline bookingOffline);
+        Task<BookingOffline> UpdateBookingOfflineDocument(string bookingOfflineId, string documentId, string status);
         Task DeleteBookingOffline(string bookingOfflineId);
         Task<(BookingOffline booking, string message)> ProcessBookingTransaction(BookingOffline booking, string packageId, decimal selectedPrice);
         Task<List<BookingOffline>> GetBookingOfflinesByMasterIdRepo(string masterId);
         Task<List<BookingOffline>?> GetBookingsOfflineByCustomerId(string customerId);
         Task<List<BookingOffline>?> GetBookingsOfflineByStaffId(string staffId);
         Task<BookingOffline> GetPendingBookingByCustomerId(string customerId);
+        Task<BookingOffline?> UpdateBookingOfflineContract(string bookingOfflineId, string contractId, string status);
+        Task<BookingOffline?> UpdateBookingOfflineAttachment(string bookingOfflineId, string attachmentId, string status);
     }
 }

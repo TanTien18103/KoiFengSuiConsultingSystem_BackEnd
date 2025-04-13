@@ -18,6 +18,7 @@ using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 using Repositories.Repositories.MasterRepository;
 using Services.ServicesHelpers.UploadService;
 using Repositories.Repositories.MasterScheduleRepository;
+using Repositories.Repositories.LocationRepository;
 
 namespace Services.Services.WorkshopService
 {
@@ -30,8 +31,11 @@ namespace Services.Services.WorkshopService
         private readonly IMasterRepo _masterRepo;
         private readonly IUploadService _uploadService;
         private readonly IMasterScheduleRepo _masterScheduleRepo;
+        private readonly ILocationRepo _locationRepo;
 
-        public WorkshopService(IWorkShopRepo workShopRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IRegisterAttendRepo registerAttendRepo, IMasterRepo masterRepo, IUploadService uploadService, IMasterScheduleRepo masterScheduleRepo)
+        public WorkshopService(IWorkShopRepo workShopRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor,
+            IRegisterAttendRepo registerAttendRepo, IMasterRepo masterRepo, IUploadService uploadService,
+            IMasterScheduleRepo masterScheduleRepo, ILocationRepo locationRepo)
         {
             _workShopRepo = workShopRepo;
             _mapper = mapper;
@@ -40,9 +44,8 @@ namespace Services.Services.WorkshopService
             _masterRepo = masterRepo;
             _uploadService = uploadService;
             _masterScheduleRepo = masterScheduleRepo;
+            _locationRepo = locationRepo;
         }
-
-
         public static string GenerateShortGuid()
         {
             Guid guid = Guid.NewGuid();
@@ -50,7 +53,48 @@ namespace Services.Services.WorkshopService
             return base64.Replace("/", "_").Replace("+", "-").Substring(0, 20);
         }
 
+        private string GetAuthenticatedAccountId()
+        {
+            var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+            if (identity == null || !identity.IsAuthenticated) return null;
+
+            return identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        }
+
         public async Task<ResultModel> SortingWorkshopByCreatedDate()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var workshops = await _workShopRepo.SortingWorkshopByCreatedDate();
+                var approvedWorkshops = workshops.Where(x => x.Status == WorkshopStatusEnums.Approved.ToString()).ToList();
+                if (approvedWorkshops == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<List<WorkshopResponse>>(approvedWorkshops);
+                res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> SortingWorkshopByCreatedDateForWeb()
         {
             var res = new ResultModel();
             try
@@ -157,7 +201,8 @@ namespace Services.Services.WorkshopService
             try
             {
                 var workshops = await _workShopRepo.GetWorkShops();
-                if (workshops == null || !workshops.Any())
+                var approvedWorkshops = workshops.Where(x => x.Status == WorkshopStatusEnums.Approved.ToString()).ToList();
+                if (approvedWorkshops == null || !approvedWorkshops.Any())
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -168,8 +213,8 @@ namespace Services.Services.WorkshopService
                 bool trending = true;
                 if (trending)
                 {
-                    workshops = workshops.Where(x => x.Trending == trending).ToList();
-                    if(!workshops.Any() || workshops == null)
+                    approvedWorkshops = approvedWorkshops.Where(x => x.Trending == trending).ToList();
+                    if (!approvedWorkshops.Any() || approvedWorkshops == null)
                     {
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -182,7 +227,7 @@ namespace Services.Services.WorkshopService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<WorkshopResponse>>(workshops);
+                res.Data = _mapper.Map<List<WorkshopResponse>>(approvedWorkshops);
                 res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_FOUND;
                 return res;
             }
@@ -245,6 +290,25 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
+                if (!TimeOnly.TryParse(request.StartTime, out var startTime))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.STARTTIME_INFO_INVALID;
+                    return res;
+                }
+
+                if (!TimeOnly.TryParse(request.EndTime, out var endTime))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.ENDTIME_INFO_INVALID;
+                    return res;
+                }
+
+
                 var accountId = GetAuthenticatedAccountId();
                 if (string.IsNullOrEmpty(accountId))
                 {
@@ -252,6 +316,16 @@ namespace Services.Services.WorkshopService
                     res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
                     res.StatusCode = StatusCodes.Status401Unauthorized;
                     res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    return res;
+                }
+
+                var location = await _locationRepo.GetLocationByIdRepo(request.LocationId);
+                if (location == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsWorkshop.LOCATION_NOT_FOUND;
                     return res;
                 }
 
@@ -265,7 +339,7 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                var existingWorkshop = await _workShopRepo.GetWorkshopByMasterLocationAndDate(masterId, request.Location, request.StartDate);
+                var existingWorkshop = await _workShopRepo.GetWorkshopByMasterLocationAndDate(masterId, request.LocationId, request.StartDate);
                 if (existingWorkshop != null)
                 {
                     res.IsSuccess = false;
@@ -275,7 +349,7 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                var existingWorkshopOtherMaster = await _workShopRepo.GetWorkshopByLocationAndDate(request.Location, request.StartDate);
+                var existingWorkshopOtherMaster = await _workShopRepo.GetWorkshopByLocationAndDate(request.LocationId, request.StartDate);
                 if (existingWorkshopOtherMaster != null)
                 {
                     res.IsSuccess = false;
@@ -288,7 +362,7 @@ namespace Services.Services.WorkshopService
                 var workshopsByMaster = await _workShopRepo.GetWorkshopsByMaster(masterId);
                 foreach (var ws in workshopsByMaster)
                 {
-                    if (ws.Location != request.Location && request.StartDate.HasValue && ws.StartDate.HasValue)
+                    if (ws.LocationId != request.LocationId && request.StartDate.HasValue && ws.StartDate.HasValue)
                     {
                         var timeDifference = (request.StartDate.Value - ws.StartDate.Value).TotalHours;
                         if (Math.Abs(timeDifference) < 5)
@@ -300,6 +374,15 @@ namespace Services.Services.WorkshopService
                             return res;
                         }
                     }
+                }
+
+                if(endTime <= startTime)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.TIME_INVALID;
+                    return res;
                 }
 
                 var masterschedules = await _masterScheduleRepo.GetMasterScheduleByMasterId(masterId);
@@ -331,6 +414,8 @@ namespace Services.Services.WorkshopService
                 newWorkshop.CreatedDate = DateTime.UtcNow;
                 newWorkshop.Status = WorkshopStatusEnums.Pending.ToString();
                 newWorkshop.MasterId = masterId;
+                newWorkshop.StartTime = startTime;
+                newWorkshop.EndTime = endTime;
                 newWorkshop.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
                 if (newWorkshop.MasterId == null)
@@ -344,10 +429,12 @@ namespace Services.Services.WorkshopService
 
                 await _workShopRepo.CreateWorkShop(newWorkshop);
 
+                var workshopResponse = await _workShopRepo.GetWorkShopById(newWorkshop.WorkshopId);
+
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status201Created;
-                res.Data = _mapper.Map<WorkshopResponse>(newWorkshop);
+                res.Data = _mapper.Map<WorkshopResponse>(workshopResponse);
                 res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_CREATED_SUCCESS;
                 return res;
             }
@@ -359,14 +446,6 @@ namespace Services.Services.WorkshopService
                 res.Message = $"Đã xảy ra lỗi khi tạo hội thảo: {ex.Message}";
                 return res;
             }
-        }
-
-        private string GetAuthenticatedAccountId()
-        {
-            var identity = _httpContextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
-            if (identity == null || !identity.IsAuthenticated) return null;
-
-            return identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         }
 
         public async Task<ResultModel> UpdateWorkshop(string id, WorkshopUpdateRequest request)
@@ -404,6 +483,24 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
+                if (!TimeOnly.TryParse(request.StartTime, out var startTime))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.STARTTIME_INFO_INVALID;
+                    return res;
+                }
+
+                if (!TimeOnly.TryParse(request.EndTime, out var endTime))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.ENDTIME_INFO_INVALID;
+                    return res;
+                }
+
                 // Partial update
                 if (!string.IsNullOrEmpty(request.WorkshopName))
                     workshop.WorkshopName = request.WorkshopName;
@@ -411,8 +508,8 @@ namespace Services.Services.WorkshopService
                 if (request.StartDate.HasValue)
                     workshop.StartDate = request.StartDate.Value;
 
-                if (!string.IsNullOrEmpty(request.Location))
-                    workshop.Location = request.Location;
+                if (!string.IsNullOrEmpty(request.LocationId))
+                    workshop.LocationId = request.LocationId;
 
                 if (!string.IsNullOrEmpty(request.Description))
                     workshop.Description = request.Description;
@@ -420,12 +517,33 @@ namespace Services.Services.WorkshopService
                 if (request.Capacity.HasValue)
                     workshop.Capacity = request.Capacity.Value;
 
+                if (request.Capacity.HasValue)
+                    workshop.Capacity = request.Capacity.Value;
+
+                if (!string.IsNullOrEmpty(request.StartTime))
+                    workshop.StartTime = startTime;
+
+                if (!string.IsNullOrEmpty(request.EndTime))
+                    workshop.EndTime = endTime;
+
                 if (request.Price.HasValue)
                     workshop.Price = request.Price.Value;
 
                 if (request.ImageUrl != null)
                     workshop.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
+                if (endTime <= startTime)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.TIME_INVALID;
+                    return res;
+                }
+
+                workshop.UpdateAt = DateTime.UtcNow;
+                workshop.StartTime = startTime;
+                workshop.EndTime = endTime;
                 await _workShopRepo.UpdateWorkShop(workshop);
 
                 res.IsSuccess = true;
@@ -523,7 +641,7 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                register.Status = RegisterAttendStatusEnums.Confirmed.ToString(); 
+                register.Status = RegisterAttendStatusEnums.Confirmed.ToString();
                 await _registerAttendRepo.UpdateRegisterAttend(register);
 
                 res.IsSuccess = true;
@@ -531,6 +649,68 @@ namespace Services.Services.WorkshopService
                 res.StatusCode = StatusCodes.Status200OK;
                 res.Message = ResponseMessageConstrantsWorkshop.CHECK_IN_SUCCESS;
                 return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> CancelWorkshop()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var workshops = await _workShopRepo.GetWorkShops();
+                var approvedWorkshops = workshops.Where(x => x.Status == WorkshopStatusEnums.Approved.ToString()).ToList();
+
+                if (approvedWorkshops == null || !approvedWorkshops.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND;
+                    return res;
+                }
+
+                foreach (var workshop in approvedWorkshops)
+                {
+                    if (workshop.StartDate.HasValue)
+                    {
+                        var oneDayBefore = workshop.StartDate.Value.AddDays(-1);
+                        if (DateTime.UtcNow >= oneDayBefore && workshop.StartDate > DateTime.UtcNow)
+                        {
+                            var registerAttends = await _registerAttendRepo.GetRegisterAttendsByWorkShopId(workshop.WorkshopId);
+                            if (registerAttends == null || !registerAttends.Any())
+                            {
+                                workshop.Status = WorkshopStatusEnums.Canceled.ToString();
+                                await _workShopRepo.UpdateWorkShop(workshop);
+
+                                var masterSchedules = await _masterScheduleRepo.GetMasterScheduleByMasterId(workshop.MasterId);
+                                var scheduleToUpdate = masterSchedules.FirstOrDefault(ms =>
+                                    ms.Date == DateOnly.FromDateTime(workshop.StartDate.Value) &&
+                                    ms.Type == MasterScheduleTypeEnums.Workshop.ToString());
+
+                                if (scheduleToUpdate != null)
+                                {
+                                    scheduleToUpdate.Status = MasterScheduleEnums.Canceled.ToString();
+                                    await _masterScheduleRepo.UpdateMasterSchedule(scheduleToUpdate);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_CANCELED_SUCCESS;
+                return res;
+
             }
             catch (Exception ex)
             {

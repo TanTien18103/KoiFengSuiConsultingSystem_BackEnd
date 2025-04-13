@@ -15,14 +15,17 @@ namespace Services.ApiModels.Workshop
         [Required]
         public DateTime? StartDate { get; set; }
         [Required]
-        [RegularExpression(@"^[\p{L}0-9 ,.\\-_]+$", ErrorMessage = "Địa chỉ không được chứa ký tự đặc biệt")]
-        public string Location { get; set; }
+        public string LocationId { get; set; }
         [Required]
         [RegularExpression(@"^[\p{L}0-9 ,.\\-_]+$", ErrorMessage = "Mô tả không được chứa ký tự đặc biệt")]
         public string Description { get; set; }
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Sức chứa phải là số nguyên dương")]
         public int? Capacity { get; set; }
+        [Required]
+        public string StartTime { get; set; }
+        [Required]
+        public string EndTime { get; set; }
         [Required]
         public decimal? Price { get; set; }
         public IFormFile ImageUrl { get; set; }

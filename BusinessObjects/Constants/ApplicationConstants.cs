@@ -332,11 +332,13 @@ namespace BusinessObjects.Constants
         public const string ALREADY_STARTED = "Workshop đã bắt đầu, không thể đăng ký hay chỉnh sửa.";
         public const string CAPACITY_LEFT = "Vé còn trống cho workshop này là ";
         public const string LOCATION_NOT_FOUND = "Không tìm thấy địa điểm!";
-
-        public static string? STARTTIME_INFO_INVALID { get; set; }
-        public static string? ENDTIME_INFO_INVALID { get; set; }
-        public static string? TIME_INVALID { get; set; }
+        public const string STARTTIME_INFO_INVALID = "Thời gian bắt đầu không hợp lệ! Vui lòng kiểm tra lại thời gian bắt đầu của hội thảo";
+        public const string ENDTIME_INFO_INVALID = "Thời gian kết thúc không hợp lệ! Vui lòng kiểm tra lại thời gian kết thúc của hội thảo";
+        public const string TIME_INVALID = "Thời gian không hợp lệ! Vui lòng kiểm tra lại thời gian bắt đầu và kết thúc của hội thảo";
         public const string WORKSHOP_CANCELED_SUCCESS = "Buổi hội thảo bị hủy thành công";
+        public const string WORKSHOP_DUPLICATE_LOCATION = "Đã có một hội thảo khác được tổ chức tại địa điểm này.";
+        public const string WORKSHOP_DUPLICATE_SCHEDULE_SAME_MASTER = "Bạn đã có một hội thảo với cùng ngày bắt đầu ở địa điểm khác.";
+        public const string DURATION_INVALID = "Thời lượng không hợp lệ! Vui lòng kiểm tra lại thời gian bắt đầu và kết thúc của hội thảo";
     }
 
     public class ResponseMessageConstrantsCourse

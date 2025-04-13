@@ -78,7 +78,7 @@ namespace DAOs.DAOs
             return await _context.KoiVarieties
                 .Include(k => k.VarietyColors)
                     .ThenInclude(vc => vc.Color)
-                .Where(k => k.VarietyColors.Any(vc => vc.Color.Element == element))
+                .Where(k => k.VarietyColors.Any(vc => vc.Color.Element == element && vc.Percentage > 60))
                 .ToListAsync();
         }
 

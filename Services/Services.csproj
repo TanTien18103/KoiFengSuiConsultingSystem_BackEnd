@@ -24,7 +24,6 @@
     <Folder Include="ApiModels\EnrollAnswer\" />
     <Folder Include="ApiModels\EnrollCert\" />
     <Folder Include="ApiModels\EnrollQuiz\" />
-    <Folder Include="ApiModels\MasterSchedule\" />
     <Folder Include="ApiModels\Membership\" />
     <Folder Include="ApiModels\VarietyColor\" />
     <Folder Include="ApiModels\Transaction\" />

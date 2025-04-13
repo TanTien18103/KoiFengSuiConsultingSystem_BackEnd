@@ -35,5 +35,19 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var res = await _masterScheduleService.GetMasterSchedulesByMasterAndDate(masterId, date);
             return StatusCode(res.StatusCode, res);
         }
+
+        [HttpGet("get-schedules-for-mobile")]
+        public async Task<IActionResult> GetAllMasterSchedulesForMobile()
+        {
+            var res = await _masterScheduleService.GetAllMasterSchedulesForMobile();
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpGet("get-schedules-by-master/{id}")]
+        public async Task<IActionResult> GetMasterSchedulesByMaster([FromRoute]string id)
+        {
+            var res = await _masterScheduleService.GetMasterSchedulesByMaster(id);
+            return StatusCode(res.StatusCode, res);
+        }
     }
 } 

@@ -34,5 +34,6 @@ namespace Services.Services.BookingService
         Task<ResultModel> AssignStaffToBookingAsync(string? bookingonlineId, string? bookingofflineId, string staffId);
         Task<ResultModel> AssignMasterToBookingAsync(string? bookingonlineId, string? bookingofflineId, string masterId);
         Task<ResultModel> GetAllBookingByStaff();
+        Task<ResultModel> CancelPendingBooking(string bookingId, BookingTypeEnums bookingType);
     }
 }

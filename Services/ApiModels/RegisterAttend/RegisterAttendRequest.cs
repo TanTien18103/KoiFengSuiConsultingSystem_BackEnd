@@ -9,10 +9,12 @@ namespace Services.ApiModels.RegisterAttend
 {
     public class RegisterAttendRequest
     {
-        [Required]
+        [Required(ErrorMessage = "WorkshopId không được để trống.")]
         public string WorkshopId { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Số lượng vé không được để trống.")]
         [Range(1, int.MaxValue, ErrorMessage = "Số lượng vé phải từ 1 trở lên.")]
         public int NumberOfTicket { get; set; }
+
     }
 }

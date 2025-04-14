@@ -155,6 +155,14 @@ public class AccountService : IAccountService
 
         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
 
+
+        int currentYear = DateTime.Now.Year;
+        if (registerRequest.Dob.Year < 1925 || registerRequest.Dob.Year > currentYear)
+            throw new AppException(
+                ResponseCodeConstants.BAD_REQUEST,
+                ResponseMessageIdentity.INVALID_DOB_YEAR,
+                StatusCodes.Status400BadRequest);
+
         // Calculate Element and LifePalace
         int birthYear = registerRequest.Dob.Year;
         var (canChi, nguHanh) = AmDuongNienHelper.GetNguHanh(birthYear);
@@ -270,11 +278,11 @@ public class AccountService : IAccountService
             }
 
             var duplicateAccount = await _accountRepository.GetAccountByUniqueFields(
-                request.UserName, 
-                request.Email, 
-                request.PhoneNumber, 
-                request.BankId ?? 0, 
-                request.AccountNo ?? string.Empty, 
+                request.UserName,
+                request.Email,
+                request.PhoneNumber,
+                request.BankId ?? 0,
+                request.AccountNo ?? string.Empty,
                 accountId);
 
             if (duplicateAccount != null)
@@ -334,7 +342,7 @@ public class AccountService : IAccountService
             if (!string.IsNullOrWhiteSpace(request.FullName))
                 existingAccount.FullName = request.FullName;
 
-            try 
+            try
             {
                 var httpContext = _httpContextAccessor.HttpContext;
                 if (httpContext != null && httpContext.Request.Form.ContainsKey("dob"))
@@ -344,6 +352,15 @@ public class AccountService : IAccountService
                     {
                         if (DateTime.TryParse(dobString, out var dateTime))
                         {
+                            int year = dateTime.Year;
+                            int currentYear = DateTime.Now.Year;
+
+                            if (year < 1925 || year > currentYear)
+                                throw new AppException(
+                                    ResponseCodeConstants.BAD_REQUEST,
+                                    ResponseMessageIdentity.INVALID_DOB_YEAR,
+                                    StatusCodes.Status400BadRequest);
+
                             existingAccount.Dob = DateOnly.FromDateTime(dateTime);
                         }
                     }
@@ -908,9 +925,9 @@ public class AccountService : IAccountService
                 };
 
                 // Lưu vào database
-                var result =  await _masterRepo.Create(newMaster);
+                var result = await _masterRepo.Create(newMaster);
 
-                if(result == null)
+                if (result == null)
                 {
                     return new ResultModel
                     {
@@ -1055,7 +1072,7 @@ public class AccountService : IAccountService
             }
 
             _mapper.Map(request, master);
-            
+
             master.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
             await _masterRepo.Update(master);

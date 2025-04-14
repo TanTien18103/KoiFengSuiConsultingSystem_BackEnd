@@ -381,6 +381,25 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
+                var currentDate = DateTime.UtcNow.Date;
+                if (request.StartDate == null || request.StartDate.HasValue && (request.StartDate.Value.Date - currentDate).TotalDays < 7)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.STARTDATE_MUST_BE_ONE_WEEK_AHEAD;
+                    return res;
+                }
+
+                if (request.Price <= 2000)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.PRICE_MUST_BE_GREATER_THAN_2000;
+                    return res;
+                }
+
                 // Lấy tất cả workshop trùng ngày
                 var workshopsInSameDate = await _workShopRepo.GetWorkshopsByDate(request.StartDate.Value);
 
@@ -558,6 +577,26 @@ namespace Services.Services.WorkshopService
                     res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
                     res.StatusCode = StatusCodes.Status400BadRequest;
                     res.Message = ResponseMessageConstrantsWorkshop.ENDTIME_INFO_INVALID;
+                    return res;
+                }
+
+                // Ngày hiện tại (UTC hoặc giờ Việt Nam tùy vào hệ thống)
+                var currentDate = DateTime.UtcNow.Date;
+                if (request.StartDate == null || request.StartDate.HasValue && (request.StartDate.Value.Date - currentDate).TotalDays < 7)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.STARTDATE_MUST_BE_ONE_WEEK_AHEAD;
+                    return res;
+                }
+
+                if (request.Price <= 2000)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = ResponseMessageConstrantsWorkshop.PRICE_MUST_BE_GREATER_THAN_2000;
                     return res;
                 }
 

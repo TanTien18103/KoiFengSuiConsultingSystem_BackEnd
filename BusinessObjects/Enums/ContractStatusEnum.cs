@@ -9,9 +9,10 @@ namespace BusinessObjects.Enums
     public enum ContractStatusEnum
     {
         Pending,
-        InProgress,
+        ContractRejectedByManager,
+        ContractRejectedByCustomer,
+        ContractApprovedByManager,
         VerifyingOTP,
-        Cancelled,
         FirstPaymentPending,
         FirstPaymentSuccess
     }

@@ -19,6 +19,7 @@ using Repositories.Repositories.MasterRepository;
 using Services.ServicesHelpers.UploadService;
 using Repositories.Repositories.MasterScheduleRepository;
 using Repositories.Repositories.LocationRepository;
+using System.Net.WebSockets;
 
 namespace Services.Services.WorkshopService
 {
@@ -149,6 +150,19 @@ namespace Services.Services.WorkshopService
                     workshop.Status = WorkshopStatusEnums.Approved.ToString();
                     await _workShopRepo.UpdateWorkShop(workshop);
                 }
+                var masterByWorkshop = await _masterRepo.GetMasterByWorkshopId(workshop.WorkshopId);
+                var masterSchedule = await _masterScheduleRepo.GetSchedulesByMasterId(masterByWorkshop.MasterId);
+
+                
+                if(masterSchedule == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_NOT_FOUND;
+                    return res;
+                }
+
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;

@@ -94,6 +94,19 @@ namespace DAOs.DAOs
                 .ToListAsync();
         }
 
+        public async Task<MasterSchedule> GetMasterScheduleByMasterIdAndWorkshopId(string masterId, string workshopId)
+        {
+            return await _context.MasterSchedules
+                .Include(x => x.Master)
+                .Include(x => x.BookingOnlines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Include(x => x.BookingOfflines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .FirstOrDefaultAsync(ms => ms.MasterId == masterId);
+        }
+
         public async Task<MasterSchedule> GetMasterScheduleDao(string masterId, DateOnly date, TimeOnly startTime)
         {
             return await _context.MasterSchedules

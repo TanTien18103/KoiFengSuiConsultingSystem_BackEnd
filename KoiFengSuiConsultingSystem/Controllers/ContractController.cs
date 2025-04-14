@@ -56,12 +56,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _contractService.ConfirmContractByCustomer(contractId);
             return StatusCode(result.StatusCode, result);
         }
-        [HttpGet("get-contract-by-booking-offline-and-update-status/{bookingOfflineId}")]
-        public async Task<IActionResult> GetContractByBookingOfflineIdAndUpdateStatus(string bookingOfflineId)
-        {
-            var result = await _contractService.GetContractByBookingOfflineIdAndUpdateStatus(bookingOfflineId);
-            return StatusCode(result.StatusCode, result);
-        }
+        //[HttpGet("get-contract-by-booking-offline-and-update-status/{bookingOfflineId}")]
+        //public async Task<IActionResult> GetContractByBookingOfflineIdAndUpdateStatus(string bookingOfflineId)
+        //{
+        //    var result = await _contractService.GetContractByBookingOfflineIdAndUpdateStatus(bookingOfflineId);
+        //    return StatusCode(result.StatusCode, result);
+        //}
         [HttpPost("send-otp/{contractId}")]
         public async Task<IActionResult> SendOtpForContract(string contractId)
         {

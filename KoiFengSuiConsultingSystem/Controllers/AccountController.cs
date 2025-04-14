@@ -147,6 +147,8 @@ namespace KoiFengSuiConsultingSystem.Controllers
                         BankId = user.BankId,
                         AccountNo = user.AccountNo,
                         AccountName = user.AccountName,
+                        Element = customer?.Element,
+                        LifePalace = customer?.LifePalace
                     });
                 }
 
@@ -163,6 +165,8 @@ namespace KoiFengSuiConsultingSystem.Controllers
                     BankId = user.BankId,
                     AccountNo = user.AccountNo,
                     AccountName = user.AccountName,
+                    Element = customer?.Element,
+                    LifePalace = customer?.LifePalace
                 });
             }
 

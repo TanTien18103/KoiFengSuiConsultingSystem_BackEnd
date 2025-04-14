@@ -10,10 +10,14 @@ namespace Services.ApiModels.Question
 {
     public class QuestionRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Câu hỏi không được để trống")]
+        [RegularExpression(@"^[\p{L}0-9,.\-_/ ]+$", ErrorMessage = "Câu hỏi không được chứa ký tự đặc biệt")]
         public string QuestionText { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Loại câu hỏi không được để trống")]
+        [RegularExpression(@"^[\p{L}0-9,.\-_/ ]+$", ErrorMessage = "Loại câu hỏi không được chứa ký tự đặc biệt")]
         public string QuestionType { get; set; }
+
         public List<AnswerRequest> Answers { get; set; } = new List<AnswerRequest>();
     }
 }

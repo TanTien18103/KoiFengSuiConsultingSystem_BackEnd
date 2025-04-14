@@ -10,19 +10,25 @@ namespace Services.ApiModels.ConsultationPackage
 {
     public class ConsultationPackageRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Tên gói không được để trống.")]
         public string PackageName { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Giá tối thiểu không được để trống.")]
         public decimal? MinPrice { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Giá tối đa không được để trống.")]
         public decimal? MaxPrice { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Mô tả không được để trống.")]
         public string Description { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Vui lòng nhập thông tin phù hợp.")]
         public string SuitableFor { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Vui lòng nhập thông tin yêu cầu.")]
         public string RequiredInfo { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Chi tiết giá cả không được để trống.")]
         public string PricingDetails { get; set; }
         public IFormFile ImageUrl { get; set; }
     }

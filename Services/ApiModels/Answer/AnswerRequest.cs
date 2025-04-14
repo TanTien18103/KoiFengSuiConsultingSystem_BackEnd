@@ -9,13 +9,13 @@ namespace Services.ApiModels.Answer
 {
     public class AnswerRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Nội dung phương án không được để trống.")]
         public string OptionText { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Loại phương án không được để trống.")]
         public string OptionType { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Vui lòng chỉ định phương án đúng hay sai.")]
         public bool? IsCorrect { get; set; }
     }
 }

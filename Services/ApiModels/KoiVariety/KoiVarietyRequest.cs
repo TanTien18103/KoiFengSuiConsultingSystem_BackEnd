@@ -11,16 +11,20 @@ namespace Services.ApiModels.KoiVariety
 {
     public class KoiVarietyRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Tên giống không được để trống.")]
         public string VarietyName { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Mô tả không được để trống.")]
         public string Description { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Giới thiệu không được để trống.")]
         public string Introduction { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Ảnh giống không được để trống.")]
         public IFormFile ImageUrl { get; set; }
-        [Required]
-        public string VarietyColorsJson { get; set; } 
+
+        [Required(ErrorMessage = "Danh sách màu giống không được để trống.")]
+        public string VarietyColorsJson { get; set; }
 
         public List<VarietyColorRequest> GetVarietyColors()
         {

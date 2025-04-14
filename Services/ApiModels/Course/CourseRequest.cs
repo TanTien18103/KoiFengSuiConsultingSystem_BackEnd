@@ -10,13 +10,16 @@ namespace Services.ApiModels.Course
 {
     public class CourseRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Tên khóa học không được để trống.")]
         public string CourseName { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Danh mục khóa học không được để trống.")]
         public string CourseCategory { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Mô tả khóa học không được để trống.")]
         public string Description { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Giá khóa học không được để trống.")]
         public decimal? Price { get; set; }
         public IFormFile ImageUrl { get; set; }
 

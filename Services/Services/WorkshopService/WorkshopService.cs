@@ -384,11 +384,12 @@ namespace Services.Services.WorkshopService
                 {
                     var existingStart = ws.StartDate.Value.Add(ws.StartTime!.Value.ToTimeSpan());
                     var existingEnd = ws.StartDate.Value.Add(ws.EndTime!.Value.ToTimeSpan());
+                    double gapHours = Math.Abs((newStart - existingStart).TotalHours);
 
                     // 1. Nếu cùng location cùng master
                     if (ws.LocationId == request.LocationId && ws.MasterId == masterId)
                     {
-                        if (IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
+                        if (gapHours < 1 || IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.EXISTED;
@@ -400,7 +401,6 @@ namespace Services.Services.WorkshopService
                     // 2. Nếu khác location nhưng cùng master
                     else if (ws.MasterId == masterId)
                     {
-                        double gapHours = Math.Abs((newStart - existingStart).TotalHours);
                         if (gapHours < 1 || IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
                         {
                             res.IsSuccess = false;
@@ -413,7 +413,7 @@ namespace Services.Services.WorkshopService
                     // 3. Nếu cùng location nhưng khác master
                     else if (ws.LocationId == request.LocationId && ws.MasterId != masterId)
                     {
-                        if (IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
+                        if (gapHours < 1 || IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.EXISTED;
@@ -458,6 +458,7 @@ namespace Services.Services.WorkshopService
                 newWorkshop.MasterId = masterId;
                 newWorkshop.StartTime = startTime;
                 newWorkshop.EndTime = endTime;
+                newWorkshop.MasterScheduleId = createmasterSchedule.MasterScheduleId;
                 newWorkshop.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
                 if (newWorkshop.MasterId == null)
@@ -602,11 +603,12 @@ namespace Services.Services.WorkshopService
                 {
                     var existingStart = ws.StartDate.Value.Add(ws.StartTime!.Value.ToTimeSpan());
                     var existingEnd = ws.StartDate.Value.Add(ws.EndTime!.Value.ToTimeSpan());
+                    double gapHours = Math.Abs((newStart - existingStart).TotalHours);
 
                     // 1. Nếu cùng location cùng master
                     if (ws.LocationId == request.LocationId && ws.MasterId == masterId)
                     {
-                        if (IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
+                        if (gapHours < 1 || IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.EXISTED;
@@ -618,7 +620,6 @@ namespace Services.Services.WorkshopService
                     // 2. Nếu khác location nhưng cùng master
                     else if (ws.MasterId == masterId)
                     {
-                        double gapHours = Math.Abs((newStart - existingStart).TotalHours);
                         if (gapHours < 1 || IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
                         {
                             res.IsSuccess = false;
@@ -631,7 +632,7 @@ namespace Services.Services.WorkshopService
                     // 3. Nếu cùng location nhưng khác master
                     else if (ws.LocationId == request.LocationId && ws.MasterId != masterId)
                     {
-                        if (IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
+                        if (gapHours < 1 || IsTimeOverlap(newStart, newEnd, existingStart, existingEnd))
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.EXISTED;
@@ -643,7 +644,7 @@ namespace Services.Services.WorkshopService
                 }
                 var Date = DateOnly.FromDateTime(request.StartDate.Value);
 
-                var masterschedule = await _masterScheduleRepo.GetMasterScheduleByMasterIdAndStartTimeEndTimeAndDate(masterId, startTime,endTime, Date);
+                var masterschedule = await _masterScheduleRepo.GetMasterScheduleById(workshop.MasterScheduleId);
 
                 var masterSchedule = new MasterSchedule
                 {

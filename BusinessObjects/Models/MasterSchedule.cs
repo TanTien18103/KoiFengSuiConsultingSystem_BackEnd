@@ -30,4 +30,6 @@ public partial class MasterSchedule
     public virtual ICollection<BookingOnline> BookingOnlines { get; set; } = new List<BookingOnline>();
 
     public virtual Master Master { get; set; }
+
+    public virtual ICollection<WorkShop> WorkShops { get; set; } = new List<WorkShop>();
 }

@@ -10,10 +10,12 @@ namespace Services.ApiModels.Question
 {
     public class QuestionUpdateRequest
     {
-        [RegularExpression(@"^[\p{L}0-9,.\-_/ ]+$", ErrorMessage = "QuestionText không được chứa ký tự đặc biệt")]
+        [StringLength(1000, MinimumLength = 5, ErrorMessage = "Câu hỏi phải từ 5 đến 1000 ký tự")]
+        [RegularExpression(@"^[\p{L}0-9,.\-_/ ]+$", ErrorMessage = "Câu hỏi không được chứa ký tự đặc biệt")]
         public string? QuestionText { get; set; }
 
-        [RegularExpression(@"^[\p{L}0-9,.\-_/ ]+$", ErrorMessage = "QuestionType không được chứa ký tự đặc biệt")]
+        [StringLength(100, MinimumLength = 3, ErrorMessage = "Loại câu hỏi phải từ 3 đến 100 ký tự")]
+        [RegularExpression(@"^[\p{L}0-9,.\-_/ ]+$", ErrorMessage = "Loại câu hỏi không được chứa ký tự đặc biệt")]
         public string? QuestionType { get; set; }
 
         public List<AnswerUpdateRequest> answerUpdateRequests { get; set; } = new List<AnswerUpdateRequest>();

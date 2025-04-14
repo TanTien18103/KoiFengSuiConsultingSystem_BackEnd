@@ -11,8 +11,10 @@ namespace Services.ApiModels.BookingOnline
     {
         public string? MasterId { get; set; }
         [Required]
-        [RegularExpression(@"^[\p{L}0-9 ]+$", ErrorMessage = "Mô tả không được chứa ký tự đặc biệt")]
+        [RegularExpression(@"^[\p{L}0-9\s,.-]+$", ErrorMessage = "Mô tả không được chứa ký tự đặc biệt")]
+        [StringLength(500, MinimumLength = 5, ErrorMessage = "Mô tả phải có ít nhất 5 ký tự và không vượt quá 500 ký tự.")]
         public string Description { get; set; }
+
         [Required]
         public DateOnly BookingDate { get; set; }
         [Required]

@@ -9,8 +9,10 @@ namespace Services.ApiModels.Quiz
 {
     public class QuizRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Title không được để trống")]
+        [RegularExpression(@"^[\p{L}0-9,.\-_/ ]+$", ErrorMessage = "Title không được chứa ký tự đặc biệt")]
         public string Title { get; set; }
-        
+
+
     }
 }

@@ -10,13 +10,16 @@ namespace Services.ApiModels.KoiPond
 {
     public class KoiPondRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Mã hình dạng không được để trống.")]
         public string ShapeId { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Tên ao không được để trống.")]
         public string PondName { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Giới thiệu không được để trống.")]
         public string Introduction { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Mô tả không được để trống.")]
         public string Description { get; set; }
         public IFormFile ImageUrl { get; set; }
     }

@@ -10,11 +10,13 @@ namespace Services.ApiModels.Chapter
 {
     public class ChapterRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Tiêu đề không được để trống.")]
         public string Title { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Mô tả không được để trống.")]
         public string Description { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Vui lòng chọn video để tải lên.")]
         public IFormFile Video { get; set; }
         [Required]
         public string CourseId { get; set; }

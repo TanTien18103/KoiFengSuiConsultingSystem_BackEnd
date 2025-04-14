@@ -10,7 +10,8 @@ namespace Services.ApiModels.Category
 {
     public class CategoryRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Tên danh mục không được để trống.")]
+        [StringLength(100, ErrorMessage = "Tên danh mục không được vượt quá 100 ký tự.")]
         public string CategoryName { get; set; }
 
         public IFormFile ImageUrl { get; set; }

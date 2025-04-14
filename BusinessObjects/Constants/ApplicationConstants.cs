@@ -87,6 +87,8 @@ namespace BusinessObjects.Constants
         public const string EMAIL_VALIDATION_REQUIRED = "Vui lòng nhập mã OTP được gửi đến email của bạn để kích hoạt tài khoản.";
         public const string MASTER_NOT_FOUND = "Không tìm thấy Master";
         public const string UPDATE_MASTER_SUCCESS = "Cập nhật thông tin Master thành công";
+
+        public const string INVALID_DOB_YEAR = "Ngày sinh không hợp lệ. Vui lòng kiểm tra lại năm sinh của bạn.";
     }
 
     //Auth-Account Controllers
@@ -339,6 +341,8 @@ namespace BusinessObjects.Constants
         public const string WORKSHOP_DUPLICATE_LOCATION = "Đã có một hội thảo khác được tổ chức tại địa điểm này.";
         public const string WORKSHOP_DUPLICATE_SCHEDULE_SAME_MASTER = "Bạn đã có một hội thảo với cùng ngày bắt đầu ở địa điểm khác.";
         public const string DURATION_INVALID = "Thời lượng không hợp lệ! Vui lòng kiểm tra lại thời gian bắt đầu và kết thúc của hội thảo";
+        public const string STARTDATE_MUST_BE_ONE_WEEK_AHEAD = "Ngày bắt đầu phải cách ngày hiện tại ít nhất 7 ngày.";
+        public const string PRICE_MUST_BE_GREATER_THAN_2000 = "Giá vé phải lớn hơn 2000 đồng.";
     }
 
     public class ResponseMessageConstrantsCourse

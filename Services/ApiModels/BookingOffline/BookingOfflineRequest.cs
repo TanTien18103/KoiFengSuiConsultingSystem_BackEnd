@@ -9,13 +9,14 @@ namespace Services.ApiModels.BookingOffline
 {
     public class BookingOfflineRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Mô tả không được để trống.")]
+        [RegularExpression(@"^[\p{L}0-9 ]+$", ErrorMessage = "Mô tả không được chứa ký tự đặc biệt")]
         public string Description { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Ngày bắt đầu không được để trống.")]
         public DateOnly StartDate { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Địa điểm không được để trống.")]
         public string Location { get; set; }
     }
 }

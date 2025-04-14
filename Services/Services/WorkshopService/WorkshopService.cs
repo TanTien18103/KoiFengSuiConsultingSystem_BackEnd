@@ -151,9 +151,8 @@ namespace Services.Services.WorkshopService
                     await _workShopRepo.UpdateWorkShop(workshop);
                 }
                 var masterByWorkshop = await _masterRepo.GetMasterByWorkshopId(workshop.WorkshopId);
-                var masterSchedule = await _masterScheduleRepo.GetSchedulesByMasterId(masterByWorkshop.MasterId);
+                var masterSchedule = await _masterScheduleRepo.GetMasterScheduleByMasterIdAndWorkshopId(masterByWorkshop.MasterId, id);
 
-                
                 if(masterSchedule == null)
                 {
                     res.IsSuccess = false;
@@ -162,6 +161,9 @@ namespace Services.Services.WorkshopService
                     res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_NOT_FOUND;
                     return res;
                 }
+
+                masterSchedule.Status = MasterScheduleEnums.InProgress.ToString();
+                await _masterScheduleRepo.UpdateMasterSchedule(masterSchedule);
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
@@ -198,6 +200,21 @@ namespace Services.Services.WorkshopService
                     workshop.Status = WorkshopStatusEnums.Rejected.ToString();
                     await _workShopRepo.UpdateWorkShop(workshop);
                 }
+                var masterByWorkshop = await _masterRepo.GetMasterByWorkshopId(workshop.WorkshopId);
+                var masterSchedule = await _masterScheduleRepo.GetMasterScheduleByMasterIdAndWorkshopId(masterByWorkshop.MasterId, id);
+
+                if (masterSchedule == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_NOT_FOUND;
+                    return res;
+                }
+
+                masterSchedule.Status = MasterScheduleEnums.Canceled.ToString();
+                await _masterScheduleRepo.UpdateMasterSchedule(masterSchedule);
+
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;

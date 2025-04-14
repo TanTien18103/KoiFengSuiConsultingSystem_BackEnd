@@ -38,6 +38,10 @@ namespace Repositories.Repositories.MasterScheduleRepository
         {
             return MasterScheduleDAO.Instance.UpdateMasterScheduleDao(masterSchedule);
         }
+        public Task<MasterSchedule> GetMasterScheduleByMasterIdAndWorkshopId(string masterId, string workshopId)
+        {
+            return MasterScheduleDAO.Instance.GetMasterScheduleByMasterIdAndWorkshopIdDao(masterId, workshopId);
+        }
         public Task DeleteMasterSchedule(string masterScheduleId)
         {
             return MasterScheduleDAO.Instance.DeleteMasterScheduleDao(masterScheduleId);

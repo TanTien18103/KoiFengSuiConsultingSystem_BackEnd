@@ -87,7 +87,7 @@ namespace Services.Services.ContractService
                 await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
                 
                 // Cập nhật trạng thái của contract
-                contract.Status = ContractStatusEnum.Cancelled.ToString();
+                contract.Status = ContractStatusEnum.ContractRejectedByCustomer.ToString();
                 contract.UpdatedDate = DateTime.Now;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
                 
@@ -164,7 +164,7 @@ namespace Services.Services.ContractService
                 bookingOffline.Status = BookingOfflineEnums.ContractConfirmedByManager.ToString();
                 await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
                 
-                contract.Status = ContractStatusEnum.VerifyingOTP.ToString();
+                contract.Status = ContractStatusEnum.ContractApprovedByManager.ToString();
                 contract.UpdatedDate = DateTime.Now;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
                 
@@ -221,7 +221,7 @@ namespace Services.Services.ContractService
                 await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
                 
                 // Cập nhật trạng thái của contract
-                contract.Status = ContractStatusEnum.Cancelled.ToString();
+                contract.Status = ContractStatusEnum.ContractRejectedByCustomer.ToString();
                 contract.UpdatedDate = DateTime.Now;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
                 
@@ -416,7 +416,7 @@ namespace Services.Services.ContractService
                 var updatedBooking = await _bookingOfflineRepo.UpdateBookingOfflineContract(
                     bookingOffline.BookingOfflineId,
                     createdContract.ContractId,
-                    bookingOffline.Status); // Giữ nguyên trạng thái hiện tại
+                    bookingOffline.Status = BookingOfflineEnums.InProgress.ToString()); // Giữ nguyên trạng thái hiện tại
 
                 if (updatedBooking == null)
                 {
@@ -453,63 +453,63 @@ namespace Services.Services.ContractService
             }
         }
 
-        public async Task<ResultModel> GetContractByBookingOfflineIdAndUpdateStatus(string bookingOfflineId)
-        {
-            var res = new ResultModel();
-            try
-            {
-                var contract = await _contractRepo.GetContractByBookingOfflineId(bookingOfflineId);
-                if (contract == null)
-                {
-                    res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = ResponseMessageConstrantsContract.NOT_FOUND;
-                    return res;
-                }
+        //public async Task<ResultModel> GetContractByBookingOfflineIdAndUpdateStatus(string bookingOfflineId)
+        //{
+        //    var res = new ResultModel();
+        //    try
+        //    {
+        //        var contract = await _contractRepo.GetContractByBookingOfflineId(bookingOfflineId);
+        //        if (contract == null)
+        //        {
+        //            res.IsSuccess = false;
+        //            res.StatusCode = StatusCodes.Status404NotFound;
+        //            res.Message = ResponseMessageConstrantsContract.NOT_FOUND;
+        //            return res;
+        //        }
 
-                if (contract.Status != ContractStatusEnum.Pending.ToString())
-                {
-                    res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status400BadRequest;
-                    res.Message = ResponseMessageConstrantsContract.CHECK_STATUS;
-                    return res;
-                }
+        //        if (contract.Status != ContractStatusEnum.Pending.ToString())
+        //        {
+        //            res.IsSuccess = false;
+        //            res.StatusCode = StatusCodes.Status400BadRequest;
+        //            res.Message = ResponseMessageConstrantsContract.CHECK_STATUS;
+        //            return res;
+        //        }
 
-                if (contract.Status == ContractStatusEnum.Pending.ToString())
-                {
-                    contract.Status = ContractStatusEnum.InProgress.ToString();
-                    contract.UpdatedDate = DateTime.Now;
-                    await _contractRepo.UpdateContract(contract);
-                }
+        //        if (contract.Status == ContractStatusEnum.Pending.ToString())
+        //        {
+        //            contract.Status = ContractStatusEnum.InProgress.ToString();
+        //            contract.UpdatedDate = DateTime.Now;
+        //            await _contractRepo.UpdateContract(contract);
+        //        }
 
-                res.IsSuccess = true;
-                res.StatusCode = StatusCodes.Status200OK;
-                res.Message = ResponseMessageConstrantsContract.CONTRACT_INFORMATION_SUCCESS;
-                res.Data = new
-                {
-                    Contract = new ContractResponse
-                    {
-                        ContractId = contract.ContractId,
-                        Status = contract.Status,
-                        DocNo = contract.DocNo,
-                        ContractName = contract.ContractName,
-                        ContractUrl = contract.ContractUrl,
-                        CreatedDate = contract.CreatedDate,
-                        UpdatedDate = contract.UpdatedDate
-                    },
-                };
+        //        res.IsSuccess = true;
+        //        res.StatusCode = StatusCodes.Status200OK;
+        //        res.Message = ResponseMessageConstrantsContract.CONTRACT_INFORMATION_SUCCESS;
+        //        res.Data = new
+        //        {
+        //            Contract = new ContractResponse
+        //            {
+        //                ContractId = contract.ContractId,
+        //                Status = contract.Status,
+        //                DocNo = contract.DocNo,
+        //                ContractName = contract.ContractName,
+        //                ContractUrl = contract.ContractUrl,
+        //                CreatedDate = contract.CreatedDate,
+        //                UpdatedDate = contract.UpdatedDate
+        //            },
+        //        };
 
-                return res;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Lỗi khi lấy thông tin hợp đồng");
-                res.IsSuccess = false;
-                res.StatusCode = StatusCodes.Status500InternalServerError;
-                res.Message = ex.Message;
-                return res;
-            }
-        }
+        //        return res;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Lỗi khi lấy thông tin hợp đồng");
+        //        res.IsSuccess = false;
+        //        res.StatusCode = StatusCodes.Status500InternalServerError;
+        //        res.Message = ex.Message;
+        //        return res;
+        //    }
+        //}
 
         //public async Task<ResultModel> ProcessFirstPaymentAfterVerification(string contractId)
         //{

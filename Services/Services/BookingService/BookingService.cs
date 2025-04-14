@@ -557,7 +557,7 @@ namespace Services.Services.BookingService
                         MasterId = masterId,
                         Date = bookingOffline.StartDate,
                         Type = MasterScheduleTypeEnums.BookingOffline.ToString(),
-                        Status = MasterScheduleEnums.Pending.ToString(),
+                        Status = MasterScheduleEnums.InProgress.ToString(),
                     };
 
                     var createmasterSchedule = await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);

@@ -16,6 +16,7 @@ using Repositories.Repositories.MasterRepository;
 using Repositories.Repositories.MasterScheduleRepository;
 using BusinessObjects.Constants;
 using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
+using BusinessObjects.Enums;
 
 namespace Services.Services.MasterScheduleService
 {
@@ -84,7 +85,8 @@ namespace Services.Services.MasterScheduleService
             try
             {
                 var masterSchedules = await _masterScheduleRepo.GetAllSchedules();
-                if (masterSchedules == null)
+                var InProgressMasterSchedule = masterSchedules.Where(x => x.Status == MasterScheduleEnums.InProgress.ToString()).ToList();
+                if (InProgressMasterSchedule == null)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -96,7 +98,7 @@ namespace Services.Services.MasterScheduleService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<MasterSchedulesForMobileResponse>>(masterSchedules);
+                res.Data = _mapper.Map<List<MasterSchedulesForMobileResponse>>(InProgressMasterSchedule);
                 res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_FOUND;
                 return res;
             }
@@ -125,7 +127,8 @@ namespace Services.Services.MasterScheduleService
                     return res;
                 }
                 var masterSchedules = await _masterScheduleRepo.GetSchedulesByMasterId(master.MasterId);
-                if (masterSchedules == null || !masterSchedules.Any())
+                var InProgressMasterSchedule = masterSchedules.Where(x => x.Status == MasterScheduleEnums.InProgress.ToString()).ToList();
+                if (InProgressMasterSchedule == null || !InProgressMasterSchedule.Any())
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -137,7 +140,7 @@ namespace Services.Services.MasterScheduleService
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Data = _mapper.Map<List<MasterSchedulesForMobileResponse>>(masterSchedules);
+                res.Data = _mapper.Map<List<MasterSchedulesForMobileResponse>>(InProgressMasterSchedule);
                 res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_FOUND;
                 return res;
             }

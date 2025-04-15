@@ -10,6 +10,7 @@ namespace BusinessObjects.Enums
     {
         Pending,
         Canceled,
+        PendingConfirm,
         Paid,
         Confirmed
     }

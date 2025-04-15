@@ -154,7 +154,9 @@ namespace Services.Services.RegisterAttendService
                             CreatedDate = firstTicket.CreatedDate,
                             TotalPrice = totalPrice,
                             Location = workshop.LocationId ?? string.Empty,
-                            StartDate = workshop.StartDate ?? DateTime.Now
+                            StartDate = workshop.StartDate ?? DateTime.Now,
+                            StartTime = workshop.StartTime,
+                            EndTime = workshop.EndTime
                         };
 
                         result.Add(groupedTicket);

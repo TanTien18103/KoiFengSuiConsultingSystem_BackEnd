@@ -10,6 +10,7 @@ namespace BusinessObjects.Enums
     public enum BookingOnlineEnums
     {
         Pending,
+        PendingConfirm,
         Confirmed,
         Completed,
         Canceled

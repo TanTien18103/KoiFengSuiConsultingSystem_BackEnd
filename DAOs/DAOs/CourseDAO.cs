@@ -117,5 +117,43 @@ namespace DAOs.DAOs
                 .FirstOrDefaultAsync(rc => rc.CourseId == courseId && rc.CustomerId == customerId);
             return enrollCourse?.EnrollCourseId;
         }
+
+        public async Task<Course> UpdateCourseRatingDao(string courseId, decimal newRating)
+        {
+            var course = await _context.Courses.FindAsync(courseId);
+            if (course == null)
+                return null;
+
+            // Nếu đây là đánh giá đầu tiên hoặc chưa có rating
+            if (!course.Rating.HasValue)
+            {
+                course.Rating = newRating;
+            }
+            else
+            {
+                // Tính trung bình đơn giản: (rating cũ + rating mới) / 2
+                course.Rating = Math.Round((course.Rating.Value + newRating) / 2, 2);
+            }
+
+            // Kiểm tra số lượng đăng ký khóa học
+            var registrationCount = await _context.RegisterCourses
+                .Where(rc => rc.CourseId == courseId)
+                .CountAsync();
+
+            // Cập nhật trạng thái best seller nếu rating >= 4.5 và có nhiều hơn 10 người đăng ký
+            if (course.Rating >= 4.5m && registrationCount > 10)
+            {
+                course.IsBestSeller = true;
+            }
+
+            // Cập nhật thời gian
+            course.UpdateAt = DateTime.Now;
+
+            // Lưu thay đổi
+            _context.Courses.Update(course);
+            await _context.SaveChangesAsync();
+
+            return course;
+        }
     }
 }

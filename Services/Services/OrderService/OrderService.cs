@@ -104,6 +104,40 @@ namespace Services.Services.OrderService
                     await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
                 }
 
+                else if (order.ServiceType == PaymentTypeEnums.BookingOnline.ToString())
+                {
+                    var bookingOnline = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(order.ServiceId);
+                    if (bookingOnline == null)
+                    {
+                        res.IsSuccess = false;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE;
+                        return res;
+                    }
+
+                    bookingOnline.Status = BookingOnlineEnums.PendingConfirm.ToString();
+                    await _bookingOnlineRepo.UpdateBookingOnlineRepo(bookingOnline);
+                }
+
+                else if (order.ServiceType == PaymentTypeEnums.RegisterAttend.ToString())
+                {
+                    var registerAttends = await _registerAttendRepo.GetRegisterAttendsByGroupId(order.ServiceId);
+                    if (registerAttends == null)
+                    {
+                        res.IsSuccess = false;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE;
+                        return res;
+                    }
+                    foreach(var attend in registerAttends)
+                    {
+                        attend.Status = BookingOnlineEnums.PendingConfirm.ToString();
+                        await _registerAttendRepo.UpdateRegisterAttend(attend);
+                    }
+                }
+
                 order.Status = PaymentStatusEnums.PendingConfirm.ToString();
                 order.PaymentReference = null;
                 order.PaymentDate = DateTime.Now;
@@ -212,7 +246,7 @@ namespace Services.Services.OrderService
                                 }
                             }
                             var allTickets = await _registerAttendRepo.GetRegisterAttends();
-                            var pendingTicketsToGroup = allTickets.Where(x => x.Status == RegisterAttendStatusEnums.Pending.ToString());
+                            var pendingTicketsToGroup = allTickets.Where(x => x.Status == RegisterAttendStatusEnums.Pending.ToString() || x.Status == RegisterAttendStatusEnums.PendingConfirm.ToString());
                             var groupedTickets = pendingTicketsToGroup.GroupBy(x => x.GroupId).ToList();
                             foreach (var group in groupedTickets)
                             {
@@ -450,7 +484,7 @@ namespace Services.Services.OrderService
             try
             {
                 var orders = await _orderRepo.GetAllOrders();
-                var pendingConfirmOrders = orders.Where(x => x.Status == PaymentStatusEnums.PendingConfirm.ToString()).OrderByDescending(x => x.PaymentDate).ToList();
+                var pendingConfirmOrders = orders.Where(x => x.Status == PaymentStatusEnums.PendingConfirm.ToString()).OrderBy(x => x.PaymentDate).ToList();
 
                 if (pendingConfirmOrders == null || !pendingConfirmOrders.Any() || pendingConfirmOrders.Count == 0)
                 {

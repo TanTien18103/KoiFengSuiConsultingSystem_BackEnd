@@ -98,7 +98,8 @@ namespace DAOs.DAOs
         public async Task<List<RegisterAttend>> GetRegisterAttendsByGroupIdDao(string groupId)
         {
             return await _context.RegisterAttends
-                .Include(x => x.Workshop)
+                .Include(x => x.Workshop).ThenInclude(x => x.Location)
+                .Include(x => x.Workshop).ThenInclude(x => x.Master)
                 .Include(x => x.Customer).ThenInclude(x => x.Account)
                 .Where(x => x.GroupId == groupId)
                 .ToListAsync();

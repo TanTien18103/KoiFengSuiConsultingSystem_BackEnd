@@ -25,6 +25,8 @@ public partial class RegisterCourse
 
     public DateTime? UpdateDate { get; set; }
 
+    public decimal? Rating { get; set; }
+
     public virtual Course Course { get; set; }
 
     public virtual Customer Customer { get; set; }

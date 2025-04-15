@@ -189,7 +189,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.OtpCode).HasMaxLength(10);
             entity.Property(e => e.OtpExpiredTime).HasColumnType("datetime");
-            entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.Status).HasMaxLength(255);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });
 
@@ -466,7 +466,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.OtpCode).HasMaxLength(50);
             entity.Property(e => e.OtpExpiredTime).HasColumnType("datetime");
-            entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.Status).HasMaxLength(255);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });
 
@@ -716,7 +716,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.DocumentName).HasMaxLength(100);
             entity.Property(e => e.DocumentUrl).HasColumnName("DocumentURL");
-            entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.Status).HasMaxLength(255);
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
             entity.Property(e => e.Version)
                 .HasMaxLength(10)
@@ -1032,6 +1032,7 @@ public partial class KoiFishPondContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.Percentage).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.Rating).HasColumnType("decimal(3, 2)");
             entity.Property(e => e.Status).HasMaxLength(20);
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 

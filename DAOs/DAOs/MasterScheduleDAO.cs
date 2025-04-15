@@ -72,6 +72,8 @@ namespace DAOs.DAOs
                 .Include(x => x.BookingOfflines)
                     .ThenInclude(b => b.Customer)
                         .ThenInclude(c => c.Account)
+                .Include(x => x.WorkShops) 
+                        .ThenInclude(w => w.Location)
                 .Where(x => x.MasterId == masterId)
                 .OrderBy(x => x.Date)
                 .ThenBy(x => x.StartTime)

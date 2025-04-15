@@ -9,6 +9,7 @@ using Repositories.Repositories.CourseRepository;
 using Repositories.Repositories.MasterRepository;
 using Repositories.Repositories.QuizRepository;
 using Services.ApiModels;
+using Services.ServicesHelpers.BunnyCdnService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,13 +23,15 @@ namespace Services.ServicesHelpers.UploadService
     public class UploadService : IUploadService
     {
         private readonly Cloudinary _cloudinary;
+        private readonly IBunnyCdnService _bunnyCdnService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMasterRepo _masterRepo;
         private readonly IQuizRepo _quizRepo;
         private readonly ICourseRepo _courseRepo;
-        public UploadService(Cloudinary cloudinary, IHttpContextAccessor httpContextAccessor, IMasterRepo masterRepo, IQuizRepo quizRepo, ICourseRepo courseRepo)
+        public UploadService(Cloudinary cloudinary, IBunnyCdnService bunnyCdnService, IHttpContextAccessor httpContextAccessor, IMasterRepo masterRepo, IQuizRepo quizRepo, ICourseRepo courseRepo)
         {
             _cloudinary = cloudinary;
+            _bunnyCdnService = bunnyCdnService;
             _httpContextAccessor = httpContextAccessor;
             _masterRepo = masterRepo;
             _quizRepo = quizRepo;
@@ -198,6 +201,20 @@ namespace Services.ServicesHelpers.UploadService
                 throw new Exception($"Lỗi khi upload video: {ex.Message}");
             }
         }
+        //public async Task<string> UploadVideoAsync(IFormFile file)
+        //{
+        //    if (file == null || file.Length == 0)
+        //        throw new AppException(ResponseCodeConstants.BAD_REQUEST, "File is empty", StatusCodes.Status400BadRequest);
+
+        //    try
+        //    {
+        //        return await _bunnyCdnService.UploadVideoAsync(file);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new AppException(ResponseCodeConstants.FAILED, $"Failed to upload video: {ex.Message}", StatusCodes.Status500InternalServerError);
+        //    }
+        //}
         public async Task<List<Quiz>> UploadExcelAsync(IFormFile file)
         {
             try
@@ -209,12 +226,12 @@ namespace Services.ServicesHelpers.UploadService
                 }
 
                 var accountId = GetAuthenticatedAccountId();
-                if(string.IsNullOrEmpty(accountId))
+                if (string.IsNullOrEmpty(accountId))
                 {
                     throw new AppException(ResponseCodeConstants.UNAUTHORIZED, ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED, StatusCodes.Status401Unauthorized);
                 }
                 var masterId = await _masterRepo.GetMasterIdByAccountId(accountId);
-                if(string.IsNullOrEmpty(masterId))
+                if (string.IsNullOrEmpty(masterId))
                 {
                     throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsMaster.MASTER_NOT_FOUND, StatusCodes.Status404NotFound);
                 }

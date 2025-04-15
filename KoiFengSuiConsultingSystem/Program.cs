@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repositories.Repositories.AccountRepository;
@@ -44,7 +45,7 @@ using Repositories.Repositories.ConsultationPackageRepository;
 using Services.Services.ConsultationPackageService;
 using CloudinaryDotNet;
 using BusinessObjects.Models;
-using Microsoft.Extensions.Options;
+
 using Services.ServicesHelpers.UploadService;
 using System.Text.Json.Serialization;
 using Repositories.Repositories.AnswerRepository;
@@ -64,9 +65,11 @@ using Repositories.Repositories.FengShuiDocumentRepository;
 using Services.Services.FengShuiDocumentService;
 using Repositories.Repositories.AttachmentRepository;
 using Services.Services.AttachmentService;
+using Services.ServicesHelpers.BunnyCdnService;
 using Repositories.Repositories.LocationRepository;
 using Services.Services.LocationService;
 using Services.ServicesHelpers.TimeOnlyJsonConverter;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -140,6 +143,13 @@ builder.Services.AddHostedService<BookingCleanupService>();
 // Register GoogleMeetService
 builder.Services.AddSingleton<GoogleMeetService>();
 
+// BunnyCdn Configuration
+builder.Services.Configure<BunnyCdnSettings>(builder.Configuration.GetSection("BunnyCdn"));
+// Register BunnyCdnService
+builder.Services.AddSingleton<IBunnyCdnService>(provider => {
+    var settings = provider.GetRequiredService<IOptions<BunnyCdnSettings>>().Value;
+    return new BunnyCdnService(settings);
+});
 
 //Register Mapper
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));
@@ -259,10 +269,16 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAllOrigins",
         builder =>
         {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+});
+    options.AddPolicy("AllowVercel", policy =>
+    {
+        policy.WithOrigins("https://koi-feng-sui-consulting-system-front-dq5ch5q4n.vercel.app")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
 // Cloudinary Configuration
@@ -291,6 +307,7 @@ app.UseResponseCaching();
 app.UseHttpsRedirection();
 // Use CORS before other middleware
 app.UseCors("AllowAllOrigins");
+app.UseCors("AllowVercel");
 app.UseSession();
 
 app.UseAuthentication();

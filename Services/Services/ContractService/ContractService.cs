@@ -399,7 +399,7 @@ namespace Services.Services.ContractService
 
                 // Tạo đối tượng contract mới
                 var contract = new BusinessObjects.Models.Contract
-                {
+                {   
                     ContractId = Guid.NewGuid().ToString("N").Substring(0, 20),
                     Status = ContractStatusEnum.Pending.ToString(),
                     ContractName = $"Contract_{request.BookingOfflineId}_{DateTime.Now:yyyyMMdd}",

@@ -25,6 +25,7 @@
         public TimeOnly? StartTime { get; set; }
 
         public TimeOnly? EndTime { get; set; }
+        public DateTime? CreateDate { get; set; }
 
         public string MasterNote { get; set; }
     }

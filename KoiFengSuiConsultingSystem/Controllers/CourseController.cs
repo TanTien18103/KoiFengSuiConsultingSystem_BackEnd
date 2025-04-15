@@ -103,5 +103,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
         
-}
+        [HttpPost("rate/{courseId}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> RateCourse(string courseId, [FromBody] RatingRequest ratingRequest)
+        {
+            var result = await _courseService.RateCourse(courseId, ratingRequest.Rating);
+            return StatusCode(result.StatusCode, result);
+        }
+    }
 }

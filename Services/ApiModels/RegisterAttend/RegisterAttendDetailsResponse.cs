@@ -16,11 +16,17 @@ namespace Services.ApiModels.RegisterAttend
 
         public string Location { get; set; }
 
+        public TimeOnly? StartTime { get; set; }
+
+        public TimeOnly? EndTime { get; set; }
+
         public string PhoneNumber { get; set; }
 
         public string CustomerName { get; set; }
 
         public string CustomerEmail { get; set; }
+
+        public string? MasterName { get; set; }
 
         public string Status { get; set; }
     }

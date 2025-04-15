@@ -50,5 +50,9 @@ namespace Repositories.Repositories.CourseRepository
         {
             return CourseDAO.Instance.GetEnrollCourseIdDao(courseId, customerId);
         }
+        public async Task<Course> UpdateCourseRating(string courseId, decimal newRating)
+        {
+            return await CourseDAO.Instance.UpdateCourseRatingDao(courseId, newRating);
+        }
     }
 }

@@ -12,6 +12,8 @@ namespace Services.ApiModels.RegisterAttend
         public string CustomerName { get; set; }
         public string WorkshopName { get; set; }
         public DateTime? StartDate { get; set; }
+        public TimeOnly? StartTime { get; set; }
+        public TimeOnly? EndTime { get; set; }
         public string? Location { get; set; }
         public string? MasterName { get; set; }
 

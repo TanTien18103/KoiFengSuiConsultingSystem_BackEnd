@@ -17,5 +17,7 @@ namespace Services.ApiModels.RegisterAttend
         public decimal TotalPrice { get; set; }
         public string Location { get; set; }
         public DateTime StartDate { get; set; }
+        public TimeOnly? StartTime { get; set; }
+        public TimeOnly? EndTime { get; set; }
     }
 }

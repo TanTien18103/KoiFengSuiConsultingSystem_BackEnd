@@ -234,7 +234,8 @@ namespace DAOs.DAOs
                             (endTime > b.StartTime && endTime <= b.EndTime) ||     
                             (startTime <= b.StartTime && endTime >= b.EndTime) || 
                             (startTime <= b.EndTime && endTime >= b.StartTime)) && 
-                           b.Status == BookingOnlineEnums.Pending.ToString()) 
+                           b.Status == BookingOnlineEnums.Pending.ToString() ||
+                           b.Status == BookingOnlineEnums.PendingConfirm.ToString()) 
                 .ToListAsync();
         }
 

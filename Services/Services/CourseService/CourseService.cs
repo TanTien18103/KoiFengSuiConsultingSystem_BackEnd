@@ -23,6 +23,7 @@ using Repositories.Repositories.CustomerRepository;
 using Repositories.Repositories.OrderRepository;
 using Services.ServicesHelpers.UploadService;
 using Azure;
+using Repositories.Repositories.RegisterCourseRepository;
 
 namespace Services.Services.CourseService
 {
@@ -37,8 +38,9 @@ namespace Services.Services.CourseService
         private readonly ICustomerRepo _customerRepo;
         private readonly IOrderRepo _orderRepo;
         private readonly IUploadService _uploadService;
+        private readonly IRegisterCourseRepo _registerCourseRepo;
 
-        public CourseService(ICourseRepo courseRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo, IMasterRepo masterRepo, ICategoryRepo categoryRepo, ICustomerRepo customerRepo, IOrderRepo orderRepo, IUploadService uploadService)
+        public CourseService(ICourseRepo courseRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo, IMasterRepo masterRepo, ICategoryRepo categoryRepo, ICustomerRepo customerRepo, IOrderRepo orderRepo, IUploadService uploadService, IRegisterCourseRepo registerCourseRepo)
         {
             _courseRepo = courseRepo;
             _mapper = mapper;
@@ -49,6 +51,7 @@ namespace Services.Services.CourseService
             _customerRepo = customerRepo;
             _orderRepo = orderRepo;
             _uploadService = uploadService;
+            _registerCourseRepo = registerCourseRepo;
         }
         public static string GenerateShortGuid()
         {
@@ -696,6 +699,85 @@ namespace Services.Services.CourseService
                 res.ResponseCode = ResponseCodeConstants.FAILED;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.Message = "Đã xảy ra lỗi nội bộ: " + ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> RateCourse(string courseId, decimal rating)
+        {
+            var res = new ResultModel();
+            try
+            {
+                // Kiểm tra course tồn tại
+                var course = await _courseRepo.GetCourseById(courseId);
+                if (course == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsCourse.COURSE_NOT_FOUND;
+                    return res;
+                }
+
+                // Lấy id của người dùng đang đăng nhập
+                var accountId = GetAuthenticatedAccountId();
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    return res;
+                }
+
+                // Lấy thông tin khách hàng
+                var customer = await _customerRepo.GetCustomerByAccountId(accountId);
+                if (customer == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = "Không tìm thấy thông tin khách hàng";
+                    return res;
+                }
+
+                // Kiểm tra người dùng đã đăng ký khóa học chưa
+                var registerCourse = await _registerCourseRepo.GetRegisterCourseByCourseIdAndCustomerId(courseId, customer.CustomerId);
+                if (registerCourse == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
+                    res.StatusCode = StatusCodes.Status403Forbidden;
+                    res.Message = "Bạn chưa đăng ký khóa học này nên không thể đánh giá";
+                    return res;
+                }
+
+                // Kiểm tra người dùng đã hoàn thành khóa học chưa
+                if (registerCourse.Percentage < 100)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
+                    res.StatusCode = StatusCodes.Status403Forbidden;
+                    res.Message = "Bạn cần hoàn thành khóa học trước khi đánh giá";
+                    return res;
+                }
+
+                // Cập nhật rating trung bình của khóa học
+                var updatedCourse = await _courseRepo.UpdateCourseRating(courseId, rating);
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = "Đánh giá khóa học thành công";
+                res.Data = _mapper.Map<CourseResponse>(updatedCourse);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
                 return res;
             }
         }

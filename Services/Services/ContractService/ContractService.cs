@@ -87,7 +87,7 @@ namespace Services.Services.ContractService
                 await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
                 
                 // Cập nhật trạng thái của contract
-                contract.Status = ContractStatusEnum.Cancelled.ToString();
+                contract.Status = ContractStatusEnum.ContractRejectedByManager.ToString();
                 contract.UpdatedDate = DateTime.Now;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
                 
@@ -164,7 +164,7 @@ namespace Services.Services.ContractService
                 bookingOffline.Status = BookingOfflineEnums.ContractConfirmedByManager.ToString();
                 await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
                 
-                contract.Status = ContractStatusEnum.VerifyingOTP.ToString();
+                contract.Status = ContractStatusEnum.ContractApprovedByManager.ToString();
                 contract.UpdatedDate = DateTime.Now;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
                 
@@ -221,7 +221,7 @@ namespace Services.Services.ContractService
                 await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
                 
                 // Cập nhật trạng thái của contract
-                contract.Status = ContractStatusEnum.Cancelled.ToString();
+                contract.Status = ContractStatusEnum.ContractRejectedByCustomer.ToString();
                 contract.UpdatedDate = DateTime.Now;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
                 
@@ -399,7 +399,7 @@ namespace Services.Services.ContractService
 
                 // Tạo đối tượng contract mới
                 var contract = new BusinessObjects.Models.Contract
-                {
+                {   
                     ContractId = Guid.NewGuid().ToString("N").Substring(0, 20),
                     Status = ContractStatusEnum.Pending.ToString(),
                     ContractName = $"Contract_{request.BookingOfflineId}_{DateTime.Now:yyyyMMdd}",
@@ -416,7 +416,7 @@ namespace Services.Services.ContractService
                 var updatedBooking = await _bookingOfflineRepo.UpdateBookingOfflineContract(
                     bookingOffline.BookingOfflineId,
                     createdContract.ContractId,
-                    bookingOffline.Status); // Giữ nguyên trạng thái hiện tại
+                    bookingOffline.Status = BookingOfflineEnums.InProgress.ToString()); // Giữ nguyên trạng thái hiện tại
 
                 if (updatedBooking == null)
                 {

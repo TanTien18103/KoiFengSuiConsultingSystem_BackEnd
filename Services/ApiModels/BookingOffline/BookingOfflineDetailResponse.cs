@@ -23,5 +23,6 @@
         public decimal? SelectedPrice { get; set; }
 
         public DateOnly? BookingDate { get; set; }
+        public DateTime CreateDate { get; set; }
     }
 }

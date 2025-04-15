@@ -45,6 +45,7 @@ using Repositories.Repositories.ConsultationPackageRepository;
 using Services.Services.ConsultationPackageService;
 using CloudinaryDotNet;
 using BusinessObjects.Models;
+
 using Services.ServicesHelpers.UploadService;
 using System.Text.Json.Serialization;
 using Repositories.Repositories.AnswerRepository;
@@ -278,18 +279,6 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
-    options.AddPolicy("UploadPolicy", policy =>
-    {
-        policy.WithOrigins(
-                "http://localhost",          
-                "https://koi-feng-sui-consulting-system-front-dq5ch5q4n.vercel.app"
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials()
-            .WithExposedHeaders("Content-Disposition")
-            .SetPreflightMaxAge(TimeSpan.FromHours(1));
-    });
 });
 
 // Cloudinary Configuration
@@ -319,7 +308,6 @@ app.UseHttpsRedirection();
 // Use CORS before other middleware
 app.UseCors("AllowAllOrigins");
 app.UseCors("AllowVercel");
-app.UseCors("UploadPolicy");
 app.UseSession();
 
 app.UseAuthentication();

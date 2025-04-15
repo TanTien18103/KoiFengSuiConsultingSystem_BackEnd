@@ -10,6 +10,7 @@ namespace BusinessObjects.Enums
     public enum BookingOfflineEnums
     {
         Pending,
+        InProgress,
         ContractRejectedByManager,
         ContractConfirmedByManager,
         ContractRejectedByCustomer,

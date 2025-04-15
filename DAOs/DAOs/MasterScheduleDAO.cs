@@ -94,6 +94,27 @@ namespace DAOs.DAOs
                 .ToListAsync();
         }
 
+        public async Task<MasterSchedule> GetMasterScheduleByMasterIdAndWorkshopIdDao(string masterId, string workshopId)
+        {
+            var workshop = await _context.WorkShops
+                .AsNoTracking()
+                .FirstOrDefaultAsync(w => w.WorkshopId == workshopId);
+
+            if (workshop == null || string.IsNullOrEmpty(workshop.MasterId))
+            {
+                return null;
+            }
+            return await _context.MasterSchedules
+                .Include(x => x.Master)
+                .Include(x => x.BookingOnlines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Include(x => x.BookingOfflines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .FirstOrDefaultAsync(ms => ms.MasterId == masterId && workshop.WorkshopId == workshopId);
+        }
+
         public async Task<MasterSchedule> GetMasterScheduleDao(string masterId, DateOnly date, TimeOnly startTime)
         {
             return await _context.MasterSchedules
@@ -149,6 +170,16 @@ namespace DAOs.DAOs
                     ms.Date == bookingDate && 
                     ms.StartTime == startTime && 
                     ms.MasterId == masterId);
+        }
+
+        public async Task<MasterSchedule> GetMasterScheduleByMasterIdAndStartTimeEndTimeAndDate(string masterId, TimeOnly startTime, TimeOnly endTime, DateOnly date)
+        {
+            return await _context.MasterSchedules
+                .FirstOrDefaultAsync(ms =>
+                    ms.MasterId == masterId &&
+                    ms.StartTime == startTime &&
+                    ms.EndTime == endTime &&
+                    ms.Date == date);
         }
     }
 }

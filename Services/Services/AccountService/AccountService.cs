@@ -27,6 +27,7 @@ using CloudinaryDotNet.Actions;
 using Services.ServicesHelpers.UploadService;
 using Repositories.Repositories.MasterRepository;
 using Services.ApiModels.Master;
+using Repositories.Repositories.CustomerRepository;
 
 namespace Services.Services.AccountService;
 
@@ -39,7 +40,8 @@ public class AccountService : IAccountService
     private readonly IEmailService _emailService;
     private readonly IUploadService _uploadService;
     private readonly IMasterRepo _masterRepo;
-    public AccountService(IAccountRepo accountRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IMapper mapper, IEmailService emailService, IUploadService uploadService, IMasterRepo masterRepo)
+    private readonly ICustomerRepo _customerRepo;
+    public AccountService(IAccountRepo accountRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IMapper mapper, IEmailService emailService, IUploadService uploadService, IMasterRepo masterRepo, ICustomerRepo customerRepo)
     {
         _accountRepository = accountRepository;
         _configuration = configuration;
@@ -48,6 +50,7 @@ public class AccountService : IAccountService
         _emailService = emailService;
         _uploadService = uploadService;
         _masterRepo = masterRepo;
+        _customerRepo = customerRepo;
     }
 
     private bool VerifyPassword(string inputPassword, string storedPasswordHash)
@@ -150,6 +153,14 @@ public class AccountService : IAccountService
             throw new AppException(ResponseCodeConstants.REQUIRED_INPUT, ResponseMessageIdentity.GENDER_REQUIRED, StatusCodes.Status400BadRequest);
 
         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
+
+
+        int currentYear = DateTime.Now.Year;
+        if (registerRequest.Dob.Year < 1925 || registerRequest.Dob.Year > currentYear)
+            throw new AppException(
+                ResponseCodeConstants.BAD_REQUEST,
+                ResponseMessageIdentity.INVALID_DOB_YEAR,
+                StatusCodes.Status400BadRequest);
 
         // Calculate Element and LifePalace
         int birthYear = registerRequest.Dob.Year;
@@ -266,7 +277,12 @@ public class AccountService : IAccountService
             }
 
             var duplicateAccount = await _accountRepository.GetAccountByUniqueFields(
-                request.UserName, request.Email, request.PhoneNumber, (int)request.BankId, request.AccountNo, accountId);
+                request.UserName,
+                request.Email,
+                request.PhoneNumber,
+                request.BankId ?? 0,
+                request.AccountNo ?? string.Empty,
+                accountId);
 
             if (duplicateAccount != null)
             {
@@ -313,7 +329,74 @@ public class AccountService : IAccountService
                 return res;
             }
 
-            _mapper.Map(request, existingAccount);
+            if (!string.IsNullOrWhiteSpace(request.UserName))
+                existingAccount.UserName = request.UserName;
+
+            if (!string.IsNullOrWhiteSpace(request.Email))
+                existingAccount.Email = request.Email;
+
+            if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+                existingAccount.PhoneNumber = request.PhoneNumber;
+
+            if (!string.IsNullOrWhiteSpace(request.FullName))
+                existingAccount.FullName = request.FullName;
+
+            try
+            {
+                var httpContext = _httpContextAccessor.HttpContext;
+                if (httpContext != null && httpContext.Request.Form.ContainsKey("dob"))
+                {
+                    var dobString = httpContext.Request.Form["dob"].ToString();
+                    if (!string.IsNullOrEmpty(dobString))
+                    {
+                        if (DateTime.TryParse(dobString, out var dateTime))
+                        {
+                            int year = dateTime.Year;
+                            int currentYear = DateTime.Now.Year;
+
+                            if (year < 1925 || year > currentYear)
+                                throw new AppException(
+                                    ResponseCodeConstants.BAD_REQUEST,
+                                    ResponseMessageIdentity.INVALID_DOB_YEAR,
+                                    StatusCodes.Status400BadRequest);
+
+                            existingAccount.Dob = DateOnly.FromDateTime(dateTime);
+                        }
+                    }
+                }
+                else if (request.Dob.HasValue)
+                {
+                    existingAccount.Dob = request.Dob;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new AppException(ex.Message);
+            }
+
+            if (request.Gender.HasValue)
+                existingAccount.Gender = request.Gender;
+
+            if (request.BankId.HasValue)
+                existingAccount.BankId = request.BankId;
+
+            if (!string.IsNullOrWhiteSpace(request.AccountNo))
+                existingAccount.AccountNo = request.AccountNo;
+
+            if (!string.IsNullOrWhiteSpace(request.AccountName))
+                existingAccount.AccountName = request.AccountName;
+
+            existingAccount.UpdateDate = DateTime.Now;
+
+            var customer = await _customerRepo.GetCustomerByAccountId(existingAccount.AccountId);
+
+            if (request.ImageUrl != null && request.ImageUrl.Length > 0 && customer != null)
+            {
+                var imageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+                customer.ImageUrl = imageUrl;
+                customer.UpdateDate = DateTime.Now;
+                await _customerRepo.UpdateCustomer(customer);
+            }
 
             await _accountRepository.UpdateAccount(existingAccount);
 
@@ -828,9 +911,9 @@ public class AccountService : IAccountService
                 };
 
                 // Lưu vào database
-                var result =  await _masterRepo.Create(newMaster);
+                var result = await _masterRepo.Create(newMaster);
 
-                if(result == null)
+                if (result == null)
                 {
                     return new ResultModel
                     {
@@ -975,7 +1058,7 @@ public class AccountService : IAccountService
             }
 
             _mapper.Map(request, master);
-            
+
             master.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
             await _masterRepo.Update(master);

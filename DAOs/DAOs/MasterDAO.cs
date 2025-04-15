@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,6 +75,25 @@ namespace DAOs.DAOs
             _context.Set<T>().Update(entity);
             await _context.SaveChangesAsync();
             return entity;
+        }
+
+        public async Task<Master> GetMasterByWorkshopIdDao(string workshopId)
+        {
+            var workshop = await _context.WorkShops
+                .AsNoTracking()
+                .FirstOrDefaultAsync(w => w.WorkshopId == workshopId);
+
+            if (workshop == null || string.IsNullOrEmpty(workshop.MasterId))
+            {
+                return null;
+            }
+
+            var master = await _context.Masters
+                .Include(x => x.MasterSchedules)
+                .Include(x => x.Account)
+                .FirstOrDefaultAsync(x => x.MasterId == workshop.MasterId);
+
+            return master;
         }
     }
 }

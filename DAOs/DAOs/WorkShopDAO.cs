@@ -102,5 +102,14 @@ namespace DAOs.DAOs
             _context.WorkShops.Remove(workShop);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<WorkShop>> GetWorkshopsByDateDao(DateTime value)
+        {
+            return await _context.WorkShops
+                .Where(x => x.StartDate == value)
+                .Include(x => x.Master).ThenInclude(x => x.Account)
+                .Include(x => x.Location)
+                .ToListAsync();
+        }
     }
 }

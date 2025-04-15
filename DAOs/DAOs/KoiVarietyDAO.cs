@@ -121,13 +121,13 @@ namespace DAOs.DAOs
         public async Task DeleteKoiVarietyDao(string koiVarietyId)
         {
             var koiVariety = await _context.KoiVarieties
-                .Include(kv => kv.VarietyColors) 
+                .Include(kv => kv.VarietyColors)
                 .FirstOrDefaultAsync(kv => kv.KoiVarietyId == koiVarietyId);
 
             if (koiVariety != null)
             {
                 _context.VarietyColors.RemoveRange(koiVariety.VarietyColors);
-                await _context.SaveChangesAsync(); 
+                await _context.SaveChangesAsync();
 
                 _context.KoiVarieties.Remove(koiVariety);
                 await _context.SaveChangesAsync();

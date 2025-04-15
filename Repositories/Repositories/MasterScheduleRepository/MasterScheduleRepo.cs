@@ -38,6 +38,10 @@ namespace Repositories.Repositories.MasterScheduleRepository
         {
             return MasterScheduleDAO.Instance.UpdateMasterScheduleDao(masterSchedule);
         }
+        public Task<MasterSchedule> GetMasterScheduleByMasterIdAndWorkshopId(string masterId, string workshopId)
+        {
+            return MasterScheduleDAO.Instance.GetMasterScheduleByMasterIdAndWorkshopIdDao(masterId, workshopId);
+        }
         public Task DeleteMasterSchedule(string masterScheduleId)
         {
             return MasterScheduleDAO.Instance.DeleteMasterScheduleDao(masterScheduleId);
@@ -53,6 +57,11 @@ namespace Repositories.Repositories.MasterScheduleRepository
         public Task<MasterSchedule> GetMasterScheduleByDateAndTimeRepo(DateOnly bookingDate, TimeOnly startTime, string masterId)
         {
             return MasterScheduleDAO.Instance.GetMasterScheduleByDateAndTimeDao(bookingDate, startTime, masterId);
+        }
+
+        public Task<MasterSchedule> GetMasterScheduleByMasterIdAndStartTimeEndTimeAndDate(string masterId, TimeOnly startTime, TimeOnly endTime, DateOnly date)
+        {
+            return MasterScheduleDAO.Instance.GetMasterScheduleByMasterIdAndStartTimeEndTimeAndDate(masterId, startTime, endTime, date);
         }
     }
 }

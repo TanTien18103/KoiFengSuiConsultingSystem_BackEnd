@@ -23,11 +23,13 @@ namespace Services.ApiModels.Account
         [Required]
         public DateTime Dob { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
         [DataType(DataType.Password)]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự")]
+        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$", ErrorMessage = "Mật khẩu phải chứa ít nhất một chữ cái và một số")]
         public string Password { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Mật khẩu xác nhận là bắt buộc")]
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
         public string ConfirmedPassword { get; set; }

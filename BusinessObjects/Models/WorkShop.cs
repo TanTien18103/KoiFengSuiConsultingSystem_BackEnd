@@ -39,9 +39,13 @@ public partial class WorkShop
 
     public TimeOnly? EndTime { get; set; }
 
+    public string MasterScheduleId { get; set; }
+
     public virtual Location Location { get; set; }
 
     public virtual Master Master { get; set; }
+
+    public virtual MasterSchedule MasterSchedule { get; set; }
 
     public virtual ICollection<RegisterAttend> RegisterAttends { get; set; } = new List<RegisterAttend>();
 }

@@ -34,5 +34,9 @@ namespace Repositories.Repositories.MasterRepository
         {
             return MasterDAO.Instance.UpdateDao(entity);
         }
+        public Task<Master> GetMasterByWorkshopId(string workshopId)
+        {
+            return MasterDAO.Instance.GetMasterByWorkshopIdDao(workshopId);
+        }
     }
 }

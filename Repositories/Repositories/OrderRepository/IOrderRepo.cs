@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Enums;
 using BusinessObjects.Models;
+using DAOs.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,5 +27,12 @@ namespace Repositories.Repositories.OrderRepository
         Task<Order> GetOrderByServiceIdAndCustomerIdAndServiceType(string customerId, string serviceId, string serviceType);
         Task<List<Order>> GetOrdersByCustomerAndType(string customerId, string serviceType, string status);
         Task<Order> GetOrderWithDetails(string orderId);
+        Task<decimal> GetTotalRevenue();
+        Task<List<MonthlyServiceStatisticsDto>> GetMonthlyServiceStatistics();
+        Task<List<GetTodayTimeAdmittedDto>> GetTodayTimeAdmitted();
+        Task<int> GetTodayCourseCount();
+        Task<int> GetTodayWorkshopCheckInCount();
+        Task<int> GetTodayBookingOnlineCount();
+        Task<int> GetTodayBookingOfflineCount();
     }
 }

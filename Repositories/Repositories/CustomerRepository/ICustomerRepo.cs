@@ -17,5 +17,6 @@ namespace Repositories.Repositories.CustomerRepository
         Task<Customer> CreateCustomer(Customer customer);
         Task<Customer> UpdateCustomer(Customer customer);
         Task DeleteCustomer(string customerId);
+        Task<List<Customer>> GetAllCustomers();
     }
 }

@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Repositories.Repositories.AccountRepository;
 using Services.ApiModels.Master;
 using Repositories.Repositories.CustomerRepository;
+using Services.Services.DashboardService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -23,14 +24,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
         private readonly IAccountService _accountService;
         private readonly IAccountRepo _accountRepo;
         private readonly ICustomerRepo _customerRepo;
-
-        public AccountController(IAccountService accountService, IAccountRepo accountRepo, ICustomerRepo customerRepo)
+        private readonly IDashboardService _dashboardService;
+        public AccountController(IAccountService accountService, IAccountRepo accountRepo, ICustomerRepo customerRepo, IDashboardService dashboardService)
         {
             _accountService = accountService;
             _accountRepo = accountRepo;
             _customerRepo = customerRepo;
+            _dashboardService = dashboardService;
         }
-
 
         [HttpGet("google-response")]
         public async Task<IActionResult> GoogleResponse()
@@ -254,6 +255,20 @@ namespace KoiFengSuiConsultingSystem.Controllers
         public async Task<IActionResult> UpdateMasterProfile([FromForm] MasterRequest request)
         {
             var result = await _accountService.UpdateMasterProfile(request);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("get-all-customers")]
+        public async Task<IActionResult> GetAllCustomers()
+        {
+            var result = await _accountService.GetAllCustomers();
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("get-dashboard-data")]
+        public async Task<IActionResult> GetDashboardData()
+        {
+            var result = await _dashboardService.ShowDashboard();
             return StatusCode(result.StatusCode, result);
         }
     }

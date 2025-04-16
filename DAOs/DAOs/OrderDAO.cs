@@ -1,5 +1,6 @@
 ﻿using BusinessObjects.Enums;
 using BusinessObjects.Models;
+using DAOs.Dto;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -136,7 +137,7 @@ namespace DAOs.DAOs
         public async Task<List<Order>> GetPendingOrdersByCustomerIdDao(string customerId)
         {
             return await _context.Orders
-                .Where(o => o.CustomerId == customerId && 
+                .Where(o => o.CustomerId == customerId &&
                            o.Status == PaymentStatusEnums.Pending.ToString())
                 .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
@@ -160,6 +161,106 @@ namespace DAOs.DAOs
                     o.Status == status)
                 .OrderByDescending(o => o.PaymentDate)
                 .ToListAsync();
+        }
+
+        public async Task<decimal> GetTotalRevenueDao()
+        {
+            return await _context.Orders
+                .Where(o => o.Status == PaymentStatusEnums.Paid.ToString())
+                .SumAsync(o => o.Amount) ?? 0m;
+        }
+
+        public async Task<List<MonthlyServiceStatisticsDto>> GetMonthlyServiceStatisticsDao()
+        {
+            var rawData = await _context.Orders
+                .Where(o => o.Status == PaymentStatusEnums.Paid.ToString() && o.CreatedDate.HasValue)
+                .GroupBy(o => new { Month = o.CreatedDate.Value.Month, Year = o.CreatedDate.Value.Year })
+                .Select(g => new
+                {
+                    Month = g.Key.Month,
+                    Year = g.Key.Year,
+                    Courses = g.Count(x => x.ServiceType == PaymentTypeEnums.Course.ToString()),
+                    Workshops = g.Count(x => x.ServiceType == PaymentTypeEnums.RegisterAttend.ToString()),
+                    BookingOnline = g.Count(x => x.ServiceType == PaymentTypeEnums.BookingOnline.ToString()),
+                    BookingOffline = g.Count(x => x.ServiceType == PaymentTypeEnums.BookingOffline.ToString())
+                })
+                .ToListAsync();
+
+            return rawData
+                .Select(item => new MonthlyServiceStatisticsDto
+                {
+                    MonthYear = $"{item.Month:00}/{item.Year}",
+                    Courses = item.Courses,
+                    Workshops = item.Workshops,
+                    BookingOnline = item.BookingOnline,
+                    BookingOffline = item.BookingOffline
+                })
+                .OrderBy(x => x.Year)
+                .ThenBy(x => x.Month)
+                .ToList();
+        }
+
+        public async Task<List<GetTodayTimeAdmittedDto>> GetTodayTimeAdmittedDao()
+        {
+            var today = DateTime.Today;
+
+            var data = await _context.Orders
+                .Where(o => o.CreatedDate.HasValue && o.CreatedDate.Value.Date == today && o.Status == PaymentStatusEnums.Paid.ToString())
+                .GroupBy(o => o.CreatedDate.Value.Hour)
+                .Select(g => new
+                {
+                    Hour = g.Key,
+                    Count = g.Count()
+                })
+                .OrderBy(x => x.Hour)
+                .ToListAsync();
+
+            return data.Select(x => new GetTodayTimeAdmittedDto
+            {
+                Time = $"{x.Hour:00}:00", 
+                Count = x.Count
+            }).ToList();
+        }
+
+        public async Task<int> GetTodayCourseCountDao()
+        {
+            var today = DateTime.Today;
+
+            return await _context.Orders
+                .CountAsync(o => o.CreatedDate.Value.Date == today
+                && o.Status == PaymentStatusEnums.Paid.ToString()
+                && o.ServiceType == PaymentTypeEnums.Course.ToString());
+        }
+
+        public async Task<int> GetTodayWorkshopCheckInCountDao()
+        {
+            var today = DateTime.Today;
+
+            return await _context.Orders
+                .CountAsync(o => o.CreatedDate.Value.Date == today
+                && o.Status == PaymentStatusEnums.Paid.ToString()
+                && o.ServiceType == PaymentTypeEnums.RegisterAttend.ToString());
+        }
+
+        public async Task<int> GetTodayBookingOfflineCountDao()
+        {
+            var today = DateTime.Today;
+
+            return await _context.Orders
+                 .CountAsync(o => o.CreatedDate.Value.Date == today
+                && o.Status == PaymentStatusEnums.Paid.ToString()
+                && o.ServiceType == PaymentTypeEnums.BookingOffline.ToString());
+
+        }
+
+        public async Task<int> GetTodayBookingOnlineCountDao()
+        {
+            var today = DateTime.Today;
+
+            return await _context.Orders
+                .CountAsync(o => o.CreatedDate.Value.Date == today
+                && o.Status == PaymentStatusEnums.Paid.ToString()
+                && o.ServiceType == PaymentTypeEnums.BookingOnline.ToString());
         }
     }
 }

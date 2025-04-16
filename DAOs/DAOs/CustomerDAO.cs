@@ -92,5 +92,12 @@ namespace DAOs.DAOs
             _context.Customers.Remove(customer);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<Customer>> GetAllCustomersDao()
+        {
+            return await _context.Customers
+                .Include(c => c.Account)
+                .ToListAsync();
+        }
     }
 }

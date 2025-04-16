@@ -703,13 +703,12 @@ namespace Services.Services.CourseService
             }
         }
 
-        public async Task<ResultModel> RateCourse(string courseId, decimal rating)
+        public async Task<ResultModel> RateCourse(RatingRequest request)
         {
             var res = new ResultModel();
             try
             {
-                // Kiểm tra course tồn tại
-                var course = await _courseRepo.GetCourseById(courseId);
+                var course = await _courseRepo.GetCourseById(request.CourseId);
                 if (course == null)
                 {
                     res.IsSuccess = false;
@@ -719,7 +718,6 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                // Lấy id của người dùng đang đăng nhập
                 var accountId = GetAuthenticatedAccountId();
                 if (string.IsNullOrEmpty(accountId))
                 {
@@ -730,7 +728,6 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                // Lấy thông tin khách hàng
                 var customer = await _customerRepo.GetCustomerByAccountId(accountId);
                 if (customer == null)
                 {
@@ -741,8 +738,7 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                // Kiểm tra người dùng đã đăng ký khóa học chưa
-                var registerCourse = await _registerCourseRepo.GetRegisterCourseByCourseIdAndCustomerId(courseId, customer.CustomerId);
+                var registerCourse = await _registerCourseRepo.GetRegisterCourseByCourseIdAndCustomerId(request.CourseId, customer.CustomerId);
                 if (registerCourse == null)
                 {
                     res.IsSuccess = false;
@@ -752,7 +748,6 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                // Kiểm tra người dùng đã hoàn thành khóa học chưa
                 if (registerCourse.Percentage < 100)
                 {
                     res.IsSuccess = false;
@@ -762,13 +757,107 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                // Cập nhật rating trung bình của khóa học
-                var updatedCourse = await _courseRepo.UpdateCourseRating(courseId, rating);
+                if (registerCourse.Rating.HasValue)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = "Bạn đã đánh giá khóa học này trước đó. Vui lòng sử dụng API cập nhật đánh giá.";
+                    return res;
+                }
+
+                await _registerCourseRepo.UpdateRegisterCourseRating(registerCourse.EnrollCourseId, request.Rating);
+
+                var updatedCourse = await _courseRepo.UpdateCourseRating(request.CourseId, request.Rating);
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status201Created;
+                res.Message = "Đánh giá khóa học thành công";
+                res.Data = _mapper.Map<CourseResponse>(updatedCourse);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> UpdateCourseRating(RatingRequest request)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var course = await _courseRepo.GetCourseById(request.CourseId);
+                if (course == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsCourse.COURSE_NOT_FOUND;
+                    return res;
+                }
+
+                var accountId = GetAuthenticatedAccountId();
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    return res;
+                }
+
+                var customer = await _customerRepo.GetCustomerByAccountId(accountId);
+                if (customer == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = "Không tìm thấy thông tin khách hàng";
+                    return res;
+                }
+
+                var registerCourse = await _registerCourseRepo.GetRegisterCourseByCourseIdAndCustomerId(request.CourseId, customer.CustomerId);
+                if (registerCourse == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
+                    res.StatusCode = StatusCodes.Status403Forbidden;
+                    res.Message = "Bạn chưa đăng ký khóa học này nên không thể đánh giá";
+                    return res;
+                }
+
+                if (registerCourse.Percentage < 100)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FORBIDDEN;
+                    res.StatusCode = StatusCodes.Status403Forbidden;
+                    res.Message = "Bạn cần hoàn thành khóa học trước khi đánh giá";
+                    return res;
+                }
+
+                if (!registerCourse.Rating.HasValue)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.Message = "Bạn chưa đánh giá khóa học này trước đó. Vui lòng sử dụng API tạo đánh giá mới.";
+                    return res;
+                }
+
+                await _registerCourseRepo.UpdateRegisterCourseRating(registerCourse.EnrollCourseId, request.Rating);
+
+                var updatedCourse = await _courseRepo.UpdateCourseRating(request.CourseId, request.Rating);
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
                 res.StatusCode = StatusCodes.Status200OK;
-                res.Message = "Đánh giá khóa học thành công";
+                res.Message = "Cập nhật đánh giá khóa học thành công";
                 res.Data = _mapper.Map<CourseResponse>(updatedCourse);
                 return res;
             }

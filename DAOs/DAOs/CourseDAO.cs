@@ -118,41 +118,58 @@ namespace DAOs.DAOs
             return enrollCourse?.EnrollCourseId;
         }
 
-        public async Task<Course> UpdateCourseRatingDao(string courseId, decimal newRating)
+        public async Task<Course> UpdateCourseRatingDao(string courseId, decimal newRating = 0)
         {
             var course = await _context.Courses.FindAsync(courseId);
             if (course == null)
                 return null;
 
-            // Nếu đây là đánh giá đầu tiên hoặc chưa có rating
-            if (!course.Rating.HasValue)
+            var registerCourses = await _context.RegisterCourses
+                .Where(rc => rc.CourseId == courseId && rc.Rating.HasValue)
+                .ToListAsync();
+
+            if (registerCourses.Any())
+            {
+                var validRatings = registerCourses.Where(rc => rc.Rating.HasValue).Select(rc => rc.Rating.Value).ToList();
+                if (validRatings.Any())
+                {
+                    var averageRating = Math.Round(validRatings.Average(), 2);
+                    course.Rating = averageRating;
+                }
+                else if (newRating > 0)
+                {
+                    course.Rating = newRating;
+                }
+                else 
+                {
+                    course.Rating = null;
+                }
+            }
+            else if (newRating > 0)
             {
                 course.Rating = newRating;
             }
-            else
+            else 
             {
-                // Tính trung bình đơn giản: (rating cũ + rating mới) / 2
-                course.Rating = Math.Round((course.Rating.Value + newRating) / 2, 2);
+                course.Rating = null;
             }
 
-            // Kiểm tra số lượng đăng ký khóa học
             var registrationCount = await _context.RegisterCourses
                 .Where(rc => rc.CourseId == courseId)
                 .CountAsync();
 
-            // Cập nhật trạng thái best seller nếu rating >= 4.5 và có nhiều hơn 10 người đăng ký
-            if (course.Rating >= 4.5m && registrationCount > 10)
+            if (course.Rating.HasValue && course.Rating >= 4.5m && registrationCount > 10)
             {
                 course.IsBestSeller = true;
             }
+            else
+            {
+                course.IsBestSeller = false;
+            }
 
-            // Cập nhật thời gian
             course.UpdateAt = DateTime.Now;
-
-            // Lưu thay đổi
             _context.Courses.Update(course);
             await _context.SaveChangesAsync();
-
             return course;
         }
     }

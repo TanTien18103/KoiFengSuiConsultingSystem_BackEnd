@@ -73,5 +73,27 @@ namespace DAOs.DAOs
             return await _context.RegisterCourses
                 .FirstOrDefaultAsync(rc => rc.CourseId == courseId && rc.CustomerId == customerid);
         }
+        
+        public async Task<RegisterCourse> UpdateRegisterCourseRatingDao(string enrollCourseId, decimal rating)
+        {
+            var registerCourse = await _context.RegisterCourses.FindAsync(enrollCourseId);
+            if (registerCourse == null)
+                return null;
+                
+            registerCourse.Rating = rating;
+            registerCourse.UpdateDate = DateTime.Now;
+            
+            _context.RegisterCourses.Update(registerCourse);
+            await _context.SaveChangesAsync();
+            
+            return registerCourse;
+        }
+        
+        public async Task<List<RegisterCourse>> GetRegisterCoursesByCourseIdDao(string courseId)
+        {
+            return await _context.RegisterCourses
+                .Where(rc => rc.CourseId == courseId && rc.Rating.HasValue)
+                .ToListAsync();
+        }
     }
 }

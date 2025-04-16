@@ -147,5 +147,23 @@ namespace DAOs.DAOs
             }
             return account;
         }
+
+        public async Task<int> GetTotalAccountDao()
+        {
+            return await _context.Accounts.CountAsync();
+        }
+
+        public async Task<int> GetTotalCustomerDao()
+        {
+            return await _context.Customers.CountAsync();
+        }
+
+        public async Task<int> GetGenderCountDao(bool? v)
+        {
+            if (!v.HasValue)
+                return 0; 
+            return await _context.Accounts
+                .CountAsync(o => o.Gender.HasValue && o.Gender.Value == v.Value);
+        }
     }
 }

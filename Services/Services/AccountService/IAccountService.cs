@@ -28,6 +28,7 @@ namespace Services.Services.AccountService
         Task<ResultModel> DeleteAccount(string accountId);
         Task<ResultModel> UpdateAccountRole(string accountId, string newRole);
         Task<ResultModel> GetAllStaff();
+        Task<ResultModel> GetAllCustomers();
 
         //Master
         Task<ResultModel> UpdateMasterProfile( MasterRequest request);

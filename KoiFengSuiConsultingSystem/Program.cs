@@ -69,6 +69,7 @@ using Services.ServicesHelpers.BunnyCdnService;
 using Repositories.Repositories.LocationRepository;
 using Services.Services.LocationService;
 using Services.ServicesHelpers.TimeOnlyJsonConverter;
+using Services.Services.DashboardService;
 
 
 
@@ -135,6 +136,8 @@ builder.Services.AddScoped<IRefundService, RefundService>();
 builder.Services.AddScoped<IFengShuiDocumentService, FengShuiDocumentService>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
@@ -171,6 +174,7 @@ builder.Services.AddAutoMapper(typeof(FengShuiDocumentMappingProfile));
 builder.Services.AddAutoMapper(typeof(AttachmentMappingProfile));
 builder.Services.AddAutoMapper(typeof(EnrollChapterMappingProfile));
 builder.Services.AddAutoMapper(typeof(LocationMappingProfile));
+builder.Services.AddAutoMapper(typeof(CustomerMappingProfile));
 
 builder.Services.AddHttpClient();
 

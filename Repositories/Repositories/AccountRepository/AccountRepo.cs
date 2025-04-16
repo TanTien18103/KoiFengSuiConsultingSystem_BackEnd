@@ -76,5 +76,20 @@ namespace Repositories.Repositories.AccountRepository
         {
             return AccountDAO.Instance.GetAllStaffDao();
         }
+
+        public Task<int> GetTotalAccount()
+        {
+            return AccountDAO.Instance.GetTotalAccountDao();
+        }
+
+        public Task<int> GetTotalCustomer()
+        {
+            return AccountDAO.Instance.GetTotalCustomerDao();
+        }
+
+        public Task<int> GetGenderCount(bool v)
+        {
+            return AccountDAO.Instance.GetGenderCountDao(v);
+        }
     }
 }

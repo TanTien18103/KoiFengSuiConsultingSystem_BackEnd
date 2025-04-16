@@ -29,6 +29,7 @@ using Repositories.Repositories.MasterRepository;
 using Services.ApiModels.Master;
 using Repositories.Repositories.CustomerRepository;
 using System.Xml.Linq;
+using Services.ApiModels.Customer;
 
 namespace Services.Services.AccountService;
 
@@ -1090,6 +1091,35 @@ public class AccountService : IAccountService
             res.Message = ex.Message;
             res.StatusCode = StatusCodes.Status500InternalServerError;
             return res;
+        }
+    }
+
+    public async Task<ResultModel> GetAllCustomers()
+    {
+        var res = new ResultModel();
+        try
+        {
+            var customers = await _customerRepo.GetAllCustomers();
+            var customerResponses = _mapper.Map<List<CustomerResponse>>(customers);
+
+            return new ResultModel
+            {
+                IsSuccess = true,
+                ResponseCode = ResponseCodeConstants.SUCCESS,
+                Message = ResponseMessageConstantsUser.GET_USER_INFO_SUCCESS,
+                Data = customerResponses,
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+        catch (Exception ex)
+        {
+            return new ResultModel
+            {
+                IsSuccess = false,
+                ResponseCode = ResponseCodeConstants.FAILED,
+                Message = ex.Message,
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
         }
     }
 }

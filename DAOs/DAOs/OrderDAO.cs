@@ -234,9 +234,10 @@ namespace DAOs.DAOs
             var today = DateTime.Today;
 
             return await _context.Orders
-                .CountAsync(o => o.CreatedDate.Value.Date == today
-                && o.Status == PaymentStatusEnums.Paid.ToString()
-                && o.ServiceType == PaymentTypeEnums.Course.ToString());
+                .CountAsync(o => o.CreatedDate.Value.Date == today && (
+                o.Status == PaymentStatusEnums.Paid.ToString() ||
+                o.Status == PaymentStatusEnums.Paid.ToString()) && 
+                o.ServiceType == PaymentTypeEnums.Course.ToString());
         }
 
         public async Task<int> GetTodayWorkshopCheckInCountDao()
@@ -255,7 +256,7 @@ namespace DAOs.DAOs
 
             return await _context.Orders
                  .CountAsync(o => o.CreatedDate.Value.Date == today
-                && o.Status == PaymentStatusEnums.Paid.ToString()
+                && o.Status == PaymentStatusEnums.Paid2nd.ToString()
                 && o.ServiceType == PaymentTypeEnums.BookingOffline.ToString());
 
         }

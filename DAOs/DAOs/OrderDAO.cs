@@ -209,9 +209,10 @@ namespace DAOs.DAOs
 
             var data = await _context.Orders
                 .Where(o =>
-                       o.CreatedDate.HasValue
-                       && o.CreatedDate.Value.Date == today
-                       && (o.Status == PaymentStatusEnums.Paid.ToString() || o.Status == PaymentStatusEnums.Paid2nd.ToString()))
+                       o.CreatedDate.HasValue &&
+                       o.CreatedDate.Value.Date == today && (
+                       o.Status == PaymentStatusEnums.Paid.ToString() || 
+                       o.Status == PaymentStatusEnums.Paid2nd.ToString()))
                 .GroupBy(o => o.CreatedDate.Value.Hour)
                 .Select(g => new
                 {

@@ -173,7 +173,10 @@ namespace DAOs.DAOs
         public async Task<List<MonthlyServiceStatisticsDto>> GetMonthlyServiceStatisticsDao()
         {
             var rawData = await _context.Orders
-                .Where(o => o.Status == PaymentStatusEnums.Paid.ToString() && o.CreatedDate.HasValue)
+                .Where(o =>
+                    (o.Status == PaymentStatusEnums.Paid.ToString() ||
+                     o.Status == PaymentStatusEnums.Paid2nd.ToString()) &&
+                     o.CreatedDate.HasValue)
                 .GroupBy(o => new { Month = o.CreatedDate.Value.Month, Year = o.CreatedDate.Value.Year })
                 .Select(g => new
                 {
@@ -205,7 +208,10 @@ namespace DAOs.DAOs
             var today = DateTime.Today;
 
             var data = await _context.Orders
-                .Where(o => o.CreatedDate.HasValue && o.CreatedDate.Value.Date == today && o.Status == PaymentStatusEnums.Paid.ToString())
+                .Where(o =>
+                       o.CreatedDate.HasValue
+                       && o.CreatedDate.Value.Date == today
+                       && (o.Status == PaymentStatusEnums.Paid.ToString() || o.Status == PaymentStatusEnums.Paid2nd.ToString()))
                 .GroupBy(o => o.CreatedDate.Value.Hour)
                 .Select(g => new
                 {
@@ -217,7 +223,7 @@ namespace DAOs.DAOs
 
             return data.Select(x => new GetTodayTimeAdmittedDto
             {
-                Time = $"{x.Hour:00}:00", 
+                Time = $"{x.Hour:00}:00",
                 Count = x.Count
             }).ToList();
         }

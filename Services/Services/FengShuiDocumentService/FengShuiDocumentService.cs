@@ -412,7 +412,6 @@ namespace Services.Services.FengShuiDocumentService
                     return res;
                 }
 
-               
                 if (document.Status != DocumentStatusEnum.ConfirmedByManager.ToString())
                 {
                     res.IsSuccess = false;
@@ -421,7 +420,6 @@ namespace Services.Services.FengShuiDocumentService
                     res.Message = "Tài liệu phải được Manager xác nhận trước khi khách hàng xác nhận";
                     return res;
                 }
-
                 
                 var updatedDocument = await _fengShuiDocumentRepo.UpdateFengShuiDocumentStatus(documentId, DocumentStatusEnum.Success.ToString());
 

@@ -9,6 +9,7 @@ namespace BusinessObjects.Enums
     public enum AttachmentStatusEnums
     {
         Pending,
+        Confirmed,
         VefifyingOTP,
         Success,
         Cancelled

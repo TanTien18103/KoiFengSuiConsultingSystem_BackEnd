@@ -110,13 +110,5 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _courseService.RateCourse(request);
             return StatusCode(result.StatusCode, result);
         }
-
-        [HttpPut("rate")]
-        [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> UpdateCourseRating([FromBody] RatingRequest request)
-        {
-            var result = await _courseService.UpdateCourseRating(request);
-            return StatusCode(result.StatusCode, result);
-        }
     }
 }

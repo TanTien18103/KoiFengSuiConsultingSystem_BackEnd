@@ -171,6 +171,7 @@ builder.Services.AddAutoMapper(typeof(FengShuiDocumentMappingProfile));
 builder.Services.AddAutoMapper(typeof(AttachmentMappingProfile));
 builder.Services.AddAutoMapper(typeof(EnrollChapterMappingProfile));
 builder.Services.AddAutoMapper(typeof(LocationMappingProfile));
+builder.Services.AddAutoMapper(typeof(CustomerMappingProfile));
 
 builder.Services.AddHttpClient();
 

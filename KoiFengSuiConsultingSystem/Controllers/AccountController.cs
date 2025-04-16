@@ -256,5 +256,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _accountService.UpdateMasterProfile(request);
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpGet("get-all-customers")]
+        public async Task<IActionResult> GetAllCustomers()
+        {
+            var result = await _accountService.GetAllCustomers();
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

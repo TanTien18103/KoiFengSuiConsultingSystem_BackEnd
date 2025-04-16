@@ -42,5 +42,10 @@ namespace Repositories.Repositories.CustomerRepository
         {
             return CustomerDAO.Instance.DeleteCustomerDao(customerId);
         }
+
+        public Task<List<Customer>> GetAllCustomers()
+        {
+            return CustomerDAO.Instance.GetAllCustomersDao();
+        }
     }
 }

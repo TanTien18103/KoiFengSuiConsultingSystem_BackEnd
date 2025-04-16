@@ -15,5 +15,6 @@ namespace Services.Services.RegisterCourseService
         Task<ResultModel> UpdateUserCourseStatus(string chapterId);
         Task<ResultModel> UpdateUserQuiz(string quizid, RegisterQuizRequest registerQuizRequest);
         Task<ResultModel> GetEnrollChaptersByEnrollCourseId(string enrollCourseId);
+        Task<ResultModel> GetEnrollCourseById(string id);
     }
 }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Net.NetworkInformation;
+using DAOs.Dto;
 
 namespace Repositories.Repositories.OrderRepository
 {
@@ -77,5 +78,42 @@ namespace Repositories.Repositories.OrderRepository
         {
             return OrderDAO.Instance.GetOrderWithDetailsDao(orderId);
         }
+
+        public Task<decimal> GetTotalRevenue()
+        {
+            return OrderDAO.Instance.GetTotalRevenueDao();
+        }
+
+        public Task<List<MonthlyServiceStatisticsDto>> GetMonthlyServiceStatistics()
+        {
+            return OrderDAO.Instance.GetMonthlyServiceStatisticsDao();
+        }
+
+        
+        
+
+        public Task<List<GetTodayTimeAdmittedDto>> GetTodayTimeAdmitted()
+        {
+            return OrderDAO.Instance.GetTodayTimeAdmittedDao();
+        }
+
+        public Task<int> GetTodayCourseCount()
+        {
+            return OrderDAO.Instance.GetTodayCourseCountDao();
+        }
+        public Task<int> GetTodayWorkshopCheckInCount()
+        {
+            return OrderDAO.Instance.GetTodayWorkshopCheckInCountDao();
+        }
+        public Task<int> GetTodayBookingOfflineCount()
+        {
+            return OrderDAO.Instance.GetTodayBookingOfflineCountDao();
+        }
+        public Task<int> GetTodayBookingOnlineCount()
+        {
+            return OrderDAO.Instance.GetTodayBookingOnlineCountDao();
+        }
+
+        
     }
 }

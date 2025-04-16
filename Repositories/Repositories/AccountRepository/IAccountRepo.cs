@@ -22,5 +22,8 @@ namespace Repositories.Repositories.AccountRepository
         Task DeleteAccount(string accountId);
         Task<Account> UpdateAccountRole(string accountId, string newRole);
         Task<List<Account>> GetAllStaff();
+        Task<int> GetTotalAccount();
+        Task<int> GetTotalCustomer();
+        Task<int> GetGenderCount(bool v);
     }
 }

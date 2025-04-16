@@ -125,6 +125,8 @@ namespace DAOs.DAOs
                 return null;
 
             var registerCourses = await _context.RegisterCourses
+                .AsNoTracking()
+                .Include(x => x.Course)
                 .Where(rc => rc.CourseId == courseId && rc.Rating.HasValue)
                 .ToListAsync();
 
@@ -133,7 +135,7 @@ namespace DAOs.DAOs
                 var validRatings = registerCourses.Where(rc => rc.Rating.HasValue).Select(rc => rc.Rating.Value).ToList();
                 if (validRatings.Any())
                 {
-                    var averageRating = Math.Round(validRatings.Average(), 2);
+                    var averageRating = Math.Round(validRatings.Average(), 1);
                     course.Rating = averageRating;
                 }
                 else if (newRating > 0)

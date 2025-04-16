@@ -20,6 +20,7 @@ using Services.ServicesHelpers.UploadService;
 using Repositories.Repositories.MasterScheduleRepository;
 using Repositories.Repositories.LocationRepository;
 using System.Net.WebSockets;
+using Google.Apis.Auth.OAuth2;
 
 namespace Services.Services.WorkshopService
 {
@@ -151,7 +152,7 @@ namespace Services.Services.WorkshopService
                     await _workShopRepo.UpdateWorkShop(workshop);
                 }
                 var masterByWorkshop = await _masterRepo.GetMasterByWorkshopId(workshop.WorkshopId);
-                var masterSchedule = await _masterScheduleRepo.GetMasterScheduleByMasterIdAndWorkshopId(masterByWorkshop.MasterId, id);
+                var masterSchedule = await _masterScheduleRepo.GetMasterScheduleById(workshop.MasterScheduleId);
 
                 if(masterSchedule == null)
                 {
@@ -201,7 +202,7 @@ namespace Services.Services.WorkshopService
                     await _workShopRepo.UpdateWorkShop(workshop);
                 }
                 var masterByWorkshop = await _masterRepo.GetMasterByWorkshopId(workshop.WorkshopId);
-                var masterSchedule = await _masterScheduleRepo.GetMasterScheduleByMasterIdAndWorkshopId(masterByWorkshop.MasterId, id);
+                var masterSchedule = await _masterScheduleRepo.GetMasterScheduleById(workshop.MasterScheduleId);
 
                 if (masterSchedule == null)
                 {

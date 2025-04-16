@@ -10,7 +10,7 @@ namespace Services.ApiModels.BookingOffline
     public class BookingOfflineRequest
     {
         [Required(ErrorMessage = "Mô tả không được để trống.")]
-        [RegularExpression(@"^[\p{L}0-9 ]+$", ErrorMessage = "Mô tả không được chứa ký tự đặc biệt")]
+        [RegularExpression(@"^[\p{L}0-9\s,.-]+$", ErrorMessage = "Mô tả không được chứa ký tự đặc biệt")]
         [StringLength(500, MinimumLength = 1, ErrorMessage = "Mô tả phải có ít nhất 1 ký tự và không vượt quá 500 ký tự.")]
         public string Description { get; set; }
 

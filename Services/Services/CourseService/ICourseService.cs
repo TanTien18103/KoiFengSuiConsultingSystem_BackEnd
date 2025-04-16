@@ -25,6 +25,5 @@ namespace Services.Services.CourseService
         Task<ResultModel> GetCourseByIdForMobile(string courseId);
         Task<ResultModel> GetPurchasedCourses();
         Task<ResultModel> RateCourse(RatingRequest request);
-        Task<ResultModel> UpdateCourseRating(RatingRequest request);
     }
 }

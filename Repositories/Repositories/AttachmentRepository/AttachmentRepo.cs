@@ -34,5 +34,13 @@ namespace Repositories.Repositories.AttachmentRepository
         {
             return AttachmentDAO.Instance.DeleteAttachmentDao(attachmentId);
         }
+        public Task<Attachment> UpdateAttachmentStatus(string attachmentId, string status)
+        {
+            return AttachmentDAO.Instance.UpdateAttachmentStatusDao(attachmentId, status);
+        }
+        public Task<Attachment> UpdateAttachmentWithBooking(string attachmentId, string bookingOfflineId)
+        {
+            return AttachmentDAO.Instance.UpdateAttachmentWithBookingDao(attachmentId, bookingOfflineId);
+        }
     }
 }

@@ -47,5 +47,10 @@ namespace Repositories.Repositories.CustomerRepository
         {
             return CustomerDAO.Instance.GetAllCustomersDao();
         }
+
+        Task<bool> ICustomerRepo.DeleteCustomerByAccountId(string accountId)
+        {
+            return CustomerDAO.Instance.DeleteCustomerByAccountIdDao(accountId);
+        }
     }
 }

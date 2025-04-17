@@ -189,6 +189,7 @@ public class AccountService : IAccountService
             Gender = registerRequest.Gender,
             Dob = DateOnly.FromDateTime(registerRequest.Dob), // Convert DateTime to DateOnly
             Role = RoleEnums.Customer.ToString(),
+            CreateDate = DateTime.Now,
             Customers = new List<Customer> { customer }
         };
 
@@ -919,10 +920,17 @@ public class AccountService : IAccountService
 
             if (newRole == RoleEnums.Master.ToString())
             {
+                var account = await _accountRepository.GetAccountById(accountId);
+
+                var customer = await _customerRepo.GetCustomerByAccountId(accountId);
+
                 var newMaster = new Master
                 {
                     MasterId = GenerateShortGuid(),
                     AccountId = accountId,
+                    CreateDate = DateTime.Now,
+                    ImageUrl = customer?.ImageUrl,
+                    MasterName = account.FullName
                 };
 
                 // Lưu vào database
@@ -939,31 +947,71 @@ public class AccountService : IAccountService
                     };
                 }
 
-                var account = await _accountRepository.GetAccountById(accountId);
-                await _emailService.SendEmail(account.Email, "Chúc mừng bạn trở thành Master", "Chúc mừng bạn đã trở thành Master. Hãy vào cung cấp thêm thông tin của bạn !");
+                if (customer == null) {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        ResponseCode = ResponseCodeConstants.NOT_FOUND,
+                        Message = "Customer not found",
+                        StatusCode = StatusCodes.Status404NotFound
+                    };
+                }
+                await _customerRepo.DeleteCustomer(customer.CustomerId);
 
-                return new ResultModel
-                {
-                    IsSuccess = true,
-                    ResponseCode = ResponseCodeConstants.SUCCESS,
-                    Message = $"Account role updated successfully to {newRole}",
-                    Data = _mapper.Map<MasterDetailReponseDTO>(result),
-                    StatusCode = StatusCodes.Status200OK
-                };
+                await _emailService.SendEmail(account.Email, "Chúc mừng bạn trở thành Master", 
+                                                             "Chúc mừng bạn đã trở thành Master! Hãy vào update thêm thông tin." );
+
             }
-
-            // Cập nhật role của tài khoản
-            var updatedAccount = await _accountRepository.UpdateAccountRole(accountId, newRole);
-            if (updatedAccount == null)
+            
+            if(newRole == RoleEnums.Staff.ToString())
             {
-                return new ResultModel
+                var customer = await _customerRepo.GetCustomerByAccountId(accountId);
+
+                if (customer == null)
                 {
-                    IsSuccess = false,
-                    ResponseCode = ResponseCodeConstants.NOT_FOUND,
-                    Message = "Account not found",
-                    StatusCode = StatusCodes.Status404NotFound
-                };
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        ResponseCode = ResponseCodeConstants.NOT_FOUND,
+                        Message = "Customer not found",
+                        StatusCode = StatusCodes.Status404NotFound
+                    };
+                }
+                await _customerRepo.DeleteCustomer(customer.CustomerId);
+
+                var account = await _accountRepository.GetAccountById(accountId);
+                await _emailService.SendEmail(account.Email, "Chúc mừng bạn trở thành Staff",
+                                                             "Chúc mừng bạn đã trở thành Staff!");
             }
+
+            if (newRole == RoleEnums.Manager.ToString())
+            {
+                var customer = await _customerRepo.GetCustomerByAccountId(accountId);
+
+                if (customer == null)
+                {
+                    return new ResultModel
+                    {
+                        IsSuccess = false,
+                        ResponseCode = ResponseCodeConstants.NOT_FOUND,
+                        Message = "Customer not found",
+                        StatusCode = StatusCodes.Status404NotFound
+                    };
+                }
+                await _customerRepo.DeleteCustomer(customer.CustomerId);
+
+                var account = await _accountRepository.GetAccountById(accountId);
+                await _emailService.SendEmail(account.Email, "Chúc mừng bạn trở thành Manager",
+                                                             "Chúc mừng bạn đã trở thành Manager!");
+            }
+
+            var accountUpdated = await _accountRepository.GetAccountById(accountId);
+
+            accountUpdated.UpdateDate = DateTime.Now;
+
+            accountUpdated.Role = newRole;
+
+            var updatedAccount = await _accountRepository.UpdateAccount(accountUpdated);
 
             var accountResponse = _mapper.Map<AccountResponse>(updatedAccount);
 
@@ -1075,7 +1123,7 @@ public class AccountService : IAccountService
             _mapper.Map(request, master);
 
             master.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
-
+            master.UpdateDate = DateTime.Now;
             await _masterRepo.Update(master);
 
             res.IsSuccess = true;

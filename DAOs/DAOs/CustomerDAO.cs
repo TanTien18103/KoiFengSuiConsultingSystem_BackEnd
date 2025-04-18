@@ -100,5 +100,17 @@ namespace DAOs.DAOs
                 .Where(c => c.Account.IsActive)
                 .ToListAsync();
         }
+
+        public async Task<bool> DeleteCustomerByAccountIdDao(string accountId)
+        {
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.AccountId == accountId);
+            if (customer != null)
+            {
+                _context.Customers.Remove(customer);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
     }
 }

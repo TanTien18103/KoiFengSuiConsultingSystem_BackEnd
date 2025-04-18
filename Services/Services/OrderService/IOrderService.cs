@@ -1,4 +1,5 @@
-﻿using Services.ApiModels;
+﻿using BusinessObjects.Enums;
+using Services.ApiModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Services.Services.OrderService
         Task<ResultModel> UpdateOrderToPendingConfirm(string id);
         Task<ResultModel> GetPendingOrders();
         Task<ResultModel> GetWaitingForRefundOrders();
-        Task<ResultModel> CancelOrder(string orderId);
+        Task<ResultModel> CancelOrder(string serviceId, PaymentTypeEnums serviceType);
         Task<ResultModel> CheckAndUpdateExpiredOrders();
         Task<ResultModel> GetPendingConfirmOrders();
         Task<ResultModel> GetDetailsOrder(string id);

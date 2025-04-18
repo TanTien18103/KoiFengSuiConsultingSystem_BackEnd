@@ -20,6 +20,7 @@ using Services.ServicesHelpers.UploadService;
 using Repositories.Repositories.MasterScheduleRepository;
 using Repositories.Repositories.LocationRepository;
 using System.Net.WebSockets;
+using Newtonsoft.Json.Linq;
 
 namespace Services.Services.WorkshopService
 {
@@ -315,6 +316,7 @@ namespace Services.Services.WorkshopService
 
             try
             {
+                // Các validate hiện có (giữ nguyên)
                 if (request == null)
                 {
                     res.IsSuccess = false;
@@ -400,9 +402,6 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                // Lấy tất cả workshop trùng ngày
-                var workshopsInSameDate = await _workShopRepo.GetWorkshopsByDate(request.StartDate.Value);
-
                 // Convert thời gian để so sánh
                 var newStart = request.StartDate.Value.Add(startTime.ToTimeSpan());
                 var newEnd = request.StartDate.Value.Add(endTime.ToTimeSpan());
@@ -415,7 +414,54 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                // Lặp qua các workshop
+                // *** Thêm logic validate khung giờ làm việc ***
+                // Xác định workshop thuộc buổi sáng hay buổi chiều
+                var noon = new TimeOnly(12, 0); // 12h trưa
+                bool isMorningWorkshop = startTime < noon; // Workshop buổi sáng nếu bắt đầu trước 12h
+
+                // Định nghĩa khung giờ bị khóa
+                var morningLockStart = new TimeOnly(7, 0);  // 7h sáng
+                var morningLockEnd = new TimeOnly(11, 0);   // 11h sáng
+                var afternoonLockStart = new TimeOnly(12, 0); // 12h trưa
+                var afternoonLockEnd = new TimeOnly(17, 0);   // 5h chiều (có thể tùy chỉnh)
+
+                // Lấy tất cả MasterSchedule trong cùng ngày
+                var masterSchedules = await _masterScheduleRepo.GetMasterScheduleByMasterIdAndDate(masterId, DateOnly.FromDateTime(request.StartDate.Value));
+
+                foreach (var schedule in masterSchedules)
+                {
+                    var scheduleStart = request.StartDate.Value.Add(schedule.StartTime!.Value.ToTimeSpan());
+                    var scheduleEnd = request.StartDate.Value.Add(schedule.EndTime!.Value.ToTimeSpan());
+
+                    if (isMorningWorkshop)
+                    {
+                        // Nếu là workshop buổi sáng, kiểm tra không có lịch trình nào trong khung 7h-11h (trừ workshop đang tạo)
+                        if (scheduleStart.TimeOfDay >= morningLockStart.ToTimeSpan() && scheduleStart.TimeOfDay <= morningLockEnd.ToTimeSpan())
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                            res.StatusCode = StatusCodes.Status400BadRequest;
+                            res.Message = ResponseMessageConstrantsMasterSchedule.WORKSHOP_MORNING_LOCKED;
+                            return res;
+                        }
+                    }
+                    else
+                    {
+                        // Nếu là workshop buổi chiều, kiểm tra không có lịch trình nào trong khung 12h-17h (trừ workshop đang tạo)
+                        if (scheduleStart.TimeOfDay >= afternoonLockStart.ToTimeSpan() && scheduleStart.TimeOfDay <= afternoonLockEnd.ToTimeSpan())
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                            res.StatusCode = StatusCodes.Status400BadRequest;
+                            res.Message = ResponseMessageConstrantsMasterSchedule.WORKSHOP_AFTERNOON_LOCKED;
+                            return res;
+                        }
+                    }
+                }
+
+                // Kiểm tra các workshop trùng ngày (giữ nguyên logic hiện có)
+                var workshopsInSameDate = await _workShopRepo.GetWorkshopsByDate(request.StartDate.Value);
+
                 foreach (var ws in workshopsInSameDate)
                 {
                     var existingStart = ws.StartDate.Value.Add(ws.StartTime!.Value.ToTimeSpan());
@@ -459,21 +505,8 @@ namespace Services.Services.WorkshopService
                         }
                     }
                 }
-               
-                var masterschedules = await _masterScheduleRepo.GetMasterScheduleByMasterId(masterId);
 
-                foreach (var masterschedule in masterschedules)
-                {
-                    if (masterschedule.Date == DateOnly.FromDateTime(request.StartDate.Value) && masterschedule.StartTime == startTime && masterschedule.EndTime == endTime)
-                    {
-                        res.IsSuccess = false;
-                        res.ResponseCode = ResponseCodeConstants.EXISTED;
-                        res.Message = ResponseMessageConstrantsMasterSchedule.MASTERSCHEDULE_EXISTED_SLOT;
-                        res.StatusCode = StatusCodes.Status409Conflict;
-                        return res;
-                    }
-                }
-
+                // Tạo MasterSchedule (giữ nguyên)
                 var masterSchedule = new MasterSchedule
                 {
                     MasterScheduleId = GenerateShortGuid(),
@@ -485,8 +518,9 @@ namespace Services.Services.WorkshopService
                     Status = MasterScheduleEnums.Pending.ToString(),
                     CreateDate = DateTime.UtcNow,
                 };
-                var createmasterSchedule = await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
+                var createdMasterSchedule = await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
 
+                // Tạo Workshop (giữ nguyên)
                 var newWorkshop = _mapper.Map<WorkShop>(request);
                 newWorkshop.WorkshopId = GenerateShortGuid();
                 newWorkshop.CreatedDate = DateTime.UtcNow;
@@ -494,7 +528,7 @@ namespace Services.Services.WorkshopService
                 newWorkshop.MasterId = masterId;
                 newWorkshop.StartTime = startTime;
                 newWorkshop.EndTime = endTime;
-                newWorkshop.MasterScheduleId = createmasterSchedule.MasterScheduleId;
+                newWorkshop.MasterScheduleId = createdMasterSchedule.MasterScheduleId;
                 newWorkshop.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
                 if (newWorkshop.MasterId == null)
@@ -526,7 +560,7 @@ namespace Services.Services.WorkshopService
                 return res;
             }
         }
-
+       
         public async Task<ResultModel> UpdateWorkshop(string id, WorkshopUpdateRequest request)
         {
             var res = new ResultModel();
@@ -638,6 +672,51 @@ namespace Services.Services.WorkshopService
                     res.StatusCode = StatusCodes.Status400BadRequest;
                     res.Message = ResponseMessageConstrantsWorkshop.TIME_INVALID;
                     return res;
+                }
+
+                // *** Thêm logic validate khung giờ làm việc ***
+                // Xác định workshop thuộc buổi sáng hay buổi chiều
+                var noon = new TimeOnly(12, 0); // 12h trưa
+                bool isMorningWorkshop = startTime < noon; // Workshop buổi sáng nếu bắt đầu trước 12h
+
+                // Định nghĩa khung giờ bị khóa
+                var morningLockStart = new TimeOnly(7, 0);  // 7h sáng
+                var morningLockEnd = new TimeOnly(11, 0);   // 11h sáng
+                var afternoonLockStart = new TimeOnly(12, 0); // 12h trưa
+                var afternoonLockEnd = new TimeOnly(17, 0);   // 5h chiều (có thể tùy chỉnh)
+
+                // Lấy tất cả MasterSchedule trong cùng ngày
+                var masterSchedules = await _masterScheduleRepo.GetMasterScheduleByMasterIdAndDate(masterId, DateOnly.FromDateTime(request.StartDate.Value));
+
+                foreach (var schedule in masterSchedules)
+                {
+                    var scheduleStart = request.StartDate.Value.Add(schedule.StartTime!.Value.ToTimeSpan());
+                    var scheduleEnd = request.StartDate.Value.Add(schedule.EndTime!.Value.ToTimeSpan());
+
+                    if (isMorningWorkshop)
+                    {
+                        // Nếu là workshop buổi sáng, kiểm tra không có lịch trình nào trong khung 7h-11h (trừ workshop đang tạo)
+                        if (scheduleStart.TimeOfDay >= morningLockStart.ToTimeSpan() && scheduleStart.TimeOfDay <= morningLockEnd.ToTimeSpan())
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                            res.StatusCode = StatusCodes.Status400BadRequest;
+                            res.Message = ResponseMessageConstrantsMasterSchedule.WORKSHOP_MORNING_LOCKED;
+                            return res;
+                        }
+                    }
+                    else
+                    {
+                        // Nếu là workshop buổi chiều, kiểm tra không có lịch trình nào trong khung 12h-17h (trừ workshop đang tạo)
+                        if (scheduleStart.TimeOfDay >= afternoonLockStart.ToTimeSpan() && scheduleStart.TimeOfDay <= afternoonLockEnd.ToTimeSpan())
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                            res.StatusCode = StatusCodes.Status400BadRequest;
+                            res.Message = ResponseMessageConstrantsMasterSchedule.WORKSHOP_AFTERNOON_LOCKED;
+                            return res;
+                        }
+                    }
                 }
 
                 var workshopsInSameDate = await _workShopRepo.GetWorkshopsByDate(request.StartDate.Value);

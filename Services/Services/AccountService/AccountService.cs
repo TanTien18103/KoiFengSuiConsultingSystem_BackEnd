@@ -189,7 +189,9 @@ public class AccountService : IAccountService
             Gender = registerRequest.Gender,
             Dob = DateOnly.FromDateTime(registerRequest.Dob), // Convert DateTime to DateOnly
             Role = RoleEnums.Customer.ToString(),
-            Customers = new List<Customer> { customer }
+            Customers = new List<Customer> { customer },
+            CreateDate = DateTime.Now,
+            UpdateDate = DateTime.Now,
         };
 
         // Set up the relationship

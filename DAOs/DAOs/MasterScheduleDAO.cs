@@ -66,12 +66,13 @@ namespace DAOs.DAOs
         public async Task<List<MasterSchedule>> GetSchedulesByMasterIdAsync(string masterId)
         {
             return await _context.MasterSchedules
-                .Include(x => x.Master)
-                .Include(x => x.BookingOnlines)
-                    .ThenInclude(b => b.Customer)
+                .AsNoTracking()
+                .Include(ms => ms.Master)
+                .Include(ms => ms.BookingOnlines)
+                    .ThenInclude(bo => bo.Customer)
                         .ThenInclude(c => c.Account)
-                .Include(x => x.BookingOfflines)
-                    .ThenInclude(b => b.Customer)
+                .Include(ms => ms.BookingOfflines)
+                    .ThenInclude(boff => boff.Customer)
                         .ThenInclude(c => c.Account)
                 .Include(x => x.WorkShops) 
                         .ThenInclude(w => w.Location)

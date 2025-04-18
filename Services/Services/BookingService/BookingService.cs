@@ -517,6 +517,7 @@ namespace Services.Services.BookingService
                     var createmasterSchedule = await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
 
                     bookingOnline.MasterId = masterId;
+                    bookingOnline.MasterScheduleId = masterSchedule.MasterScheduleId;
                     await _onlineRepo.UpdateBookingOnlineRepo(bookingOnline);
                 }
                 if (!string.IsNullOrEmpty(bookingofflineId) && string.IsNullOrEmpty(bookingonlineId))
@@ -563,6 +564,7 @@ namespace Services.Services.BookingService
                     var createmasterSchedule = await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
 
                     bookingOffline.MasterId = masterId;
+                    bookingOffline.MasterScheduleId = masterSchedule.MasterScheduleId;
                     await _offlineRepo.UpdateBookingOffline(bookingOffline);
                 }
 

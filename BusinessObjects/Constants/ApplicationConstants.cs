@@ -277,76 +277,76 @@ namespace BusinessObjects.Constants
         public const string MASTERSCHEDULE_FOUND = "Lấy danh sách thời gian biểu của Master thành công!";
         public const string MASTERSCHEDULE_EXISTED_SLOT = "Thời gian biểu đã tồn tại!";
         public const string WORKSHOP_MORNING_LOCKED = "Không thể tạo workshop buổi sáng vì khung giờ 7h-11h đã bị khóa do lịch trình khác.";
-        public const string WORKSHOP_AFTERNOON_LOCKED = "Không thể tạo workshop buổi chiều vì khung giờ 12h-17h đã bị khóa do lịch trình khác.";
+        public const string WORKSHOP_AFTERNOON_LOCKED = "Không thể tạo workshop buổi chiều vì khung giờ 13h-17h đã bị khóa do lịch trình khác.";
     }
 }
 
-    public class ResponseMessageConstrantsMaster
-    {
-        public const string MASTER_NOT_FOUND = "Không tìm thấy Master!";
-        public const string MANAGER_NOT_FOUND = "Không tìm thấy Manager!";
-        public const string MASTER_INFO_NOT_FOUND = "Không tìm thấy thông tin Master!";
-        public const string MASTER_FOUND = "Lấy danh sách Master thành công!";
-        public const string EXISTING_SCHEDULE = "Thời gian biểu của Master đã được đặt, vui lòng chọn thời gian khác!";
-    }
+public class ResponseMessageConstrantsMaster
+{
+    public const string MASTER_NOT_FOUND = "Không tìm thấy Master!";
+    public const string MANAGER_NOT_FOUND = "Không tìm thấy Manager!";
+    public const string MASTER_INFO_NOT_FOUND = "Không tìm thấy thông tin Master!";
+    public const string MASTER_FOUND = "Lấy danh sách Master thành công!";
+    public const string EXISTING_SCHEDULE = "Thời gian biểu của Master đã được đặt, vui lòng chọn thời gian khác!";
+}
 
-    public class ResponseMessageConstrantsRegisterAttend
-    {
-        public const string REGISTERATTEND_NOT_FOUND = "Không tìm thấy vé dự sự kiện!";
-        public const string INVALID_TICKET_NUMBER = "Số lượng vé phải lớn hơn 0!";
-        public const string REGISTERATTEND_FOUND = "Lấy danh sách vé dự sự kiện thành công!";
-        public const string REGISTERATTEND_CREATED_SUCCESS = "Tạo vé cho buổi sự kiện thành công!";
-        public const string REGISTERATTEND_UPDATED_SUCCESS = "Cập nhật số lượng vé thành công!";
-        public const string TICKET_NOT_PAID = "Vui lòng cập nhật số lượng vé. Số vé bạn chưa thanh toán cho workshop này là ";
-        public const string PENDING_NOT_FOUND = "Không tìm thấy vé chưa thanh toán";
-    }
+public class ResponseMessageConstrantsRegisterAttend
+{
+    public const string REGISTERATTEND_NOT_FOUND = "Không tìm thấy vé dự sự kiện!";
+    public const string INVALID_TICKET_NUMBER = "Số lượng vé phải lớn hơn 0!";
+    public const string REGISTERATTEND_FOUND = "Lấy danh sách vé dự sự kiện thành công!";
+    public const string REGISTERATTEND_CREATED_SUCCESS = "Tạo vé cho buổi sự kiện thành công!";
+    public const string REGISTERATTEND_UPDATED_SUCCESS = "Cập nhật số lượng vé thành công!";
+    public const string TICKET_NOT_PAID = "Vui lòng cập nhật số lượng vé. Số vé bạn chưa thanh toán cho workshop này là ";
+    public const string PENDING_NOT_FOUND = "Không tìm thấy vé chưa thanh toán";
+}
 
-    public class ResponseMessageConstrantsTransaction
-    {
-        public const string TRANSACTION_CREATED_SUCCESS = "Tạo giao dịch thành công!";
-        public const string TRANSACTION_NOT_FOUND = "Không tìm thấy giao dịch!";
-        public const string TRANSACTION_FOUND = "Lấy danh sách giao dịch thành công!";
-    }
+public class ResponseMessageConstrantsTransaction
+{
+    public const string TRANSACTION_CREATED_SUCCESS = "Tạo giao dịch thành công!";
+    public const string TRANSACTION_NOT_FOUND = "Không tìm thấy giao dịch!";
+    public const string TRANSACTION_FOUND = "Lấy danh sách giao dịch thành công!";
+}
 
-    public class ResponseMessageConstrantsFengShuiDocument
-    {
-        public const string FENGSHUIDOCUMENT_FOUND = "Tìm thấy hồ sơ thành công!";
-        public const string FENGSHUIDOCUMENT_NOT_FOUND = "Không tìm thấy hồ sơ!";
-    }
+public class ResponseMessageConstrantsFengShuiDocument
+{
+    public const string FENGSHUIDOCUMENT_FOUND = "Tìm thấy hồ sơ thành công!";
+    public const string FENGSHUIDOCUMENT_NOT_FOUND = "Không tìm thấy hồ sơ!";
+}
 
-    public class ResponseMessageConstrantsWorkshop
-    {
-        public const string WORKSHOP_CREATED_SUCCESS = "Tạo sự kiện thành công!";
-        public const string WORKSHOP_UPDATED_SUCCESS = "Cập nhật sự kiện thành công!";
-        public const string WORKSHOP_DELETED_SUCCESS = "Xóa sự kiện thành công!";
-        public const string WORKSHOP_FOUND = "Lấy danh sách sự kiện thành công!";
-        public const string WORKSHOP_NOT_FOUND = "Không tìm thấy sự kiện!";
-        public const string WORKSHOP_PENDING_NOT_FOUND = "Không tìm thấy buổi hội thảo đang chờ được cập nhật";
-        public const string WORKSHOP_APPROVED = "Buổi hội thảo được phê duyệt";
-        public const string WORKSHOP_REJECTED = "Buổi hội thảo bị từ chối";
-        public const string WORKSHOP_INFO_FOUND = "Lấy thông tin buổi hội thảo thành công";
-        public const string WORKSHOP_INFO_INVALID = "Dữ liệu sự kiện không hợp lệ";
-        public const string NOTFOUND_MASTERID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy MasterId tương ứng với tài khoản";
-        public const string REGISTER_NOT_FOUND = "Không tìm thấy thông tin vé";
-        public const string CHECK_IN_SUCCESS = "Check-in thành công";
-        public const string WORKSHOP_DUPLICATE_LOCATION_DATE_SAME_MASTER = "Bạn đã có một hội thảo với cùng địa điểm và ngày bắt đầu.";
-        public const string WORKSHOP_DUPLICATE_LOCATION_DATE_OTHER_MASTER = "Đã có một hội thảo khác được tổ chức tại địa điểm và thời gian này.";
-        public const string WORKSHOP_MINIMUM_HOURS_DIFFERENCE = "Khoảng cách giữa hai hội thảo ở hai địa điểm khác nhau phải tối thiểu 5 giờ.";
-        public const string WORKSHOP_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa workshop này.";
-        public const string WORKSHOP_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật workshop này.";
-        public const string ALREADY_STARTED = "Workshop đã bắt đầu, không thể đăng ký hay chỉnh sửa.";
-        public const string CAPACITY_LEFT = "Vé còn trống cho workshop này là ";
-        public const string LOCATION_NOT_FOUND = "Không tìm thấy địa điểm!";
-        public const string STARTTIME_INFO_INVALID = "Thời gian bắt đầu không hợp lệ! Vui lòng kiểm tra lại thời gian bắt đầu của hội thảo";
-        public const string ENDTIME_INFO_INVALID = "Thời gian kết thúc không hợp lệ! Vui lòng kiểm tra lại thời gian kết thúc của hội thảo";
-        public const string TIME_INVALID = "Thời gian không hợp lệ! Vui lòng kiểm tra lại thời gian bắt đầu và kết thúc của hội thảo";
-        public const string WORKSHOP_CANCELED_SUCCESS = "Buổi hội thảo bị hủy thành công";
-        public const string WORKSHOP_DUPLICATE_LOCATION = "Đã có một hội thảo khác được tổ chức tại địa điểm này.";
-        public const string WORKSHOP_DUPLICATE_SCHEDULE_SAME_MASTER = "Bạn đã có một hội thảo với cùng ngày bắt đầu ở địa điểm khác.";
-        public const string DURATION_INVALID = "Thời lượng không hợp lệ! Vui lòng kiểm tra lại thời gian bắt đầu và kết thúc của hội thảo";
-        public const string STARTDATE_MUST_BE_ONE_WEEK_AHEAD = "Ngày bắt đầu phải cách ngày hiện tại ít nhất 7 ngày.";
-        public const string PRICE_MUST_BE_GREATER_THAN_2000 = "Giá vé phải lớn hơn 2000 đồng.";
-    }
+public class ResponseMessageConstrantsWorkshop
+{
+    public const string WORKSHOP_CREATED_SUCCESS = "Tạo sự kiện thành công!";
+    public const string WORKSHOP_UPDATED_SUCCESS = "Cập nhật sự kiện thành công!";
+    public const string WORKSHOP_DELETED_SUCCESS = "Xóa sự kiện thành công!";
+    public const string WORKSHOP_FOUND = "Lấy danh sách sự kiện thành công!";
+    public const string WORKSHOP_NOT_FOUND = "Không tìm thấy sự kiện!";
+    public const string WORKSHOP_PENDING_NOT_FOUND = "Không tìm thấy buổi hội thảo đang chờ được cập nhật";
+    public const string WORKSHOP_APPROVED = "Buổi hội thảo được phê duyệt";
+    public const string WORKSHOP_REJECTED = "Buổi hội thảo bị từ chối";
+    public const string WORKSHOP_INFO_FOUND = "Lấy thông tin buổi hội thảo thành công";
+    public const string WORKSHOP_INFO_INVALID = "Dữ liệu sự kiện không hợp lệ";
+    public const string NOTFOUND_MASTERID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy MasterId tương ứng với tài khoản";
+    public const string REGISTER_NOT_FOUND = "Không tìm thấy thông tin vé";
+    public const string CHECK_IN_SUCCESS = "Check-in thành công";
+    public const string WORKSHOP_DUPLICATE_LOCATION_DATE_SAME_MASTER = "Bạn đã có một hội thảo với cùng địa điểm và ngày bắt đầu.";
+    public const string WORKSHOP_DUPLICATE_LOCATION_DATE_OTHER_MASTER = "Đã có một hội thảo khác được tổ chức tại địa điểm và thời gian này.";
+    public const string WORKSHOP_MINIMUM_HOURS_DIFFERENCE = "Khoảng cách giữa hai hội thảo ở hai địa điểm khác nhau phải tối thiểu 5 giờ.";
+    public const string WORKSHOP_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa workshop này.";
+    public const string WORKSHOP_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật workshop này.";
+    public const string ALREADY_STARTED = "Workshop đã bắt đầu, không thể đăng ký hay chỉnh sửa.";
+    public const string CAPACITY_LEFT = "Vé còn trống cho workshop này là ";
+    public const string LOCATION_NOT_FOUND = "Không tìm thấy địa điểm!";
+    public const string STARTTIME_INFO_INVALID = "Thời gian bắt đầu không hợp lệ! Vui lòng kiểm tra lại thời gian bắt đầu của hội thảo";
+    public const string ENDTIME_INFO_INVALID = "Thời gian kết thúc không hợp lệ! Vui lòng kiểm tra lại thời gian kết thúc của hội thảo";
+    public const string TIME_INVALID = "Thời gian không hợp lệ! Vui lòng kiểm tra lại thời gian bắt đầu và kết thúc của hội thảo";
+    public const string WORKSHOP_CANCELED_SUCCESS = "Buổi hội thảo bị hủy thành công";
+    public const string WORKSHOP_DUPLICATE_LOCATION = "Đã có một hội thảo khác được tổ chức tại địa điểm này.";
+    public const string WORKSHOP_DUPLICATE_SCHEDULE_SAME_MASTER = "Bạn đã có một hội thảo với cùng ngày bắt đầu ở địa điểm khác.";
+    public const string DURATION_INVALID = "Thời lượng không hợp lệ! Vui lòng kiểm tra lại thời gian bắt đầu và kết thúc của hội thảo";
+    public const string STARTDATE_MUST_BE_ONE_WEEK_AHEAD = "Ngày bắt đầu phải cách ngày hiện tại ít nhất 7 ngày.";
+    public const string PRICE_MUST_BE_GREATER_THAN_2000 = "Giá vé phải lớn hơn 2000 đồng.";
+}
 
     public class ResponseMessageConstrantsCourse
     {
@@ -385,157 +385,157 @@ namespace BusinessObjects.Constants
         public const string CATEGORY_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái danh mục thành công!";
     }
 
-    //Image
-    public class ResponseMessageImage
-    {
-        public const string INVALID_IMAGE = "Hình ảnh không hợp lệ. ";
-        public const string INVALID_SIZE = "Kích thước hình ảnh không hợp lệ. ";
-        public const string INVALID_FORMAT = "Định dạng hình ảnh không hợp lệ. ";
-        public const string INVALID_URL = "Đường dẫn hình ảnh không hợp lệ. ";
-    }
-
-    public class ResponseMessageConstrantsChapter
-    {
-        public const string CHAPTER_CREATED_SUCCESS = "Tạo chương học thành công!";
-        public const string CHAPTER_UPDATED_SUCCESS = "Cập nhật chương học thành công!";
-        public const string CHAPTER_DELETED_SUCCESS = "Xóa chương học thành công!";
-        public const string CHAPTER_FOUND = "Lấy danh sách chương học thành công!";
-        public const string CHAPTER_NOT_FOUND = "Không tìm thấy chương học!";
-        public const string CHAPTER_INFO_FOUND = "Lấy thông tin chương học thành công";
-        public const string CHAPTER_INFO_INVALID = "Dữ liệu chương học không hợp lệ";
-        public const string COURSE_ID_REQUIRED = "Không tìm thấy Id khóa học";
-        public const string ENROLL_CHAPTER_CREATE_FAILED = "Tạo chương học thất bại!";
-        public const string CHAPTER_UPDATED_PROGRESS_SUCCESS = "Cập nhật tiến độ chương học thành công!";
-        public const string CHAPTER_ALREADY_COMPLETED = "Chương học đã hoàn thành!";
-    }
-
-    public class ResponseMessageConstrantQuiz
-    {
-        public const string QUIZ_CREATED_SUCCESS = "Tạo bài kiểm tra thành công!";
-        public const string QUIZ_UPDATED_SUCCESS = "Cập nhật bài kiểm tra thành công!";
-        public const string QUIZ_DELETED_SUCCESS = "Xóa bài kiểm tra thành công!";
-        public const string QUIZ_FOUND = "Lấy danh sách bài kiểm tra thành công!";
-        public const string QUIZ_NOT_FOUND = "Không tìm thấy bài kiểm tra!";
-        public const string QUIZ_INFO_FOUND = "Lấy thông tin bài kiểm tra thành công";
-        public const string QUIZ_INFO_INVALID = "Dữ liệu bài kiểm tra không hợp lệ";
-        public const string COURSE_ID_REQUIRED = "Không tìm thấy Id khóa học";
-        public const string QUIZ_CREATE_FAILED = "Tạo bài kiểm tra thất bại!";
-        public const string QUIZ_CREATE_SUCCESS = "Tạo bài kiểm tra thành công!";
-        public const string QUIZ_DELETE_SUCCESS = "Xóa bài kiểm tra thành công!";
-        public const string QUIZ_UPDATE_SUCCESS = "Cập nhật bài kiểm tra thành công!";
-        public const string QUIZ_UPDATE_FAILED = "Cập nhật bài kiểm tra thất bại!";
-        public const string QUIZ_SUBMITED_SUCCESS = "Đã nộp bài kiểm tra thành công!";
-    }
-
-    public class ResponseMessageConstrantsQuestion
-    {
-        public const string QUESTION_CREATED_SUCCESS = "Tạo câu hỏi thành công!";
-        public const string QUESTION_UPDATED_SUCCESS = "Cập nhật câu hỏi thành công!";
-        public const string QUESTION_DELETED_SUCCESS = "Xóa câu hỏi thành công!";
-        public const string QUESTION_FOUND = "Lấy danh sách câu hỏi thành công!";
-        public const string QUESTION_NOT_FOUND = "Không tìm thấy câu hỏi!";
-        public const string QUESTION_INFO_FOUND = "Lấy thông tin câu hỏi thành công";
-        public const string QUESTION_INFO_INVALID = "Dữ liệu câu hỏi không hợp lệ";
-        public const string QUIZ_ID_REQUIRED = "Không tìm thấy Id bài kiểm tra";
-        public const string QUESTION_CREATE_FAILED = "Tạo câu hỏi thất bại!";
-        public const string QUESTION_UPDATED_FAILED = "Cập nhật câu hỏi thất bại!";
-        public const string QUESTION_DELETED_FAILED = "Xóa câu hỏi thất bại!";
-        public const string QUESTIONS_NOT_FOUND = "Không tìm thấy câu hỏi!";
-        public const string QUESTIONS_FOUND = "Lấy danh sách câu hỏi thành công!";
-    }
-
-    public class ResponseMessageConstrantsAnswer
-    {
-        public const string ANSWER_CREATED_SUCCESS = "Tạo câu trả lời thành công!";
-        public const string ANSWER_UPDATED_SUCCESS = "Cập nhật câu trả lời thành công!";
-        public const string ANSWER_DELETED_SUCCESS = "Xóa câu trả lời thành công!";
-        public const string ANSWER_FOUND = "Lấy danh sách câu trả lời thành công!";
-        public const string ANSWER_NOT_FOUND = "Không tìm thấy câu trả lời!";
-        public const string ANSWER_INFO_FOUND = "Lấy thông tin câu trả lời thành công";
-        public const string ANSWER_INFO_INVALID = "Dữ liệu câu trả lời không hợp lệ";
-        public const string QUESTION_ID_REQUIRED = "Không tìm thấy Id câu hỏi";
-        public const string ANSWER_CREATE_FAILED = "Tạo câu trả lời thất bại!";
-        public const string ANSWER_UPDATED_FAILED = "Cập nhật câu trả lời thất bại!";
-        public const string ANSWER_DELETED_FAILED = "Xóa câu trả lời thất bại!";
-        public const string INVALID_ANSWER = "Câu trả lời không hợp lệ";
-    }
-
-    public class ResponseMessageConstrantsRegisterCourse
-    {
-        public const string REGISTER_COURSE_CREATED_SUCCESS = "Tạo đăng ký khóa học thành công!";
-        public const string REGISTER_COURSE_UPDATED_SUCCESS = "Cập nhật khóa học thành công!";
-        public const string REGISTER_COURSE_DELETED_SUCCESS = "Xóa khóa học thành công!";
-        public const string REGISTER_COURSE_FOUND = "Lấy danh sách khóa học thành công!";
-        public const string REGISTER_COURSE_NOT_FOUND = "Không tìm thấy khóa học!";
-        public const string REGISTER_COURSE_INFO_FOUND = "Lấy thông tin khóa học thành công";
-        public const string REGISTER_COURSE_INFO_INVALID = "Dữ liệu khóa học không hợp lệ";
-        public const string REGISTER_COURSE_CREATE_FAILED = "Tạo đăng ký khóa học thất bại!";
-        public const string REGISTER_COURSE_UPDATE_FAILED = "Cập nhật đăng ký khóa học thất bại!";
-        public const string REGISTER_COURSE_DELETE_FAILED = "Xóa đăng ký khóa học thất bại!";
-        public const string ENROLL_CHAPTERS_NOT_FOUND = "Không tìm thấy chương học!";
-        public const string ENROLL_CHAPTERS_FOUND = "Tìm thấy chương học thành công!";
-
-    }
-    // Contract Service
-    public static class ResponseMessageConstrantsContract
-    {
-        public const string NOT_FOUND = "Không tìm thấy hợp đồng";
-        public const string FOUND = "Tìm thấy hợp đồng";
-        public const string CREATED_SUCCESS = "Tạo hợp đồng thành công";
-        public const string SENT_SUCCESS = "Gửi hợp đồng thành công";
-        public const string OTP_SENT_SUCCESS = "Gửi mã OTP thành công";
-        public const string OTP_INVALID = "Mã OTP không đúng hoặc đã hết hạn";
-        public const string VERIFY_SUCCESS = "Xác thực hợp đồng thành công";
-        public const string CANCEL_SUCCESS = "Hủy hợp đồng thành công";
-        public const string CONFIRM_SUCCESS = "Xác nhận hợp đồng thành công";
-        public const string CHECK_STATUS = "Hợp đồng này không ở trạng thái chờ xác nhận";
-        public const string CONTRACT_INFORMATION_SUCCESS = "Lấy thông tin hợp đồng thành công";
-        public const string SEND_OTP_SUCCESS = "Gửi OTP cho hợp đồng thành công";
-        public const string OTP_EXPIRED = "Mã OTP đã hết hạn";
-        public const string VERIFY_OTP_SUCCESS = "Xác thực OTP thành công";
-        public const string VERIFY_OTP_FAILED = "Xác thực OTP thất bại";
-        public const string WAIT_TO_RESEND_OTP = "Vui lòng đợi 30s để gửi lại mã OTP";
-        public const string RESEND_OTP_SUCCESS = "Gửi lại mã OTP thành công";
-    }
-
-    // 
-    public static class ResponseMessageConstrantsForImport
-    {
-        public const string NOT_FOUND = "Không tìm thấy file";
-        public const string NO_DATA_TO_UPLOAD = "Không có dữ liệu để upload";
-        public const string UPLOAD_SUCCESS = "Upload thành công";
-        public const string NO_QUES_FOR_ANS = "Không thể thêm câu trả lời khi chưa có câu hỏi";
-        public const string NO_QUIZ_FOR_QUES = "Không thể thêm câu hỏi khi chưa có bài kiểm tra";
-        public const string EXISTED_QUIZ_TITLE = "Tiêu đề của bài kiểm tra đã tồn tại";
-        public const string FILE_INVALID = "File phải có định dạng .xls hoặc .xlsx";
-    }
-    // Attachment Service
-    public class ResponseMessageConstrantsAttachment
-    {
-        public const string CREATED_SUCCESS = "Tạo tệp đính kèm thành công";
-        public const string NOT_FOUND = "Không tìm thấy tệp đính kèm";
-        public const string FOUND = "Tìm thấy tệp đính kèm";
-        public const string CANCEL_SUCCESS = "Hủy tệp đính kèm thành công";
-        public const string CONFIRM_SUCCESS = "Xác nhận tệp đính kèm thành công";
-        public const string CHECK_STATUS = "Trạng thái tệp đính kèm không hợp lệ";
-        public const string SEND_OTP_SUCCESS = "Gửi mã OTP thành công";
-        public const string OTP_EXPIRED = "Mã OTP đã hết hạn";
-        public const string VERIFY_OTP_FAILED = "Mã OTP không chính xác";
-        public const string VERIFY_OTP_SUCCESS = "Xác thực OTP thành công";
-    }
-
-    //Location
-    public class ResponseMessageConstrantsLocation
-    {
-        public const string LOCATION_NOT_FOUND = "Không tìm thấy địa điểm";
-        public const string LOCATION_FOUND = "Tìm thấy địa điểm";
-        public const string LOCATION_CREATED_SUCCESS = "Tạo địa điểm thành công";
-        public const string LOCATION_UPDATED_SUCCESS = "Cập nhật địa điểm thành công";
-        public const string LOCATION_DELETED_SUCCESS = "Xóa địa điểm thành công";
-        public const string LOCATION_INFO_FOUND = "Lấy thông tin địa điểm thành công";
-        public const string LOCATION_INFO_INVALID = "Dữ liệu địa điểm không hợp lệ";
-        public const string LOCATION_ALREADY_EXIST = "Tên địa điểm đã tồn tại";
-    }
+//Image
+public class ResponseMessageImage
+{
+    public const string INVALID_IMAGE = "Hình ảnh không hợp lệ. ";
+    public const string INVALID_SIZE = "Kích thước hình ảnh không hợp lệ. ";
+    public const string INVALID_FORMAT = "Định dạng hình ảnh không hợp lệ. ";
+    public const string INVALID_URL = "Đường dẫn hình ảnh không hợp lệ. ";
 }
+
+public class ResponseMessageConstrantsChapter
+{
+    public const string CHAPTER_CREATED_SUCCESS = "Tạo chương học thành công!";
+    public const string CHAPTER_UPDATED_SUCCESS = "Cập nhật chương học thành công!";
+    public const string CHAPTER_DELETED_SUCCESS = "Xóa chương học thành công!";
+    public const string CHAPTER_FOUND = "Lấy danh sách chương học thành công!";
+    public const string CHAPTER_NOT_FOUND = "Không tìm thấy chương học!";
+    public const string CHAPTER_INFO_FOUND = "Lấy thông tin chương học thành công";
+    public const string CHAPTER_INFO_INVALID = "Dữ liệu chương học không hợp lệ";
+    public const string COURSE_ID_REQUIRED = "Không tìm thấy Id khóa học";
+    public const string ENROLL_CHAPTER_CREATE_FAILED = "Tạo chương học thất bại!";
+    public const string CHAPTER_UPDATED_PROGRESS_SUCCESS = "Cập nhật tiến độ chương học thành công!";
+    public const string CHAPTER_ALREADY_COMPLETED = "Chương học đã hoàn thành!";
+}
+
+public class ResponseMessageConstrantQuiz
+{
+    public const string QUIZ_CREATED_SUCCESS = "Tạo bài kiểm tra thành công!";
+    public const string QUIZ_UPDATED_SUCCESS = "Cập nhật bài kiểm tra thành công!";
+    public const string QUIZ_DELETED_SUCCESS = "Xóa bài kiểm tra thành công!";
+    public const string QUIZ_FOUND = "Lấy danh sách bài kiểm tra thành công!";
+    public const string QUIZ_NOT_FOUND = "Không tìm thấy bài kiểm tra!";
+    public const string QUIZ_INFO_FOUND = "Lấy thông tin bài kiểm tra thành công";
+    public const string QUIZ_INFO_INVALID = "Dữ liệu bài kiểm tra không hợp lệ";
+    public const string COURSE_ID_REQUIRED = "Không tìm thấy Id khóa học";
+    public const string QUIZ_CREATE_FAILED = "Tạo bài kiểm tra thất bại!";
+    public const string QUIZ_CREATE_SUCCESS = "Tạo bài kiểm tra thành công!";
+    public const string QUIZ_DELETE_SUCCESS = "Xóa bài kiểm tra thành công!";
+    public const string QUIZ_UPDATE_SUCCESS = "Cập nhật bài kiểm tra thành công!";
+    public const string QUIZ_UPDATE_FAILED = "Cập nhật bài kiểm tra thất bại!";
+    public const string QUIZ_SUBMITED_SUCCESS = "Đã nộp bài kiểm tra thành công!";
+}
+
+public class ResponseMessageConstrantsQuestion
+{
+    public const string QUESTION_CREATED_SUCCESS = "Tạo câu hỏi thành công!";
+    public const string QUESTION_UPDATED_SUCCESS = "Cập nhật câu hỏi thành công!";
+    public const string QUESTION_DELETED_SUCCESS = "Xóa câu hỏi thành công!";
+    public const string QUESTION_FOUND = "Lấy danh sách câu hỏi thành công!";
+    public const string QUESTION_NOT_FOUND = "Không tìm thấy câu hỏi!";
+    public const string QUESTION_INFO_FOUND = "Lấy thông tin câu hỏi thành công";
+    public const string QUESTION_INFO_INVALID = "Dữ liệu câu hỏi không hợp lệ";
+    public const string QUIZ_ID_REQUIRED = "Không tìm thấy Id bài kiểm tra";
+    public const string QUESTION_CREATE_FAILED = "Tạo câu hỏi thất bại!";
+    public const string QUESTION_UPDATED_FAILED = "Cập nhật câu hỏi thất bại!";
+    public const string QUESTION_DELETED_FAILED = "Xóa câu hỏi thất bại!";
+    public const string QUESTIONS_NOT_FOUND = "Không tìm thấy câu hỏi!";
+    public const string QUESTIONS_FOUND = "Lấy danh sách câu hỏi thành công!";
+}
+
+public class ResponseMessageConstrantsAnswer
+{
+    public const string ANSWER_CREATED_SUCCESS = "Tạo câu trả lời thành công!";
+    public const string ANSWER_UPDATED_SUCCESS = "Cập nhật câu trả lời thành công!";
+    public const string ANSWER_DELETED_SUCCESS = "Xóa câu trả lời thành công!";
+    public const string ANSWER_FOUND = "Lấy danh sách câu trả lời thành công!";
+    public const string ANSWER_NOT_FOUND = "Không tìm thấy câu trả lời!";
+    public const string ANSWER_INFO_FOUND = "Lấy thông tin câu trả lời thành công";
+    public const string ANSWER_INFO_INVALID = "Dữ liệu câu trả lời không hợp lệ";
+    public const string QUESTION_ID_REQUIRED = "Không tìm thấy Id câu hỏi";
+    public const string ANSWER_CREATE_FAILED = "Tạo câu trả lời thất bại!";
+    public const string ANSWER_UPDATED_FAILED = "Cập nhật câu trả lời thất bại!";
+    public const string ANSWER_DELETED_FAILED = "Xóa câu trả lời thất bại!";
+    public const string INVALID_ANSWER = "Câu trả lời không hợp lệ";
+}
+
+public class ResponseMessageConstrantsRegisterCourse
+{
+    public const string REGISTER_COURSE_CREATED_SUCCESS = "Tạo đăng ký khóa học thành công!";
+    public const string REGISTER_COURSE_UPDATED_SUCCESS = "Cập nhật khóa học thành công!";
+    public const string REGISTER_COURSE_DELETED_SUCCESS = "Xóa khóa học thành công!";
+    public const string REGISTER_COURSE_FOUND = "Lấy danh sách khóa học thành công!";
+    public const string REGISTER_COURSE_NOT_FOUND = "Không tìm thấy khóa học!";
+    public const string REGISTER_COURSE_INFO_FOUND = "Lấy thông tin khóa học thành công";
+    public const string REGISTER_COURSE_INFO_INVALID = "Dữ liệu khóa học không hợp lệ";
+    public const string REGISTER_COURSE_CREATE_FAILED = "Tạo đăng ký khóa học thất bại!";
+    public const string REGISTER_COURSE_UPDATE_FAILED = "Cập nhật đăng ký khóa học thất bại!";
+    public const string REGISTER_COURSE_DELETE_FAILED = "Xóa đăng ký khóa học thất bại!";
+    public const string ENROLL_CHAPTERS_NOT_FOUND = "Không tìm thấy chương học!";
+    public const string ENROLL_CHAPTERS_FOUND = "Tìm thấy chương học thành công!";
+
+}
+// Contract Service
+public static class ResponseMessageConstrantsContract
+{
+    public const string NOT_FOUND = "Không tìm thấy hợp đồng";
+    public const string FOUND = "Tìm thấy hợp đồng";
+    public const string CREATED_SUCCESS = "Tạo hợp đồng thành công";
+    public const string SENT_SUCCESS = "Gửi hợp đồng thành công";
+    public const string OTP_SENT_SUCCESS = "Gửi mã OTP thành công";
+    public const string OTP_INVALID = "Mã OTP không đúng hoặc đã hết hạn";
+    public const string VERIFY_SUCCESS = "Xác thực hợp đồng thành công";
+    public const string CANCEL_SUCCESS = "Hủy hợp đồng thành công";
+    public const string CONFIRM_SUCCESS = "Xác nhận hợp đồng thành công";
+    public const string CHECK_STATUS = "Hợp đồng này không ở trạng thái chờ xác nhận";
+    public const string CONTRACT_INFORMATION_SUCCESS = "Lấy thông tin hợp đồng thành công";
+    public const string SEND_OTP_SUCCESS = "Gửi OTP cho hợp đồng thành công";
+    public const string OTP_EXPIRED = "Mã OTP đã hết hạn";
+    public const string VERIFY_OTP_SUCCESS = "Xác thực OTP thành công";
+    public const string VERIFY_OTP_FAILED = "Xác thực OTP thất bại";
+    public const string WAIT_TO_RESEND_OTP = "Vui lòng đợi 30s để gửi lại mã OTP";
+    public const string RESEND_OTP_SUCCESS = "Gửi lại mã OTP thành công";
+}
+
+// 
+public static class ResponseMessageConstrantsForImport
+{
+    public const string NOT_FOUND = "Không tìm thấy file";
+    public const string NO_DATA_TO_UPLOAD = "Không có dữ liệu để upload";
+    public const string UPLOAD_SUCCESS = "Upload thành công";
+    public const string NO_QUES_FOR_ANS = "Không thể thêm câu trả lời khi chưa có câu hỏi";
+    public const string NO_QUIZ_FOR_QUES = "Không thể thêm câu hỏi khi chưa có bài kiểm tra";
+    public const string EXISTED_QUIZ_TITLE = "Tiêu đề của bài kiểm tra đã tồn tại";
+    public const string FILE_INVALID = "File phải có định dạng .xls hoặc .xlsx";
+}
+// Attachment Service
+public class ResponseMessageConstrantsAttachment
+{
+    public const string CREATED_SUCCESS = "Tạo tệp đính kèm thành công";
+    public const string NOT_FOUND = "Không tìm thấy tệp đính kèm";
+    public const string FOUND = "Tìm thấy tệp đính kèm";
+    public const string CANCEL_SUCCESS = "Hủy tệp đính kèm thành công";
+    public const string CONFIRM_SUCCESS = "Xác nhận tệp đính kèm thành công";
+    public const string CHECK_STATUS = "Trạng thái tệp đính kèm không hợp lệ";
+    public const string SEND_OTP_SUCCESS = "Gửi mã OTP thành công";
+    public const string OTP_EXPIRED = "Mã OTP đã hết hạn";
+    public const string VERIFY_OTP_FAILED = "Mã OTP không chính xác";
+    public const string VERIFY_OTP_SUCCESS = "Xác thực OTP thành công";
+}
+
+//Location
+public class ResponseMessageConstrantsLocation
+{
+    public const string LOCATION_NOT_FOUND = "Không tìm thấy địa điểm";
+    public const string LOCATION_FOUND = "Tìm thấy địa điểm";
+    public const string LOCATION_CREATED_SUCCESS = "Tạo địa điểm thành công";
+    public const string LOCATION_UPDATED_SUCCESS = "Cập nhật địa điểm thành công";
+    public const string LOCATION_DELETED_SUCCESS = "Xóa địa điểm thành công";
+    public const string LOCATION_INFO_FOUND = "Lấy thông tin địa điểm thành công";
+    public const string LOCATION_INFO_INVALID = "Dữ liệu địa điểm không hợp lệ";
+    public const string LOCATION_ALREADY_EXIST = "Tên địa điểm đã tồn tại";
+}
+
 
 

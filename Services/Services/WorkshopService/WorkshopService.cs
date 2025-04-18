@@ -423,21 +423,37 @@ namespace Services.Services.WorkshopService
                 // Định nghĩa khung giờ bị khóa
                 var morningLockStart = new TimeOnly(7, 0);  // 7h sáng
                 var morningLockEnd = new TimeOnly(11, 0);   // 11h sáng
-                var afternoonLockStart = new TimeOnly(12, 0); // 12h trưa
-                var afternoonLockEnd = new TimeOnly(17, 0);   // 5h chiều (có thể tùy chỉnh)
+                var afternoonLockStart = new TimeOnly(13, 0); // 13h trưa
+                var afternoonLockEnd = new TimeOnly(17, 0);   // 5h chiều 
 
                 // Lấy tất cả MasterSchedule trong cùng ngày
                 var masterSchedules = await _masterScheduleRepo.GetMasterScheduleByMasterIdAndDate(masterId, DateOnly.FromDateTime(request.StartDate.Value));
 
                 foreach (var schedule in masterSchedules)
                 {
-                    var scheduleStart = request.StartDate.Value.Add(schedule.StartTime!.Value.ToTimeSpan());
-                    var scheduleEnd = request.StartDate.Value.Add(schedule.EndTime!.Value.ToTimeSpan());
+                    // Kiểm tra null cho StartTime và EndTime
+                    if (schedule.StartTime == null || schedule.EndTime == null)
+                    {
+                        continue; // Bỏ qua nếu lịch trình không hợp lệ
+                    }
+
+                    // Chuyển TimeOnly thành TimeSpan
+                    var scheduleStartSpan = new TimeSpan(schedule.StartTime.Value.Hour, schedule.StartTime.Value.Minute, schedule.StartTime.Value.Second);
+                    var scheduleEndSpan = new TimeSpan(schedule.EndTime.Value.Hour, schedule.EndTime.Value.Minute, schedule.EndTime.Value.Second);
+                    var scheduleStart = request.StartDate.Value.Add(scheduleStartSpan);
+                    var scheduleEnd = request.StartDate.Value.Add(scheduleEndSpan);
+
+                    // Loại trừ workshop đang tạo (nếu cần)
+                    // Giả sử workshop đang tạo chưa tồn tại trong masterSchedules, nên bước này có thể bỏ qua
+                    // Nếu cần kiểm tra, bạn có thể thêm điều kiện so sánh schedule.Id hoặc các thuộc tính khác
 
                     if (isMorningWorkshop)
                     {
-                        // Nếu là workshop buổi sáng, kiểm tra không có lịch trình nào trong khung 7h-11h (trừ workshop đang tạo)
-                        if (scheduleStart.TimeOfDay >= morningLockStart.ToTimeSpan() && scheduleStart.TimeOfDay <= morningLockEnd.ToTimeSpan())
+                        // Nếu là workshop buổi sáng, kiểm tra không có lịch trình nào trong khung 7h-11h
+                        var morningLockStartSpan = new TimeSpan(morningLockStart.Hour, morningLockStart.Minute, morningLockStart.Second);
+                        var morningLockEndSpan = new TimeSpan(morningLockEnd.Hour, morningLockEnd.Minute, morningLockEnd.Second);
+
+                        if (scheduleStart.TimeOfDay >= morningLockStartSpan && scheduleStart.TimeOfDay <= morningLockEndSpan)
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
@@ -448,8 +464,11 @@ namespace Services.Services.WorkshopService
                     }
                     else
                     {
-                        // Nếu là workshop buổi chiều, kiểm tra không có lịch trình nào trong khung 12h-17h (trừ workshop đang tạo)
-                        if (scheduleStart.TimeOfDay >= afternoonLockStart.ToTimeSpan() && scheduleStart.TimeOfDay <= afternoonLockEnd.ToTimeSpan())
+                        // Nếu là workshop buổi chiều, kiểm tra không có lịch trình nào trong khung 13h-17h
+                        var afternoonLockStartSpan = new TimeSpan(afternoonLockStart.Hour, afternoonLockStart.Minute, afternoonLockStart.Second);
+                        var afternoonLockEndSpan = new TimeSpan(afternoonLockEnd.Hour, afternoonLockEnd.Minute, afternoonLockEnd.Second);
+
+                        if (scheduleStart.TimeOfDay >= afternoonLockStartSpan && scheduleStart.TimeOfDay <= afternoonLockEndSpan)
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
@@ -683,21 +702,37 @@ namespace Services.Services.WorkshopService
                 // Định nghĩa khung giờ bị khóa
                 var morningLockStart = new TimeOnly(7, 0);  // 7h sáng
                 var morningLockEnd = new TimeOnly(11, 0);   // 11h sáng
-                var afternoonLockStart = new TimeOnly(12, 0); // 12h trưa
-                var afternoonLockEnd = new TimeOnly(17, 0);   // 5h chiều (có thể tùy chỉnh)
+                var afternoonLockStart = new TimeOnly(13, 0); // 13h trưa
+                var afternoonLockEnd = new TimeOnly(17, 0);   // 5h chiều 
 
                 // Lấy tất cả MasterSchedule trong cùng ngày
                 var masterSchedules = await _masterScheduleRepo.GetMasterScheduleByMasterIdAndDate(masterId, DateOnly.FromDateTime(request.StartDate.Value));
 
                 foreach (var schedule in masterSchedules)
                 {
-                    var scheduleStart = request.StartDate.Value.Add(schedule.StartTime!.Value.ToTimeSpan());
-                    var scheduleEnd = request.StartDate.Value.Add(schedule.EndTime!.Value.ToTimeSpan());
+                    // Kiểm tra null cho StartTime và EndTime
+                    if (schedule.StartTime == null || schedule.EndTime == null)
+                    {
+                        continue; // Bỏ qua nếu lịch trình không hợp lệ
+                    }
+
+                    // Chuyển TimeOnly thành TimeSpan
+                    var scheduleStartSpan = new TimeSpan(schedule.StartTime.Value.Hour, schedule.StartTime.Value.Minute, schedule.StartTime.Value.Second);
+                    var scheduleEndSpan = new TimeSpan(schedule.EndTime.Value.Hour, schedule.EndTime.Value.Minute, schedule.EndTime.Value.Second);
+                    var scheduleStart = request.StartDate.Value.Add(scheduleStartSpan);
+                    var scheduleEnd = request.StartDate.Value.Add(scheduleEndSpan);
+
+                    // Loại trừ workshop đang tạo (nếu cần)
+                    // Giả sử workshop đang tạo chưa tồn tại trong masterSchedules, nên bước này có thể bỏ qua
+                    // Nếu cần kiểm tra, bạn có thể thêm điều kiện so sánh schedule.Id hoặc các thuộc tính khác
 
                     if (isMorningWorkshop)
                     {
-                        // Nếu là workshop buổi sáng, kiểm tra không có lịch trình nào trong khung 7h-11h (trừ workshop đang tạo)
-                        if (scheduleStart.TimeOfDay >= morningLockStart.ToTimeSpan() && scheduleStart.TimeOfDay <= morningLockEnd.ToTimeSpan())
+                        // Nếu là workshop buổi sáng, kiểm tra không có lịch trình nào trong khung 7h-11h
+                        var morningLockStartSpan = new TimeSpan(morningLockStart.Hour, morningLockStart.Minute, morningLockStart.Second);
+                        var morningLockEndSpan = new TimeSpan(morningLockEnd.Hour, morningLockEnd.Minute, morningLockEnd.Second);
+
+                        if (scheduleStart.TimeOfDay >= morningLockStartSpan && scheduleStart.TimeOfDay <= morningLockEndSpan)
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
@@ -708,8 +743,11 @@ namespace Services.Services.WorkshopService
                     }
                     else
                     {
-                        // Nếu là workshop buổi chiều, kiểm tra không có lịch trình nào trong khung 12h-17h (trừ workshop đang tạo)
-                        if (scheduleStart.TimeOfDay >= afternoonLockStart.ToTimeSpan() && scheduleStart.TimeOfDay <= afternoonLockEnd.ToTimeSpan())
+                        // Nếu là workshop buổi chiều, kiểm tra không có lịch trình nào trong khung 13h-17h
+                        var afternoonLockStartSpan = new TimeSpan(afternoonLockStart.Hour, afternoonLockStart.Minute, afternoonLockStart.Second);
+                        var afternoonLockEndSpan = new TimeSpan(afternoonLockEnd.Hour, afternoonLockEnd.Minute, afternoonLockEnd.Second);
+
+                        if (scheduleStart.TimeOfDay >= afternoonLockStartSpan && scheduleStart.TimeOfDay <= afternoonLockEndSpan)
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;

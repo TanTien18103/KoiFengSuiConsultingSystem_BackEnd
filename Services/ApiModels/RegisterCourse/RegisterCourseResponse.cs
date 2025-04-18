@@ -20,6 +20,7 @@ namespace Services.ApiModels.RegisterCourse
         public decimal? Percentage { get; set; }
 
         public string Status { get; set; }
+        public decimal? Rating { get; set; }
 
         public string CustomerId { get; set; }
     }

@@ -25,6 +25,11 @@ namespace Services.ApiModels.Course
         [RegularExpression(@"^[\p{L}0-9\s,.-_]+$", ErrorMessage = "Mô tả khóa học chỉ được chứa chữ cái, số, dấu cách, dấu phẩy, dấu chấm, dấu gạch nối và dấu gạch dưới.")]
         public string Description { get; set; }
 
+        [Required(ErrorMessage = "Phần giới thiệu khóa học không được để trống.")]
+        [StringLength(500, ErrorMessage = "Phần giới thiệu khóa học không được vượt quá 500 ký tự.")]
+        [RegularExpression(@"^[\p{L}0-9\s,.-_]+$", ErrorMessage = "Phần giới thiệu khóa học chỉ được chứa chữ cái, số, dấu cách, dấu phẩy, dấu chấm, dấu gạch nối và dấu gạch dưới.")]
+        public string Introduction { get; set; }
+
         [Required(ErrorMessage = "Giá khóa học không được để trống.")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Giá khóa học phải là số dương.")]
         public decimal? Price { get; set; }

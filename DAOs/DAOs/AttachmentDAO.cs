@@ -78,5 +78,51 @@ namespace DAOs.DAOs
             _context.Attachments.Remove(attachment);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Attachment> UpdateAttachmentStatusDao(string attachmentId, string status)
+        {
+            var attachment = await _context.Attachments
+                .Include(d => d.BookingOfflines)
+                    .ThenInclude(b => b.Customer)
+                        .ThenInclude(c => c.Account)
+                .Include(d => d.BookingOfflines)
+                    .ThenInclude(b => b.Master)
+                        .ThenInclude(m => m.Account)
+                .FirstOrDefaultAsync(d => d.AttachmentId == attachmentId);
+
+            if (attachment == null)
+                return null;
+
+            attachment.Status = status;
+            await _context.SaveChangesAsync();
+            return attachment;
+        }
+
+        public async Task<Attachment> UpdateAttachmentWithBookingDao(string attachmentId, string bookingOfflineId)
+        {
+            // Lấy document hiện tại từ database
+            var existingAttachment = await _context.Attachments
+                .Include(d => d.BookingOfflines)
+                .FirstOrDefaultAsync(d => d.AttachmentId == attachmentId);
+
+            if (existingAttachment == null)
+                return null;
+
+            // Lấy booking từ database
+            var existingBooking = await _context.BookingOfflines
+                .FirstOrDefaultAsync(b => b.BookingOfflineId == bookingOfflineId);
+
+            if (existingBooking == null)
+                return null;
+
+            // Xóa tất cả các booking cũ
+            existingAttachment.BookingOfflines.Clear();
+
+            // Thêm booking mới
+            existingAttachment.BookingOfflines.Add(existingBooking);
+
+            await _context.SaveChangesAsync();
+            return existingAttachment;
+        }
     }
 }

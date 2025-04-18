@@ -10,6 +10,8 @@ namespace Services.ApiModels.Course
     public class RatingRequest
     {
         [Required]
+        public string CourseId { get; set; }
+        [Required]
         [Range(1, 5, ErrorMessage = "Điểm đánh giá phải từ 1 đến 5")]
         public decimal Rating { get; set; }
     }

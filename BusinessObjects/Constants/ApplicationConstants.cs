@@ -348,41 +348,42 @@ public class ResponseMessageConstrantsWorkshop
     public const string PRICE_MUST_BE_GREATER_THAN_2000 = "Giá vé phải lớn hơn 2000 đồng.";
 }
 
-public class ResponseMessageConstrantsCourse
-{
-    public const string COURSE_CREATED_SUCCESS = "Tạo khóa học thành công!";
-    public const string COURSE_UPDATED_SUCCESS = "Cập nhật khóa học thành công!";
-    public const string COURSE_DELETED_SUCCESS = "Xóa khóa học thành công!";
-    public const string COURSE_FOUND = "Lấy danh sách khóa học thành công!";
-    public const string COURSE_NOT_FOUND = "Không tìm thấy khóa học!";
-    public const string COURSE_INFO_FOUND = "Lấy thông tin khóa học thành công";
-    public const string COURSE_INFO_INVALID = "Dữ liệu khóa học không hợp lệ";
-    public const string COURSE_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật khóa học này.";
-    public const string COURSE_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa khóa học này.";
-    public const string NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy AccountId tương ứng với tài khoản";
-    public const string COURSE_UPDATED_FAILED = "Cập nhật khóa học thất bại!";
-    public const string COURSE_CREATED_FAILED = "Tạo khóa học thất bại!";
-    public const string PROCEED_TO_QUIZ_SUCCESS = "Bạn đã hoàn thành xong các chương, hãy làm quiz!";
-    public const string PAID_COURSES_NOT_FOUND = "Chưa có khóa học nào được mua!";
-    public const string PAID_COURSES_FOUND = "Lấy danh sách khóa học đã mua thành công!";
-    public const string COURSE_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái khóa học thành công!";
-    public const string COURSE_ID_INVALID = "Khóa học không hợp lệ!";
-    public const string STATUS_INVALID = "Trạng thái không hợp lệ!";
-    public const string COURSE_ALREADY_HAS_THIS_STATUS = "Khóa học đã có trạng thái này!";
-}
-public class ResponseMessageConstrantsCategory
-{
-    public const string CATEGORY_CREATED_SUCCESS = "Tạo danh mục thành công!";
-    public const string CATEGORY_UPDATED_SUCCESS = "Cập nhật danh mục thành công!";
-    public const string CATEGORY_FOUND = "Lấy danh sách danh mục thành công!";
-    public const string CATEGORY_NOT_FOUND = "Không tìm thấy danh sách danh mục!";
-    public const string CATEGORY_ALREADY_EXIST = "Tên danh mục đã tồn tại!";
-    public const string CATEGORY_DELETED_SUCCESS = "Xóa danh mục thành công!";
-    public const string CATEGORY_ID_INVALID = "ID danh mục không hợp lệ!";
-    public const string STATUS_INVALID = "Trạng thái không hợp lệ!";
-    public const string CATEGORY_ALREADY_HAS_THIS_STATUS = "Danh mục đã có trạng thái này!";
-    public const string CATEGORY_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái danh mục thành công!";
-}
+    public class ResponseMessageConstrantsCourse
+    {
+        public const string COURSE_CREATED_SUCCESS = "Tạo khóa học thành công!";
+        public const string COURSE_UPDATED_SUCCESS = "Cập nhật khóa học thành công!";
+        public const string COURSE_DELETED_SUCCESS = "Xóa khóa học thành công!";
+        public const string COURSE_FOUND = "Lấy danh sách khóa học thành công!";
+        public const string COURSE_NOT_FOUND = "Không tìm thấy khóa học!";
+        public const string COURSE_INFO_FOUND = "Lấy thông tin khóa học thành công";
+        public const string COURSE_INFO_INVALID = "Dữ liệu khóa học không hợp lệ";
+        public const string COURSE_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật khóa học này.";
+        public const string COURSE_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa khóa học này.";
+        public const string NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy AccountId tương ứng với tài khoản";
+        public const string COURSE_UPDATED_FAILED = "Cập nhật khóa học thất bại!";
+        public const string COURSE_CREATED_FAILED = "Tạo khóa học thất bại!";
+        public const string PROCEED_TO_QUIZ_SUCCESS = "Bạn đã hoàn thành xong các chương, hãy làm quiz!";
+        public const string PAID_COURSES_NOT_FOUND = "Chưa có khóa học nào được mua!";
+        public const string PAID_COURSES_FOUND = "Lấy danh sách khóa học đã mua thành công!";
+        public const string COURSE_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái khóa học thành công!";
+        public const string COURSE_ID_INVALID = "Khóa học không hợp lệ!";
+        public const string STATUS_INVALID = "Trạng thái không hợp lệ!";
+        public const string COURSE_ALREADY_HAS_THIS_STATUS = "Khóa học đã có trạng thái này!";
+        public const string ENROLLEDCOURSE_NOT_FOUND = "Không tìm thấy khóa học bạn đã đăng ký";
+    }
+    public class ResponseMessageConstrantsCategory
+    {
+        public const string CATEGORY_CREATED_SUCCESS = "Tạo danh mục thành công!";
+        public const string CATEGORY_UPDATED_SUCCESS = "Cập nhật danh mục thành công!";
+        public const string CATEGORY_FOUND = "Lấy danh sách danh mục thành công!";
+        public const string CATEGORY_NOT_FOUND = "Không tìm thấy danh sách danh mục!";
+        public const string CATEGORY_ALREADY_EXIST = "Tên danh mục đã tồn tại!";
+        public const string CATEGORY_DELETED_SUCCESS = "Xóa danh mục thành công!";
+        public const string CATEGORY_ID_INVALID = "ID danh mục không hợp lệ!";
+        public const string STATUS_INVALID = "Trạng thái không hợp lệ!";
+        public const string CATEGORY_ALREADY_HAS_THIS_STATUS = "Danh mục đã có trạng thái này!";
+        public const string CATEGORY_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái danh mục thành công!";
+    }
 
 //Image
 public class ResponseMessageImage

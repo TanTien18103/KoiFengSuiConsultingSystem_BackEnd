@@ -19,6 +19,9 @@ using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 using System.Security.Claims;
 using Repositories.Repositories.MasterRepository;
 using BusinessObjects.Models;
+using System.Reflection.Metadata;
+using Services.ApiModels.FengShuiDocument;
+using System.Xml.Linq;
 
 namespace Services.Services.AttachmentService
 {
@@ -92,12 +95,19 @@ namespace Services.Services.AttachmentService
                     return res;
                 }
 
-                // Kiểm tra xem booking có liên kết với attachment cũ không
-                if (!string.IsNullOrEmpty(bookingOffline.RecordId))
+                var blockedStatuses = new[]
                 {
-                    // Đảm bảo gỡ bỏ liên kết với attachment cũ trước khi tạo mới
-                    bookingOffline.RecordId = null;
-                    await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
+                    BookingOfflineEnums.DocumentConfirmedByCustomer.ToString(),
+                    BookingOfflineEnums.AttachmentRejected.ToString()
+                };
+
+                if (!blockedStatuses.Contains(bookingOffline.Status))
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = "Không thể tạo biên bản cho buổi tư vấn ở trạng thái hiện tại";
+                    return res;
                 }
 
                 // Upload file PDF
@@ -131,7 +141,7 @@ namespace Services.Services.AttachmentService
                 {
                     updatedStatus = BookingOfflineEnums.DocumentConfirmedByCustomer.ToString();
                 }
-
+                    
                 // Update booking với RecordId và trạng thái mới
                 var updatedBooking = await _bookingOfflineRepo.UpdateBookingOfflineAttachment(
                     bookingOffline.BookingOfflineId,
@@ -144,6 +154,19 @@ namespace Services.Services.AttachmentService
                     res.StatusCode = StatusCodes.Status500InternalServerError;
                     res.ResponseCode = ResponseCodeConstants.FAILED;
                     res.Message = "Không thể gắn tệp đính kèm vào buổi tư vấn";
+                    return res;
+                }
+
+                var updatedAttachment = await _attachmentRepo.UpdateAttachmentWithBooking(
+                    createdAttachment.AttachmentId,
+                    updatedBooking.BookingOfflineId);
+
+                if (updatedAttachment == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = "Không thể cập nhật tài liệu với thông tin booking";
                     return res;
                 }
 
@@ -354,26 +377,35 @@ namespace Services.Services.AttachmentService
                     return res;
                 }
 
-                // Tìm booking liên quan
-                var bookingOffline = attachment.BookingOfflines.FirstOrDefault();
-                if (bookingOffline == null)
+                var updatedAttachment = await _attachmentRepo.UpdateAttachmentStatus(attachmentId, AttachmentStatusEnums.Cancelled.ToString());
+
+                if (updatedAttachment == null)
                 {
                     res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = "Không thể hủy biên bản nghiệm thu";
                     return res;
                 }
 
-                // Cập nhật booking trước: gỡ bỏ liên kết với attachment
-                bookingOffline.RecordId = null;
-                bookingOffline.Status = BookingOfflineEnums.AttachmentRejected.ToString();
-                await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
+                var updatedBooking = await _bookingOfflineRepo.UpdateBookingOfflineAttachment(
+                    attachment.BookingOfflines.FirstOrDefault()?.BookingOfflineId,
+                    null,
+                    BookingOfflineEnums.AttachmentRejected.ToString());
 
-                // Sau đó cập nhật attachment
-                attachment.Status = AttachmentStatusEnums.Cancelled.ToString();
-                attachment.UpdatedDate = DateTime.Now;
-                var updatedAttachment = await _attachmentRepo.UpdateAttachment(attachment);
+                var response = _mapper.Map<AttachmentResponse>(updatedAttachment);
+
+                // Thêm thông tin booking
+                if (updatedAttachment.BookingOfflines.Any())
+                {
+                    var bookingInfo = updatedAttachment.BookingOfflines.First();
+                    response.BookingOffline = new BookingOfflineInfoForAttachment
+                    {
+                        BookingOfflineId = bookingInfo.BookingOfflineId,
+                        CustomerName = bookingInfo.Customer?.Account?.FullName ?? "Không có thông tin",
+                        MasterName = bookingInfo.Master?.Account?.FullName ?? "Không có thông tin"
+                    };
+                }
 
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
@@ -408,23 +440,35 @@ namespace Services.Services.AttachmentService
                     return res;
                 }
 
-                if (attachment.Status != AttachmentStatusEnums.Pending.ToString())
+                var updatedAttachment = await _attachmentRepo.UpdateAttachmentStatus(attachmentId, AttachmentStatusEnums.Confirmed.ToString());
+
+                if (updatedAttachment == null)
                 {
                     res.IsSuccess = false;
-                    res.StatusCode = StatusCodes.Status400BadRequest;
-                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
-                    res.Message = ResponseMessageConstrantsAttachment.CHECK_STATUS;
+                    res.StatusCode = StatusCodes.Status500InternalServerError;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = "Không thể hủy biên bản nghiệm thu";
                     return res;
                 }
 
-                attachment.Status = AttachmentStatusEnums.VefifyingOTP.ToString();
-                attachment.UpdatedDate = DateTime.Now;
+                var response = _mapper.Map<AttachmentResponse>(updatedAttachment);
 
-                var updatedAttachment = await _attachmentRepo.UpdateAttachment(attachment);
+                // Thêm thông tin booking
+                if (updatedAttachment.BookingOfflines.Any())
+                {
+                    var bookingInfo = updatedAttachment.BookingOfflines.First();
+                    response.BookingOffline = new BookingOfflineInfoForAttachment
+                    {
+                        BookingOfflineId = bookingInfo.BookingOfflineId,
+                        CustomerName = bookingInfo.Customer?.Account?.FullName ?? "Không có thông tin", 
+                        MasterName = bookingInfo.Master?.Account?.FullName ?? "Không có thông tin"
+                    };
+                }
 
                 var booking = updatedAttachment.BookingOfflines.FirstOrDefault();
                 if (booking != null)
                 {
+                    booking.RecordId = null;
                     booking.Status = BookingOfflineEnums.AttachmentConfirmed.ToString();
                     await _bookingOfflineRepo.UpdateBookingOffline(booking);
                 }
@@ -432,13 +476,13 @@ namespace Services.Services.AttachmentService
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                res.Message = ResponseMessageConstrantsAttachment.CONFIRM_SUCCESS;
+                res.Message = ResponseMessageConstrantsAttachment.CANCEL_SUCCESS;
                 res.Data = _mapper.Map<AttachmentResponse>(updatedAttachment);
                 return res;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Lỗi khi xác nhận tệp đính kèm");
+                _logger.LogError(ex, "Lỗi khi hủy tệp đính kèm");
                 res.IsSuccess = false;
                 res.StatusCode = StatusCodes.Status500InternalServerError;
                 res.ResponseCode = ResponseCodeConstants.FAILED;
@@ -462,7 +506,7 @@ namespace Services.Services.AttachmentService
                     return res;
                 }
 
-                if (attachment.Status != AttachmentStatusEnums.VefifyingOTP.ToString())
+                if (attachment.Status != AttachmentStatusEnums.Confirmed.ToString())
                 {
                     res.IsSuccess = false;
                     res.StatusCode = StatusCodes.Status400BadRequest;
@@ -537,7 +581,7 @@ namespace Services.Services.AttachmentService
                     return res;
                 }
 
-                if (attachment.Status != AttachmentStatusEnums.VefifyingOTP.ToString())
+                if (attachment.Status != AttachmentStatusEnums.Confirmed.ToString())
                 {
                     res.IsSuccess = false;
                     res.StatusCode = StatusCodes.Status400BadRequest;

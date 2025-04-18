@@ -369,6 +369,7 @@ namespace BusinessObjects.Constants
         public const string COURSE_ID_INVALID = "Khóa học không hợp lệ!";
         public const string STATUS_INVALID = "Trạng thái không hợp lệ!";
         public const string COURSE_ALREADY_HAS_THIS_STATUS = "Khóa học đã có trạng thái này!";
+        public const string ENROLLEDCOURSE_NOT_FOUND = "Không tìm thấy khóa học bạn đã đăng ký";
     }
     public class ResponseMessageConstrantsCategory
     {

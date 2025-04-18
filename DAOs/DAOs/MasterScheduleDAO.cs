@@ -1,4 +1,5 @@
-﻿using BusinessObjects.Models;
+﻿using BusinessObjects.Enums;
+using BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -74,7 +75,7 @@ namespace DAOs.DAOs
                         .ThenInclude(c => c.Account)
                 .Include(x => x.WorkShops) 
                         .ThenInclude(w => w.Location)
-                .Where(x => x.MasterId == masterId)
+                .Where(x => x.MasterId == masterId && x.Status == MasterScheduleEnums.InProgress.ToString())
                 .OrderBy(x => x.Date)
                 .ThenBy(x => x.StartTime)
                 .ToListAsync();

@@ -18,5 +18,6 @@ namespace Repositories.Repositories.CustomerRepository
         Task<Customer> UpdateCustomer(Customer customer);
         Task DeleteCustomer(string customerId);
         Task<List<Customer>> GetAllCustomers();
+        Task<bool> DeleteCustomerByAccountId(string accountId);
     }
 }

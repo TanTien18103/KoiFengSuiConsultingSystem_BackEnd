@@ -138,7 +138,8 @@ namespace DAOs.DAOs
         {
             return await _context.Orders
                 .Where(o => o.CustomerId == customerId &&
-                           o.Status == PaymentStatusEnums.Pending.ToString())
+                           o.Status == PaymentStatusEnums.Pending.ToString() ||
+                           o.Status == PaymentStatusEnums.PendingConfirm.ToString())
                 .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
         }

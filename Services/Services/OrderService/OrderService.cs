@@ -3,6 +3,7 @@ using BusinessObjects.Constants;
 using BusinessObjects.Enums;
 using BusinessObjects.Exceptions;
 using BusinessObjects.Models;
+using MailKit.Search;
 using Microsoft.AspNetCore.Http;
 using Repositories.Repositories.AnswerRepository;
 using Repositories.Repositories.BookingOfflineRepository;
@@ -31,7 +32,7 @@ using System.Threading.Tasks;
 
 namespace Services.Services.OrderService
 {
-    public class OrderService : IOrderService       
+    public class OrderService : IOrderService
     {
         private readonly IOrderRepo _orderRepo;
         private readonly IMapper _mapper;
@@ -83,7 +84,7 @@ namespace Services.Services.OrderService
                     res.Message = ResponseMessageConstrantsOrder.NOT_FOUND;
                     return res;
                 }
-                
+
                 if (order.ServiceType == PaymentTypeEnums.BookingOffline.ToString())
                 {
                     var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(order.ServiceId);
@@ -97,10 +98,10 @@ namespace Services.Services.OrderService
                     }
 
                     bool isFirstPayment = order.Note.Contains("Thanh toán đặt cọc 30%");
-                    bookingOffline.Status = isFirstPayment ? 
-                        BookingOfflineEnums.FirstPaymentPending.ToString() : 
+                    bookingOffline.Status = isFirstPayment ?
+                        BookingOfflineEnums.FirstPaymentPending.ToString() :
                         BookingOfflineEnums.SecondPaymentPending.ToString();
-                    
+
                     await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
                 }
 
@@ -131,7 +132,7 @@ namespace Services.Services.OrderService
                         res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE;
                         return res;
                     }
-                    foreach(var attend in registerAttends)
+                    foreach (var attend in registerAttends)
                     {
                         attend.Status = BookingOnlineEnums.PendingConfirm.ToString();
                         await _registerAttendRepo.UpdateRegisterAttend(attend);
@@ -205,9 +206,9 @@ namespace Services.Services.OrderService
                     var tickets = await _registerAttendRepo.GetRegisterAttendsByGroupId(order.ServiceId);
                     var paidOrders = await _orderRepo.GetAllOrders();
                     var paidOrder = paidOrders.FirstOrDefault(x => x.Status == PaymentStatusEnums.Paid.ToString());
-                    if(paidOrder != null)
+                    if (paidOrder != null)
                     {
-                        foreach(var ticket in tickets)
+                        foreach (var ticket in tickets)
                         {
                             ticket.Status = PaymentStatusEnums.Paid.ToString();
                             await _registerAttendRepo.UpdateRegisterAttend(ticket);
@@ -362,7 +363,8 @@ namespace Services.Services.OrderService
                 else if (order.ServiceType == PaymentTypeEnums.Course.ToString())
                 {
                     var Course = await _courseRepo.GetCourseById(order.ServiceId);
-                    if (Course == null) {
+                    if (Course == null)
+                    {
                         res.IsSuccess = false;
                         res.StatusCode = StatusCodes.Status404NotFound;
                         res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -400,7 +402,7 @@ namespace Services.Services.OrderService
                         }
                     }
 
-                    if(order.Status.Equals(PaymentStatusEnums.Paid))
+                    if (order.Status.Equals(PaymentStatusEnums.Paid))
                     {
                         res.IsSuccess = false;
                         res.StatusCode = StatusCodes.Status500InternalServerError;
@@ -418,7 +420,7 @@ namespace Services.Services.OrderService
                         return res;
                     }
                 }
-                    
+
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
@@ -578,82 +580,71 @@ namespace Services.Services.OrderService
             }
         }
 
-        public async Task<ResultModel> CancelOrder(string orderId)
+        public async Task<ResultModel> CancelOrder(string serviceId, PaymentTypeEnums serviceType)
         {
             var res = new ResultModel();
             try
             {
-                var order = await _orderRepo.GetOrderById(orderId);
-                if (order == null)
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = ResponseMessageConstrantsOrder.NOT_FOUND;
-                    return res;
-                }
-
-                bool isPaid = order.Status == PaymentStatusEnums.Paid.ToString();
-                bool isPending = order.Status == PaymentStatusEnums.Pending.ToString();
-
+                var order = await _orderRepo.GetOneOrderByService(serviceId, serviceType);
+                
                 switch (order.ServiceType)
                 {
                     case nameof(PaymentTypeEnums.BookingOnline):
-                        var booking = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(order.ServiceId);
-                        if (booking != null && booking.BookingDate <= DateOnly.FromDateTime(DateTime.Now))
+                        var bookingOnline = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(serviceId);
+                        if (bookingOnline == null)
                         {
                             res.IsSuccess = false;
-                            res.ResponseCode = ResponseCodeConstants.FAILED;
-                            res.StatusCode = StatusCodes.Status400BadRequest;
-                            res.Message = ResponseMessageConstrantsOrder.ONLINE_EXPIRED;
+                            res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                            res.StatusCode = StatusCodes.Status404NotFound;
+                            res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE;
                             return res;
                         }
-                        if(booking != null)
+
+                        bookingOnline.Status = BookingOnlineEnums.Canceled.ToString();
+                        await _bookingOnlineRepo.UpdateBookingOnlineRepo(bookingOnline);
+
+                        if (!string.IsNullOrEmpty(bookingOnline.MasterScheduleId))
                         {
-                            if(booking.MasterId != null)
+                            var masterSchedule = await _masterScheduleRepo.GetMasterScheduleById(bookingOnline.MasterScheduleId);
+                            if (masterSchedule != null)
                             {
-                                booking.MasterScheduleId = null;
-                                booking.MasterId = null;
-                                booking.Status = BookingOnlineEnums.Canceled.ToString();
-                                await _bookingOnlineRepo.UpdateBookingOnlineRepo(booking);
+                                masterSchedule.Status = MasterScheduleEnums.Canceled.ToString();
+                                await _masterScheduleRepo.UpdateMasterSchedule(masterSchedule);
                             }
                         }
-                        order.Status = isPaid ? PaymentStatusEnums.WaitingForRefund.ToString() : PaymentStatusEnums.Canceled.ToString();
+
+                        if (order != null)
+                        {
+                            if (order.Status == PaymentStatusEnums.Pending.ToString())
+                            {
+                                order.Status = PaymentStatusEnums.Canceled.ToString();
+                                order.PaymentReference = null;
+                            }
+                            if (order.Status == PaymentStatusEnums.PendingConfirm.ToString())
+                            {
+                                order.Status = PaymentStatusEnums.WaitingForRefund.ToString();
+                                order.PaymentReference = null;
+                            }
+                        }
                         break;
 
-                    case nameof(PaymentTypeEnums.RegisterAttend):
-                        var tickets = await _registerAttendRepo.GetRegisterAttendsByGroupId(order.ServiceId);
-                        if (tickets != null && tickets.Any())
+                    case nameof(PaymentTypeEnums.BookingOffline):
+                        var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
+                        if (bookingOffline == null)
                         {
-                            var workshopId = tickets.First().WorkshopId;
-                            var workshop = await _workShopRepo.GetWorkShopById(workshopId);
-
-                            if (workshop != null)
-                            {
-                                if (workshop.StartDate <= DateTime.Now)
-                                {
-                                    res.IsSuccess = false;
-                                    res.ResponseCode = ResponseCodeConstants.FAILED;
-                                    res.StatusCode = StatusCodes.Status400BadRequest;
-                                    res.Message = ResponseMessageConstrantsOrder.WORKSHOP_EXPIRED;
-                                    return res;
-                                }
-
-                                workshop.Capacity += tickets.Count;
-                                await _workShopRepo.UpdateWorkShop(workshop);
-                            }
-
-                            foreach (var ticket in tickets)
-                            {
-                                ticket.Status = RegisterAttendStatusEnums.Canceled.ToString();
-                                await _registerAttendRepo.UpdateRegisterAttend(ticket);
-                            }
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                            res.StatusCode = StatusCodes.Status404NotFound;
+                            res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_OFFLINE;
+                            return res;
                         }
-                        order.Status = isPaid ? PaymentStatusEnums.WaitingForRefund.ToString() : PaymentStatusEnums.Canceled.ToString();
+
+                        bookingOffline.Status = BookingOfflineEnums.Canceled.ToString();
+                        await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
                         break;
 
                     case nameof(PaymentTypeEnums.Course):
-                        if (order.Status == PaymentStatusEnums.Paid.ToString() || order.Status == PaymentStatusEnums.PendingConfirm.ToString())
+                        if (order != null && order.Status == PaymentStatusEnums.Paid.ToString())
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.FAILED;
@@ -661,11 +652,44 @@ namespace Services.Services.OrderService
                             res.Message = "Bạn không thể hủy khóa học bạn đã thanh toán";
                             return res;
                         }
-                        order.Status = PaymentStatusEnums.Canceled.ToString();
+
+                        if (order != null)
+                        {
+                            order.Status = PaymentStatusEnums.Canceled.ToString();
+                            order.PaymentReference = null;
+                        }
                         break;
 
-                    case nameof(PaymentTypeEnums.BookingOffline):
-                        order.Status = PaymentStatusEnums.Canceled.ToString();
+                    case nameof(PaymentTypeEnums.RegisterAttend):
+                        var tickets = await _registerAttendRepo.GetRegisterAttendsByGroupId(serviceId);
+                        if (tickets == null || !tickets.Any())
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                            res.StatusCode = StatusCodes.Status404NotFound;
+                            res.Message = "Không tìm thấy thông tin đăng ký tham dự";
+                            return res;
+                        }
+
+                        foreach (var ticket in tickets)
+                        {
+                            ticket.Status = RegisterAttendStatusEnums.Canceled.ToString();
+                            await _registerAttendRepo.UpdateRegisterAttend(ticket);
+                        }
+
+                        if (order != null)
+                        {
+                            if (order.Status == PaymentStatusEnums.Pending.ToString())
+                            {
+                                order.Status = PaymentStatusEnums.Canceled.ToString();
+                                order.PaymentReference = null;
+                            }
+                            if (order.Status == PaymentStatusEnums.PendingConfirm.ToString())
+                            {
+                                order.Status = PaymentStatusEnums.WaitingForRefund.ToString();
+                                order.PaymentReference = null;
+                            }
+                        }
                         break;
 
                     default:
@@ -676,8 +700,10 @@ namespace Services.Services.OrderService
                         return res;
                 }
 
-                order.PaymentReference = null;
-                await _orderRepo.UpdateOrder(order);
+                if (order != null)
+                {
+                    await _orderRepo.UpdateOrder(order);
+                }
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
@@ -716,27 +742,40 @@ namespace Services.Services.OrderService
                     .Where(o => o.CreatedDate.HasValue && o.CreatedDate.Value.AddMinutes(15) < DateTime.Now)
                     .ToList();
 
-
                 foreach (var order in expiredOrders)
                 {
-                    if (order.ServiceType == PaymentTypeEnums.RegisterAttend.ToString())
+                    switch (order.ServiceType)
                     {
-                        var tickets = await _registerAttendRepo.GetRegisterAttendsByGroupId(order.ServiceId);
-                        if (tickets != null && tickets.Any())
-                        {
-                            var workshopId = tickets.First().WorkshopId;
-                            var workshop = await _workShopRepo.GetWorkShopById(workshopId);
+                        case nameof(PaymentTypeEnums.BookingOnline):
+                            var bookingOnline = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(order.ServiceId);
+                            if (bookingOnline != null)
+                            {
+                                bookingOnline.Status = BookingOnlineEnums.Canceled.ToString();
+                                await _bookingOnlineRepo.UpdateBookingOnlineRepo(bookingOnline);
 
-                            if (workshop != null)
-                            {
-                                workshop.Capacity += tickets.Count;
-                                await _workShopRepo.UpdateWorkShop(workshop);
+                                if (!string.IsNullOrEmpty(bookingOnline.MasterScheduleId))
+                                {
+                                    var masterSchedule = await _masterScheduleRepo.GetMasterScheduleById(bookingOnline.MasterScheduleId);
+                                    if (masterSchedule != null)
+                                    {
+                                        masterSchedule.Status = MasterScheduleEnums.Canceled.ToString();
+                                        await _masterScheduleRepo.UpdateMasterSchedule(masterSchedule);
+                                    }
+                                }
                             }
-                            foreach (var ticket in tickets)
+                            break;
+
+                        case nameof(PaymentTypeEnums.RegisterAttend):
+                            var tickets = await _registerAttendRepo.GetRegisterAttendsByGroupId(order.ServiceId);
+                            if (tickets != null && tickets.Any())
                             {
-                                await _registerAttendRepo.DeleteRegisterAttend(ticket.AttendId);
+                                foreach (var ticket in tickets)
+                                {
+                                    ticket.Status = RegisterAttendStatusEnums.Canceled.ToString();
+                                    await _registerAttendRepo.UpdateRegisterAttend(ticket);
+                                }
                             }
-                        }
+                            break;
                     }
 
                     order.Status = PaymentStatusEnums.Expired.ToString();

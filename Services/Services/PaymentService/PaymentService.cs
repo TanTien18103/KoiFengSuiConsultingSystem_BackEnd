@@ -426,7 +426,7 @@ namespace Services.Services.PaymentService
             {
                 throw new AppException(
                     ResponseCodeConstants.BAD_REQUEST, 
-                    $"Bạn đã có một đơn hàng {serviceType.ToString()} đang chờ thanh toán. Vui lòng thanh toán hoặc chọn dịch vụ khác.", 
+                    $"Bạn đã có một đơn hàng {serviceType.ToString()} đang chờ thanh toán hoặc xác nhận. Vui lòng thanh toán hoặc chọn dịch vụ khác.", 
                     StatusCodes.Status400BadRequest
                 );
             }

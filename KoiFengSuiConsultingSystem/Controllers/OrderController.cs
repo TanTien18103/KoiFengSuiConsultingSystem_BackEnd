@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using BusinessObjects.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Services.OrderService;
@@ -40,9 +41,9 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
         [HttpPut("cancel/{id}")]
         [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> CancelOrder(string id)
+        public async Task<IActionResult> CancelOrder(string id, PaymentTypeEnums type)
         {
-            var res = await _orderService.CancelOrder(id);
+            var res = await _orderService.CancelOrder(id, type);
             return StatusCode(res.StatusCode, res);
         }
 

@@ -276,7 +276,10 @@ namespace BusinessObjects.Constants
         public const string MASTERSCHEDULE_NOT_FOUND = "Không tìm thấy thời gian biểu của Master!";
         public const string MASTERSCHEDULE_FOUND = "Lấy danh sách thời gian biểu của Master thành công!";
         public const string MASTERSCHEDULE_EXISTED_SLOT = "Thời gian biểu đã tồn tại!";
+        public const string WORKSHOP_MORNING_LOCKED = "Không thể tạo workshop buổi sáng vì khung giờ 7h-11h đã bị khóa do lịch trình khác.";
+        public const string WORKSHOP_AFTERNOON_LOCKED = "Không thể tạo workshop buổi chiều vì khung giờ 12h-17h đã bị khóa do lịch trình khác.";
     }
+}
 
     public class ResponseMessageConstrantsMaster
     {

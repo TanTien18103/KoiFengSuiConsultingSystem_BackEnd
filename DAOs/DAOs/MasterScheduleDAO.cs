@@ -184,5 +184,12 @@ namespace DAOs.DAOs
                     ms.EndTime == endTime &&
                     ms.Date == date);
         }
+
+        public async Task<List<MasterSchedule>> GetMasterScheduleByMasterIdAndDateDao(string masterId, DateOnly dateOnly)
+        {
+            return await _context.MasterSchedules
+                .Where(ms => ms.MasterId == masterId && ms.Date == dateOnly)
+                .ToListAsync();
+        }
     }
 }

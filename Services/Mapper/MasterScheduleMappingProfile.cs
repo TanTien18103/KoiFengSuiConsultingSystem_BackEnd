@@ -55,7 +55,8 @@ namespace Services.Mapper
                                 FullName = b.Customer.Account.FullName,
                                 Email = b.Customer.Account.Email,
                                 PhoneNumber = b.Customer.Account.PhoneNumber
-                            }
+                            },
+                            Location = b.Location
                         }).ToList(),
                         Workshops = src.WorkShops.Select(w => new WorkshopDTO
                         {
@@ -72,8 +73,9 @@ namespace Services.Mapper
                 .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Customer));
 
             CreateMap<BookingOffline, BookingOfflineDTO>()
-                .ForMember(dest => dest.BookingOfflineId, opt => opt.MapFrom(src => src.BookingOfflineId))
-                .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Customer));
+            .ForMember(dest => dest.BookingOfflineId, opt => opt.MapFrom(src => src.BookingOfflineId))
+            .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Customer))
+            .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location));
 
             CreateMap<WorkShop, WorkshopDTO>()
                 .ForMember(dest => dest.WorkshopId, opt => opt.MapFrom(src => src.WorkshopId))

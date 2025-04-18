@@ -97,6 +97,7 @@ namespace DAOs.DAOs
         {
             return await _context.Customers
                 .Include(c => c.Account)
+                .Where(c => c.Account.IsActive)
                 .ToListAsync();
         }
 

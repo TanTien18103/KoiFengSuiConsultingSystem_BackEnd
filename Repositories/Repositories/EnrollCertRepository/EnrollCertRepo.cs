@@ -30,5 +30,15 @@ namespace Repositories.Repositories.EnrollCertRepository
         {
             return EnrollCertDAO.Instance.DeleteEnrollCertDao(enrollCertId);
         }
+
+        public Task<EnrollCert> GetByCustomerIdAndCertificateId(string customerid, string certificateId)
+        {
+            return EnrollCertDAO.Instance.GetByCustomerIdAndCertificateIdDao(customerid, certificateId);
+        }
+
+        public Task<List<EnrollCert>> GetEnrollCertByCustomerId(string customerid)
+        {
+            return EnrollCertDAO.Instance.GetEnrollCertByCustomerIdDao(customerid);
+        }
     }
 }

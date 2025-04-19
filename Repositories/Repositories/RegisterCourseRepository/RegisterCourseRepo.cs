@@ -45,5 +45,10 @@ namespace Repositories.Repositories.RegisterCourseRepository
         {
             return RegisterCourseDAO.Instance.GetRegisterCoursesByCourseIdDao(courseId);
         }
+
+        public Task<RegisterCourse> GetRegisterCourseByEnrollQuizId(string enrollQuizId)
+        {
+            return RegisterCourseDAO.Instance.GetRegisterCourseByEnrollQuizIdDao(enrollQuizId);
+        }
     }
 }

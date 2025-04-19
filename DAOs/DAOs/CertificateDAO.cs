@@ -39,7 +39,15 @@ namespace DAOs.DAOs
 
         public async Task<Certificate> GetCertificateByIdDao(string certificateId)
         {
-            return await _context.Certificates.FindAsync(certificateId);
+            return await _context.Certificates
+                .Include(c => c.Courses)
+                .FirstOrDefaultAsync(c => c.CertificateId == certificateId);
+        }
+        public async Task<List<Certificate>> GetAllCertificatesDao()
+        {
+            return await _context.Certificates
+                .Include(c => c.Courses)
+                .ToListAsync();
         }
 
         public async Task<List<Certificate>> GetCertificatesByCourseIdDao(string courseId)
@@ -68,6 +76,13 @@ namespace DAOs.DAOs
             var certificate = await GetCertificateByIdDao(certificateId);
             _context.Certificates.Remove(certificate);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<Certificate>> GetCertificatesByIdsDao(List<string> certificateIds)
+        {
+            return await _context.Certificates
+                .Where(c => certificateIds.Contains(c.CertificateId))
+                .ToListAsync();
         }
     }
 }

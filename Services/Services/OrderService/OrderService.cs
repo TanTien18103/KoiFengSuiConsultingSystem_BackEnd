@@ -379,7 +379,7 @@ namespace Services.Services.OrderService
                         EnrollCertId = null,
                         EnrollQuizId = null,
                         Percentage = 0,
-                        Status = EnrollChapterStatusEnums.InProgress.ToString(),
+                        Status = RegisterCourseStatusEnums.InProgress.ToString(),
                         CustomerId = order.CustomerId
                     };
 

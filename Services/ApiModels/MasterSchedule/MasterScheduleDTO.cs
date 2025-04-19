@@ -16,6 +16,7 @@ namespace Services.ApiModels.MasterSchedule
         public string MasterName { get; set; }
         public TimeOnly? StartTime { get; set; }
         public TimeOnly? EndTime { get; set; }
+        public string? Location { get; set; }
         public List<BookingOnlineDTO> BookingOnlines { get; set; }
         public List<BookingOfflineDTO> BookingOfflines { get; set; }
         public List<WorkshopDTO> Workshops { get; set; }
@@ -24,6 +25,7 @@ namespace Services.ApiModels.MasterSchedule
         {
             public string BookingOfflineId { get; set; }
             public CustomerInfoDTO Customer { get; set; }
+            public string Location { get; set; }
         }
 
         public class BookingOnlineDTO

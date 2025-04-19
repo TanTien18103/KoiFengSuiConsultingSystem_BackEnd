@@ -30,5 +30,15 @@ namespace Repositories.Repositories.CertificateRepository
         {
             return CertificateDAO.Instance.DeleteCertificateDao(certificateId);
         }
+
+        public Task<List<Certificate>> GetAllCertificates()
+        {
+            return CertificateDAO.Instance.GetAllCertificatesDao();
+        }
+
+        public Task<List<Certificate>> GetCertificatesByIds(List<string> certificateIds)
+        {
+            return CertificateDAO.Instance.GetCertificatesByIdsDao(certificateIds);
+        }
     }
 }

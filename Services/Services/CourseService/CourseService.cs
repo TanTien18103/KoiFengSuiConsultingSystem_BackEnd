@@ -24,6 +24,7 @@ using Repositories.Repositories.OrderRepository;
 using Services.ServicesHelpers.UploadService;
 using Azure;
 using Repositories.Repositories.RegisterCourseRepository;
+using Repositories.Repositories.CertificateRepository;
 
 namespace Services.Services.CourseService
 {
@@ -39,8 +40,19 @@ namespace Services.Services.CourseService
         private readonly IOrderRepo _orderRepo;
         private readonly IUploadService _uploadService;
         private readonly IRegisterCourseRepo _registerCourseRepo;
-
-        public CourseService(ICourseRepo courseRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor, IAccountRepo accountRepo, IMasterRepo masterRepo, ICategoryRepo categoryRepo, ICustomerRepo customerRepo, IOrderRepo orderRepo, IUploadService uploadService, IRegisterCourseRepo registerCourseRepo)
+        private readonly ICertificateRepo _certificateRepo;
+        public CourseService(
+            ICourseRepo courseRepo,
+            IMapper mapper,
+            IHttpContextAccessor httpContextAccessor,
+            IAccountRepo accountRepo,
+            IMasterRepo masterRepo,
+            ICategoryRepo categoryRepo,
+            ICustomerRepo customerRepo,
+            IOrderRepo orderRepo,
+            IUploadService uploadService,
+            IRegisterCourseRepo registerCourseRepo,
+            ICertificateRepo certificateRepo)
         {
             _courseRepo = courseRepo;
             _mapper = mapper;
@@ -52,6 +64,7 @@ namespace Services.Services.CourseService
             _orderRepo = orderRepo;
             _uploadService = uploadService;
             _registerCourseRepo = registerCourseRepo;
+            _certificateRepo = certificateRepo;
         }
         public static string GenerateShortGuid()
         {
@@ -143,7 +156,6 @@ namespace Services.Services.CourseService
         public async Task<ResultModel> CreateCourse(CourseRequest request)
         {
             var res = new ResultModel();
-
             try
             {
                 if (request == null)
@@ -184,6 +196,14 @@ namespace Services.Services.CourseService
                 }
 
                 var result = await _courseRepo.CreateCourse(course);
+
+                var latestCertificate = (await _certificateRepo.GetAllCertificates())
+                    .OrderByDescending(c => c.CreateDate)
+                    .FirstOrDefault();                
+
+                result.CertificateId = latestCertificate?.CertificateId;
+                await _courseRepo.UpdateCourse(result);
+
                 var response = await _courseRepo.GetCourseById(result.CourseId);
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;

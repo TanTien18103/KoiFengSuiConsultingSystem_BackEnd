@@ -95,5 +95,11 @@ namespace DAOs.DAOs
                 .Where(rc => rc.CourseId == courseId && rc.Rating.HasValue)
                 .ToListAsync();
         }
+
+        public async Task<RegisterCourse> GetRegisterCourseByEnrollQuizIdDao(string enrollQuizId)
+        {
+            return await _context.RegisterCourses
+                .FirstOrDefaultAsync(rc => rc.EnrollQuizId == enrollQuizId);
+        }
     }
 }

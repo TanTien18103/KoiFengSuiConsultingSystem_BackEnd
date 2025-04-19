@@ -11,10 +11,11 @@ namespace Repositories.Repositories.CertificateRepository
     {
 
         Task<Certificate> GetCertificateById(string certificateId);
+        Task<List<Certificate>> GetAllCertificates();
         Task<List<Certificate>> GetCertificatesByCourseId(string courseId);
         Task<Certificate> CreateCertificate(Certificate certificate);
         Task<Certificate> UpdateCertificate(Certificate certificate);
         Task DeleteCertificate(string certificateId);
-
+        Task<List<Certificate>> GetCertificatesByIds(List<string> certificateIds);
     }
 }

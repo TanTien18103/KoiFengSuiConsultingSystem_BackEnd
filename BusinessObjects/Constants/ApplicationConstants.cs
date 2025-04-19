@@ -4,281 +4,280 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessObjects.Constants
+namespace BusinessObjects.Constants;
+
+public class ApplicationConstants
 {
-    public class ApplicationConstants
-    {
-        public const string KEYID_EXISTED = "KeyId {0} đã tồn tại.";
-        public const string KeyId = "KeyId";
-        public const string DUPLICATE = "Symtem_id is duplicated";
-    }
+    public const string KEYID_EXISTED = "KeyId {0} đã tồn tại.";
+    public const string KeyId = "KeyId";
+    public const string DUPLICATE = "Symtem_id is duplicated";
+}
 
-    //Service (1-0-0)
-    public class ResponseCodeConstants
-    {
-        public const string NOT_FOUND = "Not found!";
-        public const string BAD_REQUEST = "Bad request!";
-        public const string SUCCESS = "Success!";
-        public const string FAILED = "Failed!";
-        public const string EXISTED = "Existed!";
-        public const string DUPLICATE = "Duplicate!";
-        public const string INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
-        public const string INVALID_INPUT = "Invalid input!";
-        public const string REQUIRED_INPUT = "Input required!";
-        public const string UNAUTHORIZED = "Unauthorized!";
-        public const string FORBIDDEN = "Forbidden!";
-        public const string EXPIRED = "Expired!";
-    }
+//Service (1-0-0)
+public class ResponseCodeConstants
+{
+    public const string NOT_FOUND = "Not found!";
+    public const string BAD_REQUEST = "Bad request!";
+    public const string SUCCESS = "Success!";
+    public const string FAILED = "Failed!";
+    public const string EXISTED = "Existed!";
+    public const string DUPLICATE = "Duplicate!";
+    public const string INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
+    public const string INVALID_INPUT = "Invalid input!";
+    public const string REQUIRED_INPUT = "Input required!";
+    public const string UNAUTHORIZED = "Unauthorized!";
+    public const string FORBIDDEN = "Forbidden!";
+    public const string EXPIRED = "Expired!";
+}
 
-    //Controllers
-    public class ResponseMessageConstantsCommon
-    {
-        public const string NOT_FOUND = "Không tìm thấy dữ liệu";
-        public const string EXISTED = "Already existed!";
-        public const string SUCCESS = "Thao tác thành công";
-        public const string NO_DATA = "Không có dữ liệu trả về";
-        public const string SERVER_ERROR = "Lỗi từ phía server vui lòng liên hệ đội ngũ phát triển";
-        public const string DATE_WRONG_FORMAT = "Dữ liệu ngày không đúng định dạng yyyy-mm-dd";
-        public const string DATA_NOT_ENOUGH = "Dữ liệu đưa vào không đầy đủ";
-    }
+//Controllers
+public class ResponseMessageConstantsCommon
+{
+    public const string NOT_FOUND = "Không tìm thấy dữ liệu";
+    public const string EXISTED = "Already existed!";
+    public const string SUCCESS = "Thao tác thành công";
+    public const string NO_DATA = "Không có dữ liệu trả về";
+    public const string SERVER_ERROR = "Lỗi từ phía server vui lòng liên hệ đội ngũ phát triển";
+    public const string DATE_WRONG_FORMAT = "Dữ liệu ngày không đúng định dạng yyyy-mm-dd";
+    public const string DATA_NOT_ENOUGH = "Dữ liệu đưa vào không đầy đủ";
+}
 
-    //Auth-Account
-    public class ResponseMessageIdentity
-    {
-        public const string INVALID_USER = "Người dùng không tồn tại.";
-        public const string UNAUTHENTICATED = "Không xác thực.";
-        public const string UNAUTHENTICATED_OR_UNAUTHORIZED = "Người dùng chưa xác thực hoặc không có quyền truy cập.";
-        public const string PASSWORD_NOT_MATCH = "Mật khẩu không giống nhau.";
-        public const string NEW_PASSWORD_CANNOT_MATCH = "Mật khẩu mới không được trùng với mật khẩu cũ.";
-        public const string PASSWORD_WRONG = "Mật khẩu không đúng.";
-        public const string OLD_PASSWORD_WRONG = "Mật khẩu cũ không đúng.";
-        public const string PASSWORD_INVALID = "Mật khẩu không hợp lệ.";
-        public const string EXISTED_USER_NAME = "Người dùng đã tồn tại.";
-        public const string EXISTED_ACCOUNT_NO = "Tài khoản ngân hàng đã tồn tại.";
-        public const string EXISTED_EMAIL = "Email đã tồn tại.";
-        public const string EXISTED_PHONE = "Số điện thoại đã tồn tại.";
-        public const string TOKEN_INVALID_OR_EXPIRED = "Token không xác thực hoặc đã hết hạn.";
-        public const string TOKEN_INVALID = "Token xác thực không hợp lệ.";
-        public const string TOKEN_NOT_SEND = "Token xác thực không được cung cấp";
-        public const string GOOGLE_TOKEN_INVALID = "Token Google không hợp lệ.";
-        public const string EMAIL_VALIDATED = "Email đã được xác thực.";
-        public const string PHONE_VALIDATED = "Số điện thoại đã được xác thực.";
-        public const string ROLE_INVALID = "Role không xác thực.";
-        public const string CLAIM_NOTFOUND = "Không tìm thấy claim.";
-        public const string EXISTED_ROLE = "Role đã tồn tại.";
-        public const string INCORRECT_EMAIL = "Email Không tìm thấy";
-        public const string ACCOUNT_NOT_FOUND = "Tài khoản Không tìm thấy";
+//Auth-Account
+public class ResponseMessageIdentity
+{
+    public const string INVALID_USER = "Người dùng không tồn tại.";
+    public const string UNAUTHENTICATED = "Không xác thực.";
+    public const string UNAUTHENTICATED_OR_UNAUTHORIZED = "Người dùng chưa xác thực hoặc không có quyền truy cập.";
+    public const string PASSWORD_NOT_MATCH = "Mật khẩu không giống nhau.";
+    public const string NEW_PASSWORD_CANNOT_MATCH = "Mật khẩu mới không được trùng với mật khẩu cũ.";
+    public const string PASSWORD_WRONG = "Mật khẩu không đúng.";
+    public const string OLD_PASSWORD_WRONG = "Mật khẩu cũ không đúng.";
+    public const string PASSWORD_INVALID = "Mật khẩu không hợp lệ.";
+    public const string EXISTED_USER_NAME = "Người dùng đã tồn tại.";
+    public const string EXISTED_ACCOUNT_NO = "Tài khoản ngân hàng đã tồn tại.";
+    public const string EXISTED_EMAIL = "Email đã tồn tại.";
+    public const string EXISTED_PHONE = "Số điện thoại đã tồn tại.";
+    public const string TOKEN_INVALID_OR_EXPIRED = "Token không xác thực hoặc đã hết hạn.";
+    public const string TOKEN_INVALID = "Token xác thực không hợp lệ.";
+    public const string TOKEN_NOT_SEND = "Token xác thực không được cung cấp";
+    public const string GOOGLE_TOKEN_INVALID = "Token Google không hợp lệ.";
+    public const string EMAIL_VALIDATED = "Email đã được xác thực.";
+    public const string PHONE_VALIDATED = "Số điện thoại đã được xác thực.";
+    public const string ROLE_INVALID = "Role không xác thực.";
+    public const string CLAIM_NOTFOUND = "Không tìm thấy claim.";
+    public const string EXISTED_ROLE = "Role đã tồn tại.";
+    public const string INCORRECT_EMAIL = "Email Không tìm thấy";
+    public const string ACCOUNT_NOT_FOUND = "Tài khoản Không tìm thấy";
 
-        public const string USERNAME_REQUIRED = "Tên người dùng không được để trống.";
-        public const string NAME_REQUIRED = "Tên không được để trống.";
-        public const string GENDER_REQUIRED = "Giới tính không được để trống.";
-        public const string USERCODE_REQUIRED = "Mã người dùng không được để trống.";
-        public const string PASSWORD_REQUIRED = "Mật khẩu không được để trống.";
-        public const string PASSSWORD_LENGTH = "Mật khẩu phải có ít nhất 8 ký tự.";
-        public const string CONFIRM_PASSWORD_REQUIRED = "Xác nhận mật khẩu không được để trống.";
-        public const string EMAIL_REQUIRED = "Email không được để trống.";
-        public const string PHONENUMBER_REQUIRED = "Số điện thoại không được để trống.";
-        public const string PHONENUMBER_INVALID = "Số điện thoại không hợp lệ.";
-        public const string PHONENUMBER_LENGTH = "Số điện thoại phải có chính xác 10 số.";
-        public const string ROLES_REQUIRED = "Role không được để trống.";
-        public const string USER_NOT_ALLOWED = "Bạn không có quyền truy cập vào mục này.";
-        public const string SESSION_NOT_FOUND = "Không tìm thấy session.";
-        public const string SESSION_INVALID = "Session không hợp lệ, hãy đăng nhập lại.";
-        public const string EMAIL_VALIDATION_REQUIRED = "Vui lòng nhập mã OTP được gửi đến email của bạn để kích hoạt tài khoản.";
-        public const string MASTER_NOT_FOUND = "Không tìm thấy Master";
-        public const string UPDATE_MASTER_SUCCESS = "Cập nhật thông tin Master thành công";
+    public const string USERNAME_REQUIRED = "Tên người dùng không được để trống.";
+    public const string NAME_REQUIRED = "Tên không được để trống.";
+    public const string GENDER_REQUIRED = "Giới tính không được để trống.";
+    public const string USERCODE_REQUIRED = "Mã người dùng không được để trống.";
+    public const string PASSWORD_REQUIRED = "Mật khẩu không được để trống.";
+    public const string PASSSWORD_LENGTH = "Mật khẩu phải có ít nhất 8 ký tự.";
+    public const string CONFIRM_PASSWORD_REQUIRED = "Xác nhận mật khẩu không được để trống.";
+    public const string EMAIL_REQUIRED = "Email không được để trống.";
+    public const string PHONENUMBER_REQUIRED = "Số điện thoại không được để trống.";
+    public const string PHONENUMBER_INVALID = "Số điện thoại không hợp lệ.";
+    public const string PHONENUMBER_LENGTH = "Số điện thoại phải có chính xác 10 số.";
+    public const string ROLES_REQUIRED = "Role không được để trống.";
+    public const string USER_NOT_ALLOWED = "Bạn không có quyền truy cập vào mục này.";
+    public const string SESSION_NOT_FOUND = "Không tìm thấy session.";
+    public const string SESSION_INVALID = "Session không hợp lệ, hãy đăng nhập lại.";
+    public const string EMAIL_VALIDATION_REQUIRED = "Vui lòng nhập mã OTP được gửi đến email của bạn để kích hoạt tài khoản.";
+    public const string MASTER_NOT_FOUND = "Không tìm thấy Master";
+    public const string UPDATE_MASTER_SUCCESS = "Cập nhật thông tin Master thành công";
 
-        public const string INVALID_DOB_YEAR = "Ngày sinh không hợp lệ. Vui lòng kiểm tra lại năm sinh của bạn.";
-    }
+    public const string INVALID_DOB_YEAR = "Ngày sinh không hợp lệ. Vui lòng kiểm tra lại năm sinh của bạn.";
+}
 
-    //Auth-Account Controllers
-    public class ResponseMessageIdentitySuccess
-    {
-        public const string REGIST_USER_SUCCESS = "Đăng kí tài khoản thành công! Vui lòng kiểm tra email để xác thực tài khoản.";
-        public const string VERIFY_PHONE_SUCCESS = "Xác thực số điện thoại thành công!";
-        public const string VERIFY_EMAIL_SUCCESS = "Xác thực email thành công!";
-        public const string FORGOT_PASSWORD_SUCCESS = "Yêu cầu đặt lại mật khẩu thành công! Vui lòng kiểm tra email để đặt lại mật khẩu.";
-        public const string RESET_PASSWORD_SUCCESS = "Cấp lại mật khẩu thành công!";
-        public const string CHANGE_PASSWORD_SUCCESS = "Đổi mật khẩu thành công!";
-        public const string RESEND_EMAIL_SUCCESS = "Gửi lại email xác thực thành công!";
-        public const string UPDATE_USER_SUCCESS = "Cập nhật thông tin người dùng thành công!";
-        public const string DELETE_USER_SUCCESS = "Xóa người dùng thành công!";
-        public const string ADD_ROLE_SUCCESS = "Thêm role thành công!";
-        public const string UPDATE_ROLE_SUCCESS = "Cập nhật role thành công!";
-        public const string DELETE_ROLE_SUCCESS = "Xóa role thành công!";
-    }
+//Auth-Account Controllers
+public class ResponseMessageIdentitySuccess
+{
+    public const string REGIST_USER_SUCCESS = "Đăng kí tài khoản thành công! Vui lòng kiểm tra email để xác thực tài khoản.";
+    public const string VERIFY_PHONE_SUCCESS = "Xác thực số điện thoại thành công!";
+    public const string VERIFY_EMAIL_SUCCESS = "Xác thực email thành công!";
+    public const string FORGOT_PASSWORD_SUCCESS = "Yêu cầu đặt lại mật khẩu thành công! Vui lòng kiểm tra email để đặt lại mật khẩu.";
+    public const string RESET_PASSWORD_SUCCESS = "Cấp lại mật khẩu thành công!";
+    public const string CHANGE_PASSWORD_SUCCESS = "Đổi mật khẩu thành công!";
+    public const string RESEND_EMAIL_SUCCESS = "Gửi lại email xác thực thành công!";
+    public const string UPDATE_USER_SUCCESS = "Cập nhật thông tin người dùng thành công!";
+    public const string DELETE_USER_SUCCESS = "Xóa người dùng thành công!";
+    public const string ADD_ROLE_SUCCESS = "Thêm role thành công!";
+    public const string UPDATE_ROLE_SUCCESS = "Cập nhật role thành công!";
+    public const string DELETE_ROLE_SUCCESS = "Xóa role thành công!";
+}
 
-    //For User (0-1-0)  
-    public class ResponseMessageConstantsUser
-    {
-        public const string GET_USER_INFO_SUCCESS = "Lấy thông tin người dùng thành công";
-        public const string USER_NOT_FOUND = "Không tìm thấy người dùng";
-        public const string NOT_UPDATED_ELEMENT = "Người dùng chưa cập nhật thông tin mệnh";
-        public const string USER_EXISTED = "Người dùng đã tồn tại";
-        public const string ADD_USER_SUCCESS = "Thêm người dùng thành công";
-        public const string UPDATE_USER_SUCCESS = "Cập nhật người dùng thành công";
-        public const string DELETE_USER_SUCCESS = "Xóa người dùng thành công";
-        public const string ADMIN_NOT_FOUND = "Không tìm thấy quản trị viên";
-        public const string CUSTOMER_NOT_FOUND = "Không tìm thấy khách hàng";
-        public const string CUSTOMER_INFO_NOT_FOUND = "Không tìm thấy thông tin khách hàng";
-        public const string CUSTOMER_BANK_INFO_NOT_FOUND = "Không tìm thấy thông tin tài khoản ngân hàng của khách hàng";
-    }
+//For User (0-1-0)  
+public class ResponseMessageConstantsUser
+{
+    public const string GET_USER_INFO_SUCCESS = "Lấy thông tin người dùng thành công";
+    public const string USER_NOT_FOUND = "Không tìm thấy người dùng";
+    public const string NOT_UPDATED_ELEMENT = "Người dùng chưa cập nhật thông tin mệnh";
+    public const string USER_EXISTED = "Người dùng đã tồn tại";
+    public const string ADD_USER_SUCCESS = "Thêm người dùng thành công";
+    public const string UPDATE_USER_SUCCESS = "Cập nhật người dùng thành công";
+    public const string DELETE_USER_SUCCESS = "Xóa người dùng thành công";
+    public const string ADMIN_NOT_FOUND = "Không tìm thấy quản trị viên";
+    public const string CUSTOMER_NOT_FOUND = "Không tìm thấy khách hàng";
+    public const string CUSTOMER_INFO_NOT_FOUND = "Không tìm thấy thông tin khách hàng";
+    public const string CUSTOMER_BANK_INFO_NOT_FOUND = "Không tìm thấy thông tin tài khoản ngân hàng của khách hàng";
+}
 
-    //Order-Payment Service
-    public class ResponseMessageConstrantsOrder
-    {
-        public const string NOT_FOUND = "Không tìm thấy đơn hàng";
-        public const string NOT_FOUND_PENDING = "Không tìm thấy đơn hàng đang chờ được xử lý";
-        public const string NOT_FOUND_WAITINGFORREFUND = "Không tìm thấy đơn hàng đang chờ hoàn tiền";
-        public const string FOUND = "Tìm thấy đơn hàng: ";
-        public const string INVALID_DATA = "Dữ liệu không hợp lệ";
-        public const string NOTALLOWED = "Bạn không được phép xem đơn hàng này";
-        public const string CUSTOMER_NOTALLOWED = "Bạn chỉ được phép xem đơn hàng của chính mình";
-        public const string STATUS_CHANGE_NOTALLOWED = "Bạn chưa thể thay đổi trạng thái của đơn hàng này";
-        public const string ALREADY_PAID = "Đơn hàng đã được thanh toán";
-        public const string NOT_PAID = "Đơn hàng chưa được thanh toán";
-        public const string PRICE_NOT_FOUND_OR_INVALID = "Không tìm thấy thông tin giá dịch vụ hoặc giá không hợp lệ";
-        public const string SERVICE_TYPE_INVALID = "Loại dịch vụ không hợp lệ";
-        public const string WEBHOOK_NOT_FOUND = "Dữ liệu Webhook không tìm thấy";
-        public const string REQUEST_FAILED_ORDER = "Gửi yêu cầu thất bại cho đơn hàng: ";
-        public const string NEED_TO_PAY_SERVICE_NOT_FOUND = "Không tìm thấy dịch vụ cần thanh toán";
-        public const string ORDER_STATUS_TO_PAID = "Cập nhật trạng thái đơn hàng thành đã thanh toán thành công";
-        public const string ORDER_STATUS_TO_PENDINGCONFIRM = "Cập nhật trạng thái đơn hàng thành chờ xác nhận đã thanh toán thành công";
-        public const string ORDER_CANCELED_SUCCESS = "Đơn hàng được hủy thành công";
-        public const string ORDER_EXPIRED = "Đơn hàng đã quá hạn thanh toán";
-        public const string SERVICETYPE_INVALID = "Loại dịch vụ không hợp lệ";
-        public const string NOT_WAITING_FOR_REFUND = "Đơn hàng này không ở trạng thái Chờ hoàn tiền";
-        public const string ORDER_AMOUNT_INVALID = "Đơn hàng này không có giá trị để hoàn tiền";
-        public const string CANT_REFUND_FOR_OFFLINE = "Không thể hoàn tiền cho đơn đặt lịch offline";
-        public const string WORKSHOP_EXPIRED = "Không thể hủy đơn vì workshop đã bắt đầu hoặc đã kết thúc";
-        public const string ONLINE_EXPIRED = "Không thể hủy đơn vì đã đến hoặc quá thời gian đặt lịch";
-        public const string COURSE_CONFIRMED = "Không thể hủy đơn vì khóa học đã được đăng ký và được xác nhận";
-        public const string WRONG_ORDER = "Đơn hàng hiện tại không thuộc về khách hàng này";
+//Order-Payment Service
+public class ResponseMessageConstrantsOrder
+{
+    public const string NOT_FOUND = "Không tìm thấy đơn hàng";
+    public const string NOT_FOUND_PENDING = "Không tìm thấy đơn hàng đang chờ được xử lý";
+    public const string NOT_FOUND_WAITINGFORREFUND = "Không tìm thấy đơn hàng đang chờ hoàn tiền";
+    public const string FOUND = "Tìm thấy đơn hàng: ";
+    public const string INVALID_DATA = "Dữ liệu không hợp lệ";
+    public const string NOTALLOWED = "Bạn không được phép xem đơn hàng này";
+    public const string CUSTOMER_NOTALLOWED = "Bạn chỉ được phép xem đơn hàng của chính mình";
+    public const string STATUS_CHANGE_NOTALLOWED = "Bạn chưa thể thay đổi trạng thái của đơn hàng này";
+    public const string ALREADY_PAID = "Đơn hàng đã được thanh toán";
+    public const string NOT_PAID = "Đơn hàng chưa được thanh toán";
+    public const string PRICE_NOT_FOUND_OR_INVALID = "Không tìm thấy thông tin giá dịch vụ hoặc giá không hợp lệ";
+    public const string SERVICE_TYPE_INVALID = "Loại dịch vụ không hợp lệ";
+    public const string WEBHOOK_NOT_FOUND = "Dữ liệu Webhook không tìm thấy";
+    public const string REQUEST_FAILED_ORDER = "Gửi yêu cầu thất bại cho đơn hàng: ";
+    public const string NEED_TO_PAY_SERVICE_NOT_FOUND = "Không tìm thấy dịch vụ cần thanh toán";
+    public const string ORDER_STATUS_TO_PAID = "Cập nhật trạng thái đơn hàng thành đã thanh toán thành công";
+    public const string ORDER_STATUS_TO_PENDINGCONFIRM = "Cập nhật trạng thái đơn hàng thành chờ xác nhận đã thanh toán thành công";
+    public const string ORDER_CANCELED_SUCCESS = "Đơn hàng được hủy thành công";
+    public const string ORDER_EXPIRED = "Đơn hàng đã quá hạn thanh toán";
+    public const string SERVICETYPE_INVALID = "Loại dịch vụ không hợp lệ";
+    public const string NOT_WAITING_FOR_REFUND = "Đơn hàng này không ở trạng thái Chờ hoàn tiền";
+    public const string ORDER_AMOUNT_INVALID = "Đơn hàng này không có giá trị để hoàn tiền";
+    public const string CANT_REFUND_FOR_OFFLINE = "Không thể hoàn tiền cho đơn đặt lịch offline";
+    public const string WORKSHOP_EXPIRED = "Không thể hủy đơn vì workshop đã bắt đầu hoặc đã kết thúc";
+    public const string ONLINE_EXPIRED = "Không thể hủy đơn vì đã đến hoặc quá thời gian đặt lịch";
+    public const string COURSE_CONFIRMED = "Không thể hủy đơn vì khóa học đã được đăng ký và được xác nhận";
+    public const string WRONG_ORDER = "Đơn hàng hiện tại không thuộc về khách hàng này";
 
-    }
+}
 
-    public class ResponseMessageConstrantsBooking
-    {
-        public const string BOOKING_CREATED = "Tạo lịch tư vấn thành công";
-        public const string ONLINE_GET_SUCCESS = "Lấy thông tin booking online thành công";
-        public const string OFFLINE_GET_SUCCESS = "Lấy thông tin booking offline thành công";
-        public const string ASSIGNED_SUCCESS = "Gán Master cho Booking thành công";
-        public const string NOT_FOUND = "Không tìm thấy lịch tư vấn";
-        public const string ALREADY_ASSIGNED = "Lịch tư vấn này đã có Master";
-        public const string NOT_FOUND_STATUS = "Không tìm thấy lịch tư vấn với trạng thái ";
-        public const string REQUIRED_DATA = "Dữ liệu booking không được để trống";
-        public const string INVALID_DATA = "Dữ liệu lịch tư vấn không hợp lệ";
-        public const string NOT_FOUND_ONLINE = "Không tìm thấy đặt lịch trực tuyến";
-        public const string NOT_FOUND_OFFLINE = "Không tìm thấy lịch tư vấn";
-        public const string NOT_FOUND_REGISTERATTEND = "Không tìm thấy vé";
-        public const string REQUIRED_ONE_ATLEAST = "Cần ít nhất một trong các trường booking";
-        public const string REQUIRED_ONE = "Chỉ được assign một booking";
-        public const string UPDATE_STATUS_BOOKING_ONL_FAILED = "Không thể cập nhật trạng thái buổi tư vấn";
-        public const string UPDATE_MASTER_NOTE_BOOKING_ONL_FAILED = "Cập nhật lưu ý của thầy thất bại";
-        public const string UPDATE_MASTER_NOTE_BOOKING_ONL_SUCCESS = "Cập nhật lưu ý của thầy thành công";
-        public const string REQUIRED_ATLEAST_ONE = "Cần ít nhất một trong các trường booking";
-        public const string PRICE_SELECTED_INVALID = "Giá được chọn không hợp lệ";
-        public const string SERVICETYPE_CANCELED = "Buổi tư vấn đã bị hủy, không thể thanh toán";
-        public const string NOT_PENDING_TO_PAY1ST = "Booking không ở trạng thái cho phép thanh toán lần 1";
-        public const string NOT_PAID1ST_OR_PAID2ND = "Booking chưa thanh toán lần 1 hoặc đã thanh toán đủ";
-        public const string BOOKING_NO_PACKAGE = "Booking chưa chọn gói tư vấn";
-        public const string PRICE_NOT_CHOSEN = "Chưa chọn giá gói tư vấn";
-        public const string PRICE_CHOSEN_SUCCES = "Chọn giá gói tư vấn thành công";
-        public const string CHOOSE_PRICE_FOR_PENDING_ONLY = "Chỉ có thể chọn giá cho booking ở trạng thái Pending";
-        public const string ALREADY_CREATE_BOOKING = "Vui lòng tạo đơn hàng cho tư vấn bạn đã tạo trước đó trước khi tạo tư vấn mới";
-        public const string WAITING_CONFIRM = "Bạn đã thanh toán thành công, hãy chờ xác nhận để tạo lịch tư vấn mới";
-        public const string TIME_PASSED = "Không thể đặt lịch các ngày đã qua thời điểm hiện tại";
-        public const string NOT_SELECTED_PRICE_FOR_BOOKING = "Booking chưa có giá được chọn";
-        public const string COMPLETE_BOOKING_SUCCESS = "Hoàn thành tư vấn thành công";
-        public const string BOOKING_FOUND = "Tìm lịch tư vấn thành công";
-        public const string COMPLETE_BOOKING_FAILED = "Hoàn thành tư vấn thất bại";
-        public const string GET_ALL_BOOKING_ONLINE_SUCCESS = "Lấy danh sách tư vấn online thành công";
-        public const string GET_ALL_BOOKING_OFFINE_SUCCESS = "Lấy danh sách tư vấn offline thành công";
-        public const string MISSINNG_MASTERID = "Thiếu MasterId";
-        public const string PENDING_BOOKING_EXISTS = "Bạn đã có một đơn đặt lịch đang chờ xử lý. Vui lòng hoàn tất hoặc hủy trước khi tạo đơn mới.";
-    }
-    public class ResponseMessageConstrantsPackage
-    {
-        public const string PACKAGE_FOUND = "Tìm danh sách các gói tư vấn thành công";
-        public const string ADDED_PACKAGE = "Chọn gói tư vấn thành công";
-        public const string PACKAGE_NOT_FOUND = "Không tìm thấy gói tư vấn";
-        public const string PACKAGE_EXISTED = "Bạn đã chọn gói tư vấn cho buổi tư vấn này. Nếu bạn muốn đặt gói mới, hãy hủy gói cũ";
-        public const string REMOVED_PACKAGE = "Hủy gói tư vấn thành công";
-        public const string PRICE_CHOSEN_SUCCESS = "Chọn giá thành công";
-        public const string PACKAGE_INVALID = "Không tìm thấy gói tư vấn nào phù hợp với yêu cầu của bạn";
-        public const string PACKAGE_CREATE_FAILED = "Không thể tạo gói tư vấn";
-        public const string PACKAGE_CREATED = "Thêm gói tư vấn thành công";
-        public const string PACKAGE_DELETED = "Xóa gói tư vấn thành công";
-        public const string PACKAGE_UPDATED = "Cập nhật gói tư vấn thành công";
-        public const string INVALID_PRICE_RANGE = "Giá tối đa phải lớn hơn hoặc bằng giá tối thiểu.";
-        public const string CONSULTATION_PACKAGE_ID_INVALID = "ID gói tư vấn không hợp lệ";
-        public const string STATUS_INVALID = "Trạng thái không hợp lệ";
-        public const string CONSULTATION_PACKAGE_NOT_FOUND = "Không tìm thấy gói tư vấn";
-        public const string CONSULTATION_PACKAGE_ALREADY_HAS_THIS_STATUS = "Gói tư vấn đã có trạng thái này";
-        public const string PACKAGE_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái gói tư vấn thành công";
-    }
+public class ResponseMessageConstrantsBooking
+{
+    public const string BOOKING_CREATED = "Tạo lịch tư vấn thành công";
+    public const string ONLINE_GET_SUCCESS = "Lấy thông tin booking online thành công";
+    public const string OFFLINE_GET_SUCCESS = "Lấy thông tin booking offline thành công";
+    public const string ASSIGNED_SUCCESS = "Gán Master cho Booking thành công";
+    public const string NOT_FOUND = "Không tìm thấy lịch tư vấn";
+    public const string ALREADY_ASSIGNED = "Lịch tư vấn này đã có Master";
+    public const string NOT_FOUND_STATUS = "Không tìm thấy lịch tư vấn với trạng thái ";
+    public const string REQUIRED_DATA = "Dữ liệu booking không được để trống";
+    public const string INVALID_DATA = "Dữ liệu lịch tư vấn không hợp lệ";
+    public const string NOT_FOUND_ONLINE = "Không tìm thấy đặt lịch trực tuyến";
+    public const string NOT_FOUND_OFFLINE = "Không tìm thấy lịch tư vấn";
+    public const string NOT_FOUND_REGISTERATTEND = "Không tìm thấy vé";
+    public const string REQUIRED_ONE_ATLEAST = "Cần ít nhất một trong các trường booking";
+    public const string REQUIRED_ONE = "Chỉ được assign một booking";
+    public const string UPDATE_STATUS_BOOKING_ONL_FAILED = "Không thể cập nhật trạng thái buổi tư vấn";
+    public const string UPDATE_MASTER_NOTE_BOOKING_ONL_FAILED = "Cập nhật lưu ý của thầy thất bại";
+    public const string UPDATE_MASTER_NOTE_BOOKING_ONL_SUCCESS = "Cập nhật lưu ý của thầy thành công";
+    public const string REQUIRED_ATLEAST_ONE = "Cần ít nhất một trong các trường booking";
+    public const string PRICE_SELECTED_INVALID = "Giá được chọn không hợp lệ";
+    public const string SERVICETYPE_CANCELED = "Buổi tư vấn đã bị hủy, không thể thanh toán";
+    public const string NOT_PENDING_TO_PAY1ST = "Booking không ở trạng thái cho phép thanh toán lần 1";
+    public const string NOT_PAID1ST_OR_PAID2ND = "Booking chưa thanh toán lần 1 hoặc đã thanh toán đủ";
+    public const string BOOKING_NO_PACKAGE = "Booking chưa chọn gói tư vấn";
+    public const string PRICE_NOT_CHOSEN = "Chưa chọn giá gói tư vấn";
+    public const string PRICE_CHOSEN_SUCCES = "Chọn giá gói tư vấn thành công";
+    public const string CHOOSE_PRICE_FOR_PENDING_ONLY = "Chỉ có thể chọn giá cho booking ở trạng thái Pending";
+    public const string ALREADY_CREATE_BOOKING = "Vui lòng tạo đơn hàng cho tư vấn bạn đã tạo trước đó trước khi tạo tư vấn mới";
+    public const string WAITING_CONFIRM = "Bạn đã thanh toán thành công, hãy chờ xác nhận để tạo lịch tư vấn mới";
+    public const string TIME_PASSED = "Không thể đặt lịch các ngày đã qua thời điểm hiện tại";
+    public const string NOT_SELECTED_PRICE_FOR_BOOKING = "Booking chưa có giá được chọn";
+    public const string COMPLETE_BOOKING_SUCCESS = "Hoàn thành tư vấn thành công";
+    public const string BOOKING_FOUND = "Tìm lịch tư vấn thành công";
+    public const string COMPLETE_BOOKING_FAILED = "Hoàn thành tư vấn thất bại";
+    public const string GET_ALL_BOOKING_ONLINE_SUCCESS = "Lấy danh sách tư vấn online thành công";
+    public const string GET_ALL_BOOKING_OFFINE_SUCCESS = "Lấy danh sách tư vấn offline thành công";
+    public const string MISSINNG_MASTERID = "Thiếu MasterId";
+    public const string PENDING_BOOKING_EXISTS = "Bạn đã có một đơn đặt lịch đang chờ xử lý. Vui lòng hoàn tất hoặc hủy trước khi tạo đơn mới.";
+}
+public class ResponseMessageConstrantsPackage
+{
+    public const string PACKAGE_FOUND = "Tìm danh sách các gói tư vấn thành công";
+    public const string ADDED_PACKAGE = "Chọn gói tư vấn thành công";
+    public const string PACKAGE_NOT_FOUND = "Không tìm thấy gói tư vấn";
+    public const string PACKAGE_EXISTED = "Bạn đã chọn gói tư vấn cho buổi tư vấn này. Nếu bạn muốn đặt gói mới, hãy hủy gói cũ";
+    public const string REMOVED_PACKAGE = "Hủy gói tư vấn thành công";
+    public const string PRICE_CHOSEN_SUCCESS = "Chọn giá thành công";
+    public const string PACKAGE_INVALID = "Không tìm thấy gói tư vấn nào phù hợp với yêu cầu của bạn";
+    public const string PACKAGE_CREATE_FAILED = "Không thể tạo gói tư vấn";
+    public const string PACKAGE_CREATED = "Thêm gói tư vấn thành công";
+    public const string PACKAGE_DELETED = "Xóa gói tư vấn thành công";
+    public const string PACKAGE_UPDATED = "Cập nhật gói tư vấn thành công";
+    public const string INVALID_PRICE_RANGE = "Giá tối đa phải lớn hơn hoặc bằng giá tối thiểu.";
+    public const string CONSULTATION_PACKAGE_ID_INVALID = "ID gói tư vấn không hợp lệ";
+    public const string STATUS_INVALID = "Trạng thái không hợp lệ";
+    public const string CONSULTATION_PACKAGE_NOT_FOUND = "Không tìm thấy gói tư vấn";
+    public const string CONSULTATION_PACKAGE_ALREADY_HAS_THIS_STATUS = "Gói tư vấn đã có trạng thái này";
+    public const string PACKAGE_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái gói tư vấn thành công";
+}
 
-    public class ResponseMessageConstrantsCompatibility
-    {
-        public const string DESTINY_NOT_FOUND = "Không tìm thấy cung mệnh. Vui lòng kiểm tra lại!";
-        public const string INCORRECT_TOTAL_COLOR_RATIO = "Tổng tỉ lệ màu không đúng. Vui lòng kiểm tra lại!";
-        public const string VERY_HIGH = "Rất hợp phong thủy, lý tưởng!.";
-        public const string HIGH = "Hợp tốt, có thể sử dụng.";
-        public const string MEDIUM = "Hợp trung bình, có thể chấp nhận.";
-        public const string LOW = "Hợp mức thấp, có thể cải thiện thêm.";
-        public const string VERY_LOW = "Rất không hợp, cần xem xét lại phong thủy.";
-        public const string DESTINY_INVALID = "Mệnh không hợp lệ ";
-    }
+public class ResponseMessageConstrantsCompatibility
+{
+    public const string DESTINY_NOT_FOUND = "Không tìm thấy cung mệnh. Vui lòng kiểm tra lại!";
+    public const string INCORRECT_TOTAL_COLOR_RATIO = "Tổng tỉ lệ màu không đúng. Vui lòng kiểm tra lại!";
+    public const string VERY_HIGH = "Rất hợp phong thủy, lý tưởng!.";
+    public const string HIGH = "Hợp tốt, có thể sử dụng.";
+    public const string MEDIUM = "Hợp trung bình, có thể chấp nhận.";
+    public const string LOW = "Hợp mức thấp, có thể cải thiện thêm.";
+    public const string VERY_LOW = "Rất không hợp, cần xem xét lại phong thủy.";
+    public const string DESTINY_INVALID = "Mệnh không hợp lệ ";
+}
 
-    public class ResponseMessageConstrantsKoiPond
-    {
-        public const string KOIPOND_NOT_FOUND = "Không tìm thấy hồ cá!";
-        public const string KOIPOND_FOUND = "Lấy danh sách hồ cá thành công!";
-        public const string KOIPOND_DESTINY_FOUND = "Lấy danh sách hồ cá phù hợp với mệnh thành công!";
-        public const string KOIPOND_CREATED = "Tạo hồ cá thành công!";
-        public const string KOIPOND_CREATE_FAILED = "Tạo hồ cá thất bại!";
-        public const string KOIPOND_UPDATE_FAILED = "Cập nhật hồ cá thất bại!";
-        public const string KOIPOND_UPDATED = "Cập nhật hồ cá thành công!";
-        public const string KOIPOND_DELETED = "Xóa hồ cá thành công!";
-        public const string KOIPOND_INVALID = "Dữ liệu hồ cá không hợp lệ";
-        public const string SHAPE_NOT_FOUND = "Không tìm thấy hình dạng hồ cá!";
-        public const string SHAPE_FOUND = "Tìm thấy danh sách hình dạng hồ cá!";
-    }
-    public class ResponseMessageConstrantsKoiVariety
-    {
-        public const string KOIVARIETY_NOT_FOUND = "Không tìm thấy cá Koi!";
-        public const string KOIVARIETY_FOUND = "Tìm thấy cá Koi thành công!";
-        public const string KOIVARIETY_INFO_FOUND = "Lấy thông tin thành công ";
-        public const string KOIVARIETY_COLOR_INFO_NOT_FOUND = "không có thông tin màu sắc ";
-        public const string NO_MATCHES_KOIVARIETY = "Không tìm thấy Koi Variety phù hợp với mệnh của bạn. Hãy tham khảo tất cả loại cá chúng tôi";
-        public const string LOW_MATCHES_KOIVARIETY = "Chỉ tìm thấy Koi Variety có độ tương hợp thấp với mệnh của bạn";
-        public const string GET_MATCHES_KOIVARIETY = "Lấy danh sách Koi Variety phù hợp với mệnh của bạn thành công";
-        public const string CREATE_KOIVARIETY_FAILED = "Tạo cá Koi thất bại!";
-        public const string CREATE_KOIVARIETY_SUCCESS = "Tạo cá Koi thành công!";
-        public const string UPDATE_KOIVARIETY_FAILED = "Cập nhật cá Koi thất bại!";
-        public const string UPDATE_KOIVARIETY_SUCCESS = "Cập nhật cá Koi thành công!";
-        public const string DELETE_KOIVARIETY_SUCCESS = "Xóa cá Koi thành công!";
-        public const string COLOR_NOT_FOUND = "Không tìm thấy màu sắc!";
-        public const string COLOR_FOUND = "Lấy danh sách màu sắc thành công!";
-        public const string CREATE_COLOR_FAILED = "Tạo màu sắc thất bại!";
-        public const string CREATE_COLOR_SUCCESS = "Tạo màu sắc thành công!";
-        public const string UPDATE_COLOR_SUCCESS = "Cập nhật màu sắc thành công!";
-        public const string UPDATE_COLOR_FAILED = "Cập nhật màu sắc thất bại!";
-        public const string DELETE_COLOR_SUCCESS = "Xóa màu sắc thành công!";
-        public const string COLOR_INPUT_REQUIRED = "Không có màu nào được chọn!";
-        public const string ELEMENT_COMPATIBLE_NOT_FOUND = "Không tìm thấy mệnh phù hợp với bất kỳ màu nào được chọn!";
-        public const string INVALID_ELEMENT_FOR_COLORS = "Không thể xác định mệnh phù hợp cho các màu đã chọn!";
+public class ResponseMessageConstrantsKoiPond
+{
+    public const string KOIPOND_NOT_FOUND = "Không tìm thấy hồ cá!";
+    public const string KOIPOND_FOUND = "Lấy danh sách hồ cá thành công!";
+    public const string KOIPOND_DESTINY_FOUND = "Lấy danh sách hồ cá phù hợp với mệnh thành công!";
+    public const string KOIPOND_CREATED = "Tạo hồ cá thành công!";
+    public const string KOIPOND_CREATE_FAILED = "Tạo hồ cá thất bại!";
+    public const string KOIPOND_UPDATE_FAILED = "Cập nhật hồ cá thất bại!";
+    public const string KOIPOND_UPDATED = "Cập nhật hồ cá thành công!";
+    public const string KOIPOND_DELETED = "Xóa hồ cá thành công!";
+    public const string KOIPOND_INVALID = "Dữ liệu hồ cá không hợp lệ";
+    public const string SHAPE_NOT_FOUND = "Không tìm thấy hình dạng hồ cá!";
+    public const string SHAPE_FOUND = "Tìm thấy danh sách hình dạng hồ cá!";
+}
+public class ResponseMessageConstrantsKoiVariety
+{
+    public const string KOIVARIETY_NOT_FOUND = "Không tìm thấy cá Koi!";
+    public const string KOIVARIETY_FOUND = "Tìm thấy cá Koi thành công!";
+    public const string KOIVARIETY_INFO_FOUND = "Lấy thông tin thành công ";
+    public const string KOIVARIETY_COLOR_INFO_NOT_FOUND = "không có thông tin màu sắc ";
+    public const string NO_MATCHES_KOIVARIETY = "Không tìm thấy Koi Variety phù hợp với mệnh của bạn. Hãy tham khảo tất cả loại cá chúng tôi";
+    public const string LOW_MATCHES_KOIVARIETY = "Chỉ tìm thấy Koi Variety có độ tương hợp thấp với mệnh của bạn";
+    public const string GET_MATCHES_KOIVARIETY = "Lấy danh sách Koi Variety phù hợp với mệnh của bạn thành công";
+    public const string CREATE_KOIVARIETY_FAILED = "Tạo cá Koi thất bại!";
+    public const string CREATE_KOIVARIETY_SUCCESS = "Tạo cá Koi thành công!";
+    public const string UPDATE_KOIVARIETY_FAILED = "Cập nhật cá Koi thất bại!";
+    public const string UPDATE_KOIVARIETY_SUCCESS = "Cập nhật cá Koi thành công!";
+    public const string DELETE_KOIVARIETY_SUCCESS = "Xóa cá Koi thành công!";
+    public const string COLOR_NOT_FOUND = "Không tìm thấy màu sắc!";
+    public const string COLOR_FOUND = "Lấy danh sách màu sắc thành công!";
+    public const string CREATE_COLOR_FAILED = "Tạo màu sắc thất bại!";
+    public const string CREATE_COLOR_SUCCESS = "Tạo màu sắc thành công!";
+    public const string UPDATE_COLOR_SUCCESS = "Cập nhật màu sắc thành công!";
+    public const string UPDATE_COLOR_FAILED = "Cập nhật màu sắc thất bại!";
+    public const string DELETE_COLOR_SUCCESS = "Xóa màu sắc thành công!";
+    public const string COLOR_INPUT_REQUIRED = "Không có màu nào được chọn!";
+    public const string ELEMENT_COMPATIBLE_NOT_FOUND = "Không tìm thấy mệnh phù hợp với bất kỳ màu nào được chọn!";
+    public const string INVALID_ELEMENT_FOR_COLORS = "Không thể xác định mệnh phù hợp cho các màu đã chọn!";
 
-    }
+}
 
-    public class ResponseMessageConstrantsMasterSchedule
-    {
-        public const string MASTERSCHEDULE_NOT_FOUND = "Không tìm thấy thời gian biểu của Master!";
-        public const string MASTERSCHEDULE_FOUND = "Lấy danh sách thời gian biểu của Master thành công!";
-        public const string MASTERSCHEDULE_EXISTED_SLOT = "Thời gian biểu đã tồn tại!";
-        public const string WORKSHOP_MORNING_LOCKED = "Không thể tạo workshop buổi sáng vì khung giờ 7h-11h đã bị khóa do lịch trình khác.";
-        public const string WORKSHOP_AFTERNOON_LOCKED = "Không thể tạo workshop buổi chiều vì khung giờ 13h-17h đã bị khóa do lịch trình khác.";
-    }
+public class ResponseMessageConstrantsMasterSchedule
+{
+    public const string MASTERSCHEDULE_NOT_FOUND = "Không tìm thấy thời gian biểu của Master!";
+    public const string MASTERSCHEDULE_FOUND = "Lấy danh sách thời gian biểu của Master thành công!";
+    public const string MASTERSCHEDULE_EXISTED_SLOT = "Thời gian biểu đã tồn tại!";
+    public const string WORKSHOP_MORNING_LOCKED = "Không thể tạo workshop buổi sáng vì khung giờ 7h-11h đã bị khóa do lịch trình khác.";
+    public const string WORKSHOP_AFTERNOON_LOCKED = "Không thể tạo workshop buổi chiều vì khung giờ 13h-17h đã bị khóa do lịch trình khác.";
 }
 
 public class ResponseMessageConstrantsMaster
@@ -348,42 +347,56 @@ public class ResponseMessageConstrantsWorkshop
     public const string PRICE_MUST_BE_GREATER_THAN_2000 = "Giá vé phải lớn hơn 2000 đồng.";
 }
 
-    public class ResponseMessageConstrantsCourse
-    {
-        public const string COURSE_CREATED_SUCCESS = "Tạo khóa học thành công!";
-        public const string COURSE_UPDATED_SUCCESS = "Cập nhật khóa học thành công!";
-        public const string COURSE_DELETED_SUCCESS = "Xóa khóa học thành công!";
-        public const string COURSE_FOUND = "Lấy danh sách khóa học thành công!";
-        public const string COURSE_NOT_FOUND = "Không tìm thấy khóa học!";
-        public const string COURSE_INFO_FOUND = "Lấy thông tin khóa học thành công";
-        public const string COURSE_INFO_INVALID = "Dữ liệu khóa học không hợp lệ";
-        public const string COURSE_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật khóa học này.";
-        public const string COURSE_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa khóa học này.";
-        public const string NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy AccountId tương ứng với tài khoản";
-        public const string COURSE_UPDATED_FAILED = "Cập nhật khóa học thất bại!";
-        public const string COURSE_CREATED_FAILED = "Tạo khóa học thất bại!";
-        public const string PROCEED_TO_QUIZ_SUCCESS = "Bạn đã hoàn thành xong các chương, hãy làm quiz!";
-        public const string PAID_COURSES_NOT_FOUND = "Chưa có khóa học nào được mua!";
-        public const string PAID_COURSES_FOUND = "Lấy danh sách khóa học đã mua thành công!";
-        public const string COURSE_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái khóa học thành công!";
-        public const string COURSE_ID_INVALID = "Khóa học không hợp lệ!";
-        public const string STATUS_INVALID = "Trạng thái không hợp lệ!";
-        public const string COURSE_ALREADY_HAS_THIS_STATUS = "Khóa học đã có trạng thái này!";
-        public const string ENROLLEDCOURSE_NOT_FOUND = "Không tìm thấy khóa học bạn đã đăng ký";
-    }
-    public class ResponseMessageConstrantsCategory
-    {
-        public const string CATEGORY_CREATED_SUCCESS = "Tạo danh mục thành công!";
-        public const string CATEGORY_UPDATED_SUCCESS = "Cập nhật danh mục thành công!";
-        public const string CATEGORY_FOUND = "Lấy danh sách danh mục thành công!";
-        public const string CATEGORY_NOT_FOUND = "Không tìm thấy danh sách danh mục!";
-        public const string CATEGORY_ALREADY_EXIST = "Tên danh mục đã tồn tại!";
-        public const string CATEGORY_DELETED_SUCCESS = "Xóa danh mục thành công!";
-        public const string CATEGORY_ID_INVALID = "ID danh mục không hợp lệ!";
-        public const string STATUS_INVALID = "Trạng thái không hợp lệ!";
-        public const string CATEGORY_ALREADY_HAS_THIS_STATUS = "Danh mục đã có trạng thái này!";
-        public const string CATEGORY_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái danh mục thành công!";
-    }
+public class ResponseMessageConstrantsCourse
+{
+    public const string COURSE_CREATED_SUCCESS = "Tạo khóa học thành công!";
+    public const string COURSE_UPDATED_SUCCESS = "Cập nhật khóa học thành công!";
+    public const string COURSE_DELETED_SUCCESS = "Xóa khóa học thành công!";
+    public const string COURSE_FOUND = "Lấy danh sách khóa học thành công!";
+    public const string COURSE_NOT_FOUND = "Không tìm thấy khóa học!";
+    public const string COURSE_INFO_FOUND = "Lấy thông tin khóa học thành công";
+    public const string COURSE_INFO_INVALID = "Dữ liệu khóa học không hợp lệ";
+    public const string COURSE_UPDATE_NOT_ALLOWED = "Bạn không có quyền cập nhật khóa học này.";
+    public const string COURSE_DELETE_NOT_ALLOWED = "Bạn không có quyền xóa khóa học này.";
+    public const string NOTFOUND_ACCOUNTID_CORRESPONDING_TO_ACCOUNT = "Không tìm thấy AccountId tương ứng với tài khoản";
+    public const string COURSE_UPDATED_FAILED = "Cập nhật khóa học thất bại!";
+    public const string COURSE_CREATED_FAILED = "Tạo khóa học thất bại!";
+    public const string PROCEED_TO_QUIZ_SUCCESS = "Bạn đã hoàn thành xong các chương, hãy làm quiz!";
+    public const string PAID_COURSES_NOT_FOUND = "Chưa có khóa học nào được mua!";
+    public const string PAID_COURSES_FOUND = "Lấy danh sách khóa học đã mua thành công!";
+    public const string COURSE_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái khóa học thành công!";
+    public const string COURSE_ID_INVALID = "Khóa học không hợp lệ!";
+    public const string STATUS_INVALID = "Trạng thái không hợp lệ!";
+    public const string COURSE_ALREADY_HAS_THIS_STATUS = "Khóa học đã có trạng thái này!";
+    public const string ENROLLEDCOURSE_NOT_FOUND = "Không tìm thấy khóa học bạn đã đăng ký";
+}
+public class ResponseMessageConstrantsCertificate
+{
+    public const string CERTIFICATE_GRANTED_SUCCESS = "Cấp chứng chỉ thành công.";
+    public const string CERTIFICATE_ALREADY_GRANTED = "Người dùng đã được cấp chứng chỉ. Không cần cấp lại.";
+    public const string CERTIFICATE_NOT_FOUND = "Không tìm thấy chứng chỉ.";
+    public const string CERTIFICATE_FOUND = "Lấy danh sách chứng chỉ thành công.";
+    public const string CERTIFICATE_CREATE_SUCCESS = "Tạo chứng chỉ thành công.";
+    public const string CERTIFICATE_CREATE_FAILED = "Tạo chứng chỉ thất bại.";
+    public const string CERTIFICATE_GRANT_FAILED = "Cấp chứng chỉ thất bại.";
+    public const string CERTIFICATE_CREATE_SUCCESSFUL = "Tạo chứng chỉ thành công!";
+    public const string CERTIFICATE_IMAGE_UPLOAD_FAILED = "Không thể tải lên hình ảnh chứng chỉ. Vui lòng kiểm tra lại định dạng và kích thước hình ảnh.";
+}
+
+
+public class ResponseMessageConstrantsCategory
+{
+    public const string CATEGORY_CREATED_SUCCESS = "Tạo danh mục thành công!";
+    public const string CATEGORY_UPDATED_SUCCESS = "Cập nhật danh mục thành công!";
+    public const string CATEGORY_FOUND = "Lấy danh sách danh mục thành công!";
+    public const string CATEGORY_NOT_FOUND = "Không tìm thấy danh sách danh mục!";
+    public const string CATEGORY_ALREADY_EXIST = "Tên danh mục đã tồn tại!";
+    public const string CATEGORY_DELETED_SUCCESS = "Xóa danh mục thành công!";
+    public const string CATEGORY_ID_INVALID = "ID danh mục không hợp lệ!";
+    public const string STATUS_INVALID = "Trạng thái không hợp lệ!";
+    public const string CATEGORY_ALREADY_HAS_THIS_STATUS = "Danh mục đã có trạng thái này!";
+    public const string CATEGORY_STATUS_UPDATED_SUCCESS = "Cập nhật trạng thái danh mục thành công!";
+}
 
 //Image
 public class ResponseMessageImage
@@ -425,6 +438,7 @@ public class ResponseMessageConstrantQuiz
     public const string QUIZ_UPDATE_SUCCESS = "Cập nhật bài kiểm tra thành công!";
     public const string QUIZ_UPDATE_FAILED = "Cập nhật bài kiểm tra thất bại!";
     public const string QUIZ_SUBMITED_SUCCESS = "Đã nộp bài kiểm tra thành công!";
+    public const string CERTIFICATE_ALREADY_GRANTED = "Bạn đã được cấp chứng chỉ. Không cần cấp lại.";
 }
 
 public class ResponseMessageConstrantsQuestion

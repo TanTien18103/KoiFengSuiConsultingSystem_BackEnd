@@ -587,9 +587,9 @@ namespace Services.Services.OrderService
             {
                 var order = await _orderRepo.GetOneOrderByService(serviceId, serviceType);
                 
-                switch (order.ServiceType)
+                switch (serviceType)
                 {
-                    case nameof(PaymentTypeEnums.BookingOnline):
+                    case PaymentTypeEnums.BookingOnline:
                         var bookingOnline = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(serviceId);
                         if (bookingOnline == null)
                         {
@@ -628,7 +628,7 @@ namespace Services.Services.OrderService
                         }
                         break;
 
-                    case nameof(PaymentTypeEnums.BookingOffline):
+                    case PaymentTypeEnums.BookingOffline:
                         var bookingOffline = await _bookingOfflineRepo.GetBookingOfflineById(serviceId);
                         if (bookingOffline == null)
                         {
@@ -643,7 +643,7 @@ namespace Services.Services.OrderService
                         await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
                         break;
 
-                    case nameof(PaymentTypeEnums.Course):
+                    case PaymentTypeEnums.Course:
                         if (order != null && order.Status == PaymentStatusEnums.Paid.ToString())
                         {
                             res.IsSuccess = false;
@@ -660,7 +660,7 @@ namespace Services.Services.OrderService
                         }
                         break;
 
-                    case nameof(PaymentTypeEnums.RegisterAttend):
+                    case PaymentTypeEnums.RegisterAttend:
                         var tickets = await _registerAttendRepo.GetRegisterAttendsByGroupId(serviceId);
                         if (tickets == null || !tickets.Any())
                         {

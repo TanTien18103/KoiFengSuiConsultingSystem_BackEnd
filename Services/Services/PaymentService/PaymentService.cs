@@ -241,6 +241,15 @@ namespace Services.Services.PaymentService
                         var course = await _courseRepo.GetCourseById(serviceId);
                         if (course == null)
                             throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsCourse.COURSE_NOT_FOUND, StatusCodes.Status404NotFound);
+                        
+                        // Kiểm tra xem khách hàng đã mua khóa học này chưa
+                        var existingOrder = await _orderRepo.GetOrderByServiceIdAndCustomerIdAndServiceType(
+                            curCustomer.CustomerId, 
+                            serviceId, 
+                            PaymentTypeEnums.Course.ToString());
+                            
+                        if (existingOrder != null && existingOrder.Status == PaymentStatusEnums.Paid.ToString())
+                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Bạn đã mua khóa học này rồi. Không thể mua lại.", StatusCodes.Status400BadRequest);
 
                         description = "Thanh toán khóa học";
                         customerName = curCustomer.Account.FullName ?? "Khách hàng";

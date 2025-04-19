@@ -216,13 +216,5 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var result = await _bookingService.GetAllBookingByStaff();
             return StatusCode(result.StatusCode, result);
         }
-
-        [HttpGet("cancel-pending-booking/{bookingId}")]
-        [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> CancelPendingBooking([FromRoute]string bookingId,[FromQuery] BookingTypeEnums bookingType)
-        {
-            var result = await _bookingService.CancelPendingBooking(bookingId, bookingType);
-            return StatusCode(result.StatusCode, result);
-        }
     }
 }

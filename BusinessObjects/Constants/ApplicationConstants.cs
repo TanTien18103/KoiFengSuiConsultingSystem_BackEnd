@@ -380,6 +380,7 @@ public class ResponseMessageConstrantsCertificate
     public const string CERTIFICATE_CREATE_FAILED = "Tạo chứng chỉ thất bại.";
     public const string CERTIFICATE_GRANT_FAILED = "Cấp chứng chỉ thất bại.";
     public const string CERTIFICATE_CREATE_SUCCESSFUL = "Tạo chứng chỉ thành công!";
+    public const string CERTIFICATE_IMAGE_UPLOAD_FAILED = "Không thể tải lên hình ảnh chứng chỉ. Vui lòng kiểm tra lại định dạng và kích thước hình ảnh.";
 }
 
 

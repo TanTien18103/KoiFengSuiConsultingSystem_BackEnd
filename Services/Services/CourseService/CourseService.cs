@@ -197,19 +197,11 @@ namespace Services.Services.CourseService
 
                 var result = await _courseRepo.CreateCourse(course);
 
-                // Create a corresponding Certificate
-                var certificate = new Certificate
-                {
-                    CertificateId = GenerateShortGuid(),
-                    IssueDate = DateOnly.FromDateTime(DateTime.UtcNow), 
-                    Description = $"Certificate for course: {course.CourseName}",
-                    CertificateImage = course.ImageUrl, 
-                    CreateDate = DateTime.UtcNow,
-                    UpdateDate = DateTime.UtcNow,
-                };
-                await _certificateRepo.CreateCertificate(certificate);
+                var latestCertificate = (await _certificateRepo.GetAllCertificates())
+                    .OrderByDescending(c => c.CreateDate)
+                    .FirstOrDefault();                
 
-                result.CertificateId = certificate.CertificateId;
+                result.CertificateId = latestCertificate?.CertificateId;
                 await _courseRepo.UpdateCourse(result);
 
                 var response = await _courseRepo.GetCourseById(result.CourseId);

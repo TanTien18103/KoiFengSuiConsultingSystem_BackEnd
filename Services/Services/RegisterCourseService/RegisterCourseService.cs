@@ -25,6 +25,7 @@ using Services.ApiModels.Contract;
 using Services.ApiModels.EnrollChapter;
 using Services.ApiModels.Quiz;
 using Services.ApiModels.RegisterCourse;
+using Services.ServicesHelpers.UploadService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,8 +59,25 @@ namespace Services.Services.RegisterCourseService
         private readonly IEnrollCertRepo _enrollCertRepo;
 
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IUploadService _uploadService;
 
-        public RegisterCourseService(IOrderRepo orderRepo, IMapper mapper, ICourseRepo courseRepo, IChapterRepo chapterRepo, IQuizRepo quizRepo, IQuestionRepo questionRepo, IAnswerRepo answerRepo, ICustomerRepo customerRepo, IRegisterCourseRepo registerCourseRepo, IEnrollChapterRepo enrollChapterRepo, IEnrollQuizRepo enrollQuizRepo, IEnrollAnswerRepo enrollAnswerRepo, IHttpContextAccessor contextAccessor, IEnrollCertRepo enrollCertRepo, ICertificateRepo certificateRepo)
+        public RegisterCourseService(
+            IOrderRepo orderRepo,
+            IMapper mapper,
+            ICourseRepo courseRepo,
+            IChapterRepo chapterRepo,
+            IQuizRepo quizRepo,
+            IQuestionRepo questionRepo,
+            IAnswerRepo answerRepo,
+            ICertificateRepo certificateRepo,
+            ICustomerRepo customerRepo,
+            IRegisterCourseRepo registerCourseRepo,
+            IEnrollChapterRepo enrollChapterRepo,
+            IEnrollQuizRepo enrollQuizRepo,
+            IEnrollAnswerRepo enrollAnswerRepo,
+            IHttpContextAccessor contextAccessor,
+            IUploadService uploadService,
+            IEnrollCertRepo enrollCertRepo)
         {
             _orderRepo = orderRepo;
             _mapper = mapper;
@@ -68,14 +86,15 @@ namespace Services.Services.RegisterCourseService
             _quizRepo = quizRepo;
             _questionRepo = questionRepo;
             _answerRepo = answerRepo;
+            _certificateRepo = certificateRepo;
             _customerRepo = customerRepo;
             _registerCourseRepo = registerCourseRepo;
             _enrollChapterRepo = enrollChapterRepo;
             _enrollQuizRepo = enrollQuizRepo;
             _enrollAnswerRepo = enrollAnswerRepo;
             _contextAccessor = contextAccessor;
+            _uploadService = uploadService;
             _enrollCertRepo = enrollCertRepo;
-            _certificateRepo = certificateRepo;
         }
 
         public static string GenerateShortGuid()
@@ -611,7 +630,20 @@ namespace Services.Services.RegisterCourseService
             try
             {
                 var certificate = _mapper.Map<BusinessObjects.Models.Certificate>(certificateRequest);
+                var uploadResult = await _uploadService.UploadImageAsync(certificateRequest.CertificateImage);
+                if (uploadResult == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.FAILED;
+                    res.Message = ResponseMessageConstrantsCertificate.CERTIFICATE_IMAGE_UPLOAD_FAILED;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
                 certificate.CertificateId = GenerateShortGuid();
+                certificate.CreateDate = DateTime.UtcNow;
+                certificate.UpdateDate = DateTime.UtcNow;
+                certificate.CertificateImage = uploadResult;
 
                 var createdCertificate = await _certificateRepo.CreateCertificate(certificate);
 
@@ -640,7 +672,15 @@ namespace Services.Services.RegisterCourseService
                     {
                         course.CertificateId = createdCertificate.CertificateId;
                         course.UpdateAt = DateTime.Now;
-                        await _courseRepo.UpdateCourse(course);
+                        var courseUpdate = await _courseRepo.UpdateCourse(course);
+                        if (courseUpdate == null)
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.FAILED;
+                            res.Message = ResponseMessageConstrantsCourse.COURSE_UPDATED_FAILED;
+                            res.StatusCode = StatusCodes.Status400BadRequest;
+                            return res;
+                        }
                     }
                 }
                 res.IsSuccess = true;

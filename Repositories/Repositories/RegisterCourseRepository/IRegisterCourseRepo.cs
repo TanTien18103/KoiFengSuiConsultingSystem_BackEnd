@@ -17,5 +17,6 @@ namespace Repositories.Repositories.RegisterCourseRepository
         Task<RegisterCourse> GetRegisterCourseByCourseIdAndCustomerId(string courseId, string customerid);
         Task<RegisterCourse> UpdateRegisterCourseRating(string enrollCourseId, decimal rating);
         Task<List<RegisterCourse>> GetRegisterCoursesByCourseId(string courseId);
+        Task<RegisterCourse> GetRegisterCourseByEnrollQuizId(string enrollQuizId);
     }
 }

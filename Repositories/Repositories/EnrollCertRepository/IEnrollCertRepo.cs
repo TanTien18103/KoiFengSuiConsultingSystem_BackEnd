@@ -14,5 +14,7 @@ namespace Repositories.Repositories.EnrollCertRepository
         Task<EnrollCert> CreateEnrollCert(EnrollCert enrollCert);
         Task<EnrollCert> UpdateEnrollCert(EnrollCert enrollCert);
         Task DeleteEnrollCert(string enrollCertId);
+        Task<EnrollCert> GetByCustomerIdAndCertificateId(string customerid, string certificateId);
+        Task<List<EnrollCert>> GetEnrollCertByCustomerId(string customerid);
     }
 }

@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ApiModels\Certificate\" />
     <Folder Include="ApiModels\EnrollAnswer\" />
     <Folder Include="ApiModels\EnrollCert\" />
     <Folder Include="ApiModels\EnrollQuiz\" />

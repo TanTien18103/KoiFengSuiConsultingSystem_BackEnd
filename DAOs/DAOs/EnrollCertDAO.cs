@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,6 +65,20 @@ namespace DAOs.DAOs
             var enrollCert = await GetEnrollCertByIdDao(enrollCertId);
             _context.EnrollCerts.Remove(enrollCert);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<EnrollCert> GetByCustomerIdAndCertificateIdDao(string customerid, string certificateId)
+        {
+            return await _context.EnrollCerts
+                .Where(e => e.CustomerId == customerid && e.CertificateId == certificateId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<EnrollCert>> GetEnrollCertByCustomerIdDao(string customerid)
+        {
+            return await _context.EnrollCerts
+                .Where(e => e.CustomerId == customerid)
+                .ToListAsync();
         }
     }
 }

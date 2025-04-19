@@ -70,6 +70,8 @@ using Repositories.Repositories.LocationRepository;
 using Services.Services.LocationService;
 using Services.ServicesHelpers.TimeOnlyJsonConverter;
 using Services.Services.DashboardService;
+using Repositories.Repositories.CertificateRepository;
+using Repositories.Repositories.EnrollCertRepository;
 
 
 
@@ -106,6 +108,9 @@ builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
 builder.Services.AddScoped<IFengShuiDocumentRepo, FengShuiDocumentRepo>();
 builder.Services.AddScoped<IAttachmentRepo, AttachmentRepo>();
 builder.Services.AddScoped<ILocationRepo, LocationRepo>();
+builder.Services.AddScoped<ICertificateRepo, CertificateRepo>();
+builder.Services.AddScoped<IEnrollCertRepo, EnrollCertRepo>();
+
 
 // Register Services
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -175,6 +180,8 @@ builder.Services.AddAutoMapper(typeof(AttachmentMappingProfile));
 builder.Services.AddAutoMapper(typeof(EnrollChapterMappingProfile));
 builder.Services.AddAutoMapper(typeof(LocationMappingProfile));
 builder.Services.AddAutoMapper(typeof(CustomerMappingProfile));
+builder.Services.AddAutoMapper(typeof(CertificateMappingProfile));
+
 
 builder.Services.AddHttpClient();
 

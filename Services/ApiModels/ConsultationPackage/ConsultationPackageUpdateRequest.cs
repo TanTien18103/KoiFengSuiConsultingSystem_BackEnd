@@ -18,7 +18,6 @@ namespace Services.ApiModels.ConsultationPackage
         public decimal? MinPrice { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Giá tối đa phải là số dương.")]
-        [Compare("MinPrice", ErrorMessage = "Giá tối đa phải lớn hơn hoặc bằng giá tối thiểu.")]
         public decimal? MaxPrice { get; set; }
 
         [StringLength(500, ErrorMessage = "Mô tả không được vượt quá 500 ký tự.")]

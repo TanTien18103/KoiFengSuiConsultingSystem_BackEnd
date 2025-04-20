@@ -442,11 +442,15 @@ namespace Services.Services.RegisterCourseService
 
                         if (existingEnrollCert == null)
                         {
+                            var latestCertificate = (await _certificateRepo.GetAllCertificates())
+                                               .OrderBy(c => c.CreateDate)
+                                               .FirstOrDefault();
+
                             var enrollCert = new EnrollCert
                             {
                                 EnrollCertId = GenerateShortGuid(),
                                 CustomerId = customerid,
-                                CertificateId = course.CertificateId,
+                                CertificateId = latestCertificate.CertificateId,
                                 FinishDate = DateOnly.FromDateTime(DateTime.Now),
                                 CreateDate = DateTime.Now,
                             };
@@ -659,14 +663,6 @@ namespace Services.Services.RegisterCourseService
                 }
 
                 var courses = await _courseRepo.GetCourses();
-                if (courses == null || !courses.Any())
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.Message = ResponseMessageConstrantsCourse.COURSE_NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status400BadRequest;
-                    return res;
-                }
 
                 foreach (var course in courses)
                 {

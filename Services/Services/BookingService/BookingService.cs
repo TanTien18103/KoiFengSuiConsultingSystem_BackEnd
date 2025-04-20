@@ -869,8 +869,15 @@ namespace Services.Services.BookingService
                     res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE;
                     return res;
                 }
-
-
+                var today = DateOnly.FromDateTime(DateTime.UtcNow);
+                if (today <= bookingOnline.BookingDate.GetValueOrDefault())
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                    res.Message = ResponseMessageConstrantsBooking.COMPLETE_BOOKING_DATE_FAILED;
+                    return res;
+                }
                 var updateSuccess = await _onlineRepo.UpdateBookingOnlineStatusRepo(bookingOnlineId, BookingOnlineEnums.Completed.ToString());
 
                 if (updateSuccess == null)
@@ -1264,12 +1271,12 @@ namespace Services.Services.BookingService
 
                     var onlineResponses = _mapper.Map<List<BookingResponse>>(onlineBookings);
                     var offlineResponses = _mapper.Map<List<BookingResponse>>(offlineBookings);
-                    
+
                     foreach (var booking in onlineResponses)
                     {
                         booking.Type = BookingTypeEnums.Online.ToString();
                     }
-                    
+
                     foreach (var booking in offlineResponses)
                     {
                         booking.Type = BookingTypeEnums.Offline.ToString();
@@ -1301,7 +1308,7 @@ namespace Services.Services.BookingService
                                 booking.Type = BookingTypeEnums.Online.ToString();
                             }
 
-                            if (type.HasValue) 
+                            if (type.HasValue)
                             {
 
                                 res.IsSuccess = true;
@@ -1312,7 +1319,7 @@ namespace Services.Services.BookingService
                                 return res;
                             }
                         }
-                        else if (type.HasValue) 
+                        else if (type.HasValue)
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -1321,7 +1328,7 @@ namespace Services.Services.BookingService
                             return res;
                         }
                     }
-                    else if (type.HasValue) 
+                    else if (type.HasValue)
                     {
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -1348,7 +1355,7 @@ namespace Services.Services.BookingService
                                 booking.Type = BookingTypeEnums.Offline.ToString();
                             }
 
-                            if (type.HasValue) 
+                            if (type.HasValue)
                             {
                                 res.IsSuccess = true;
                                 res.StatusCode = StatusCodes.Status200OK;
@@ -1357,7 +1364,7 @@ namespace Services.Services.BookingService
                                 res.Message = ResponseMessageConstrantsBooking.OFFLINE_GET_SUCCESS;
                                 return res;
                             }
-                            
+
                             if (!type.HasValue && onlineBookings.Any())
                             {
                                 var onlineResponses = _mapper.Map<List<BookingResponse>>(onlineBookings);
@@ -1365,7 +1372,7 @@ namespace Services.Services.BookingService
                                 {
                                     booking.Type = BookingTypeEnums.Online.ToString();
                                 }
-                                
+
                                 var combinedResults = onlineResponses.Concat(offlineResponses).ToList();
 
                                 res.IsSuccess = true;
@@ -1384,7 +1391,7 @@ namespace Services.Services.BookingService
                             res.Message = ResponseMessageConstrantsBooking.OFFLINE_GET_SUCCESS;
                             return res;
                         }
-                        else if (type.HasValue) 
+                        else if (type.HasValue)
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -1393,7 +1400,7 @@ namespace Services.Services.BookingService
                             return res;
                         }
                     }
-                    else if (type.HasValue) 
+                    else if (type.HasValue)
                     {
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.NOT_FOUND;

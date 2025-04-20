@@ -16,6 +16,8 @@ namespace Services.Mapper
             CreateMap<Certificate, CertificateResponse>()
                 .ForMember(dest => dest.CourseId, opt => opt.MapFrom(src => src.Courses.FirstOrDefault() != null ? src.Courses.FirstOrDefault().CourseId : null))
                 .ForMember(dest => dest.CourseName, opt => opt.MapFrom(src => src.Courses.FirstOrDefault() != null ? src.Courses.FirstOrDefault().CourseName : null));
+
+            CreateMap<CertificateRequest, Certificate>();
         }
     }
 }

@@ -256,6 +256,9 @@ namespace Services.Services.CourseService
                 if (!string.IsNullOrEmpty(request.Description))
                     course.Description = request.Description;
 
+                if (!string.IsNullOrEmpty(request.Introduction))
+                    course.Introduction = request.Introduction;
+
                 if (request.Price.HasValue)
                     course.Price = request.Price.Value;
 

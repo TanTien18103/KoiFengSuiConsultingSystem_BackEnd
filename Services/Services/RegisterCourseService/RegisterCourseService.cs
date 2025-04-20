@@ -4,6 +4,7 @@ using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Identity.Client;
 using Org.BouncyCastle.Ocsp;
 using Org.BouncyCastle.Tls;
 using Repositories.Repositories.AnswerRepository;
@@ -22,6 +23,7 @@ using Repositories.Repositories.RegisterCourseRepository;
 using Services.ApiModels;
 using Services.ApiModels.Certificate;
 using Services.ApiModels.Contract;
+using Services.ApiModels.EnrollCert;
 using Services.ApiModels.EnrollChapter;
 using Services.ApiModels.Quiz;
 using Services.ApiModels.RegisterCourse;
@@ -737,7 +739,7 @@ namespace Services.Services.RegisterCourseService
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
                     res.Message = ResponseMessageConstrantsCertificate.CERTIFICATE_NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    res.StatusCode = StatusCodes.Status404NotFound;
                     return res;
                 }
 
@@ -752,6 +754,93 @@ namespace Services.Services.RegisterCourseService
                 res.Message = ResponseMessageConstrantsCertificate.CERTIFICATE_FOUND;
                 return res;
 
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.InnerException?.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetEnrollCertificateById(string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var cert = await _enrollCertRepo.GetEnrollCertById(id);
+                if (cert == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsCertificate.CERTIFICATE_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<EnrollCertificateCurrentCustomerResponse>(cert);
+                res.Message = ResponseMessageConstrantsCertificate.CERTIFICATE_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.InnerException?.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetEnrollCertificateByCurrentCustomer()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var identity = _contextAccessor.HttpContext?.User.Identity as ClaimsIdentity;
+                if (identity == null || !identity.IsAuthenticated)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID_OR_EXPIRED;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var claims = identity.Claims;
+                var accountId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var customerid = await _customerRepo.GetCustomerIdByAccountId(accountId);
+                if (customerid == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstantsUser.USER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
+
+                var enrollCertificate = await _enrollCertRepo.GetEnrollCertByCustomerId(customerid);
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<List<EnrollCertificateCurrentCustomerResponse>>(enrollCertificate);
+                res.Message = ResponseMessageConstrantsCertificate.CERTIFICATE_FOUND;
+                return res;
             }
             catch (Exception ex)
             {

@@ -622,8 +622,28 @@ namespace Services.Services.CourseService
                     curCustomer.CustomerId,
                     PaymentTypeEnums.Course.ToString(),
                     PaymentStatusEnums.Paid.ToString());
+                
+                var pendingConfirmOrders = await _orderRepo.GetOrdersByCustomerAndType(
+                    curCustomer.CustomerId,
+                    PaymentTypeEnums.Course.ToString(),
+                    PaymentStatusEnums.PendingConfirm.ToString());
+                
+                var pendingOrders = await _orderRepo.GetOrdersByCustomerAndType(
+                    curCustomer.CustomerId,
+                    PaymentTypeEnums.Course.ToString(),
+                    PaymentStatusEnums.Pending.ToString());
+                
+                var courseOrders = paidOrders != null ? paidOrders.ToList() : new List<BusinessObjects.Models.Order>();
+                if (pendingConfirmOrders != null)
+                {
+                    courseOrders.AddRange(pendingConfirmOrders);
+                }
+                if (pendingOrders != null)
+                {
+                    courseOrders.AddRange(pendingOrders);
+                }
 
-                if (paidOrders == null || !paidOrders.Any())
+                if (courseOrders == null || !courseOrders.Any())
                 {
                     res.IsSuccess = true;
                     res.ResponseCode = ResponseCodeConstants.SUCCESS;
@@ -633,9 +653,44 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                var courseIds = paidOrders.Select(o => o.ServiceId).ToList();
+                var courseOrderGroups = courseOrders.GroupBy(o => o.ServiceId).ToList();
+                
+                var courseIds = courseOrderGroups.Select(g => g.Key).ToList();
                 var courses = await _courseRepo.GetCoursesByIds(courseIds);
-                var courseViewModels = _mapper.Map<List<CourseResponse>>(courses);
+                
+                var courseViewModels = new List<CourseResponse>();
+                
+                foreach (var course in courses)
+                {
+                    var courseViewModel = _mapper.Map<CourseResponse>(course);
+                    
+                    var latestPaidOrder = courseOrders
+                        .Where(o => o.ServiceId == course.CourseId && o.Status == PaymentStatusEnums.Paid.ToString())
+                        .OrderByDescending(o => o.CreatedDate)
+                        .FirstOrDefault();
+                    
+                    var latestPendingConfirmOrder = courseOrders
+                        .Where(o => o.ServiceId == course.CourseId && o.Status == PaymentStatusEnums.PendingConfirm.ToString())
+                        .OrderByDescending(o => o.CreatedDate)
+                        .FirstOrDefault();
+                    
+                    var latestPendingOrder = courseOrders
+                        .Where(o => o.ServiceId == course.CourseId && o.Status == PaymentStatusEnums.Pending.ToString())
+                        .OrderByDescending(o => o.CreatedDate)
+                        .FirstOrDefault();
+                    
+                    // Ưu tiên thứ tự: Paid -> PendingConfirm -> Pending
+                    var latestOrder = latestPaidOrder ?? latestPendingConfirmOrder ?? latestPendingOrder;
+                    
+                    if (latestOrder != null)
+                    {
+                        courseViewModel.PaymentStatus = latestOrder.Status;
+                        courseViewModel.OrderId = latestOrder.OrderId;
+                        courseViewModel.ServiceId = latestOrder.ServiceId;
+                    }
+                    
+                    courseViewModels.Add(courseViewModel);
+                }
 
                 res.IsSuccess = true;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
@@ -669,10 +724,8 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                // Làm sạch id
                 id = id.Trim();
 
-                // Validate status enum (phòng trường hợp nhận từ body dạng int bị sai)
                 if (!Enum.IsDefined(typeof(CourseStatusEnum), status))
                 {
                     res.IsSuccess = false;

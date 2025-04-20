@@ -38,7 +38,11 @@ namespace DAOs.DAOs
         }
         public async Task<EnrollCert> GetEnrollCertByIdDao(string enrollCertId)
         {
-            return await _context.EnrollCerts.FindAsync(enrollCertId);
+            return await _context.EnrollCerts
+                .Include(x => x.Certificate)
+                .Include(x => x.RegisterCourses).ThenInclude(x => x.Course).ThenInclude(x => x.CreateByNavigation)
+                .Include(x => x.RegisterCourses).ThenInclude(x => x.EnrollQuiz)
+                .FirstOrDefaultAsync(x => x.EnrollCertId == enrollCertId);
         }
 
         public async Task<List<EnrollCert>> GetEnrollCertsDao()
@@ -77,7 +81,10 @@ namespace DAOs.DAOs
         public async Task<List<EnrollCert>> GetEnrollCertByCustomerIdDao(string customerid)
         {
             return await _context.EnrollCerts
-                .Where(e => e.CustomerId == customerid)
+                .Include(x => x.Certificate)
+                .Include(x => x.RegisterCourses).ThenInclude(x => x.Course).ThenInclude(x => x.CreateByNavigation)
+                .Include(x => x.RegisterCourses).ThenInclude(x => x.EnrollQuiz)
+                .Where(e => e.CustomerId == customerid).OrderBy(x => x.CreateDate)
                 .ToListAsync();
         }
     }

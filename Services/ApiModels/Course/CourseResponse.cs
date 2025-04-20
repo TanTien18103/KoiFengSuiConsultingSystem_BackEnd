@@ -20,5 +20,8 @@ namespace Services.ApiModels.Course
         public decimal? Price { get; set; }
         public string Status { get; set; }
         public DateTime CreateAt { get; set; }
+        public string PaymentStatus { get; set; }
+        public string OrderId { get; set; }
+        public string ServiceId { get; set; }
     }
 }

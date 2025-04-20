@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.ApiModels.Certificate;
 using Services.ApiModels.RegisterCourse;
@@ -73,6 +74,20 @@ namespace KoiFengSuiConsultingSystem.Controllers
         public async Task<IActionResult> CreateCertificate([FromForm] CertificateRequest certificateRequest)
         {
             var res = await _registerCourseService.CreateCertificate(certificateRequest);
+            return StatusCode(res.StatusCode, res);
+        }
+        [HttpGet("get-enrollcertificate-by/{id}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> GetEnrollCertificateById([FromRoute] string id)
+        {
+            var res = await _registerCourseService.GetEnrollCertificateById(id);
+            return StatusCode(res.StatusCode, res);
+        }
+        [HttpGet("get-enrollcertificates-current-customer")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> GetEnrollCertificateByCurrentCustomer()
+        {
+            var res = await _registerCourseService.GetEnrollCertificateByCurrentCustomer();
             return StatusCode(res.StatusCode, res);
         }
     }

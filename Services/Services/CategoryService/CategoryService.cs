@@ -103,6 +103,39 @@ namespace Services.Services.CategoryService
             }
         }
 
+        public async Task<ResultModel> GetAllActiveCategories()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var categories = await _categoryRepo.GetAllCatogories();
+                var activeCategories = categories.Where(x => x.Status == CategoryStatusEnums.Active.ToString());
+                if (activeCategories == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsCategory.CATEGORY_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Data = _mapper.Map<List<CategoryResponse>>(activeCategories);
+                res.Message = ResponseMessageConstrantsCategory.CATEGORY_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
         public async Task<ResultModel> CreateCategory(CategoryRequest request)
         {
             var res = new ResultModel();

@@ -324,7 +324,8 @@ namespace Services.Services.RegisterAttendService
             try
             {
                 var registerAttends = await _registerAttendRepo.GetRegisterAttendsByWorkShopId(id);
-                if (registerAttends == null || !registerAttends.Any())
+                var registerAttendsPaid = registerAttends.Where(x => x.Status == RegisterAttendStatusEnums.Paid.ToString()).ToList();
+                if (registerAttendsPaid == null || !registerAttendsPaid.Any())
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -336,7 +337,7 @@ namespace Services.Services.RegisterAttendService
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                res.Data = _mapper.Map<List<RegisterAttendResponse>>(registerAttends);
+                res.Data = _mapper.Map<List<RegisterAttendResponse>>(registerAttendsPaid);
                 res.Message = ResponseMessageConstrantsRegisterAttend.REGISTERATTEND_FOUND;
                 return res;
             }

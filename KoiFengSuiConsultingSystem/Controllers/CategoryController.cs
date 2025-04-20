@@ -29,6 +29,12 @@ namespace KoiFengSuiConsultingSystem.Controllers
             var res = await _categorySerivce.GetAllCategories();
             return StatusCode(res.StatusCode, res);
         }
+        [HttpGet("get-all-active")]
+        public async Task<IActionResult> GetAllActiveCategories()
+        {
+            var res = await _categorySerivce.GetAllActiveCategories();
+            return StatusCode(res.StatusCode, res);
+        }
         [HttpPost("create")]
         public async Task<IActionResult> CreateCategory([FromForm] CategoryRequest category)
         {

@@ -198,7 +198,7 @@ namespace Services.Services.CourseService
                 var result = await _courseRepo.CreateCourse(course);
 
                 var latestCertificate = (await _certificateRepo.GetAllCertificates())
-                    .OrderByDescending(c => c.CreateDate)
+                    .OrderBy(c => c.CreateDate)
                     .FirstOrDefault();                
 
                 result.CertificateId = latestCertificate?.CertificateId;

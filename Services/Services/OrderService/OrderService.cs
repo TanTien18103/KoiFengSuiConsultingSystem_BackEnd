@@ -395,7 +395,9 @@ namespace Services.Services.OrderService
                                 EnrollChapterId = GenerateShortGuid(),
                                 ChapterId = chapter.ChapterId,
                                 Status = EnrollChapterStatusEnums.InProgress.ToString(),
-                                EnrollCourseId = result.EnrollCourseId
+                                EnrollCourseId = result.EnrollCourseId,
+                                CreateDate = DateTime.Now,
+                                UpdateDate = DateTime.Now,
                             };
 
                             await _enrollChapterRepo.CreateEnrollChapter(enrollChapter);

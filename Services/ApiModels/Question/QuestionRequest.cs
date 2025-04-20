@@ -14,9 +14,8 @@ namespace Services.ApiModels.Question
         [StringLength(1000, MinimumLength = 5, ErrorMessage = "Câu hỏi phải từ 5 đến 1000 ký tự")]
         public string QuestionText { get; set; }
 
-        [Required(ErrorMessage = "Loại câu hỏi không được để trống")]
-        [StringLength(100, MinimumLength = 3, ErrorMessage = "Loại câu hỏi phải từ 3 đến 100 ký tự")]
         public string QuestionType { get; set; }
+
         public List<AnswerRequest> Answers { get; set; } = new List<AnswerRequest>();
     }
 }

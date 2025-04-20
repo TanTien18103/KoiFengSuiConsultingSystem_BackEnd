@@ -137,9 +137,10 @@ namespace DAOs.DAOs
         public async Task<List<Order>> GetPendingOrdersByCustomerIdDao(string customerId)
         {
             return await _context.Orders
+                .AsNoTracking()
                 .Where(o => o.CustomerId == customerId &&
-                           o.Status == PaymentStatusEnums.Pending.ToString() ||
-                           o.Status == PaymentStatusEnums.PendingConfirm.ToString())
+                           (o.Status == PaymentStatusEnums.Pending.ToString() ||
+                           o.Status == PaymentStatusEnums.PendingConfirm.ToString()))
                 .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
         }

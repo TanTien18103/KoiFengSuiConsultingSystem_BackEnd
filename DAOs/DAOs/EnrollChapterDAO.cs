@@ -100,6 +100,7 @@ namespace DAOs.DAOs
                .Include(x => x.EnrollCourse)
                .Include(x => x.Chapter)
                .Where(ec => ec.EnrollCourseId == enrollCourseId)
+               .OrderBy(x => x.CreateDate)
                .ToListAsync();
         }
     }

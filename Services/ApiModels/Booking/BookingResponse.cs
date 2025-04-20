@@ -21,6 +21,9 @@ namespace Services.ApiModels.Booking
         public string MasterName { get; set; }
 
         public string Description { get; set; }
+
         public DateTime? CreateDate { get; set; }
+
+        public DateOnly? BookingDate { get; set; }
     }
 } 

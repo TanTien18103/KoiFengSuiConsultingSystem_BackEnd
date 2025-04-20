@@ -24,5 +24,7 @@ namespace Services.Services.RegisterCourseService
         Task<ResultModel> GetCertificatesByCourseId(string courseId);
         Task<ResultModel> GetCertificateByCustomerId();
         Task<ResultModel> CreateCertificate(CertificateRequest certificateRequest);
+        Task<ResultModel> GetEnrollCertificateById(string id);
+        Task<ResultModel> GetEnrollCertificateByCurrentCustomer();
     }
 }

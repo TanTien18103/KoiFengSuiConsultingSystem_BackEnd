@@ -21,7 +21,6 @@ namespace Services.ApiModels.ConsultationPackage
 
         [Required(ErrorMessage = "Giá tối đa không được để trống.")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá tối đa phải là số dương.")]
-        [Compare("MinPrice", ErrorMessage = "Giá tối đa phải lớn hơn hoặc bằng giá tối thiểu.")]
         public decimal? MaxPrice { get; set; }
 
         [Required(ErrorMessage = "Mô tả không được để trống.")]

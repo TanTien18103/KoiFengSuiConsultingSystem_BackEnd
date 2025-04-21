@@ -113,7 +113,6 @@ public class CustomerService : ICustomerService
     {
         var res = new ResultModel();
         double compatibilityScore = 0;
-
         ElementLifePalaceDto elementLifePalace = null;
 
         if (request.BirthDate.HasValue)
@@ -138,6 +137,7 @@ public class CustomerService : ICustomerService
 
             elementLifePalace = result.Data as ElementLifePalaceDto;
         }
+
         if (elementLifePalace == null || string.IsNullOrEmpty(elementLifePalace.Element))
         {
             res.IsSuccess = false;
@@ -156,44 +156,53 @@ public class CustomerService : ICustomerService
             return res;
         }
 
-        if (FengShuiHelper.ElementColorPoints.ContainsKey(elementLifePalace.Element))
+        string userElement = elementLifePalace.Element;
+        int fishCount = request.FishCount;
+
+        // Tính điểm theo màu sắc
+        if (FengShuiHelper.ElementColorPoints.ContainsKey(userElement))
         {
             foreach (var color in request.ColorRatios)
             {
-                if (FengShuiHelper.ElementColorPoints[elementLifePalace.Element].ContainsKey(color.Key))
+                if (FengShuiHelper.ElementColorPoints[userElement].ContainsKey(color.Key))
                 {
-                    double colorPoint = FengShuiHelper.ElementColorPoints[elementLifePalace.Element][color.Key] * (color.Value / 100.0);
+                    double colorPoint = FengShuiHelper.ElementColorPoints[userElement][color.Key] * (color.Value / 100.0);
                     compatibilityScore += colorPoint;
                 }
             }
         }
 
-        if (FengShuiHelper.ShapePoints.ContainsKey(elementLifePalace.Element) && FengShuiHelper.ShapePoints[elementLifePalace.Element].ContainsKey(request.PondShape))
+        // Tính điểm theo hình dạng hồ
+        if (FengShuiHelper.ShapePoints.ContainsKey(userElement) && FengShuiHelper.ShapePoints[userElement].ContainsKey(request.PondShape))
         {
-            compatibilityScore += FengShuiHelper.ShapePoints[elementLifePalace.Element][request.PondShape];
+            compatibilityScore += FengShuiHelper.ShapePoints[userElement][request.PondShape];
         }
 
-        if (FengShuiHelper.DirectionPoints.ContainsKey(elementLifePalace.Element) && FengShuiHelper.DirectionPoints[elementLifePalace.Element].ContainsKey(request.PondDirection))
+        // Tính điểm theo hướng hồ
+        if (FengShuiHelper.DirectionPoints.ContainsKey(userElement) && FengShuiHelper.DirectionPoints[userElement].ContainsKey(request.PondDirection))
         {
-            compatibilityScore += FengShuiHelper.DirectionPoints[elementLifePalace.Element][request.PondDirection];
+            compatibilityScore += FengShuiHelper.DirectionPoints[userElement][request.PondDirection];
         }
 
-        compatibilityScore += FengShuiHelper.CalculateFishCountBonus(request.FishCount, elementLifePalace.Element);
+        // Bonus theo số lượng cá
+        compatibilityScore += FengShuiHelper.CalculateFishCountBonus(fishCount, userElement);
 
+        // Chuẩn hóa điểm từ -50 đến 50 thành 0 - 100
         double minScore = -50;
         double maxScore = 50;
         double normalizedScore = (compatibilityScore - minScore) / (maxScore - minScore) * 100;
         double finalScore = Math.Round(normalizedScore, 2);
 
+        // Gọi phương thức trả về message tương thích
+        string message = FengShuiHelper.GetCompatibilityMessage(finalScore, userElement, fishCount);
+
         res.IsSuccess = true;
-        res.Message = FengShuiHelper.GetCompatibilityMessage(finalScore);
+        res.Message = message;
         res.StatusCode = StatusCodes.Status200OK;
-        res.Data =
-            new FengShuiResult
-            {
-                CompatibilityScore = finalScore,
-                Message = res.Message
-            };
+        res.Data = new FengShuiResult
+        {
+            CompatibilityScore = finalScore
+        };
         return res;
     }
 }

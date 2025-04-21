@@ -76,21 +76,64 @@ public class FengShuiHelper
             if (FengShuiHelper.elementGenerates[fishElement] == userElement) return 10;
             if (FengShuiHelper.elementDestroys[fishElement] == userElement) return -10;
         }
-
         return 0;
     }
 
-    public static string GetCompatibilityMessage(double score)
+    public static string GetCompatibilityMessage(double score, string userElement, int fishCount)
     {
-        if (score < 20)
-            return ResponseMessageConstrantsCompatibility.VERY_LOW;
-        else if (score < 40)
-            return ResponseMessageConstrantsCompatibility.LOW;
-        else if (score < 60)
-            return ResponseMessageConstrantsCompatibility.MEDIUM;
-        else if (score < 80)
-            return ResponseMessageConstrantsCompatibility.HIGH;
+        int modFishCount = fishCount % 10;
+        if (modFishCount == 0) modFishCount = 10;
+
+        string fishElement = fishCountToElement.ContainsKey(modFishCount) ? fishCountToElement[modFishCount] : null;
+        string relationship = "";
+        string detailedEffect = "";
+        string suggestion = "";
+        string tips = "";
+
+        string scoreMessage = score switch
+        {
+            < 20 => ResponseMessageConstrantsPhongThuy.VeryLowScore,
+            < 40 => ResponseMessageConstrantsPhongThuy.LowScore,
+            < 60 => ResponseMessageConstrantsPhongThuy.MediumScore,
+            < 80 => ResponseMessageConstrantsPhongThuy.HighScore,
+            _ => ResponseMessageConstrantsPhongThuy.VeryHighScore
+        };
+
+        if (fishElement != null)
+        {
+            if (fishElement == userElement)
+            {
+                relationship = string.Format(ResponseMessageConstrantsPhongThuy.SameElementRelationship, fishElement, userElement);
+                detailedEffect = ResponseMessageConstrantsPhongThuy.SameElementEffect;
+                suggestion = ResponseMessageConstrantsPhongThuy.SuggestionSame;
+            }
+            else if (elementGenerates[fishElement] == userElement)
+            {
+                relationship = string.Format(ResponseMessageConstrantsPhongThuy.GeneratingRelationship, fishElement, userElement);
+                detailedEffect = ResponseMessageConstrantsPhongThuy.GeneratingEffect;
+                suggestion = string.Format(ResponseMessageConstrantsPhongThuy.SuggestionGenerating, fishElement);
+            }
+            else if (elementDestroys[fishElement] == userElement)
+            {
+                relationship = string.Format(ResponseMessageConstrantsPhongThuy.OvercomingRelationship, fishElement, userElement);
+                detailedEffect = ResponseMessageConstrantsPhongThuy.OvercomingEffect;
+                suggestion = string.Format(ResponseMessageConstrantsPhongThuy.SuggestionOvercoming, userElement);
+            }
+            else
+            {
+                relationship = string.Format(ResponseMessageConstrantsPhongThuy.NoRelationship, fishElement, userElement);
+                detailedEffect = ResponseMessageConstrantsPhongThuy.NoRelationshipEffect;
+                suggestion = ResponseMessageConstrantsPhongThuy.SuggestionNoRelation;
+            }
+
+            tips = ResponseMessageConstrantsPhongThuy.FengShuiTips;
+        }
         else
-            return ResponseMessageConstrantsCompatibility.VERY_HIGH;
+        {
+            relationship = ResponseMessageConstrantsPhongThuy.UnknownRelationship;
+        }
+
+        return $"{scoreMessage}\n\n{relationship}\n\n📊 **Tác động phong thủy:**\n{detailedEffect}\n\n🧭 **Gợi ý điều chỉnh:**\n{suggestion}\n\n{tips}";
     }
+
 }

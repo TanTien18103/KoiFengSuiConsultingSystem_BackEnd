@@ -201,8 +201,7 @@ public class CustomerService : ICustomerService
         res.StatusCode = StatusCodes.Status200OK;
         res.Data = new FengShuiResult
         {
-            CompatibilityScore = finalScore,
-            Message = message
+            CompatibilityScore = finalScore
         };
         return res;
     }

@@ -114,7 +114,7 @@ public partial class KoiFishPondContext : DbContext
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.AccountId).HasName("PK__Account__349DA5A606BA024A");
+            entity.HasKey(e => e.AccountId).HasName("PK__Account__349DA5A6DC7D9490");
 
             entity.ToTable("Account");
 
@@ -128,6 +128,8 @@ public partial class KoiFishPondContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.OtpCode).HasMaxLength(10);
+            entity.Property(e => e.OtpExpiredTime).HasColumnType("datetime");
             entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)
@@ -139,7 +141,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Answer>(entity =>
         {
-            entity.HasKey(e => e.AnswerId).HasName("PK__Answer__D4825004008E39DA");
+            entity.HasKey(e => e.AnswerId).HasName("PK__Answer__D4825004F317C6FC");
 
             entity.ToTable("Answer");
 
@@ -167,7 +169,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Attachment>(entity =>
         {
-            entity.HasKey(e => e.AttachmentId).HasName("PK__Attachme__442C64BE465B1D76");
+            entity.HasKey(e => e.AttachmentId).HasName("PK__Attachme__442C64BE84389256");
 
             entity.ToTable("Attachment");
 
@@ -195,7 +197,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<BookingOffline>(entity =>
         {
-            entity.HasKey(e => e.BookingOfflineId).HasName("PK__BookingO__37BA37039CB1981B");
+            entity.HasKey(e => e.BookingOfflineId).HasName("PK__BookingO__37BA3703F9A0A7F0");
 
             entity.ToTable("BookingOffline");
 
@@ -279,7 +281,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<BookingOnline>(entity =>
         {
-            entity.HasKey(e => e.BookingOnlineId).HasName("PK__BookingO__D0E9AFED6E036D58");
+            entity.HasKey(e => e.BookingOnlineId).HasName("PK__BookingO__D0E9AFED3487CC25");
 
             entity.ToTable("BookingOnline");
 
@@ -335,7 +337,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B57456A03");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B045DC935");
 
             entity.ToTable("Category");
 
@@ -354,7 +356,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Certificate>(entity =>
         {
-            entity.HasKey(e => e.CertificateId).HasName("PK__Certific__BBF8A7C1DCAAA32F");
+            entity.HasKey(e => e.CertificateId).HasName("PK__Certific__BBF8A7C1DE95A244");
 
             entity.ToTable("Certificate");
 
@@ -370,7 +372,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Chapter>(entity =>
         {
-            entity.HasKey(e => e.ChapterId).HasName("PK__Chapter__0893A36A2E89C123");
+            entity.HasKey(e => e.ChapterId).HasName("PK__Chapter__0893A36A9C6A4079");
 
             entity.ToTable("Chapter");
 
@@ -395,7 +397,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Color>(entity =>
         {
-            entity.HasKey(e => e.ColorId).HasName("PK__Color__8DA7674D15DA98BD");
+            entity.HasKey(e => e.ColorId).HasName("PK__Color__8DA7674D5AC08051");
 
             entity.ToTable("Color");
 
@@ -414,7 +416,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<CompatibilityPoint>(entity =>
         {
-            entity.HasKey(e => e.CompatibilityType).HasName("PK__Compatib__490B3B31FE35398B");
+            entity.HasKey(e => e.CompatibilityType).HasName("PK__Compatib__490B3B3181F23AFF");
 
             entity.ToTable("CompatibilityPoint");
 
@@ -425,7 +427,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<ConsultationPackage>(entity =>
         {
-            entity.HasKey(e => e.ConsultationPackageId).HasName("PK__Consulta__3A64C5568A5FB642");
+            entity.HasKey(e => e.ConsultationPackageId).HasName("PK__Consulta__3A64C5565EEF7B3E");
 
             entity.ToTable("ConsultationPackage");
 
@@ -444,7 +446,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Contract>(entity =>
         {
-            entity.HasKey(e => e.ContractId).HasName("PK__Contract__C90D34690EEC0B6D");
+            entity.HasKey(e => e.ContractId).HasName("PK__Contract__C90D3469E9E3696D");
 
             entity.ToTable("Contract");
 
@@ -472,7 +474,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(e => e.CourseId).HasName("PK__Course__C92D71A7BC003238");
+            entity.HasKey(e => e.CourseId).HasName("PK__Course__C92D71A7A658E60D");
 
             entity.ToTable("Course");
 
@@ -525,7 +527,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Customer>(entity =>
         {
-            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64D82CCE77E6");
+            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64D84001D44A");
 
             entity.ToTable("Customer");
 
@@ -558,7 +560,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<ElementPoint>(entity =>
         {
-            entity.HasKey(e => e.ElementType).HasName("PK__ElementP__D7C667975ED45125");
+            entity.HasKey(e => e.ElementType).HasName("PK__ElementP__D7C667977C0F908F");
 
             entity.ToTable("ElementPoint");
 
@@ -575,7 +577,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<EnrollAnswer>(entity =>
         {
-            entity.HasKey(e => e.EnrollAnswerId).HasName("PK__EnrollAn__913A38559E1AD26B");
+            entity.HasKey(e => e.EnrollAnswerId).HasName("PK__EnrollAn__913A38559AF9514C");
 
             entity.ToTable("EnrollAnswer");
 
@@ -603,7 +605,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<EnrollCert>(entity =>
         {
-            entity.HasKey(e => e.EnrollCertId).HasName("PK__EnrollCe__15C91EE94A2763DD");
+            entity.HasKey(e => e.EnrollCertId).HasName("PK__EnrollCe__15C91EE9BD0082D6");
 
             entity.ToTable("EnrollCert");
 
@@ -633,7 +635,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<EnrollChapter>(entity =>
         {
-            entity.HasKey(e => e.EnrollChapterId).HasName("PK__EnrollCh__035269FB33282F36");
+            entity.HasKey(e => e.EnrollChapterId).HasName("PK__EnrollCh__035269FB0019B152");
 
             entity.ToTable("EnrollChapter");
 
@@ -665,7 +667,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<EnrollQuiz>(entity =>
         {
-            entity.HasKey(e => e.EnrollQuizId).HasName("PK__EnrollQu__B842C36624F2AA7A");
+            entity.HasKey(e => e.EnrollQuizId).HasName("PK__EnrollQu__B842C36642C2E7B1");
 
             entity.ToTable("EnrollQuiz");
 
@@ -696,7 +698,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<FengShuiDocument>(entity =>
         {
-            entity.HasKey(e => e.FengShuiDocumentId).HasName("PK__FengShui__AFCA4193366E8A4D");
+            entity.HasKey(e => e.FengShuiDocumentId).HasName("PK__FengShui__AFCA4193FFCB320C");
 
             entity.ToTable("FengShuiDocument");
 
@@ -725,7 +727,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<KoiPond>(entity =>
         {
-            entity.HasKey(e => e.KoiPondId).HasName("PK__KoiPond__8DAE659A9F21FA4D");
+            entity.HasKey(e => e.KoiPondId).HasName("PK__KoiPond__8DAE659A6C721A49");
 
             entity.ToTable("KoiPond");
 
@@ -751,7 +753,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<KoiVariety>(entity =>
         {
-            entity.HasKey(e => e.KoiVarietyId).HasName("PK__KoiVarie__94DDFCB2DB7021C7");
+            entity.HasKey(e => e.KoiVarietyId).HasName("PK__KoiVarie__94DDFCB26DE65EDE");
 
             entity.ToTable("KoiVariety");
 
@@ -770,7 +772,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Location>(entity =>
         {
-            entity.HasKey(e => e.LocationId).HasName("PK__Location__E7FEA49770FEAF76");
+            entity.HasKey(e => e.LocationId).HasName("PK__Location__E7FEA49755807518");
 
             entity.ToTable("Location");
 
@@ -783,7 +785,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<MansionsPoint>(entity =>
         {
-            entity.HasKey(e => e.MansionsType).HasName("PK__Mansions__1D5CE3F73B5F395C");
+            entity.HasKey(e => e.MansionsType).HasName("PK__Mansions__1D5CE3F75977A486");
 
             entity.ToTable("MansionsPoint");
 
@@ -794,7 +796,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Master>(entity =>
         {
-            entity.HasKey(e => e.MasterId).HasName("PK__Master__F6B782243BB994A4");
+            entity.HasKey(e => e.MasterId).HasName("PK__Master__F6B782241F00DEB3");
 
             entity.ToTable("Master");
 
@@ -823,7 +825,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<MasterSchedule>(entity =>
         {
-            entity.HasKey(e => e.MasterScheduleId).HasName("PK__MasterSc__F5937CE5224CDDEE");
+            entity.HasKey(e => e.MasterScheduleId).HasName("PK__MasterSc__F5937CE52F3C4E2F");
 
             entity.ToTable("MasterSchedule");
 
@@ -847,7 +849,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Membership>(entity =>
         {
-            entity.HasKey(e => e.MembershipId).HasName("PK__Membersh__92A78679AE20C01F");
+            entity.HasKey(e => e.MembershipId).HasName("PK__Membersh__92A78679831B26D8");
 
             entity.ToTable("Membership");
 
@@ -863,7 +865,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__Order__C3905BCF8071FD96");
+            entity.HasKey(e => e.OrderId).HasName("PK__Order__C3905BCF3EA06D0C");
 
             entity.ToTable("Order");
 
@@ -905,7 +907,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Question>(entity =>
         {
-            entity.HasKey(e => e.QuestionId).HasName("PK__Question__0DC06FAC7AA7D03E");
+            entity.HasKey(e => e.QuestionId).HasName("PK__Question__0DC06FAC11522B48");
 
             entity.ToTable("Question");
 
@@ -934,7 +936,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Quiz>(entity =>
         {
-            entity.HasKey(e => e.QuizId).HasName("PK__Quiz__8B42AE8EA87146BD");
+            entity.HasKey(e => e.QuizId).HasName("PK__Quiz__8B42AE8E7CFCE432");
 
             entity.ToTable("Quiz");
 
@@ -969,7 +971,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<RegisterAttend>(entity =>
         {
-            entity.HasKey(e => e.AttendId).HasName("PK__Register__FDE0E82408F1C975");
+            entity.HasKey(e => e.AttendId).HasName("PK__Register__FDE0E824B4FCF61A");
 
             entity.ToTable("RegisterAttend");
 
@@ -1006,7 +1008,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<RegisterCourse>(entity =>
         {
-            entity.HasKey(e => e.EnrollCourseId).HasName("PK__Register__2FE697914FBDB937");
+            entity.HasKey(e => e.EnrollCourseId).HasName("PK__Register__2FE69791860285CC");
 
             entity.ToTable("RegisterCourse");
 
@@ -1056,7 +1058,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<Shape>(entity =>
         {
-            entity.HasKey(e => e.ShapeId).HasName("PK__Shape__70FC838186482019");
+            entity.HasKey(e => e.ShapeId).HasName("PK__Shape__70FC838177C1D408");
 
             entity.ToTable("Shape");
 
@@ -1072,7 +1074,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<VarietyColor>(entity =>
         {
-            entity.HasKey(e => new { e.KoiVarietyId, e.ColorId }).HasName("PK__VarietyC__5C078AC6DEF64903");
+            entity.HasKey(e => new { e.KoiVarietyId, e.ColorId }).HasName("PK__VarietyC__5C078AC6A2C93593");
 
             entity.ToTable("VarietyColor");
 
@@ -1100,7 +1102,7 @@ public partial class KoiFishPondContext : DbContext
 
         modelBuilder.Entity<WorkShop>(entity =>
         {
-            entity.HasKey(e => e.WorkshopId).HasName("PK__WorkShop__7A008C0ABEA4ABD1");
+            entity.HasKey(e => e.WorkshopId).HasName("PK__WorkShop__7A008C0A95C79DD8");
 
             entity.ToTable("WorkShop");
 

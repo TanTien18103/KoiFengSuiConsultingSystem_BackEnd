@@ -175,6 +175,8 @@ public class AccountService : IAccountService
             CustomerId = GenerateShortGuid(),
             LifePalace = lifePalace,
             Element = element,
+            CreateDate = DateTime.Now,
+            UpdateDate = DateTime.Now,
             ImageUrl = await _uploadService.UploadImageAsync(registerRequest.ImageUrl),
         };
 

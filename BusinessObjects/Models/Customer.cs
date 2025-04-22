@@ -19,9 +19,9 @@ public partial class Customer
 
     public string ImageUrl { get; set; }
 
-    public DateTime? CreateDate { get; set; } = DateTime.Now;
+    public DateTime? CreateDate { get; set; }
 
-    public DateTime? UpdateDate { get; set; } = DateTime.Now;
+    public DateTime? UpdateDate { get; set; }
 
     public virtual Account Account { get; set; }
 

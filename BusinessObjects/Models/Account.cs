@@ -25,7 +25,7 @@ public partial class Account
 
     public string Role { get; set; }
 
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; set; }
 
     public int? BankId { get; set; }
 
@@ -36,6 +36,10 @@ public partial class Account
     public DateTime? CreateDate { get; set; }
 
     public DateTime? UpdateDate { get; set; }
+
+    public string OtpCode { get; set; }
+
+    public DateTime? OtpExpiredTime { get; set; }
 
     public virtual ICollection<BookingOffline> BookingOfflines { get; set; } = new List<BookingOffline>();
 

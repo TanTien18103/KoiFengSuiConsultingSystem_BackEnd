@@ -552,5 +552,39 @@ public class ResponseMessageConstrantsLocation
     public const string LOCATION_ALREADY_EXIST = "Tên địa điểm đã tồn tại";
 }
 
+public static class ResponseMessageConstrantsPhongThuy
+{
+    // === Compatibility Score Messages ===
+    public const string VeryLowScore = "⚠️ **Mức độ phù hợp rất thấp.** Nguy cơ ảnh hưởng tiêu cực đến tài lộc, tinh thần và vận khí.";
+    public const string LowScore = "❗ **Mức độ phù hợp thấp.** Cần điều chỉnh phong thủy để cải thiện năng lượng.";
+    public const string MediumScore = "➖ **Mức độ phù hợp trung bình.** Có thể tiếp nhận nhưng chưa tối ưu.";
+    public const string HighScore = "✅ **Mức độ phù hợp cao.** Sự kết hợp mang lại năng lượng tích cực.";
+    public const string VeryHighScore = "🌟 **Mức độ phù hợp rất cao.** Đây là lựa chọn cát lợi theo phong thủy.";
 
+    // === Relationship Messages ===
+    public const string SameElementRelationship = "🔗 Ngũ hành của số lượng cá là **{0}**, trùng với mệnh của bạn (**{1}**). Đây là mối quan hệ **tương hợp**.";
+    public const string GeneratingRelationship = "🌱 Ngũ hành của số lượng cá là **{0}**, **sinh** ra bản mệnh của bạn (**{0} sinh {1}**). Đây là mối quan hệ **tương sinh**, rất cát lợi.";
+    public const string OvercomingRelationship = "🔥 Ngũ hành của số lượng cá là **{0}**, **khắc** bản mệnh của bạn (**{0} khắc {1}**). Đây là mối quan hệ **tương khắc**, cần lưu ý.";
+    public const string NoRelationship = "🔄 Ngũ hành của số lượng cá là **{0}**, không có quan hệ trực tiếp với mệnh **{1}**.";
+    public const string UnknownRelationship = "❓ Không xác định được ngũ hành từ số lượng cá.";
+
+    // === Detailed Effect ===
+    public const string SameElementEffect = "- Tăng cường sự cân bằng và ổn định trong cuộc sống.\n- Hỗ trợ tốt về sức khỏe và tinh thần.\n- Tạo cảm giác an yên, dễ thu hút năng lượng tích cực.";
+    public const string GeneratingEffect = "- Cải thiện vận khí, dễ gặp may mắn trong công việc và tài chính.\n- Tăng cường sự tự tin, hấp dẫn năng lượng tích cực từ xung quanh.\n- Cân bằng cảm xúc và giảm căng thẳng trong các mối quan hệ.";
+    public const string OvercomingEffect = "- Có thể gây mệt mỏi, tinh thần suy giảm, dễ sinh nóng nảy hoặc thiếu tập trung.\n- Công việc có thể gặp trở ngại, dễ xung đột trong các mối quan hệ.\n- Tài lộc chậm phát triển hoặc dễ hao hụt.";
+    public const string NoRelationshipEffect = "- Không ảnh hưởng lớn đến phong thủy nhưng cũng không tạo hỗ trợ đặc biệt.\n- Có thể cảm thấy bình thường, không thay đổi nhiều về vận khí.";
+
+    // === Suggestions ===
+    public const string SuggestionSame = "Bạn có thể giữ nguyên số lượng cá hiện tại hoặc chọn số lượng tương ứng để duy trì sự hòa hợp.";
+    public const string SuggestionGenerating = "Bạn nên giữ số lượng cá hiện tại hoặc chọn các số thuộc hành **{0}** để tiếp tục được hỗ trợ phong thủy.";
+    public const string SuggestionOvercoming = "Bạn nên thay đổi số lượng cá để chuyển sang hành **tương sinh** hoặc **tương hợp** với mệnh **{0}**.";
+    public const string SuggestionNoRelation = "Bạn nên cân nhắc chọn số lượng cá mang hành tương sinh hoặc tương hợp để tối ưu phong thủy.";
+
+    // === Tips ===
+    public const string FengShuiTips =
+        "💡 **Mẹo phong thủy tăng cường vận khí:**\n" +
+        "- Đặt bể cá ở hướng Đông hoặc Đông Nam để kích hoạt tài lộc.\n" +
+        "- Kết hợp thêm cây thủy sinh hoặc đá phong thủy cùng hành với mệnh của bạn.\n" +
+        "- Tránh đặt bể cá trong phòng ngủ hoặc đối diện cửa chính.";
+}
 

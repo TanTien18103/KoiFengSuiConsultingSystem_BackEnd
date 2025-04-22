@@ -215,7 +215,7 @@ namespace Services.ServicesHelpers.UploadService
         //        throw new AppException(ResponseCodeConstants.FAILED, $"Failed to upload video: {ex.Message}", StatusCodes.Status500InternalServerError);
         //    }
         //}
-        public async Task<List<Quiz>> UploadExcelAsync(IFormFile file)
+        public async Task<List<Quiz>> UploadExcelAsync(IFormFile file, string courseId)
         {
             try
             {
@@ -291,7 +291,6 @@ namespace Services.ServicesHelpers.UploadService
                                 {
                                     case "quiz":
                                         var quizTitle = reader.GetValue(1).ToString();
-                                        var courseId = reader.GetValue(2).ToString();
 
                                         if (existingQuizTitles.Contains(quizTitle))
                                         {
@@ -325,7 +324,6 @@ namespace Services.ServicesHelpers.UploadService
 
                                         var questionText = reader.GetValue(1).ToString();
                                         var questionType = reader.GetValue(2).ToString();
-                                        var point = decimal.Parse(reader.GetValue(3).ToString());
 
                                         currentQuestion = new Question
                                         {
@@ -334,7 +332,7 @@ namespace Services.ServicesHelpers.UploadService
                                             QuestionText = questionText,
                                             QuestionType = questionType,
                                             CreateAt = DateTime.Now,
-                                            Point = point,
+                                            Point = 0,
                                             Answers = new List<Answer>()
                                         };
                                         currentQuiz.Questions.Add(currentQuestion);
@@ -364,6 +362,19 @@ namespace Services.ServicesHelpers.UploadService
                                 }
                             }
                         } while (reader.NextResult());
+                    }
+                }
+
+                foreach (var quiz in quizzes)
+                {
+                    var totalQuestions = quiz.Questions.Count;
+                    if (totalQuestions > 0)
+                    {
+                        var pointPerQuestion = Math.Round(100m / totalQuestions, 1); 
+                        foreach (var question in quiz.Questions)
+                        {
+                            question.Point = pointPerQuestion;
+                        }
                     }
                 }
 

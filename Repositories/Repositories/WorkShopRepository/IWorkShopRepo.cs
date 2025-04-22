@@ -15,6 +15,7 @@ namespace Repositories.Repositories.WorkShopRepository
         Task<WorkShop> GetWorkshopByLocationAndDate(string location, DateTime? startDate);
         Task<List<WorkShop>> GetWorkshopsByMaster(string masterId);
         Task<List<WorkShop>> SortingWorkshopByCreatedDate();
+        Task<List<WorkShop>> SortingWorkshopByCreatedDateForWeb(string masterId);
         Task<WorkShop> CreateWorkShop(WorkShop workShop);
         Task<WorkShop> UpdateWorkShop(WorkShop workShop);
         Task DeleteWorkShop(string workShopId);

@@ -81,6 +81,15 @@ namespace DAOs.DAOs
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
         }
+        public async Task<List<WorkShop>> SortingWorkshopByCreatedDateForWebDao(string masterId)
+        {
+            return await _context.WorkShops
+                .Include(x => x.Master).ThenInclude(x => x.Account)
+                .Include(x => x.Location)
+                .Where(x => x.MasterId == masterId)
+                .OrderByDescending(x => x.CreatedDate)
+                .ToListAsync();
+        }
 
         public async Task<WorkShop> CreateWorkShopDao(WorkShop workShop)
         {

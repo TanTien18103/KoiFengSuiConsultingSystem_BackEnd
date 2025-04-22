@@ -34,6 +34,10 @@ namespace Repositories.Repositories.WorkShopRepository
         {
             return WorkShopDAO.Instance.SortingWorkshopByCreatedDateDao();
         }
+        public Task<List<WorkShop>> SortingWorkshopByCreatedDateForWeb(string masterId)
+        {
+            return WorkShopDAO.Instance.SortingWorkshopByCreatedDateForWebDao(masterId);
+        }
         public Task<WorkShop> CreateWorkShop(WorkShop workShop)
         {
             return WorkShopDAO.Instance.CreateWorkShopDao(workShop);

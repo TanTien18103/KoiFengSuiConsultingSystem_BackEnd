@@ -102,11 +102,11 @@ namespace KoiFengSuiConsultingSystem.Controllers
         [HttpPost("UploadExcelFile")]
         [Consumes("multipart/form-data")]
         [Authorize(Roles = "Master")]
-        public async Task<ActionResult<List<Quiz>>> UploadExcelFile(IFormFile file)
+        public async Task<ActionResult<List<Quiz>>> UploadExcelFile(IFormFile file, [FromForm] string courseId)
         {
             try
             {
-                var results = await _uploadService.UploadExcelAsync(file);
+                var results = await _uploadService.UploadExcelAsync(file, courseId);
                 var response = results.Select(quiz => new
                 {
                     quiz.QuizId,

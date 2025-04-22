@@ -395,24 +395,27 @@ public class AccountService : IAccountService
             var customer = await _customerRepo.GetCustomerByAccountId(existingAccount.AccountId);
 
             // Calculate Element and LifePalace
-            DateTime dobAsDateTime = request.Dob!.Value.ToDateTime(TimeOnly.MinValue);
-            int birthYear = dobAsDateTime.Year;
-            var (canChi, nguHanh) = AmDuongNienHelper.GetNguHanh(birthYear);
-            string element = AmDuongNienHelper.GetNguHanhName(nguHanh);
-            string lifePalace = LifePalaceHelper.CalculateLifePalace(birthYear, request.Gender.Value);
-
-            if (customer != null)
+            if (request.Dob.HasValue && request.Gender.HasValue)
             {
-                customer.LifePalace = lifePalace;
-                customer.Element = element;
+                DateTime dobAsDateTime = request.Dob!.Value.ToDateTime(TimeOnly.MinValue);
+                int birthYear = dobAsDateTime.Year;
+                var (canChi, nguHanh) = AmDuongNienHelper.GetNguHanh(birthYear);
+                string element = AmDuongNienHelper.GetNguHanhName(nguHanh);
+                string lifePalace = LifePalaceHelper.CalculateLifePalace(birthYear, request.Gender.Value);
 
-                if (request.ImageUrl != null && request.ImageUrl.Length > 0)
+                if (customer != null)
                 {
-                    var imageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
-                    customer.ImageUrl = imageUrl;
+                    customer.LifePalace = lifePalace;
+                    customer.Element = element;
+
+                    if (request.ImageUrl != null && request.ImageUrl.Length > 0)
+                    {
+                        var imageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+                        customer.ImageUrl = imageUrl;
+                    }
+                    customer.UpdateDate = DateTime.Now;
+                    await _customerRepo.UpdateCustomer(customer);
                 }
-                customer.UpdateDate = DateTime.Now;
-                await _customerRepo.UpdateCustomer(customer);
             }
 
             await _accountRepository.UpdateAccount(existingAccount);

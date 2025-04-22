@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization.Infrastructure;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.ApiModels.Workshop;
@@ -24,6 +25,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpGet("sort-createdDate-for-web")]
+        public async Task<IActionResult> SortingWorkshopByCreatedDateForWebForStaffAndManager()
+        {
+            var res = await _workshopService.SortingWorkshopByCreatedDateForWebForStaffAndManager();
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpGet("sort-createdDate-for-master")]
+        [Authorize(Roles = "Master")]
         public async Task<IActionResult> SortingWorkshopByCreatedDateForWeb()
         {
             var res = await _workshopService.SortingWorkshopByCreatedDateForWeb();

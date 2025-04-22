@@ -22,6 +22,7 @@ using Repositories.Repositories.LocationRepository;
 using System.Net.WebSockets;
 using Newtonsoft.Json.Linq;
 using Google.Apis.Auth.OAuth2;
+using Repositories.Repositories.AccountRepository;
 
 namespace Services.Services.WorkshopService
 {
@@ -35,12 +36,13 @@ namespace Services.Services.WorkshopService
         private readonly IUploadService _uploadService;
         private readonly IMasterScheduleRepo _masterScheduleRepo;
         private readonly ILocationRepo _locationRepo;
+        private readonly IAccountRepo _accountRepo;
 
         public string? WORKSHOP_DUPLICATE_SCHEDULE_SAME_MASTER { get; private set; }
 
         public WorkshopService(IWorkShopRepo workShopRepo, IMapper mapper, IHttpContextAccessor httpContextAccessor,
             IRegisterAttendRepo registerAttendRepo, IMasterRepo masterRepo, IUploadService uploadService,
-            IMasterScheduleRepo masterScheduleRepo, ILocationRepo locationRepo)
+            IMasterScheduleRepo masterScheduleRepo, ILocationRepo locationRepo, IAccountRepo accountRepo)
         {
             _workShopRepo = workShopRepo;
             _mapper = mapper;
@@ -50,6 +52,7 @@ namespace Services.Services.WorkshopService
             _uploadService = uploadService;
             _masterScheduleRepo = masterScheduleRepo;
             _locationRepo = locationRepo;
+            _accountRepo = accountRepo;
         }
         public static string GenerateShortGuid()
         {
@@ -102,12 +105,66 @@ namespace Services.Services.WorkshopService
             }
         }
 
-        public async Task<ResultModel> SortingWorkshopByCreatedDateForWeb()
+        public async Task<ResultModel> SortingWorkshopByCreatedDateForWebForStaffAndManager()
         {
             var res = new ResultModel();
             try
             {
                 var workshops = await _workShopRepo.SortingWorkshopByCreatedDate();
+                if (workshops == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Data = _mapper.Map<List<WorkshopResponse>>(workshops);
+                res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> SortingWorkshopByCreatedDateForWeb()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].FirstOrDefault();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_NOT_SEND;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+
+                var token = authHeader.Substring("Bearer ".Length);
+                if (string.IsNullOrEmpty(token))
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.TOKEN_INVALID;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    return res;
+                }
+                var accountId = await _accountRepo.GetAccountIdFromToken(token);
+                var master = await _masterRepo.GetMasterByAccountId(accountId);
+
+                var workshops = await _workShopRepo.SortingWorkshopByCreatedDateForWeb(master.MasterId);
                 if (workshops == null)
                 {
                     res.IsSuccess = false;

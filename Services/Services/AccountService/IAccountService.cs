@@ -20,6 +20,8 @@ namespace Services.Services.AccountService
         Task<ResultModel> EditProfile(EditProfileRequest request);
         Task<ResultModel> ChangePassword(ChangePasswordRequest request);
         Task<ResultModel> ForgotPassword(string email);
+        Task<ResultModel> ForgotPasswordVerifyOtp(string email, string otp);
+
 
         // Account Management (Admin only)
         Task<ResultModel> GetAllAccounts(string? role = null);

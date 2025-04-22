@@ -30,6 +30,7 @@ using Services.ApiModels.Master;
 using Repositories.Repositories.CustomerRepository;
 using System.Xml.Linq;
 using Services.ApiModels.Customer;
+using static Org.BouncyCastle.Asn1.Cmp.Challenge;
 
 namespace Services.Services.AccountService;
 
@@ -540,15 +541,16 @@ public class AccountService : IAccountService
                 res.StatusCode = StatusCodes.Status404NotFound;
                 return res;
             }
-            var newPassword = GenerateShortGuid();
+            var random = new Random();
+            string otp = random.Next(100000, 999999).ToString();
 
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword);
-
-            user.Password = hashedPassword;
+            user.OtpCode = otp;
+            user.OtpExpiredTime = DateTime.Now.AddMinutes(5);
+            user.UpdateDate = DateTime.Now;
             await _accountRepository.UpdateAccount(user);
 
-            string subject = "Mật khẩu mới của bạn";
-            string body = $"Mật khẩu mới của bạn là: <b>{newPassword}</b>. Hãy đăng nhập và đổi mật khẩu ngay.";
+            string subject = "Otp xác nhận đổi mật khẩu mới của bạn";
+            string body = $"Otp xác nhận đổi mật khẩu mới của bạn là: <b>{otp}</b>. Hãy nhập otp để nhận mật khẩu mới ngay.";
             await _emailService.SendEmail(email, subject, body);
 
             res.IsSuccess = true;
@@ -1174,6 +1176,68 @@ public class AccountService : IAccountService
                 Message = ex.Message,
                 StatusCode = StatusCodes.Status500InternalServerError
             };
+        }
+    }
+
+    public async Task<ResultModel> ForgotPasswordVerifyOtp(string email, string otp)
+    {
+        var res = new ResultModel();
+        try
+        {
+            var user = await _accountRepository.GetAccountByEmail(email);
+            if (user == null)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                res.Message = ResponseMessageIdentity.INCORRECT_EMAIL;
+                res.StatusCode = StatusCodes.Status404NotFound;
+                return res;
+            }
+
+            if (user.OtpExpiredTime < DateTime.Now)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                res.Message = ResponseMessageIdentity.OTP_EXPIRED;
+                res.StatusCode = StatusCodes.Status400BadRequest;
+                return res;
+            }
+
+            if (user.OtpCode != otp)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                res.Message = ResponseMessageIdentity.OTP_INVALID;
+                res.StatusCode = StatusCodes.Status400BadRequest;
+                return res;
+            }
+
+            string newPassword = GenerateShortGuid();
+            user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.OtpExpiredTime = null;
+            user.OtpCode = null;
+
+            await _accountRepository.UpdateAccount(user);
+
+            string subject = "Mật khẩu mới của bạn";
+            string body = $"Mật khẩu mới của bạn là: <b>{newPassword}</b>. Hãy đăng nhập và đổi mật khẩu ngay.";
+            await _emailService.SendEmail(email, subject, body);
+
+            res.IsSuccess = true;
+            res.ResponseCode = ResponseCodeConstants.SUCCESS;
+            res.Message = ResponseMessageIdentity.FORGOT_PASSWORD_SUCCESS;
+            res.StatusCode = StatusCodes.Status200OK;
+
+            return res;
+        }
+        catch (Exception ex)
+        {
+            res.IsSuccess = false;
+            res.ResponseCode = ResponseCodeConstants.FAILED;
+            res.Message = ex.Message;
+            res.StatusCode = StatusCodes.Status500InternalServerError;
+
+            return res;
         }
     }
 }

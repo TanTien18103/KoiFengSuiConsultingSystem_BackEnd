@@ -87,8 +87,10 @@ public class ResponseMessageIdentity
     public const string EMAIL_VALIDATION_REQUIRED = "Vui lòng nhập mã OTP được gửi đến email của bạn để kích hoạt tài khoản.";
     public const string MASTER_NOT_FOUND = "Không tìm thấy Master";
     public const string UPDATE_MASTER_SUCCESS = "Cập nhật thông tin Master thành công";
-
     public const string INVALID_DOB_YEAR = "Ngày sinh không hợp lệ. Vui lòng kiểm tra lại năm sinh của bạn.";
+    public const string FORGOT_PASSWORD_SUCCESS = "Xác nhận Otp đặt lại mật khẩu thành công! Vui lòng kiểm tra email để nhận mật khẩu mới.";
+    public const string OTP_EXPIRED = "OTP đã hết hạn. Vui lòng yêu cầu mã OTP mới.";
+    public const string OTP_INVALID = "Mã OTP không hợp lệ. Vui lòng kiểm tra lại mã OTP bạn đã nhập.";
 }
 
 //Auth-Account Controllers

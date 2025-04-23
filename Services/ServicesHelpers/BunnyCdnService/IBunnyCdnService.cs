@@ -9,6 +9,6 @@ namespace Services.ServicesHelpers.BunnyCdnService
 {
     public interface IBunnyCdnService
     {
-        Task<string> UploadVideoAsync(IFormFile file, string folder = "videos");
+        Task<string> UploadVideoAsync(IFormFile file);
     }
 }

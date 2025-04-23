@@ -10,7 +10,7 @@ namespace BusinessObjects.Enums
     {
         Pending,
         Confirmed,
-        VefifyingOTP,
+        VerifyingOTP,
         Success,
         Cancelled
     }

@@ -3,7 +3,12 @@ using BusinessObjects.Constants;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
 using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Org.BouncyCastle.Ocsp;
 using Org.BouncyCastle.Tls;
@@ -16,6 +21,7 @@ using Repositories.Repositories.EnrollAnswerRepository;
 using Repositories.Repositories.EnrollCertRepository;
 using Repositories.Repositories.EnrollChapterRepository;
 using Repositories.Repositories.EnrollQuizRepository;
+using Repositories.Repositories.MasterRepository;
 using Repositories.Repositories.OrderRepository;
 using Repositories.Repositories.QuestionRepository;
 using Repositories.Repositories.QuizRepository;
@@ -30,6 +36,9 @@ using Services.ApiModels.RegisterCourse;
 using Services.ServicesHelpers.UploadService;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Security.Claims;
@@ -37,6 +46,12 @@ using System.Text;
 using System.Threading.Tasks;
 using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 using static Services.ApiModels.RegisterCourse.QuizResultResponse;
+using static System.Net.Mime.MediaTypeNames;
+using Account = CloudinaryDotNet.Account;
+using Color = System.Drawing.Color;
+using Font = System.Drawing.Font;
+using Image = System.Drawing.Image;
+using Point = System.Drawing.Point;
 
 namespace Services.Services.RegisterCourseService
 {
@@ -44,24 +59,24 @@ namespace Services.Services.RegisterCourseService
     {
         private readonly IOrderRepo _orderRepo;
         private readonly IMapper _mapper;
-
+        private readonly IConfiguration _configuration;
         private readonly ICourseRepo _courseRepo;
         private readonly IChapterRepo _chapterRepo;
         private readonly IQuizRepo _quizRepo;
         private readonly IQuestionRepo _questionRepo;
         private readonly IAnswerRepo _answerRepo;
         private readonly ICertificateRepo _certificateRepo;
-
-        private ICustomerRepo _customerRepo;
-
+        private readonly ICustomerRepo _customerRepo;
         private readonly IRegisterCourseRepo _registerCourseRepo;
         private readonly IEnrollChapterRepo _enrollChapterRepo;
         private readonly IEnrollQuizRepo _enrollQuizRepo;
         private readonly IEnrollAnswerRepo _enrollAnswerRepo;
         private readonly IEnrollCertRepo _enrollCertRepo;
-
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IUploadService _uploadService;
+        private readonly ILogger<RegisterCourseService> _logger;
+        private readonly IWebHostEnvironment _environment;
+        private readonly IMasterRepo _masterRepo;
 
         public RegisterCourseService(
             IOrderRepo orderRepo,
@@ -79,7 +94,11 @@ namespace Services.Services.RegisterCourseService
             IEnrollAnswerRepo enrollAnswerRepo,
             IHttpContextAccessor contextAccessor,
             IUploadService uploadService,
-            IEnrollCertRepo enrollCertRepo)
+            IEnrollCertRepo enrollCertRepo,
+            IConfiguration configuration,
+            ILogger<RegisterCourseService> logger,
+            IWebHostEnvironment webHostEnvironment,
+            IMasterRepo masterRepo)
         {
             _orderRepo = orderRepo;
             _mapper = mapper;
@@ -97,6 +116,10 @@ namespace Services.Services.RegisterCourseService
             _contextAccessor = contextAccessor;
             _uploadService = uploadService;
             _enrollCertRepo = enrollCertRepo;
+            _configuration = configuration;
+            _logger = logger;
+            _environment = webHostEnvironment;
+            _masterRepo = masterRepo;
         }
 
         public static string GenerateShortGuid()
@@ -433,24 +456,47 @@ namespace Services.Services.RegisterCourseService
 
                 var registerCourse = await _registerCourseRepo.GetRegisterCourseByEnrollQuizId(enrollQuiz.EnrollQuizId);
                 var course = await _courseRepo.GetCourseById(registerCourse.CourseId);
+                var masterid = course.CreateBy;
+                if (masterid == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsMaster.MASTER_NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status400BadRequest;
+                    return res;
+                }
                 if (registerCourse != null)
                 {
                     var quiz = await _quizRepo.GetQuizById(enrollQuiz.QuizId);
                     if (totalScore >= quiz.Score.GetValueOrDefault() * 0.8m)
                     {
-                        var existingEnrollCert = await _enrollCertRepo.GetByCustomerIdAndCertificateId(customerid, course.CertificateId);
+                        var customerInfo = await _customerRepo.GetCustomerById(customerid);
+                        var masterInfo = await _masterRepo.GetByMasterId(masterid);
+                        string certificateImageUrl = await GenerateCertificateImageAndUploadToCloudinary(
+                            customerInfo.Account.FullName,
+                            masterInfo.MasterName,
+                            course.CourseName,
+                            DateOnly.FromDateTime(DateTime.Now)
+                        );
 
+                        var certificate = new BusinessObjects.Models.Certificate
+                        {
+                            CertificateId = GenerateShortGuid(),
+                            IssueDate = DateOnly.FromDateTime(DateTime.Now),
+                            Description = $"Chứng nhận hoàn thành khóa học {course.CourseName}",
+                            CertificateImage = certificateImageUrl,
+                            CreateDate = DateTime.Now
+                        };
+                        await _certificateRepo.CreateCertificate(certificate);
+
+                        var existingEnrollCert = await _enrollCertRepo.GetByCustomerIdAndCertificateId(customerid, certificate.CertificateId);
                         if (existingEnrollCert == null)
                         {
-                            var latestCertificate = (await _certificateRepo.GetAllCertificates())
-                                               .OrderBy(c => c.CreateDate)
-                                               .FirstOrDefault();
-
                             var enrollCert = new EnrollCert
                             {
                                 EnrollCertId = GenerateShortGuid(),
                                 CustomerId = customerid,
-                                CertificateId = latestCertificate.CertificateId,
+                                CertificateId = certificate.CertificateId,
                                 FinishDate = DateOnly.FromDateTime(DateTime.Now),
                                 CreateDate = DateTime.Now,
                             };
@@ -647,8 +693,8 @@ namespace Services.Services.RegisterCourseService
                 }
 
                 certificate.CertificateId = GenerateShortGuid();
-                certificate.CreateDate = DateTime.UtcNow;
-                certificate.UpdateDate = DateTime.UtcNow;
+                certificate.CreateDate = DateTime.Now;
+                certificate.UpdateDate = DateTime.Now;
                 certificate.CertificateImage = uploadResult;
 
                 var createdCertificate = await _certificateRepo.CreateCertificate(certificate);
@@ -850,6 +896,206 @@ namespace Services.Services.RegisterCourseService
                 res.Message = ex.InnerException?.Message;
                 return res;
             }
+        }
+
+        private async Task<string> GenerateCertificateImageAndUploadToCloudinary(string studentName, string creatorName, string courseName, DateOnly issueDate)
+        {
+            try
+            {
+                var cloudinary = new Cloudinary(new Account(
+                    _configuration["Cloudinary:CloudName"],
+                    _configuration["Cloudinary:ApiKey"],
+                    _configuration["Cloudinary:ApiSecret"]
+                ));
+
+                // Tạo ảnh chứng chỉ với kích thước 1920x1080 (16:9 ratio)
+                using (var bitmap = new Bitmap(1920, 1080))
+                using (var graphics = Graphics.FromImage(bitmap))
+                using (var memoryStream = new MemoryStream())
+                {
+                    // Cài đặt chất lượng cao
+                    graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                    // Tạo background màu đỏ đậm
+                    using (var brush = new SolidBrush(Color.FromArgb(153, 0, 0))) // Màu đỏ đậm
+                    {
+                        graphics.FillRectangle(brush, 0, 0, bitmap.Width, bitmap.Height);
+                    }
+
+                    // Load và vẽ các phần trang trí
+                    using (var logoImage = Image.FromFile(Path.Combine(_environment.WebRootPath, "images", "BitKoi-dark.png")))
+                    using (var cornerImage = Image.FromFile(Path.Combine(_environment.WebRootPath, "images", "gold_corner_top_right.png")))
+                    using (var koiLotusImage = Image.FromFile(Path.Combine(_environment.WebRootPath, "images", "koi_lotus.png")))
+                    {
+                        // Vẽ logo ở góc trên bên trái
+                        graphics.DrawImage(logoImage, 60, 40, 180, 180);
+
+                        // Vẽ góc trang trí ở góc trên bên phải
+                        graphics.DrawImage(cornerImage, bitmap.Width - 200, 40, 160, 160);
+
+                        // Vẽ góc trang trí ở góc dưới bên trái (xoay 180 độ)
+                        using (var matrix = new Matrix())
+                        {
+                            matrix.RotateAt(180, new PointF(0, bitmap.Height));
+                            graphics.Transform = matrix;
+                            graphics.DrawImage(cornerImage, 40, bitmap.Height - 200, 160, 160);
+                            graphics.ResetTransform();
+                        }
+
+                        // Vẽ hình trang trí hoa sen và cá koi ở góc dưới bên trái
+                        float koiLotusRatio = 500f / 187f;
+                        float desiredWidth = 400;
+                        float calculatedHeight = desiredWidth / koiLotusRatio;
+                        graphics.DrawImage(koiLotusImage, 40, bitmap.Height - calculatedHeight - 40, desiredWidth, calculatedHeight);
+
+                        // Vẽ tiêu đề chính
+                        using (var titleFont = new Font("Arial", 48, FontStyle.Bold))
+                        {
+                            var titleText = "Giấy Chứng Nhận Hoàn Thành Khóa Học";
+                            var size = graphics.MeasureString(titleText, titleFont);
+                            var titleX = (bitmap.Width - size.Width) / 2;
+                            graphics.DrawString(titleText, titleFont, Brushes.White, titleX, 180);
+                        }
+
+                        // Vẽ tên khóa học
+                        using (var courseNameFont = new Font("Arial", 42, FontStyle.Bold))
+                        {
+                            var size = graphics.MeasureString(courseName, courseNameFont);
+                            var courseNameX = (bitmap.Width - size.Width) / 2;
+                            graphics.DrawString(courseName, courseNameFont, Brushes.White, courseNameX, 280);
+                        }
+
+                        // Vẽ thông điệp chúc mừng
+                        using (var messageFont = new Font("Arial", 20, FontStyle.Regular))
+                        {
+                            var messageText = "Chúc mừng bạn đã hoàn thành khóa học! Bạn đã hoàn thành khóa học xuất sắc và đã đạt được các kĩ năng cần thiết sau khóa học trên!";
+                            var messageRect = new RectangleF(bitmap.Width * 0.15f, 380, bitmap.Width * 0.7f, 100);
+                            var messageFormat = new StringFormat
+                            {
+                                Alignment = StringAlignment.Center,
+                                LineAlignment = StringAlignment.Center
+                            };
+                            graphics.DrawString(messageText, messageFont, Brushes.White, messageRect, messageFormat);
+                        }
+
+                        // Vẽ phần người tham dự và người tạo
+                        float participantX = bitmap.Width * 0.3f;
+                        float creatorX = bitmap.Width * 0.7f;
+                        float sectionY = 500;
+
+                        DrawParticipantSection(graphics, studentName, participantX, sectionY);
+                        DrawCreatorSection(graphics, creatorName, creatorX, sectionY);
+
+                        // Thêm ngày cấp chứng chỉ
+                        using (var dateFont = new Font("Arial", 16, FontStyle.Regular))
+                        {
+                            var dateText = $"Ngày cấp: {issueDate.ToString("dd/MM/yyyy")}";
+                            var dateSize = graphics.MeasureString(dateText, dateFont);
+                            graphics.DrawString(dateText, dateFont, Brushes.White,
+                                (bitmap.Width - dateSize.Width) / 2, bitmap.Height - 100);
+                        }
+                    }
+
+                    // Lưu vào memory stream dưới dạng PNG
+                    bitmap.Save(memoryStream, ImageFormat.Png);
+                    memoryStream.Position = 0;
+
+                    // Upload lên Cloudinary
+                    var uploadParams = new ImageUploadParams
+                    {
+                        File = new FileDescription($"certificate_{studentName}_{courseName}_{Guid.NewGuid()}.png", memoryStream),
+                        Folder = "certificates"
+                    };
+
+                    var uploadResult = await cloudinary.UploadAsync(uploadParams);
+                    return uploadResult.SecureUrl.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error generating certificate: {ex.Message}");
+                return _configuration["DefaultCertificateImageUrl"];
+            }
+        }
+
+        private void DrawParticipantSection(Graphics graphics, string studentName, float xPosition, float yPosition)
+        {
+            using (var labelFont = new Font("Arial", 18, FontStyle.Regular))
+            using (var nameFont = new Font("Arial", 42, FontStyle.Bold))
+            using (var fullNameFont = new Font("Arial", 14, FontStyle.Regular))
+            {
+                // Vẽ tiêu đề "Người tham dự khóa học"
+                var labelText = "Người tham dự khóa học";
+                var labelSize = graphics.MeasureString(labelText, labelFont);
+                graphics.DrawString(labelText, labelFont, Brushes.White,
+                    xPosition - (labelSize.Width / 2), yPosition);
+
+                // Vẽ tên gọi (lớn)
+                var firstName = GetFirstName(studentName);
+                var nameSize = graphics.MeasureString(firstName, nameFont);
+                graphics.DrawString(firstName, nameFont, Brushes.White,
+                    xPosition - (nameSize.Width / 2), yPosition + 40);
+
+                // Vẽ họ tên đầy đủ (nhỏ hơn)
+                var fullNameSize = graphics.MeasureString(studentName, fullNameFont);
+                graphics.DrawString(studentName, fullNameFont, Brushes.White,
+                    xPosition - (fullNameSize.Width / 2), yPosition + 100);
+
+                // Vẽ đường kẻ trang trí
+                using (var pen = new Pen(Color.White, 1))
+                {
+                    float lineWidth = 200;
+                    graphics.DrawLine(pen,
+                        xPosition - (lineWidth / 2), yPosition + 130,
+                        xPosition + (lineWidth / 2), yPosition + 130);
+                }
+            }
+        }
+
+        private void DrawCreatorSection(Graphics graphics, string creatorName, float xPosition, float yPosition)
+        {
+            using (var labelFont = new Font("Arial", 18, FontStyle.Regular))
+            using (var nameFont = new Font("Arial", 42, FontStyle.Bold))
+            using (var fullNameFont = new Font("Arial", 14, FontStyle.Regular))
+            {
+                // Vẽ tiêu đề "Người tạo khóa học"
+                var labelText = "Người tạo khóa học";
+                var labelSize = graphics.MeasureString(labelText, labelFont);
+                graphics.DrawString(labelText, labelFont, Brushes.White,
+                    xPosition - (labelSize.Width / 2), yPosition);
+
+                // Vẽ tên gọi (lớn)
+                var firstName = GetFirstName(creatorName);
+                var nameSize = graphics.MeasureString(firstName, nameFont);
+                graphics.DrawString(firstName, nameFont, Brushes.White,
+                    xPosition - (nameSize.Width / 2), yPosition + 40);
+
+                // Vẽ họ tên đầy đủ (nhỏ hơn)
+                var fullNameSize = graphics.MeasureString(creatorName, fullNameFont);
+                graphics.DrawString(creatorName, fullNameFont, Brushes.White,
+                    xPosition - (fullNameSize.Width / 2), yPosition + 100);
+
+                // Vẽ đường kẻ trang trí
+                using (var pen = new Pen(Color.White, 1))
+                {
+                    float lineWidth = 200;
+                    graphics.DrawLine(pen,
+                        xPosition - (lineWidth / 2), yPosition + 130,
+                        xPosition + (lineWidth / 2), yPosition + 130);
+                }
+            }
+        }
+
+        // Helper method to extract the first name from a full Vietnamese name
+        private string GetFirstName(string fullName)
+        {
+            if (string.IsNullOrEmpty(fullName))
+                return string.Empty;
+
+            var parts = fullName.Trim().Split(' ');
+            return parts.Length > 0 ? parts[parts.Length - 1] : fullName;
         }
     }
 }

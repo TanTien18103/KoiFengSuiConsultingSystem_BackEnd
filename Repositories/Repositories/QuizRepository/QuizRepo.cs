@@ -39,9 +39,9 @@ namespace Repositories.Repositories.QuizRepository
         {
             return QuizDAO.Instance.GetQuizzesByCourseIdDao(courseId);
         }
-        public Task<List<Quiz>> CreateQuizzesWithQuestionsAndAnswers(List<Quiz> quizzes)
+        public Task<Quiz> CreateQuizWithQuestionsAndAnswers(Quiz quiz)
         {
-            return QuizDAO.Instance.CreateQuizzesWithQuestionsAndAnswersDao(quizzes);
+            return QuizDAO.Instance.CreateQuizWithQuestionsAndAnswersDao(quiz);
         }
     }
 }

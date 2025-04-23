@@ -72,6 +72,8 @@ using Services.ServicesHelpers.TimeOnlyJsonConverter;
 using Services.Services.DashboardService;
 using Repositories.Repositories.CertificateRepository;
 using Repositories.Repositories.EnrollCertRepository;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 
 
@@ -264,6 +266,21 @@ builder.Services.AddAuthentication(options =>
     googleOptions.CallbackPath = "/signin-google";
 });
 
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 500_000_000; // 500MB
+});
+
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 500_000_000; // 500MB
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 500_000_000; // 500MB
+});
+
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.ListenAnyIP(80); 
@@ -297,6 +314,13 @@ builder.Services.AddCors(options =>
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
+    options.AddPolicy("DefaultCorsPolicy", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .WithExposedHeaders("Content-Disposition", "Content-Length");
+    });
 });
 
 // Cloudinary Configuration
@@ -321,13 +345,14 @@ if (app.Environment.IsDevelopment() || true)
         c.DisplayRequestDuration();
     });
 }
+app.UseStaticFiles();
 app.UseResponseCaching();
 app.UseHttpsRedirection();
-// Use CORS before other middleware
 app.UseCors("AllowAll");
 app.UseCors("AllowAllOrigins");
 app.UseCors("AllowVercel");
 app.UseCors("AllowBunnyCDN");
+app.UseCors("DefaultCorsPolicy");
 app.UseSession();
 
 app.UseAuthentication();

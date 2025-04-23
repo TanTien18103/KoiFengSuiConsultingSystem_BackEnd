@@ -117,42 +117,38 @@ namespace DAOs.DAOs
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Quiz>> CreateQuizzesWithQuestionsAndAnswersDao(List<Quiz> quizzes)
+        public async Task<Quiz> CreateQuizWithQuestionsAndAnswersDao(Quiz quiz)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
                 try
                 {
-                    foreach (var quiz in quizzes)
+                    var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == quiz.CourseId);
+                    if (course == null)
                     {
-                        var courseExists = await _context.Courses.AnyAsync(c => c.CourseId == quiz.CourseId);
-                        if (!courseExists)
-                        {
-                            throw new AppException(ResponseCodeConstants.NOT_FOUND, $"Không tìm thấy khóa học với ID: {quiz.CourseId}", StatusCodes.Status404NotFound);
-                        }
-
-                        var masterExists = await _context.Masters.AnyAsync(m => m.MasterId == quiz.CreateBy);
-                        if (!masterExists)
-                        {
-                            throw new AppException( ResponseCodeConstants.NOT_FOUND, $"Không tìm thấy master với ID: {quiz.CreateBy}", StatusCodes.Status404NotFound);
-                        }
+                        throw new AppException(ResponseCodeConstants.NOT_FOUND, $"Không tìm thấy khóa học với ID: {quiz.CourseId}", StatusCodes.Status404NotFound);
                     }
 
-                    // Thêm Quizzes và related entities
-                    await _context.Quizzes.AddRangeAsync(quizzes);
-                    
+                    var existingQuiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.CourseId == quiz.CourseId);
+                    if (existingQuiz != null)
+                    {
+                        throw new AppException(ResponseCodeConstants.EXISTED, $"Khóa học với ID {quiz.CourseId} đã có quiz.", StatusCodes.Status400BadRequest);
+                    }
+
+                    var masterExists = await _context.Masters.AnyAsync(m => m.MasterId == quiz.CreateBy);
+                    if (!masterExists)
+                    {
+                        throw new AppException(ResponseCodeConstants.NOT_FOUND, $"Không tìm thấy master với ID: {quiz.CreateBy}", StatusCodes.Status404NotFound);
+                    }
+
+                    await _context.Quizzes.AddAsync(quiz);
                     await _context.SaveChangesAsync();
-                    
-                    // Commit transaction
                     await transaction.CommitAsync();
-                    
-                    return quizzes;
+                    return quiz;
                 }
                 catch (Exception ex)
                 {
-                    // Rollback nếu có lỗi
                     await transaction.RollbackAsync();
-                    
                     throw new AppException(ResponseCodeConstants.FAILED, $"Lỗi khi lưu dữ liệu: {ex.InnerException?.Message ?? ex.Message}", StatusCodes.Status500InternalServerError);
                 }
             }

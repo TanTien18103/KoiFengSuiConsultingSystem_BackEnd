@@ -412,7 +412,7 @@ namespace Services.Services.QuizService
                     return res;
                 }
 
-                course.UpdateAt = DateTime.UtcNow;
+                course.UpdateAt = DateTime.Now;
                 await _courseRepo.UpdateCourse(course);
 
                 res.IsSuccess = true;

@@ -641,7 +641,7 @@ namespace Services.Services.ContractService
                 var random = new Random();
                 string otp = random.Next(100000, 999999).ToString();
                 contract.OtpCode = otp;
-                contract.OtpExpiredTime = DateTime.Now.AddMinutes(1);
+                contract.OtpExpiredTime = DateTime.Now.AddMinutes(5);
                 contract.UpdatedDate = DateTime.Now;
 
                 // Gửi OTP qua email

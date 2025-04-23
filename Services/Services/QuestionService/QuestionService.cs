@@ -250,7 +250,8 @@ namespace Services.Services.QuestionService
                 var question = _mapper.Map<Question>(questionRequest);
                 question.QuestionId = GenerateShortGuid();
                 question.QuizId = quizId;
-                question.CreateAt = DateTime.UtcNow;
+                question.CreateAt = DateTime.Now;
+                question.UpdateAt = DateTime.Now;
                 question.Point = pointPerQuestion;
 
                 if (question.Answers != null && question.Answers.Any())
@@ -259,7 +260,8 @@ namespace Services.Services.QuestionService
                     {
                         answer.AnswerId = GenerateShortGuid();
                         answer.QuestionId = question.QuestionId;
-                        answer.CreateAt = DateTime.UtcNow;
+                        answer.CreateAt = DateTime.Now;
+                        answer.UpdateDate = DateTime.Now;
                     }
                 }
 

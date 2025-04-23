@@ -3,6 +3,7 @@ using BusinessObjects.Exceptions;
 using BusinessObjects.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services.ServicesHelpers.BunnyCdnService;
 using Services.ServicesHelpers.UploadService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
@@ -12,9 +13,11 @@ namespace KoiFengSuiConsultingSystem.Controllers
     public class UploadController : ControllerBase
     {
         private readonly IUploadService _uploadService;
-        public UploadController(IUploadService uploadService)
+        private readonly IBunnyCdnService _bunnyCdnService;
+        public UploadController(IUploadService uploadService, IBunnyCdnService bunnyCdnService)
         {
             _uploadService = uploadService;
+            _bunnyCdnService = bunnyCdnService;
         }
         [HttpPost("upload-image")]
         public async Task<IActionResult> UploadImage(IFormFile file)
@@ -67,27 +70,38 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPost("upload-video")]
+        [RequestSizeLimit(200_000_000)] // Set appropriate size limit (100MB in this example)
         public async Task<IActionResult> UploadVideo(IFormFile file)
         {
             try
             {
-                if (file == null)
+                if (file == null || file.Length == 0)
                     return BadRequest(new { success = false, message = "Không có file nào được chọn" });
 
+                // Check file type (optional security measure)
+                string[] allowedTypes = { "video/mp4", "video/mpeg", "video/quicktime", "video/x-msvideo" };
+                if (!Array.Exists(allowedTypes, type => type == file.ContentType))
+                    return BadRequest(new { success = false, message = "Định dạng file không được hỗ trợ" });
+
+                // Upload video through service
                 string videoUrl = await _uploadService.UploadVideoAsync(file);
 
-                if (videoUrl == null)
-                    return BadRequest(new { success = false, message = "Upload thất bại" });
-
+                // Return success with video URL
                 return Ok(new { success = true, url = videoUrl });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                // Log the exception details here (using ILogger or similar)
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    success = false,
+                    message = "Có lỗi xảy ra khi tải lên video",
+                    error = ex.Message
+                });
             }
         }
 
-        [HttpGet("get-pdf-url/{publicId}")]
+            [HttpGet("get-pdf-url/{publicId}")]
         public IActionResult GetPdfUrl(string publicId)
         {
             if (string.IsNullOrEmpty(publicId))

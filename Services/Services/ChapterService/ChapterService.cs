@@ -8,6 +8,7 @@ using Repositories.Repositories.CourseRepository;
 using Services.ApiModels;
 using Services.ApiModels.Chapter;
 using Services.ApiModels.Course;
+using Services.ServicesHelpers.BunnyCdnService;
 using Services.ServicesHelpers.UploadService;
 using System;
 using System.Collections.Generic;
@@ -24,13 +25,15 @@ namespace Services.Services.ChapterService
         private readonly IMapper _mapper;
         private readonly ICourseRepo _courseRepo;
         private readonly IUploadService _uploadService;
+        private readonly IBunnyCdnService _bunnyCdnService;
 
-        public ChapterService(IChapterRepo chapterRepo, IMapper mapper, ICourseRepo courseRepo, IUploadService uploadService)
+        public ChapterService(IChapterRepo chapterRepo, IMapper mapper, ICourseRepo courseRepo, IUploadService uploadService, IBunnyCdnService bunnyCdnService)
         {
             _chapterRepo = chapterRepo;
             _mapper = mapper;
             _courseRepo = courseRepo;
             _uploadService = uploadService;
+            _bunnyCdnService = bunnyCdnService;
         }
 
 
@@ -142,7 +145,7 @@ namespace Services.Services.ChapterService
                 var chapter = _mapper.Map<Chapter>(request);
                 chapter.ChapterId = GenerateShortGuid();
                 chapter.CreateDate = DateTime.Now;
-                chapter.Video = await _uploadService.UploadVideoAsync(request.Video);
+                chapter.Video = await _bunnyCdnService.UploadVideoAsync(request.Video);
                 await _chapterRepo.CreateChapter(chapter);
 
                 res.IsSuccess = true;
@@ -214,7 +217,7 @@ namespace Services.Services.ChapterService
 
                 if (chapter.Video != null)
                 {
-                    chapterInfo.Video = await _uploadService.UploadVideoAsync(chapter.Video);
+                    chapterInfo.Video = await _bunnyCdnService.UploadVideoAsync(chapter.Video);
                 }
 
                 await _chapterRepo.UpdateChapter(chapterInfo);

@@ -125,7 +125,6 @@ namespace Services.ServicesHelpers.UploadService
                 {
                     File = new FileDescription(file.FileName, stream),
                     Folder = "images",
-                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.Now.Ticks}",
                     // Gợi ý: nếu crop không cần thiết thì có thể bỏ đi
                     Transformation = new Transformation()
                         .Quality("auto")
@@ -158,7 +157,6 @@ namespace Services.ServicesHelpers.UploadService
                     File = new FileDescription(file.FileName, stream),
                     Folder = "pdfs",
                     Type = "upload",
-                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.Now.Ticks}"
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -174,47 +172,48 @@ namespace Services.ServicesHelpers.UploadService
             }
         }
 
-        public async Task<string> UploadVideoAsync(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-                return null;
-
-            try
-            {
-                using var stream = file.OpenReadStream();
-                var uploadParams = new VideoUploadParams
-                {
-                    File = new FileDescription(file.FileName, stream),
-                    Folder = "videos",
-                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.Now.Ticks}"
-                };
-
-                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-
-                if (uploadResult.Error != null)
-                    throw new Exception($"Lỗi khi upload video: {uploadResult.Error.Message}");
-
-                return uploadResult.SecureUrl.ToString();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Lỗi khi upload video: {ex.Message}");
-            }
-        }
         //public async Task<string> UploadVideoAsync(IFormFile file)
         //{
         //    if (file == null || file.Length == 0)
-        //        throw new AppException(ResponseCodeConstants.BAD_REQUEST, "File is empty", StatusCodes.Status400BadRequest);
+        //        return null;
 
         //    try
         //    {
-        //        return await _bunnyCdnService.UploadVideoAsync(file);
+        //        using var stream = file.OpenReadStream();
+        //        var uploadParams = new VideoUploadParams
+        //        {
+        //            File = new FileDescription(file.FileName, stream),
+        //            Folder = "videos",
+        //            PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.UtcNow.Ticks}"
+        //        };
+
+        //        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+        //        if (uploadResult.Error != null)
+        //            throw new Exception($"Lỗi khi upload video: {uploadResult.Error.Message}");
+
+        //        return uploadResult.SecureUrl.ToString();
         //    }
         //    catch (Exception ex)
         //    {
-        //        throw new AppException(ResponseCodeConstants.FAILED, $"Failed to upload video: {ex.Message}", StatusCodes.Status500InternalServerError);
+        //        throw new Exception($"Lỗi khi upload video: {ex.Message}");
         //    }
         //}
+        public async Task<string> UploadVideoAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                throw new AppException(ResponseCodeConstants.BAD_REQUEST, "File is empty", StatusCodes.Status400BadRequest);
+
+            try
+            {
+                return await _bunnyCdnService.UploadVideoAsync(file);
+            }
+            catch (Exception ex)
+            {
+                throw new AppException(ResponseCodeConstants.FAILED, $"Failed to upload video: {ex.Message}", StatusCodes.Status500InternalServerError);
+            }
+        }
+        
         public async Task<Quiz> UploadExcelAsync(IFormFile file, string courseId)
         {
             try

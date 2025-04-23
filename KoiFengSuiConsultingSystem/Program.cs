@@ -72,6 +72,8 @@ using Services.ServicesHelpers.TimeOnlyJsonConverter;
 using Services.Services.DashboardService;
 using Repositories.Repositories.CertificateRepository;
 using Repositories.Repositories.EnrollCertRepository;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 
 
@@ -142,7 +144,7 @@ builder.Services.AddScoped<IFengShuiDocumentService, FengShuiDocumentService>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
-
+builder.Services.AddScoped<IBunnyCdnService, BunnyCdnService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
@@ -152,12 +154,12 @@ builder.Services.AddHostedService<BookingCleanupService>();
 builder.Services.AddSingleton<GoogleMeetService>();
 
 // BunnyCdn Configuration
-builder.Services.Configure<BunnyCdnSettings>(builder.Configuration.GetSection("BunnyCdn"));
+//builder.Services.Configure<BunnyCdnSettings>(builder.Configuration.GetSection("BunnyCdn"));
 // Register BunnyCdnService
-builder.Services.AddSingleton<IBunnyCdnService>(provider => {
-    var settings = provider.GetRequiredService<IOptions<BunnyCdnSettings>>().Value;
-    return new BunnyCdnService(settings);
-});
+//builder.Services.AddSingleton<IBunnyCdnService>(provider => {
+//    var settings = provider.GetRequiredService<IOptions<BunnyCdnSettings>>().Value;
+//    return new BunnyCdnService(settings);
+//});
 
 //Register Mapper
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));
@@ -264,6 +266,21 @@ builder.Services.AddAuthentication(options =>
     googleOptions.CallbackPath = "/signin-google";
 });
 
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 500_000_000; // 500MB
+});
+
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 500_000_000; // 500MB
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 500_000_000; // 500MB
+});
+
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.ListenAnyIP(80); 
@@ -289,6 +306,20 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("https://koi-feng-sui-consulting-system-front-dq5ch5q4n.vercel.app")
               .AllowAnyHeader()
               .AllowAnyMethod();
+    });
+    options.AddPolicy("AllowBunnyCDN",
+        policy =>
+        {
+            policy.WithOrigins("https://vz-2fab5d8b-8fd.b-cdn.net/")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+    options.AddPolicy("DefaultCorsPolicy", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .WithExposedHeaders("Content-Disposition", "Content-Length");
     });
 });
 
@@ -317,9 +348,11 @@ if (app.Environment.IsDevelopment() || true)
 app.UseStaticFiles();
 app.UseResponseCaching();
 app.UseHttpsRedirection();
-// Use CORS before other middleware
+app.UseCors("AllowAll");
 app.UseCors("AllowAllOrigins");
 app.UseCors("AllowVercel");
+app.UseCors("AllowBunnyCDN");
+app.UseCors("DefaultCorsPolicy");
 app.UseSession();
 
 app.UseAuthentication();

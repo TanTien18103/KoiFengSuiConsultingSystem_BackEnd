@@ -84,7 +84,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             }
         }
 
-      
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromForm] Services.ApiModels.Account.RegisterRequest registerRequest)
         {
@@ -200,9 +200,17 @@ namespace KoiFengSuiConsultingSystem.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] Services.ApiModels.Account.ForgotPasswordRequest forgotPasswordRequest)
         {
-                var res = await _accountService.ForgotPassword(forgotPasswordRequest.Email);
-                return Ok(res);
+            var res = await _accountService.ForgotPassword(forgotPasswordRequest.Email);
+            return Ok(res);
         }
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp(string email,[FromQuery] string otp)
+        {
+            var res = await _accountService.ForgotPasswordVerifyOtp(email, otp);
+            return StatusCode(res.StatusCode, res);
+        }
+
         [HttpGet("accounts")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAccounts([FromQuery] RoleEnums? role = null)

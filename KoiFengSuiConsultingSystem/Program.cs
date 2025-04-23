@@ -142,7 +142,7 @@ builder.Services.AddScoped<IFengShuiDocumentService, FengShuiDocumentService>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
-
+builder.Services.AddScoped<IBunnyCdnService, BunnyCdnService>();
 
 // Register BackgroundService
 builder.Services.AddHostedService<OrderExpirationBackgroundService>();
@@ -152,12 +152,12 @@ builder.Services.AddHostedService<BookingCleanupService>();
 builder.Services.AddSingleton<GoogleMeetService>();
 
 // BunnyCdn Configuration
-builder.Services.Configure<BunnyCdnSettings>(builder.Configuration.GetSection("BunnyCdn"));
+//builder.Services.Configure<BunnyCdnSettings>(builder.Configuration.GetSection("BunnyCdn"));
 // Register BunnyCdnService
-builder.Services.AddSingleton<IBunnyCdnService>(provider => {
-    var settings = provider.GetRequiredService<IOptions<BunnyCdnSettings>>().Value;
-    return new BunnyCdnService(settings);
-});
+//builder.Services.AddSingleton<IBunnyCdnService>(provider => {
+//    var settings = provider.GetRequiredService<IOptions<BunnyCdnSettings>>().Value;
+//    return new BunnyCdnService(settings);
+//});
 
 //Register Mapper
 builder.Services.AddAutoMapper(typeof(AccountMappingProfile));
@@ -290,6 +290,13 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
+    options.AddPolicy("AllowBunnyCDN",
+        policy =>
+        {
+            policy.WithOrigins("https://vz-2fab5d8b-8fd.b-cdn.net/")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
 });
 
 // Cloudinary Configuration
@@ -317,8 +324,10 @@ if (app.Environment.IsDevelopment() || true)
 app.UseResponseCaching();
 app.UseHttpsRedirection();
 // Use CORS before other middleware
+app.UseCors("AllowAll");
 app.UseCors("AllowAllOrigins");
 app.UseCors("AllowVercel");
+app.UseCors("AllowBunnyCDN");
 app.UseSession();
 
 app.UseAuthentication();

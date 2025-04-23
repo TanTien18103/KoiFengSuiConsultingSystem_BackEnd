@@ -102,19 +102,20 @@ namespace KoiFengSuiConsultingSystem.Controllers
         [HttpPost("UploadExcelFile")]
         [Consumes("multipart/form-data")]
         [Authorize(Roles = "Master")]
-        public async Task<ActionResult<List<Quiz>>> UploadExcelFile(IFormFile file, [FromForm] string courseId)
+        public async Task<ActionResult<object>> UploadExcelFile(IFormFile file, [FromForm] string courseId)
         {
             try
             {
-                var results = await _uploadService.UploadExcelAsync(file, courseId);
-                var response = results.Select(quiz => new
+                var result = await _uploadService.UploadExcelAsync(file, courseId);
+
+                var response = new
                 {
-                    quiz.QuizId,
-                    quiz.Title,
-                    quiz.CourseId,
-                    quiz.CreateBy,
-                    quiz.CreateAt,
-                    Questions = quiz.Questions.Select(q => new
+                    result.QuizId,
+                    result.Title,
+                    result.CourseId,
+                    result.CreateBy,
+                    result.CreateAt,
+                    Questions = result.Questions.Select(q => new
                     {
                         q.QuestionId,
                         q.QuestionText,
@@ -130,7 +131,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
                             a.CreateAt
                         })
                     })
-                });
+                };
 
                 return Ok(response);
             }
@@ -140,7 +141,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, 
+                return StatusCode(StatusCodes.Status500InternalServerError,
                     new { code = ResponseCodeConstants.FAILED, message = ex.Message });
             }
         }

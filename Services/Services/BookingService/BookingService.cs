@@ -768,7 +768,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                var today = DateOnly.FromDateTime(DateTime.UtcNow);
+                var today = DateOnly.FromDateTime(DateTime.Now);
                 var now = TimeOnly.FromDateTime(DateTime.Now);
 
                 if (onlineBooking.BookingDate.HasValue && onlineBooking.StartTime.HasValue)
@@ -869,7 +869,7 @@ namespace Services.Services.BookingService
                     res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE;
                     return res;
                 }
-                var today = DateOnly.FromDateTime(DateTime.UtcNow);
+                var today = DateOnly.FromDateTime(DateTime.Now);
                 if (today <= bookingOnline.BookingDate.GetValueOrDefault())
                 {
                     res.IsSuccess = false;

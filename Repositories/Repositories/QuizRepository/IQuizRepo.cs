@@ -14,8 +14,8 @@ namespace Repositories.Repositories.QuizRepository
         Task<List<Quiz>> GetQuizzesByMasterId(string masterId);
         Task<Quiz> CreateQuiz(Quiz quiz);
         Task<Quiz> UpdateQuiz(Quiz quiz);
-        Task DeleteQuiz(string quizId);
+        Task DeleteQuiz(string quizId); 
         Task<Quiz> GetQuizByCourseId(string courseId);
-        Task<List<Quiz>> CreateQuizzesWithQuestionsAndAnswers(List<Quiz> quizzes);
+        Task<Quiz> CreateQuizWithQuestionsAndAnswers(Quiz quiz);
     }
 }

@@ -141,7 +141,7 @@ namespace Services.Services.ChapterService
 
                 var chapter = _mapper.Map<Chapter>(request);
                 chapter.ChapterId = GenerateShortGuid();
-                chapter.CreateDate = DateTime.UtcNow;
+                chapter.CreateDate = DateTime.Now;
                 chapter.Video = await _uploadService.UploadVideoAsync(request.Video);
                 await _chapterRepo.CreateChapter(chapter);
 

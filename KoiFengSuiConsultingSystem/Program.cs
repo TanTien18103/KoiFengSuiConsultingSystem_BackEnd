@@ -314,6 +314,7 @@ if (app.Environment.IsDevelopment() || true)
         c.DisplayRequestDuration();
     });
 }
+app.UseStaticFiles();
 app.UseResponseCaching();
 app.UseHttpsRedirection();
 // Use CORS before other middleware

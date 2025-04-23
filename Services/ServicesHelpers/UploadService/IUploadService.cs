@@ -19,6 +19,6 @@ namespace Services.ServicesHelpers.UploadService
         string GetVideoUrl(string publicId);
         string GetDocumentUrl(string publicId);
         string GetPdfUrl(string publicId);
-        Task<List<Quiz>> UploadExcelAsync(IFormFile file, string courseId);
+        Task<Quiz> UploadExcelAsync(IFormFile file, string courseId);
     }
 }

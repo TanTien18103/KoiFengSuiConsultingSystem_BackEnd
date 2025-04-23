@@ -25,7 +25,7 @@ namespace Services.ServicesHelpers.BunnyCdnService
             if (file == null || file.Length == 0)
                 throw new ArgumentException("File is empty");
 
-            var fileName = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.UtcNow.Ticks}{Path.GetExtension(file.FileName)}";
+            var fileName = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.Now.Ticks}{Path.GetExtension(file.FileName)}";
             var path = $"{folder}/{fileName}";
 
             using var stream = file.OpenReadStream();

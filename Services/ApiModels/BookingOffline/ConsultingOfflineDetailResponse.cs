@@ -19,7 +19,5 @@ namespace Services.ApiModels.BookingOffline
         public string Description { get; set; }
 
         public DateOnly? BookingDate { get; set; }
-
-        public string MasterNote { get; set; }
     }
 }

@@ -97,7 +97,7 @@ namespace Services.ServicesHelpers.UploadService
                 {
                     File = new FileDescription(file.FileName, stream),
                     Folder = "documents",
-                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.UtcNow.Ticks}"
+                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.Now.Ticks}"
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -125,7 +125,7 @@ namespace Services.ServicesHelpers.UploadService
                 {
                     File = new FileDescription(file.FileName, stream),
                     Folder = "images",
-                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.UtcNow.Ticks}",
+                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.Now.Ticks}",
                     // Gợi ý: nếu crop không cần thiết thì có thể bỏ đi
                     Transformation = new Transformation()
                         .Quality("auto")
@@ -158,7 +158,7 @@ namespace Services.ServicesHelpers.UploadService
                     File = new FileDescription(file.FileName, stream),
                     Folder = "pdfs",
                     Type = "upload",
-                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.UtcNow.Ticks}"
+                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.Now.Ticks}"
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -186,7 +186,7 @@ namespace Services.ServicesHelpers.UploadService
                 {
                     File = new FileDescription(file.FileName, stream),
                     Folder = "videos",
-                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.UtcNow.Ticks}"
+                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.Now.Ticks}"
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -215,7 +215,7 @@ namespace Services.ServicesHelpers.UploadService
         //        throw new AppException(ResponseCodeConstants.FAILED, $"Failed to upload video: {ex.Message}", StatusCodes.Status500InternalServerError);
         //    }
         //}
-        public async Task<List<Quiz>> UploadExcelAsync(IFormFile file, string courseId)
+        public async Task<Quiz> UploadExcelAsync(IFormFile file, string courseId)
         {
             try
             {
@@ -255,7 +255,7 @@ namespace Services.ServicesHelpers.UploadService
                     await file.CopyToAsync(stream);
                 }
 
-                var quizzes = new List<Quiz>();
+                Quiz quiz = null;
                 var existingQuizTitles = new HashSet<string>();
 
                 using (var stream = System.IO.File.Open(filePath, FileMode.Open, FileAccess.Read))
@@ -303,16 +303,23 @@ namespace Services.ServicesHelpers.UploadService
                                             throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsCourse.COURSE_NOT_FOUND, StatusCodes.Status404NotFound);
                                         }
 
+                                        if (quiz != null)
+                                        {
+                                            throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Chỉ được upload 1 Quiz mỗi lần.", StatusCodes.Status400BadRequest);
+                                        }
+
                                         currentQuiz = new Quiz
                                         {
                                             QuizId = GenerateShortGuid(),
                                             Title = quizTitle,
                                             CourseId = courseId,
                                             CreateBy = masterId,
+                                            Score = 100,
                                             CreateAt = DateTime.Now,
+                                            UpdateAt = DateTime.Now,
                                             Questions = new List<Question>()
                                         };
-                                        quizzes.Add(currentQuiz);
+                                        quiz = currentQuiz;
                                         existingQuizTitles.Add(quizTitle);
                                         break;
 
@@ -332,6 +339,7 @@ namespace Services.ServicesHelpers.UploadService
                                             QuestionText = questionText,
                                             QuestionType = questionType,
                                             CreateAt = DateTime.Now,
+                                            UpdateAt = DateTime.Now,
                                             Point = 0,
                                             Answers = new List<Answer>()
                                         };
@@ -355,6 +363,7 @@ namespace Services.ServicesHelpers.UploadService
                                             OptionText = optionText,
                                             OptionType = optionType,
                                             CreateAt = DateTime.Now,
+                                            UpdateDate = DateTime.Now,
                                             IsCorrect = isCorrect
                                         };
                                         currentQuestion.Answers.Add(answer);
@@ -365,16 +374,12 @@ namespace Services.ServicesHelpers.UploadService
                     }
                 }
 
-                foreach (var quiz in quizzes)
+                if (quiz != null && quiz.Questions.Count > 0)
                 {
-                    var totalQuestions = quiz.Questions.Count;
-                    if (totalQuestions > 0)
+                    var pointPerQuestion = Math.Round(100m / quiz.Questions.Count, 2);
+                    foreach (var question in quiz.Questions)
                     {
-                        var pointPerQuestion = Math.Round(100m / totalQuestions, 1); 
-                        foreach (var question in quiz.Questions)
-                        {
-                            question.Point = pointPerQuestion;
-                        }
+                        question.Point = pointPerQuestion;
                     }
                 }
 
@@ -383,11 +388,19 @@ namespace Services.ServicesHelpers.UploadService
                     File.Delete(filePath);
                 }
 
-                if (quizzes.Count > 0)
+                if (quiz != null)
                 {
-                    return await _quizRepo.CreateQuizzesWithQuestionsAndAnswers(quizzes);
-                }
+                    var createdQuiz = await _quizRepo.CreateQuizWithQuestionsAndAnswers(quiz);
 
+                    var course = await _courseRepo.GetCourseById(courseId);
+                    if (course != null)
+                    {
+                        course.QuizId = createdQuiz.QuizId;
+                        await _courseRepo.UpdateCourse(course);
+                    }
+
+                    return createdQuiz;
+                }
                 throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsForImport.NO_DATA_TO_UPLOAD, StatusCodes.Status404NotFound);
             }
             catch (Exception ex)

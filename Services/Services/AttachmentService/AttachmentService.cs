@@ -468,7 +468,6 @@ namespace Services.Services.AttachmentService
                 var booking = updatedAttachment.BookingOfflines.FirstOrDefault();
                 if (booking != null)
                 {
-                    booking.RecordId = null;
                     booking.Status = BookingOfflineEnums.AttachmentConfirmed.ToString();
                     await _bookingOfflineRepo.UpdateBookingOffline(booking);
                 }

@@ -67,7 +67,7 @@ namespace Services.ServicesHelpers.BunnyCdnService
                     uploadResponse.EnsureSuccessStatusCode();
 
                     // For the CDN URL, use the guid instead of a numeric videoId
-                    return $"https://vz-{_libraryId}.b-cdn.net/{guid}/play.mp4";
+                    return $"https://iframe.mediadelivery.net/embed/{_libraryId}/{guid}";
                 }
             }
             catch (HttpRequestException ex)

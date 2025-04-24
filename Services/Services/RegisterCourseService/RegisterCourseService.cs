@@ -908,49 +908,41 @@ namespace Services.Services.RegisterCourseService
                     _configuration["Cloudinary:ApiSecret"]
                 ));
 
-                // Tạo ảnh chứng chỉ với kích thước 1920x1080 (16:9 ratio)
+                // Create certificate image with 16:9 ratio
                 using (var bitmap = new Bitmap(1920, 1080))
                 using (var graphics = Graphics.FromImage(bitmap))
                 using (var memoryStream = new MemoryStream())
                 {
-                    // Cài đặt chất lượng cao
+                    // Set high quality rendering
                     graphics.SmoothingMode = SmoothingMode.AntiAlias;
                     graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                     graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-                    // Tạo background màu đỏ đậm
-                    using (var brush = new SolidBrush(Color.FromArgb(153, 0, 0))) // Màu đỏ đậm
+                    // Create dark red background
+                    using (var brush = new SolidBrush(Color.FromArgb(153, 0, 0))) // Dark red color
                     {
                         graphics.FillRectangle(brush, 0, 0, bitmap.Width, bitmap.Height);
                     }
 
-                    // Load và vẽ các phần trang trí
+                    // Load and draw decorative elements
                     using (var logoImage = Image.FromFile(Path.Combine(_environment.WebRootPath, "images", "BitKoi-dark.png")))
-                    using (var cornerImage = Image.FromFile(Path.Combine(_environment.WebRootPath, "images", "gold_corner_top_right.png")))
+                    using (var topCornerImage = Image.FromFile(Path.Combine(_environment.WebRootPath, "images", "gold_corner_top_right.png")))
+                    using (var bottomCornerImage = Image.FromFile(Path.Combine(_environment.WebRootPath, "images", "gold_corner_bottom_left.png")))
                     using (var koiLotusImage = Image.FromFile(Path.Combine(_environment.WebRootPath, "images", "koi_lotus.png")))
                     {
-                        // Vẽ logo ở góc trên bên trái
+                        // Draw logo in top left corner
                         graphics.DrawImage(logoImage, 60, 40, 180, 180);
 
-                        // Vẽ góc trang trí ở góc trên bên phải
-                        graphics.DrawImage(cornerImage, bitmap.Width - 200, 40, 160, 160);
+                        // Draw decorative corner in top right
+                        graphics.DrawImage(topCornerImage, bitmap.Width - 200, 40, 160, 160);
 
-                        // Vẽ góc trang trí ở góc dưới bên trái (xoay 180 độ)
-                        using (var matrix = new Matrix())
-                        {
-                            matrix.RotateAt(180, new PointF(0, bitmap.Height));
-                            graphics.Transform = matrix;
-                            graphics.DrawImage(cornerImage, 40, bitmap.Height - 200, 160, 160);
-                            graphics.ResetTransform();
-                        }
-
-                        // Vẽ hình trang trí hoa sen và cá koi ở góc dưới bên trái
+                        // Draw koi lotus decoration in bottom left
                         float koiLotusRatio = 500f / 187f;
                         float desiredWidth = 400;
                         float calculatedHeight = desiredWidth / koiLotusRatio;
                         graphics.DrawImage(koiLotusImage, 40, bitmap.Height - calculatedHeight - 40, desiredWidth, calculatedHeight);
 
-                        // Vẽ tiêu đề chính
+                        // Draw main title - centered and larger
                         using (var titleFont = new Font("Arial", 48, FontStyle.Bold))
                         {
                             var titleText = "Giấy Chứng Nhận Hoàn Thành Khóa Học";
@@ -959,19 +951,19 @@ namespace Services.Services.RegisterCourseService
                             graphics.DrawString(titleText, titleFont, Brushes.White, titleX, 180);
                         }
 
-                        // Vẽ tên khóa học
+                        // Draw course name - centered and bold
                         using (var courseNameFont = new Font("Arial", 42, FontStyle.Bold))
                         {
                             var size = graphics.MeasureString(courseName, courseNameFont);
                             var courseNameX = (bitmap.Width - size.Width) / 2;
-                            graphics.DrawString(courseName, courseNameFont, Brushes.White, courseNameX, 280);
+                            graphics.DrawString(courseName, courseNameFont, Brushes.White, courseNameX, 250);
                         }
 
-                        // Vẽ thông điệp chúc mừng
+                        // Draw congratulatory message - centered
                         using (var messageFont = new Font("Arial", 20, FontStyle.Regular))
                         {
                             var messageText = "Chúc mừng bạn đã hoàn thành khóa học! Bạn đã hoàn thành khóa học xuất sắc và đã đạt được các kĩ năng cần thiết sau khóa học trên!";
-                            var messageRect = new RectangleF(bitmap.Width * 0.15f, 380, bitmap.Width * 0.7f, 100);
+                            var messageRect = new RectangleF(bitmap.Width * 0.15f, 330, bitmap.Width * 0.7f, 100);
                             var messageFormat = new StringFormat
                             {
                                 Alignment = StringAlignment.Center,
@@ -980,15 +972,16 @@ namespace Services.Services.RegisterCourseService
                             graphics.DrawString(messageText, messageFont, Brushes.White, messageRect, messageFormat);
                         }
 
-                        // Vẽ phần người tham dự và người tạo
+                        // Position participant and creator sections
                         float participantX = bitmap.Width * 0.3f;
                         float creatorX = bitmap.Width * 0.7f;
-                        float sectionY = 500;
+                        float sectionY = 450; // Moved up to match the design
 
+                        // Draw participant and creator sections with updated styling
                         DrawParticipantSection(graphics, studentName, participantX, sectionY);
                         DrawCreatorSection(graphics, creatorName, creatorX, sectionY);
 
-                        // Thêm ngày cấp chứng chỉ
+                        // Add issue date at the bottom
                         using (var dateFont = new Font("Arial", 16, FontStyle.Regular))
                         {
                             var dateText = $"Ngày cấp: {issueDate.ToString("dd/MM/yyyy")}";
@@ -998,11 +991,11 @@ namespace Services.Services.RegisterCourseService
                         }
                     }
 
-                    // Lưu vào memory stream dưới dạng PNG
+                    // Save as PNG to memory stream
                     bitmap.Save(memoryStream, ImageFormat.Png);
                     memoryStream.Position = 0;
 
-                    // Upload lên Cloudinary
+                    // Upload to Cloudinary
                     var uploadParams = new ImageUploadParams
                     {
                         File = new FileDescription($"certificate_{studentName}_{courseName}_{Guid.NewGuid()}.png", memoryStream),
@@ -1022,68 +1015,68 @@ namespace Services.Services.RegisterCourseService
 
         private void DrawParticipantSection(Graphics graphics, string studentName, float xPosition, float yPosition)
         {
-            using (var labelFont = new Font("Arial", 18, FontStyle.Regular))
-            using (var nameFont = new Font("Arial", 42, FontStyle.Bold))
+            using (var labelFont = new Font("Arial", 16, FontStyle.Regular))
+            using (var nameFont = new Font("Arial", 36, FontStyle.Bold))
             using (var fullNameFont = new Font("Arial", 14, FontStyle.Regular))
             {
-                // Vẽ tiêu đề "Người tham dự khóa học"
+                // Draw "Người tham dự khóa học" label
                 var labelText = "Người tham dự khóa học";
                 var labelSize = graphics.MeasureString(labelText, labelFont);
                 graphics.DrawString(labelText, labelFont, Brushes.White,
                     xPosition - (labelSize.Width / 2), yPosition);
 
-                // Vẽ tên gọi (lớn)
+                // Draw first name (larger)
                 var firstName = GetFirstName(studentName);
                 var nameSize = graphics.MeasureString(firstName, nameFont);
                 graphics.DrawString(firstName, nameFont, Brushes.White,
-                    xPosition - (nameSize.Width / 2), yPosition + 40);
+                    xPosition - (nameSize.Width / 2), yPosition + 30);
 
-                // Vẽ họ tên đầy đủ (nhỏ hơn)
+                // Draw full name (smaller)
                 var fullNameSize = graphics.MeasureString(studentName, fullNameFont);
                 graphics.DrawString(studentName, fullNameFont, Brushes.White,
-                    xPosition - (fullNameSize.Width / 2), yPosition + 100);
+                    xPosition - (fullNameSize.Width / 2), yPosition + 80);
 
-                // Vẽ đường kẻ trang trí
+                // Draw decorative line
                 using (var pen = new Pen(Color.White, 1))
                 {
                     float lineWidth = 200;
                     graphics.DrawLine(pen,
-                        xPosition - (lineWidth / 2), yPosition + 130,
-                        xPosition + (lineWidth / 2), yPosition + 130);
+                        xPosition - (lineWidth / 2), yPosition + 110,
+                        xPosition + (lineWidth / 2), yPosition + 110);
                 }
             }
         }
 
         private void DrawCreatorSection(Graphics graphics, string creatorName, float xPosition, float yPosition)
         {
-            using (var labelFont = new Font("Arial", 18, FontStyle.Regular))
-            using (var nameFont = new Font("Arial", 42, FontStyle.Bold))
+            using (var labelFont = new Font("Arial", 16, FontStyle.Regular))
+            using (var nameFont = new Font("Arial", 36, FontStyle.Bold))
             using (var fullNameFont = new Font("Arial", 14, FontStyle.Regular))
             {
-                // Vẽ tiêu đề "Người tạo khóa học"
+                // Draw "Người tạo khóa học" label
                 var labelText = "Người tạo khóa học";
                 var labelSize = graphics.MeasureString(labelText, labelFont);
                 graphics.DrawString(labelText, labelFont, Brushes.White,
                     xPosition - (labelSize.Width / 2), yPosition);
 
-                // Vẽ tên gọi (lớn)
+                // Draw first name (larger)
                 var firstName = GetFirstName(creatorName);
                 var nameSize = graphics.MeasureString(firstName, nameFont);
                 graphics.DrawString(firstName, nameFont, Brushes.White,
-                    xPosition - (nameSize.Width / 2), yPosition + 40);
+                    xPosition - (nameSize.Width / 2), yPosition + 30);
 
-                // Vẽ họ tên đầy đủ (nhỏ hơn)
+                // Draw full name (smaller)
                 var fullNameSize = graphics.MeasureString(creatorName, fullNameFont);
                 graphics.DrawString(creatorName, fullNameFont, Brushes.White,
-                    xPosition - (fullNameSize.Width / 2), yPosition + 100);
+                    xPosition - (fullNameSize.Width / 2), yPosition + 80);
 
-                // Vẽ đường kẻ trang trí
+                // Draw decorative line
                 using (var pen = new Pen(Color.White, 1))
                 {
                     float lineWidth = 200;
                     graphics.DrawLine(pen,
-                        xPosition - (lineWidth / 2), yPosition + 130,
-                        xPosition + (lineWidth / 2), yPosition + 130);
+                        xPosition - (lineWidth / 2), yPosition + 110,
+                        xPosition + (lineWidth / 2), yPosition + 110);
                 }
             }
         }

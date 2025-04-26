@@ -19,8 +19,7 @@ namespace Services.ApiModels.Chapter
         [StringLength(500, ErrorMessage = "Mô tả không được vượt quá 500 ký tự.")]
         [RegularExpression(@"^[\p{L}0-9\s,.-_]+$", ErrorMessage = "Mô tả chỉ được chứa chữ cái, số, dấu cách, dấu phẩy, dấu chấm, dấu gạch nối và dấu gạch dưới.")]
         public string Description { get; set; }
-
-        [Required(ErrorMessage = "Vui lòng chọn video để tải lên.")]
+        [Required]
         public IFormFile Video { get; set; }
         [Required]
         public string CourseId { get; set; }

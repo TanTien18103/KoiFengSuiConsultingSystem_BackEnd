@@ -441,7 +441,7 @@ namespace Services.Services.WorkshopService
                     return res;
                 }
 
-                var currentDate = DateTime.UtcNow.Date;
+                var currentDate = DateTime.Now.Date;
                 if (request.StartDate == null || request.StartDate.HasValue && (request.StartDate.Value.Date - currentDate).TotalDays < 7)
                 {
                     res.IsSuccess = false;
@@ -593,14 +593,14 @@ namespace Services.Services.WorkshopService
                     EndTime = endTime,
                     Type = MasterScheduleTypeEnums.Workshop.ToString(),
                     Status = MasterScheduleEnums.Pending.ToString(),
-                    CreateDate = DateTime.UtcNow,
+                    CreateDate = DateTime.Now,
                 };
                 var createdMasterSchedule = await _masterScheduleRepo.CreateMasterSchedule(masterSchedule);
 
                 // Tạo Workshop (giữ nguyên)
                 var newWorkshop = _mapper.Map<WorkShop>(request);
                 newWorkshop.WorkshopId = GenerateShortGuid();
-                newWorkshop.CreatedDate = DateTime.UtcNow;
+                newWorkshop.CreatedDate = DateTime.Now;
                 newWorkshop.Status = WorkshopStatusEnums.Pending.ToString();
                 newWorkshop.MasterId = masterId;
                 newWorkshop.StartTime = startTime;
@@ -692,7 +692,7 @@ namespace Services.Services.WorkshopService
                 }
 
                 // Ngày hiện tại (UTC hoặc giờ Việt Nam tùy vào hệ thống)
-                var currentDate = DateTime.UtcNow.Date;
+                var currentDate = DateTime.Now.Date;
                 if (request.StartDate == null || request.StartDate.HasValue && (request.StartDate.Value.Date - currentDate).TotalDays < 7)
                 {
                     res.IsSuccess = false;
@@ -886,7 +886,7 @@ namespace Services.Services.WorkshopService
                     StartTime = startTime,
                     EndTime = endTime,
                     Status = MasterScheduleEnums.Pending.ToString(),
-                    UpdateDate = DateTime.UtcNow,
+                    UpdateDate = DateTime.Now,
                 };
 
                 var masterschedules = await _masterScheduleRepo.GetMasterScheduleByMasterId(masterId);
@@ -905,7 +905,7 @@ namespace Services.Services.WorkshopService
 
                 var createmasterSchedule = await _masterScheduleRepo.UpdateMasterSchedule(masterSchedule);
 
-                workshop.UpdateAt = DateTime.UtcNow;
+                workshop.UpdateAt = DateTime.Now;
                 workshop.StartTime = startTime;
                 workshop.EndTime = endTime;
                 await _workShopRepo.UpdateWorkShop(workshop);
@@ -1046,7 +1046,7 @@ namespace Services.Services.WorkshopService
                     if (workshop.StartDate.HasValue)
                     {
                         var oneDayBefore = workshop.StartDate.Value.AddDays(-1);
-                        if (DateTime.UtcNow >= oneDayBefore && workshop.StartDate > DateTime.UtcNow)
+                        if (DateTime.Now >= oneDayBefore && workshop.StartDate > DateTime.Now)
                         {
                             var registerAttends = await _registerAttendRepo.GetRegisterAttendsByWorkShopId(workshop.WorkshopId);
                             if (registerAttends == null || !registerAttends.Any())

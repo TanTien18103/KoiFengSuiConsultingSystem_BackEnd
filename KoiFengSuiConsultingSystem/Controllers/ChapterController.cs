@@ -32,17 +32,69 @@ namespace KoiFengSuiConsultingSystem.Controllers
         }
 
         [HttpPost("create-chapter")]
-        public async Task<IActionResult> Createchapter([FromForm] ChapterRequest chapterRequest)
+        [RequestSizeLimit(500_000_000)] // 500MB
+        [RequestFormLimits(MultipartBodyLengthLimit = 500_000_000)]
+        public async Task<IActionResult> CreateChapter([FromForm] ChapterRequest request)
         {
-            var result = await _chapterService.CreateChapter(chapterRequest);
-            return Ok(result);
+            try
+            {
+                if (request.Video == null || request.Video.Length == 0)
+                    return BadRequest(new { success = false, message = "Không có file nào được chọn" });
+
+                string[] allowedTypes = { "video/mp4", "video/mpeg", "video/quicktime", "video/x-msvideo" };
+                if (!allowedTypes.Contains(request.Video.ContentType))
+                    return BadRequest(new { success = false, message = "Định dạng file không được hỗ trợ" });
+
+                // Gọi trực tiếp dịch vụ tạo chapter với request hiện tại
+                var result = await _chapterService.CreateChapter(request);
+
+                if (result.IsSuccess)
+                    return Ok(result);
+                else
+                    return StatusCode(result.StatusCode, result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    success = false,
+                    message = "Có lỗi xảy ra khi tải lên video",
+                    error = ex.Message
+                });
+            }
         }
 
         [HttpPut("update-chapter/{id}")]
+        [RequestSizeLimit(500_000_000)] // 500MB
+        [RequestFormLimits(MultipartBodyLengthLimit = 500_000_000)]
         public async Task<IActionResult> Updatechapter(string id, [FromForm] ChapterUpdateRequest chapterRequest)
         {
-            var result = await _chapterService.UpdateChapter(id, chapterRequest);
-            return Ok(result);
+            try
+            {
+                if (chapterRequest.Video == null || chapterRequest.Video.Length == 0)
+                    return BadRequest(new { success = false, message = "Không có file nào được chọn" });
+
+                string[] allowedTypes = { "video/mp4", "video/mpeg", "video/quicktime", "video/x-msvideo" };
+                if (!allowedTypes.Contains(chapterRequest.Video.ContentType))
+                    return BadRequest(new { success = false, message = "Định dạng file không được hỗ trợ" });
+
+                // Gọi trực tiếp dịch vụ tạo chapter với request hiện tại
+                var result = await _chapterService.UpdateChapter(id, chapterRequest);
+
+                if (result.IsSuccess)
+                    return Ok(result);
+                else
+                    return StatusCode(result.StatusCode, result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    success = false,
+                    message = "Có lỗi xảy ra khi tải lên video",
+                    error = ex.Message
+                });
+            }
         }
 
         [HttpDelete("delete-chapter/{id}")]

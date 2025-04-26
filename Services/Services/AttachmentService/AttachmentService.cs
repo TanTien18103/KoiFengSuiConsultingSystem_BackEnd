@@ -468,7 +468,6 @@ namespace Services.Services.AttachmentService
                 var booking = updatedAttachment.BookingOfflines.FirstOrDefault();
                 if (booking != null)
                 {
-                    booking.RecordId = null;
                     booking.Status = BookingOfflineEnums.AttachmentConfirmed.ToString();
                     await _bookingOfflineRepo.UpdateBookingOffline(booking);
                 }
@@ -531,7 +530,7 @@ namespace Services.Services.AttachmentService
                 var random = new Random();
                 string otp = random.Next(100000, 999999).ToString();
                 attachment.OtpCode = otp;
-                attachment.OtpExpiredTime = DateTime.Now.AddMinutes(1);
+                attachment.OtpExpiredTime = DateTime.Now.AddMinutes(5);
                 attachment.UpdatedDate = DateTime.Now;
 
                 // Gửi OTP qua email

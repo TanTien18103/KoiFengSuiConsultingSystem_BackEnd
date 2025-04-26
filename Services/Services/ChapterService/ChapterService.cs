@@ -144,7 +144,7 @@ namespace Services.Services.ChapterService
 
                 var chapter = _mapper.Map<Chapter>(request);
                 chapter.ChapterId = GenerateShortGuid();
-                chapter.CreateDate = DateTime.UtcNow;
+                chapter.CreateDate = DateTime.Now;
                 chapter.Video = await _bunnyCdnService.UploadVideoAsync(request.Video);
                 await _chapterRepo.CreateChapter(chapter);
 
@@ -217,7 +217,7 @@ namespace Services.Services.ChapterService
 
                 if (chapter.Video != null)
                 {
-                    chapterInfo.Video = await _uploadService.UploadVideoAsync(chapter.Video);
+                    chapterInfo.Video = await _bunnyCdnService.UploadVideoAsync(chapter.Video);
                 }
 
                 await _chapterRepo.UpdateChapter(chapterInfo);

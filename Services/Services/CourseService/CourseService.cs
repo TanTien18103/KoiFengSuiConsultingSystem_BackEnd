@@ -180,7 +180,7 @@ namespace Services.Services.CourseService
 
                 var course = _mapper.Map<Course>(request);
                 course.CourseId = GenerateShortGuid();
-                course.CreateAt = DateTime.UtcNow;
+                course.CreateAt = DateTime.Now;
                 course.Status = CourseStatusEnum.Inactive.ToString();
                 course.CreateBy = masterid;
                 course.CategoryId = request.CourseCategory;
@@ -265,7 +265,7 @@ namespace Services.Services.CourseService
                 if (request.ImageUrl != null)
                     course.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
-                course.UpdateAt = DateTime.UtcNow;
+                course.UpdateAt = DateTime.Now;
 
                 await _courseRepo.UpdateCourse(course);
                 var response = await _courseRepo.GetCourseById(id);

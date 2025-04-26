@@ -131,6 +131,9 @@ public class AccountService : IAccountService
         if (user == null)
             throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstantsUser.USER_NOT_FOUND, StatusCodes.Status404NotFound);
 
+        if (user.IsActive == false)
+            throw new AppException(ResponseCodeConstants.UNAUTHORIZED, ResponseMessageConstantsUser.USER_INACTIVE, StatusCodes.Status401Unauthorized);
+
         if (!VerifyPassword(password, user.Password))
             throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageIdentity.PASSWORD_INVALID, StatusCodes.Status400BadRequest);
         string accessToken = CreateToken(user);
@@ -189,6 +192,7 @@ public class AccountService : IAccountService
             Email = registerRequest.Email,
             Password = hashedPassword,
             PhoneNumber = registerRequest.PhoneNumber,
+            IsActive = true,
             Gender = registerRequest.Gender,
             Dob = DateOnly.FromDateTime(registerRequest.Dob), // Convert DateTime to DateOnly
             Role = RoleEnums.Customer.ToString(),

@@ -33,6 +33,6 @@ namespace Services.Services.AccountService
         Task<ResultModel> GetAllCustomers();
 
         //Master
-        Task<ResultModel> UpdateMasterProfile( MasterRequest request);
+        Task<ResultModel> UpdateMasterProfile(MasterUpdateRequest request);
     }
 }

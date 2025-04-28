@@ -116,6 +116,7 @@ public class ResponseMessageConstantsUser
     public const string GET_USER_INFO_SUCCESS = "Lấy thông tin người dùng thành công";
     public const string USER_NOT_FOUND = "Không tìm thấy người dùng";
     public const string NOT_UPDATED_ELEMENT = "Người dùng chưa cập nhật thông tin mệnh";
+    public const string USER_INACTIVE = "Tài khoản của bạn đã bị ngừng hoạt động";
     public const string USER_EXISTED = "Người dùng đã tồn tại";
     public const string ADD_USER_SUCCESS = "Thêm người dùng thành công";
     public const string UPDATE_USER_SUCCESS = "Cập nhật người dùng thành công";

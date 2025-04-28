@@ -475,7 +475,7 @@ namespace Services.Services.AttachmentService
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                res.Message = ResponseMessageConstrantsAttachment.CANCEL_SUCCESS;
+                res.Message = ResponseMessageConstrantsAttachment.CONFIRM_SUCCESS;
                 res.Data = _mapper.Map<AttachmentResponse>(updatedAttachment);
                 return res;
             }

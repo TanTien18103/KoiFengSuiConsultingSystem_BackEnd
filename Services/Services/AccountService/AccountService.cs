@@ -558,7 +558,7 @@ public class AccountService : IAccountService
             await _emailService.SendEmail(email, subject, body);
 
             res.IsSuccess = true;
-            res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+            res.ResponseCode = ResponseCodeConstants.SUCCESS;
             res.Message = ResponseMessageIdentitySuccess.FORGOT_PASSWORD_SUCCESS;
             res.StatusCode = StatusCodes.Status200OK;
             return res;
@@ -586,7 +586,7 @@ public class AccountService : IAccountService
                 {
                     IsSuccess = false,
                     ResponseCode = ResponseCodeConstants.UNAUTHORIZED,
-                    Message = ResponseMessageIdentity.TOKEN_NOT_SEND,
+                    Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED,
                     StatusCode = StatusCodes.Status401Unauthorized
                 };
             }
@@ -627,8 +627,8 @@ public class AccountService : IAccountService
                 IsSuccess = true,
                 ResponseCode = ResponseCodeConstants.SUCCESS,
                 Message = string.IsNullOrEmpty(role) ?
-                    "Get all accounts successfully" :
-                    $"Get all accounts with role {role} successfully",
+                    "Lấy tất cả tài khoản thành công" :
+                    $"Lấy những tài khoản với vai trò {role} thành công",
                 Data = accountResponses,
                 StatusCode = StatusCodes.Status200OK
             };
@@ -657,7 +657,7 @@ public class AccountService : IAccountService
                 {
                     IsSuccess = false,
                     ResponseCode = ResponseCodeConstants.UNAUTHORIZED,
-                    Message = ResponseMessageIdentity.TOKEN_NOT_SEND,
+                    Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED,
                     StatusCode = StatusCodes.Status401Unauthorized
                 };
             }
@@ -672,7 +672,7 @@ public class AccountService : IAccountService
                 {
                     IsSuccess = false,
                     ResponseCode = ResponseCodeConstants.FORBIDDEN,
-                    Message = "Only Admin can access this feature",
+                    Message = "Chỉ Admin được truy cập vào chức năng này",
                     StatusCode = StatusCodes.Status403Forbidden
                 };
             }
@@ -684,7 +684,7 @@ public class AccountService : IAccountService
                 {
                     IsSuccess = false,
                     ResponseCode = ResponseCodeConstants.BAD_REQUEST,
-                    Message = "Invalid role",
+                    Message = "Vai trò không hợp lệ",
                     StatusCode = StatusCodes.Status400BadRequest
                 };
             }
@@ -697,7 +697,7 @@ public class AccountService : IAccountService
             {
                 IsSuccess = true,
                 ResponseCode = ResponseCodeConstants.SUCCESS,
-                Message = $"Get accounts with role {role} successfully",
+                Message = $"Lấy những tài khoản với vai trò {role} thành công",
                 Data = accountResponses,
                 StatusCode = StatusCodes.Status200OK
             };
@@ -806,7 +806,7 @@ public class AccountService : IAccountService
                 {
                     IsSuccess = false,
                     ResponseCode = ResponseCodeConstants.UNAUTHORIZED,
-                    Message = ResponseMessageIdentity.TOKEN_NOT_SEND,
+                    Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED,
                     StatusCode = StatusCodes.Status401Unauthorized
                 };
             }
@@ -821,7 +821,7 @@ public class AccountService : IAccountService
                 {
                     IsSuccess = false,
                     ResponseCode = ResponseCodeConstants.FORBIDDEN,
-                    Message = "Only Admin can access this feature",
+                    Message = "Chỉ Admin được quyền truy cập chức năng này",
                     StatusCode = StatusCodes.Status403Forbidden
                 };
             }
@@ -833,7 +833,7 @@ public class AccountService : IAccountService
                 {
                     IsSuccess = false,
                     ResponseCode = ResponseCodeConstants.BAD_REQUEST,
-                    Message = "Cannot delete your own account",
+                    Message = "Không thể xóa tài khoản cá nhân",
                     StatusCode = StatusCodes.Status400BadRequest
                 };
             }
@@ -846,7 +846,7 @@ public class AccountService : IAccountService
                 {
                     IsSuccess = false,
                     ResponseCode = ResponseCodeConstants.NOT_FOUND,
-                    Message = "Account not found",
+                    Message = "Tài khoản không tìm thấy",
                     StatusCode = StatusCodes.Status404NotFound
                 };
             }
@@ -858,7 +858,7 @@ public class AccountService : IAccountService
             {
                 IsSuccess = true,
                 ResponseCode = ResponseCodeConstants.SUCCESS,
-                Message = "Account deleted successfully",
+                Message = "Xóa tài khoản thành công",
                 StatusCode = StatusCodes.Status200OK
             };
         }

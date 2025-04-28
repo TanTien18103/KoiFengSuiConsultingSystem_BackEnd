@@ -607,6 +607,10 @@ namespace Services.Services.WorkshopService
                 newWorkshop.EndTime = endTime;
                 newWorkshop.MasterScheduleId = createdMasterSchedule.MasterScheduleId;
                 newWorkshop.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+                if(request.Capacity >= 30)
+                {
+                    newWorkshop.Trending = true;
+                }
 
                 if (newWorkshop.MasterId == null)
                 {

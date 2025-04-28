@@ -260,7 +260,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
 
         [HttpPut("update-master-profile")]
         [Authorize(Roles = "Master")]
-        public async Task<IActionResult> UpdateMasterProfile([FromForm] MasterRequest request)
+        public async Task<IActionResult> UpdateMasterProfile([FromForm] MasterUpdateRequest request)
         {
             var result = await _accountService.UpdateMasterProfile(request);
             return StatusCode(result.StatusCode, result);

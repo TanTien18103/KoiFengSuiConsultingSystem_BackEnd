@@ -561,11 +561,40 @@ public static class ResponseMessageConstrantsPhongThuy
     public const string RecommendFishCount = "- Đề xuất số lượng cá phù hợp: {0} con.";
 
     // === Specific Recommendations by Element ===
-    public const string KimRecommendation = "- Đề xuất số lượng cá phù hợp: 4, 9 (hành Kim, tương hợp), 5, 10 (hành Thổ, tương sinh).";
-    public const string MocRecommendation = "- Đề xuất số lượng cá phù hợp: 3, 8 (hành Mộc, tương hợp), 1, 6 (hành Thủy, tương sinh).";
-    public const string ThuyRecommendation = "- Đề xuất số lượng cá phù hợp: 1, 6 (hành Thủy, tương hợp), 4, 9 (hành Kim, tương sinh).";
-    public const string HoaRecommendation = "- Đề xuất số lượng cá phù hợp: 2, 7 (hành Hỏa, tương hợp), 3, 8 (hành Mộc, tương sinh).";
-    public const string ThoRecommendation = "- Đề xuất số lượng cá phù hợp: 5, 10 (hành Thổ, tương hợp), 2, 7 (hành Hỏa, tương sinh).";
+    public const string KimRecommendation =
+        "- **Đề xuất số lượng cá phù hợp**: 4 hoặc 9 con (hành Kim, tương hợp), 5 hoặc 10 con (hành Thổ, tương sinh).\n" +
+        "- **Lý do phong thủy**: Số lượng cá thuộc hành Kim (4, 9) giúp củng cố năng lượng bản mệnh, mang lại sự ổn định, cân bằng và hỗ trợ sức khỏe, tinh thần. Số lượng thuộc hành Thổ (5, 10) là tương sinh, vì Thổ sinh Kim, giúp kích hoạt tài lộc, thu hút vận may và thúc đẩy sự phát triển trong công việc, tài chính.\n" +
+        "- **Lợi ích cụ thể**: \n" +
+        "  - Với 4 hoặc 9 con: Tăng cường sự tự tin, tạo cảm giác an yên, phù hợp cho những ai muốn duy trì sự hài hòa trong cuộc sống.\n" +
+        "  - Với 5 hoặc 10 con: Kích thích năng lượng tích cực, hỗ trợ thăng tiến sự nghiệp, cải thiện tài vận và thu hút cơ hội mới.";
+
+    public const string MocRecommendation =
+        "- **Đề xuất số lượng cá phù hợp**: 3 hoặc 8 con (hành Mộc, tương hợp), 1 hoặc 6 con (hành Thủy, tương sinh).\n" +
+        "- **Lý do phong thủy**: Số lượng cá thuộc hành Mộc (3, 8) củng cố năng lượng bản mệnh, mang lại sự phát triển bền vững, sáng tạo và sức sống. Số lượng thuộc hành Thủy (1, 6) là tương sinh, vì Thủy sinh Mộc, giúp nuôi dưỡng năng lượng, kích hoạt sự linh hoạt và thu hút cơ hội mới.\n" +
+        "- **Lợi ích cụ thể**: \n" +
+        "  - Với 3 hoặc 8 con: Thúc đẩy sự sáng tạo, tăng cường các mối quan hệ xã hội và mang lại sự bình an trong tâm hồn.\n" +
+        "  - Với 1 hoặc 6 con: Kích hoạt vận may, hỗ trợ phát triển sự nghiệp, đặc biệt trong các lĩnh vực cần sự đổi mới và linh hoạt.";
+
+    public const string ThuyRecommendation =
+        "- **Đề xuất số lượng cá phù hợp**: 1 hoặc 6 con (hành Thủy, tương hợp), 4 hoặc 9 con (hành Kim, tương sinh).\n" +
+        "- **Lý do phong thủy**: Số lượng cá thuộc hành Thủy (1, 6) củng cố năng lượng bản mệnh, mang lại sự linh hoạt, trí tuệ và dòng chảy tài lộc. Số lượng thuộc hành Kim (4, 9) là tương sinh, vì Kim sinh Thủy, giúp kích hoạt năng lượng tích cực, tăng cường sự tự tin và thu hút may mắn.\n" +
+        "- **Lợi ích cụ thể**: \n" +
+        "  - Với 1 hoặc 6 con: Tăng cường sự nhạy bén, hỗ trợ các quyết định tài chính và tạo dòng năng lượng hài hòa.\n" +
+        "  - Với 4 hoặc 9 con: Thúc đẩy tài vận, hỗ trợ thăng tiến trong công việc và mang lại cơ hội bất ngờ.";
+
+    public const string HoaRecommendation =
+        "- **Đề xuất số lượng cá phù hợp**: 2 hoặc 7 con (hành Hỏa, tương hợp), 3 hoặc 8 con (hành Mộc, tương sinh).\n" +
+        "- **Lý do phong thủy**: Số lượng cá thuộc hành Hỏa (2, 7) củng cố năng lượng bản mệnh, mang lại sự nhiệt huyết, đam mê và thành công. Số lượng thuộc hành Mộc (3, 8) là tương sinh, vì Mộc sinh Hỏa, giúp nuôi dưỡng năng lượng, kích hoạt sự sáng tạo và thu hút vận may.\n" +
+        "- **Lợi ích cụ thể**: \n" +
+        "  - Với 2 hoặc 7 con: Tăng cường sự tự tin, thúc đẩy đam mê và mang lại sự nổi bật trong công việc, quan hệ xã hội.\n" +
+        "  - Với 3 hoặc 8 con: Hỗ trợ phát triển sự nghiệp, kích thích sáng tạo và mang lại cơ hội mới trong kinh doanh, nghệ thuật.";
+
+    public const string ThoRecommendation =
+        "- **Đề xuất số lượng cá phù hợp**: 5 hoặc 10 con (hành Thổ, tương hợp), 2 hoặc 7 con (hành Hỏa, tương sinh).\n" +
+        "- **Lý do phong thủy**: Số lượng cá thuộc hành Thổ (5, 10) củng cố năng lượng bản mệnh, mang lại sự ổn định, bền vững và an toàn. Số lượng thuộc hành Hỏa (2, 7) là tương sinh, vì Hỏa sinh Thổ, giúp kích hoạt năng lượng tích cực, tăng cường tài lộc và sự thịnh vượng.\n" +
+        "- **Lợi ích cụ thể**: \n" +
+        "  - Với 5 hoặc 10 con: Tăng cường sự vững chắc, hỗ trợ xây dựng nền tảng lâu dài trong sự nghiệp và cuộc sống.\n" +
+        "  - Với 2 hoặc 7 con: Kích hoạt vận may, thúc đẩy tài vận và mang lại cơ hội phát triển trong kinh doanh, đầu tư.";
 
     // === Compatibility Score Messages ===
     public const string VeryLowScore = "⚠️ **Mức độ phù hợp rất thấp.** Nguy cơ ảnh hưởng tiêu cực đến tài lộc, tinh thần và vận khí.";

@@ -557,6 +557,16 @@ public class ResponseMessageConstrantsLocation
 
 public static class ResponseMessageConstrantsPhongThuy
 {
+    // === Recommendation Messages ===
+    public const string RecommendFishCount = "- Đề xuất số lượng cá phù hợp: {0} con.";
+
+    // === Specific Recommendations by Element ===
+    public const string KimRecommendation = "- Đề xuất số lượng cá phù hợp: 4, 9 (hành Kim, tương hợp), 5, 10 (hành Thổ, tương sinh).";
+    public const string MocRecommendation = "- Đề xuất số lượng cá phù hợp: 3, 8 (hành Mộc, tương hợp), 1, 6 (hành Thủy, tương sinh).";
+    public const string ThuyRecommendation = "- Đề xuất số lượng cá phù hợp: 1, 6 (hành Thủy, tương hợp), 4, 9 (hành Kim, tương sinh).";
+    public const string HoaRecommendation = "- Đề xuất số lượng cá phù hợp: 2, 7 (hành Hỏa, tương hợp), 3, 8 (hành Mộc, tương sinh).";
+    public const string ThoRecommendation = "- Đề xuất số lượng cá phù hợp: 5, 10 (hành Thổ, tương hợp), 2, 7 (hành Hỏa, tương sinh).";
+
     // === Compatibility Score Messages ===
     public const string VeryLowScore = "⚠️ **Mức độ phù hợp rất thấp.** Nguy cơ ảnh hưởng tiêu cực đến tài lộc, tinh thần và vận khí.";
     public const string LowScore = "❗ **Mức độ phù hợp thấp.** Cần điều chỉnh phong thủy để cải thiện năng lượng.";

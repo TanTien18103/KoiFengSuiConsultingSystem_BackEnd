@@ -665,35 +665,35 @@ public static class ResponseMessageConstrantsPhongThuy
 
     // === Color Recommendations ===
     public const string KimColorRecommendation =
-        "- **Đề xuất màu sắc hồ cá**: Trắng, Xám, Ghi (tương hợp), Vàng, Nâu (tương sinh).\n" +
+        "- **Đề xuất màu sắc cá**: Trắng, Xám, Ghi (tương hợp), Vàng, Nâu (tương sinh).\n" +
         "- **Lý do phong thủy**: Màu Trắng, Xám, Ghi thuộc hành Kim, củng cố năng lượng bản mệnh, mang lại sự tinh tế, ổn định và hỗ trợ tinh thần. Màu Vàng, Nâu thuộc hành Thổ, tương sinh với Kim, kích hoạt tài lộc và vận may.\n" +
         "- **Lợi ích cụ thể**:\n" +
         "  - Trắng, Xám, Ghi: Tăng sự tự tin, tạo không gian thanh lịch, hỗ trợ sức khỏe.\n" +
         "  - Vàng, Nâu: Thúc đẩy tài vận, hỗ trợ thăng tiến và mang lại cơ hội mới.";
 
     public const string MocColorRecommendation =
-        "- **Đề xuất màu sắc hồ cá**: Xanh lá (tương hợp), Xanh dương, Đen (tương sinh).\n" +
+        "- **Đề xuất màu sắc cá**: Xanh lá (tương hợp), Xanh dương, Đen (tương sinh).\n" +
         "- **Lý do phong thủy**: Màu Xanh lá thuộc hành Mộc, củng cố năng lượng bản mệnh, mang lại sự sáng tạo, sức sống và phát triển. Màu Xanh dương, Đen thuộc hành Thủy, tương sinh với Mộc, nuôi dưỡng năng lượng và thu hút cơ hội.\n" +
         "- **Lợi ích cụ thể**:\n" +
         "  - Xanh lá: Thúc đẩy sáng tạo, tăng cường quan hệ xã hội và mang lại bình an.\n" +
         "  - Xanh dương, Đen: Kích hoạt vận may, hỗ trợ sự nghiệp và đổi mới.";
 
     public const string ThuyColorRecommendation =
-        "- **Đề xuất màu sắc hồ cá**: Đen, Xanh dương (tương hợp), Trắng, Xám, Ghi (tương sinh).\n" +
+        "- **Đề xuất màu sắc cá**: Đen, Xanh dương (tương hợp), Trắng, Xám, Ghi (tương sinh).\n" +
         "- **Lý do phong thủy**: Màu Đen, Xanh dương thuộc hành Thủy, củng cố năng lượng bản mệnh, mang lại trí tuệ, linh hoạt và tài lộc. Màu Trắng, Xám, Ghi thuộc hành Kim, tương sinh với Thủy, kích hoạt năng lượng tích cực.\n" +
         "- **Lợi ích cụ thể**:\n" +
         "  - Đen, Xanh dương: Tăng sự nhạy bén, hỗ trợ tài chính và tạo năng lượng hài hòa.\n" +
         "  - Trắng, Xám, Ghi: Thúc đẩy tài vận, hỗ trợ thăng tiến và mang lại cơ hội.";
 
     public const string HoaColorRecommendation =
-        "- **Đề xuất màu sắc hồ cá**: Đỏ, Hồng, Cam, Tím (tương hợp), Xanh lá (tương sinh).\n" +
+        "- **Đề xuất màu sắc cá**: Đỏ, Hồng, Cam, Tím (tương hợp), Xanh lá (tương sinh).\n" +
         "- **Lý do phong thủy**: Màu Đỏ, Hồng, Cam, Tím thuộc hành Hỏa, củng cố năng lượng bản mệnh, mang lại đam mê, nhiệt huyết và thành công. Màu Xanh lá thuộc hành Mộc, tương sinh với Hỏa, kích hoạt sáng tạo và vận may.\n" +
         "- **Lợi ích cụ thể**:\n" +
         "  - Đỏ, Hồng, Cam, Tím: Tăng sự tự tin, thúc đẩy đam mê và tạo sự nổi bật.\n" +
         "  - Xanh lá: Hỗ trợ sự nghiệp, kích thích sáng tạo và mang lại cơ hội mới.";
 
     public const string ThoColorRecommendation =
-        "- **Đề xuất màu sắc hồ cá**: Vàng, Nâu (tương hợp), Đỏ, Hồng, Cam, Tím (tương sinh).\n" +
+        "- **Đề xuất màu sắc cá**: Vàng, Nâu (tương hợp), Đỏ, Hồng, Cam, Tím (tương sinh).\n" +
         "- **Lý do phong thủy**: Màu Vàng, Nâu thuộc hành Thổ, củng cố năng lượng bản mệnh, mang lại sự ổn định, bền vững và an toàn. Màu Đỏ, Hồng, Cam, Tím thuộc hành Hỏa, tương sinh với Thổ, kích hoạt tài lộc và thịnh vượng.\n" +
         "- **Lợi ích cụ thể**:\n" +
         "  - Vàng, Nâu: Tăng sự vững chắc, hỗ trợ sự nghiệp và tạo không gian ổn định.\n" +

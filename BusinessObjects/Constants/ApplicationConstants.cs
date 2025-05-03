@@ -125,7 +125,6 @@ public class ResponseMessageConstantsUser
     public const string CUSTOMER_NOT_FOUND = "Không tìm thấy khách hàng";
     public const string CUSTOMER_INFO_NOT_FOUND = "Không tìm thấy thông tin khách hàng";
     public const string CUSTOMER_BANK_INFO_NOT_FOUND = "Không tìm thấy thông tin tài khoản ngân hàng của khách hàng";
-    public const string USER_INACTIVE = "Tài khoản của bạn đã bị ngừng hoạt động";
 }
 
 //Order-Payment Service
@@ -591,4 +590,3 @@ public static class ResponseMessageConstrantsPhongThuy
         "- Kết hợp thêm cây thủy sinh hoặc đá phong thủy cùng hành với mệnh của bạn.\n" +
         "- Tránh đặt bể cá trong phòng ngủ hoặc đối diện cửa chính.";
 }
-

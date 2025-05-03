@@ -434,7 +434,7 @@ namespace Services.Services.BookingService
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.Message = ResponseMessageConstrantsBooking.REQUIRED_DATA;
+                    res.Message = ResponseMessageConstrantsBooking.REQUIRED_DATA; 
                     res.StatusCode = StatusCodes.Status404NotFound;
                     return res;
                 }
@@ -768,8 +768,8 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                var today = DateOnly.FromDateTime(DateTime.Now);
-                var now = TimeOnly.FromDateTime(DateTime.Now);
+                var today = DateOnly.FromDateTime(DateTime.UtcNow);
+                var now = TimeOnly.FromDateTime(DateTime.UtcNow);
 
                 if (onlineBooking.BookingDate.HasValue && onlineBooking.StartTime.HasValue)
                 {

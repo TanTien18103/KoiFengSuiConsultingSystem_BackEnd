@@ -30,7 +30,7 @@ namespace Services.ServicesHelpers.BunnyCdnService
         public async Task<string> UploadVideoAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                throw new ArgumentException("File is empty or null");
+                throw new ArgumentException("File đang rỗng hoặc null");
 
             try
             {

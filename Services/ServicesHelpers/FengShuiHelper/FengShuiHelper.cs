@@ -72,7 +72,7 @@ public class FengShuiHelper
         {
             string fishElement = FengShuiHelper.fishCountToElement[modFishCount];
 
-            if (fishElement == userElement) return 10;
+            if (fishElement == userElement) return 8;
             if (FengShuiHelper.elementGenerates[fishElement] == userElement) return 10;
             if (FengShuiHelper.elementDestroys[fishElement] == userElement) return -10;
         }
@@ -99,6 +99,16 @@ public class FengShuiHelper
             _ => ResponseMessageConstrantsPhongThuy.VeryHighScore
         };
 
+        // Map user element to specific recommendation message
+        var recommendationMessages = new Dictionary<string, string>
+        {
+            { "Kim", ResponseMessageConstrantsPhongThuy.KimRecommendation },
+            { "Mộc", ResponseMessageConstrantsPhongThuy.MocRecommendation },
+            { "Thủy", ResponseMessageConstrantsPhongThuy.ThuyRecommendation },
+            { "Hỏa", ResponseMessageConstrantsPhongThuy.HoaRecommendation },
+            { "Thổ", ResponseMessageConstrantsPhongThuy.ThoRecommendation }
+        };
+
         if (fishElement != null)
         {
             if (fishElement == userElement)
@@ -117,13 +127,13 @@ public class FengShuiHelper
             {
                 relationship = string.Format(ResponseMessageConstrantsPhongThuy.OvercomingRelationship, fishElement, userElement);
                 detailedEffect = ResponseMessageConstrantsPhongThuy.OvercomingEffect;
-                suggestion = string.Format(ResponseMessageConstrantsPhongThuy.SuggestionOvercoming, userElement);
+                suggestion = string.Format(ResponseMessageConstrantsPhongThuy.SuggestionOvercoming, userElement) + "\n" + recommendationMessages[userElement];
             }
             else
             {
                 relationship = string.Format(ResponseMessageConstrantsPhongThuy.NoRelationship, fishElement, userElement);
                 detailedEffect = ResponseMessageConstrantsPhongThuy.NoRelationshipEffect;
-                suggestion = ResponseMessageConstrantsPhongThuy.SuggestionNoRelation;
+                suggestion = ResponseMessageConstrantsPhongThuy.SuggestionNoRelation + "\n" + recommendationMessages[userElement];
             }
 
             tips = ResponseMessageConstrantsPhongThuy.FengShuiTips;
@@ -131,9 +141,9 @@ public class FengShuiHelper
         else
         {
             relationship = ResponseMessageConstrantsPhongThuy.UnknownRelationship;
+            suggestion = ResponseMessageConstrantsPhongThuy.SuggestionNoRelation + "\n" + recommendationMessages[userElement];
         }
 
         return $"{scoreMessage}\n\n{relationship}\n\n📊 **Tác động phong thủy:**\n{detailedEffect}\n\n🧭 **Gợi ý điều chỉnh:**\n{suggestion}\n\n{tips}";
     }
-
 }

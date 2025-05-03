@@ -1077,7 +1077,7 @@ public class AccountService : IAccountService
         }
     }
 
-    public async Task<ResultModel> UpdateMasterProfile(MasterRequest request)
+    public async Task<ResultModel> UpdateMasterProfile(MasterUpdateRequest request)
     {
         var res = new ResultModel();
         try
@@ -1132,9 +1132,32 @@ public class AccountService : IAccountService
                 return res;
             }
 
-            _mapper.Map(request, master);
+            // --- Update từng field nếu != null ---
+            if (request.MasterName != null)
+                master.MasterName = request.MasterName;
 
-            master.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+            if (request.Title != null)
+                master.Title = request.Title;
+
+            if (request.ServiceType != null)
+                master.ServiceType = request.ServiceType;
+
+            if (request.Expertise != null)
+                master.Expertise = request.Expertise;
+
+            if (request.Experience != null)
+                master.Experience = request.Experience;
+
+            if (request.Biography != null)
+                master.Biography = request.Biography;
+
+            if (request.LinkMeet != null)
+                master.LinkMeet = request.LinkMeet;
+
+            if (request.ImageUrl != null)
+                master.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
+            // nếu ImageUrl == null thì giữ nguyên ảnh cũ
+
             master.UpdateDate = DateTime.Now;
             await _masterRepo.Update(master);
 

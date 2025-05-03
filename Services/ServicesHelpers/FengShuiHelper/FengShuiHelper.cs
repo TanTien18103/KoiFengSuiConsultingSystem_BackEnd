@@ -79,27 +79,31 @@ public class FengShuiHelper
         return 0;
     }
 
-    public static string GetCompatibilityMessage(double score, string userElement, int fishCount)
+    public static string GetCompatibilityMessage(double score, string userElement, int fishCount, string direction, string shape, string color)
     {
+        // Normalize inputs
+        direction = direction?.Trim();
+        shape = shape?.Trim();
+        color = color?.Trim();
+
+        // Calculate individual scores
+        double fishCountScore = CalculateFishCountBonus(fishCount, userElement);
+        double directionScore = DirectionPoints.ContainsKey(userElement) && !string.IsNullOrEmpty(direction) && DirectionPoints[userElement].ContainsKey(direction) ? DirectionPoints[userElement][direction] : 0;
+        double shapeScore = ShapePoints.ContainsKey(userElement) && !string.IsNullOrEmpty(shape) && ShapePoints[userElement].ContainsKey(shape) ? ShapePoints[userElement][shape] : 0;
+        double colorScore = ElementColorPoints.ContainsKey(userElement) && !string.IsNullOrEmpty(color) && ElementColorPoints[userElement].ContainsKey(color) ? ElementColorPoints[userElement][color] : 0;
+
+        // Total score (already passed as parameter, but we can recompute for consistency)
+        double totalScore = fishCountScore + directionScore + shapeScore + colorScore;
+
+        // Fish count element and relationship
         int modFishCount = fishCount % 10;
         if (modFishCount == 0) modFishCount = 10;
-
         string fishElement = fishCountToElement.ContainsKey(modFishCount) ? fishCountToElement[modFishCount] : null;
-        string relationship = "";
-        string detailedEffect = "";
-        string suggestion = "";
-        string tips = "";
 
-        string scoreMessage = score switch
-        {
-            < 20 => ResponseMessageConstrantsPhongThuy.VeryLowScore,
-            < 40 => ResponseMessageConstrantsPhongThuy.LowScore,
-            < 60 => ResponseMessageConstrantsPhongThuy.MediumScore,
-            < 80 => ResponseMessageConstrantsPhongThuy.HighScore,
-            _ => ResponseMessageConstrantsPhongThuy.VeryHighScore
-        };
-
-        // Map user element to specific recommendation message
+        // Initialize message components
+        var relationshipMessages = new List<string>();
+        var effectMessages = new List<string>();
+        var suggestionMessages = new List<string>();
         var recommendationMessages = new Dictionary<string, string>
         {
             { "Kim", ResponseMessageConstrantsPhongThuy.KimRecommendation },
@@ -109,41 +113,141 @@ public class FengShuiHelper
             { "Thổ", ResponseMessageConstrantsPhongThuy.ThoRecommendation }
         };
 
+        var directionRecommendations = new Dictionary<string, string>
+        {
+            { "Kim", ResponseMessageConstrantsPhongThuy.KimDirectionRecommendation },
+            { "Mộc", ResponseMessageConstrantsPhongThuy.MocDirectionRecommendation },
+            { "Thủy", ResponseMessageConstrantsPhongThuy.ThuyDirectionRecommendation },
+            { "Hỏa", ResponseMessageConstrantsPhongThuy.HoaDirectionRecommendation },
+            { "Thổ", ResponseMessageConstrantsPhongThuy.ThoDirectionRecommendation }
+        };
+
+        var shapeRecommendations = new Dictionary<string, string>
+        {
+            { "Kim", ResponseMessageConstrantsPhongThuy.KimShapeRecommendation },
+            { "Mộc", ResponseMessageConstrantsPhongThuy.MocShapeRecommendation },
+            { "Thủy", ResponseMessageConstrantsPhongThuy.ThuyShapeRecommendation },
+            { "Hỏa", ResponseMessageConstrantsPhongThuy.HoaShapeRecommendation },
+            { "Thổ", ResponseMessageConstrantsPhongThuy.ThoShapeRecommendation }
+        };
+
+        var colorRecommendations = new Dictionary<string, string>
+        {
+            { "Kim", ResponseMessageConstrantsPhongThuy.KimColorRecommendation },
+            { "Mộc", ResponseMessageConstrantsPhongThuy.MocColorRecommendation },
+            { "Thủy", ResponseMessageConstrantsPhongThuy.ThuyColorRecommendation },
+            { "Hỏa", ResponseMessageConstrantsPhongThuy.HoaColorRecommendation },
+            { "Thổ", ResponseMessageConstrantsPhongThuy.ThoColorRecommendation }
+        };
+
+        // Score message
+        string scoreMessage = totalScore switch
+        {
+            < 20 => ResponseMessageConstrantsPhongThuy.VeryLowScore,
+            < 40 => ResponseMessageConstrantsPhongThuy.LowScore,
+            < 60 => ResponseMessageConstrantsPhongThuy.MediumScore,
+            < 80 => ResponseMessageConstrantsPhongThuy.HighScore,
+            _ => ResponseMessageConstrantsPhongThuy.VeryHighScore
+        };
+
+        // Fish count compatibility
         if (fishElement != null)
         {
             if (fishElement == userElement)
             {
-                relationship = string.Format(ResponseMessageConstrantsPhongThuy.SameElementRelationship, fishElement, userElement);
-                detailedEffect = ResponseMessageConstrantsPhongThuy.SameElementEffect;
-                suggestion = ResponseMessageConstrantsPhongThuy.SuggestionSame;
+                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.SameElementRelationship, fishElement, userElement, "số lượng cá"));
+                effectMessages.Add(ResponseMessageConstrantsPhongThuy.SameElementEffect);
+                suggestionMessages.Add(ResponseMessageConstrantsPhongThuy.SuggestionSame);
             }
             else if (elementGenerates[fishElement] == userElement)
             {
-                relationship = string.Format(ResponseMessageConstrantsPhongThuy.GeneratingRelationship, fishElement, userElement);
-                detailedEffect = ResponseMessageConstrantsPhongThuy.GeneratingEffect;
-                suggestion = string.Format(ResponseMessageConstrantsPhongThuy.SuggestionGenerating, fishElement);
+                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.GeneratingRelationship, fishElement, userElement, "số lượng cá"));
+                effectMessages.Add(ResponseMessageConstrantsPhongThuy.GeneratingEffect);
+                suggestionMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.SuggestionGenerating, fishElement));
             }
             else if (elementDestroys[fishElement] == userElement)
             {
-                relationship = string.Format(ResponseMessageConstrantsPhongThuy.OvercomingRelationship, fishElement, userElement);
-                detailedEffect = ResponseMessageConstrantsPhongThuy.OvercomingEffect;
-                suggestion = string.Format(ResponseMessageConstrantsPhongThuy.SuggestionOvercoming, userElement) + "\n" + recommendationMessages[userElement];
+                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.OvercomingRelationship, fishElement, userElement, "số lượng cá"));
+                effectMessages.Add(ResponseMessageConstrantsPhongThuy.OvercomingEffect);
+                suggestionMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.SuggestionOvercoming, userElement));
             }
             else
             {
-                relationship = string.Format(ResponseMessageConstrantsPhongThuy.NoRelationship, fishElement, userElement);
-                detailedEffect = ResponseMessageConstrantsPhongThuy.NoRelationshipEffect;
-                suggestion = ResponseMessageConstrantsPhongThuy.SuggestionNoRelation + "\n" + recommendationMessages[userElement];
+                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.NoRelationship, fishElement, userElement, "số lượng cá"));
+                effectMessages.Add(ResponseMessageConstrantsPhongThuy.NoRelationshipEffect);
+                suggestionMessages.Add(ResponseMessageConstrantsPhongThuy.SuggestionNoRelation);
             }
-
-            tips = ResponseMessageConstrantsPhongThuy.FengShuiTips;
         }
         else
         {
-            relationship = ResponseMessageConstrantsPhongThuy.UnknownRelationship;
-            suggestion = ResponseMessageConstrantsPhongThuy.SuggestionNoRelation + "\n" + recommendationMessages[userElement];
+            relationshipMessages.Add(ResponseMessageConstrantsPhongThuy.UnknownRelationship);
+            suggestionMessages.Add(ResponseMessageConstrantsPhongThuy.SuggestionNoRelation);
+        }
+        suggestionMessages.Add(recommendationMessages[userElement]);
+
+        // Direction compatibility
+        if (!string.IsNullOrEmpty(direction) && DirectionPoints[userElement].ContainsKey(direction))
+        {
+            double dirScore = DirectionPoints[userElement][direction];
+            if (dirScore > 0)
+            {
+                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.FavorableDirection, direction, userElement));
+                effectMessages.Add(ResponseMessageConstrantsPhongThuy.FavorableDirectionEffect);
+                suggestionMessages.Add(ResponseMessageConstrantsPhongThuy.SuggestionFavorableDirection);
+            }
+            else
+            {
+                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.UnfavorableDirection, direction, userElement));
+                effectMessages.Add(ResponseMessageConstrantsPhongThuy.UnfavorableDirectionEffect);
+                suggestionMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.SuggestionUnfavorableDirection, userElement));
+            }
+            suggestionMessages.Add(directionRecommendations[userElement]);
         }
 
-        return $"{scoreMessage}\n\n{relationship}\n\n📊 **Tác động phong thủy:**\n{detailedEffect}\n\n🧭 **Gợi ý điều chỉnh:**\n{suggestion}\n\n{tips}";
+        // Shape compatibility
+        if (!string.IsNullOrEmpty(shape) && ShapePoints[userElement].ContainsKey(shape))
+        {
+            double shpScore = ShapePoints[userElement][shape];
+            if (shpScore > 0)
+            {
+                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.FavorableShape, shape, userElement));
+                effectMessages.Add(ResponseMessageConstrantsPhongThuy.FavorableShapeEffect);
+                suggestionMessages.Add(ResponseMessageConstrantsPhongThuy.SuggestionFavorableShape);
+            }
+            else
+            {
+                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.UnfavorableShape, shape, userElement));
+                effectMessages.Add(ResponseMessageConstrantsPhongThuy.UnfavorableShapeEffect);
+                suggestionMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.SuggestionUnfavorableShape, userElement));
+            }
+            suggestionMessages.Add(shapeRecommendations[userElement]);
+        }
+
+        // Color compatibility
+        if (!string.IsNullOrEmpty(color) && ElementColorPoints[userElement].ContainsKey(color))
+        {
+            double clrScore = ElementColorPoints[userElement][color];
+            if (clrScore > 0)
+            {
+                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.FavorableColor, color, userElement));
+                effectMessages.Add(ResponseMessageConstrantsPhongThuy.FavorableColorEffect);
+                suggestionMessages.Add(ResponseMessageConstrantsPhongThuy.SuggestionFavorableColor);
+            }
+            else
+            {
+                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.UnfavorableColor, color, userElement));
+                effectMessages.Add(ResponseMessageConstrantsPhongThuy.UnfavorableColorEffect);
+                suggestionMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.SuggestionUnfavorableColor, userElement));
+            }
+            suggestionMessages.Add(colorRecommendations[userElement]);
+        }
+
+        // Combine messages
+        string relationship = string.Join("\n", relationshipMessages);
+        string detailedEffect = string.Join("\n\n", effectMessages);
+        string suggestion = string.Join("\n", suggestionMessages);
+        string tips = ResponseMessageConstrantsPhongThuy.FengShuiTips;
+
+        return $"{scoreMessage}\n\n🔗 **Mối quan hệ phong thủy:**\n{relationship}\n\n📊 **Tác động phong thủy:**\n{detailedEffect}\n\n🧭 **Gợi ý điều chỉnh:**\n{suggestion}\n\n{tips}";
     }
 }

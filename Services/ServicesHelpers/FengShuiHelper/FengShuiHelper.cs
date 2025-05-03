@@ -41,7 +41,7 @@ public class FengShuiHelper
     { 2, "Hỏa" }, { 7, "Hỏa" },
     { 3, "Mộc" }, { 8, "Mộc" },
     { 4, "Kim" }, { 9, "Kim" },
-    { 5, "Thổ" }, { 10, "Thổ" }
+    { 5, "Thổ" }, { 10, "Thổ" } 
 };
 
     public static readonly Dictionary<string, string> elementGenerates = new()
@@ -79,18 +79,33 @@ public class FengShuiHelper
         return 0;
     }
 
-    public static string GetCompatibilityMessage(double score, string userElement, int fishCount, string direction, string shape, string color)
+    public static string GetCompatibilityMessage(double score, string userElement, int fishCount, string direction, string shape, Dictionary<string, double> colorRatios)
     {
         // Normalize inputs
         direction = direction?.Trim();
         shape = shape?.Trim();
-        color = color?.Trim();
+        colorRatios = colorRatios?.ToDictionary(kvp => kvp.Key.Trim(), kvp => kvp.Value) ?? new Dictionary<string, double>();
 
         // Calculate individual scores
         double fishCountScore = CalculateFishCountBonus(fishCount, userElement);
         double directionScore = DirectionPoints.ContainsKey(userElement) && !string.IsNullOrEmpty(direction) && DirectionPoints[userElement].ContainsKey(direction) ? DirectionPoints[userElement][direction] : 0;
         double shapeScore = ShapePoints.ContainsKey(userElement) && !string.IsNullOrEmpty(shape) && ShapePoints[userElement].ContainsKey(shape) ? ShapePoints[userElement][shape] : 0;
-        double colorScore = ElementColorPoints.ContainsKey(userElement) && !string.IsNullOrEmpty(color) && ElementColorPoints[userElement].ContainsKey(color) ? ElementColorPoints[userElement][color] : 0;
+
+        // Calculate weighted color score
+        double colorScore = 0;
+        double totalRatio = colorRatios.Values.Sum();
+        if (totalRatio > 0 && ElementColorPoints.ContainsKey(userElement))
+        {
+            foreach (var colorRatio in colorRatios)
+            {
+                string color = colorRatio.Key;
+                double ratio = colorRatio.Value / totalRatio; // Normalize ratio
+                if (ElementColorPoints[userElement].ContainsKey(color))
+                {
+                    colorScore += ElementColorPoints[userElement][color] * ratio;
+                }
+            }
+        }
 
         // Total score (already passed as parameter, but we can recompute for consistency)
         double totalScore = fishCountScore + directionScore + shapeScore + colorScore;
@@ -224,18 +239,18 @@ public class FengShuiHelper
         }
 
         // Color compatibility
-        if (!string.IsNullOrEmpty(color) && ElementColorPoints[userElement].ContainsKey(color))
+        if (colorRatios.Any() && totalRatio > 0)
         {
-            double clrScore = ElementColorPoints[userElement][color];
-            if (clrScore > 0)
+            string colorList = string.Join(", ", colorRatios.Select(kvp => $"{kvp.Key} ({kvp.Value * 100 / totalRatio:F1}%)"));
+            if (colorScore > 0)
             {
-                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.FavorableColor, color, userElement));
+                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.FavorableColor, colorList, userElement));
                 effectMessages.Add(ResponseMessageConstrantsPhongThuy.FavorableColorEffect);
                 suggestionMessages.Add(ResponseMessageConstrantsPhongThuy.SuggestionFavorableColor);
             }
             else
             {
-                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.UnfavorableColor, color, userElement));
+                relationshipMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.UnfavorableColor, colorList, userElement));
                 effectMessages.Add(ResponseMessageConstrantsPhongThuy.UnfavorableColorEffect);
                 suggestionMessages.Add(string.Format(ResponseMessageConstrantsPhongThuy.SuggestionUnfavorableColor, userElement));
             }

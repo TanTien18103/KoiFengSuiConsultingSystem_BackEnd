@@ -13,7 +13,7 @@ namespace Repositories.Repositories.AccountRepository
         Task<Account?> GetAccountByEmail(string email);
         Task<string> GetAccountIdFromToken(string token);
         Task<Account> GetAccountById(string accountId);
-        Task<Account> GetAccountByUniqueFields(string userName, string email, string phoneNumber, int bankId, string accountNo, string currentAccountId);
+        Task<Account> GetAccountByUniqueFields(string email, string phoneNumber, int bankId, string accountNo, string currentAccountId);
         Task AddAccount(Account account);
         Task<Account> UpdateAccount(Account account);        
         Task<List<Account>> GetAllAccounts(string? role = null);

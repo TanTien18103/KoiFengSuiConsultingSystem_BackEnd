@@ -289,7 +289,6 @@ public class AccountService : IAccountService
             }
 
             var duplicateAccount = await _accountRepository.GetAccountByUniqueFields(
-                request.UserName,
                 request.Email,
                 request.PhoneNumber,
                 request.BankId ?? 0,
@@ -298,14 +297,6 @@ public class AccountService : IAccountService
 
             if (duplicateAccount != null)
             {
-                if (duplicateAccount.UserName == request.UserName)
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.EXISTED;
-                    res.Message = ResponseMessageIdentity.EXISTED_USER_NAME;
-                    res.StatusCode = StatusCodes.Status409Conflict;
-                    return res;
-                }
                 if (duplicateAccount.Email == request.Email)
                 {
                     res.IsSuccess = false;

@@ -69,7 +69,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [HttpGet("customer-confirm-received")]
+        [HttpPut("customer-confirm-received")]
         public async Task<IActionResult> CustomerConfirmReceived(string id)
         {
             var res = await _orderService.CustomerConfirmReceived(id);

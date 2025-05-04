@@ -31,6 +31,7 @@ using Repositories.Repositories.CustomerRepository;
 using System.Xml.Linq;
 using Services.ApiModels.Customer;
 using static Org.BouncyCastle.Asn1.Cmp.Challenge;
+using BusinessObjects.TimeCoreHelper;
 
 namespace Services.Services.AccountService;
 
@@ -78,7 +79,7 @@ public class AccountService : IAccountService
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.Now.AddHours(3),
+            expires: TimeHepler.SystemTimeNow.AddHours(3),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
@@ -161,7 +162,7 @@ public class AccountService : IAccountService
         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
 
 
-        int currentYear = DateTime.Now.Year;
+        int currentYear = TimeHepler.SystemTimeNow.Year;
         if (registerRequest.Dob.Year < 1925 || registerRequest.Dob.Year > currentYear)
             throw new AppException(
                 ResponseCodeConstants.BAD_REQUEST,
@@ -179,8 +180,8 @@ public class AccountService : IAccountService
             CustomerId = GenerateShortGuid(),
             LifePalace = lifePalace,
             Element = element,
-            CreateDate = DateTime.Now,
-            UpdateDate = DateTime.Now,
+            CreateDate = TimeHepler.SystemTimeNow,
+            UpdateDate = TimeHepler.SystemTimeNow,
             ImageUrl = await _uploadService.UploadImageAsync(registerRequest.ImageUrl),
         };
 
@@ -197,8 +198,8 @@ public class AccountService : IAccountService
             Dob = DateOnly.FromDateTime(registerRequest.Dob), // Convert DateTime to DateOnly
             Role = RoleEnums.Customer.ToString(),
             Customers = new List<Customer> { customer },
-            CreateDate = DateTime.Now,
-            UpdateDate = DateTime.Now,
+            CreateDate = TimeHepler.SystemTimeNow,
+            UpdateDate = TimeHepler.SystemTimeNow,
         };
 
         // Set up the relationship
@@ -363,7 +364,7 @@ public class AccountService : IAccountService
                         if (DateTime.TryParse(dobString, out var dateTime))
                         {
                             int year = dateTime.Year;
-                            int currentYear = DateTime.Now.Year;
+                            int currentYear = TimeHepler.SystemTimeNow.Year;
 
                             if (year < 1925 || year > currentYear)
                                 throw new AppException(
@@ -397,7 +398,7 @@ public class AccountService : IAccountService
             if (!string.IsNullOrWhiteSpace(request.AccountName))
                 existingAccount.AccountName = request.AccountName;
 
-            existingAccount.UpdateDate = DateTime.Now;
+            existingAccount.UpdateDate = TimeHepler.SystemTimeNow;
 
             var customer = await _customerRepo.GetCustomerByAccountId(existingAccount.AccountId);
 
@@ -420,7 +421,7 @@ public class AccountService : IAccountService
                         var imageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
                         customer.ImageUrl = imageUrl;
                     }
-                    customer.UpdateDate = DateTime.Now;
+                    customer.UpdateDate = TimeHepler.SystemTimeNow;
                     await _customerRepo.UpdateCustomer(customer);
                 }
             }
@@ -549,8 +550,8 @@ public class AccountService : IAccountService
             string otp = random.Next(100000, 999999).ToString();
 
             user.OtpCode = otp;
-            user.OtpExpiredTime = DateTime.Now.AddMinutes(5);
-            user.UpdateDate = DateTime.Now;
+            user.OtpExpiredTime = TimeHepler.SystemTimeNow.AddMinutes(5);
+            user.UpdateDate = TimeHepler.SystemTimeNow;
             await _accountRepository.UpdateAccount(user);
 
             string subject = "Otp xác nhận đổi mật khẩu mới của bạn";
@@ -940,7 +941,7 @@ public class AccountService : IAccountService
                 {
                     MasterId = GenerateShortGuid(),
                     AccountId = accountId,
-                    CreateDate = DateTime.Now,
+                    CreateDate = TimeHepler.SystemTimeNow,
                     ImageUrl = customer?.ImageUrl,
                     MasterName = account.FullName
                 };
@@ -1019,7 +1020,7 @@ public class AccountService : IAccountService
 
             var accountUpdated = await _accountRepository.GetAccountById(accountId);
 
-            accountUpdated.UpdateDate = DateTime.Now;
+            accountUpdated.UpdateDate = TimeHepler.SystemTimeNow;
 
             accountUpdated.Role = newRole;
 
@@ -1158,7 +1159,7 @@ public class AccountService : IAccountService
                 master.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
             // nếu ImageUrl == null thì giữ nguyên ảnh cũ
 
-            master.UpdateDate = DateTime.Now;
+            master.UpdateDate = TimeHepler.SystemTimeNow;
             await _masterRepo.Update(master);
 
             res.IsSuccess = true;
@@ -1221,7 +1222,7 @@ public class AccountService : IAccountService
                 return res;
             }
 
-            if (user.OtpExpiredTime < DateTime.Now)
+            if (user.OtpExpiredTime < TimeHepler.SystemTimeNow)
             {
                 res.IsSuccess = false;
                 res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;

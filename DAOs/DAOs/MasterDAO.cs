@@ -40,7 +40,9 @@ namespace DAOs.DAOs
 
         public async Task<Master> GetByMasterIdDao(string masterId)
         {
-            return await _context.Masters.FindAsync(masterId);
+            return await _context.Masters
+                .Include(x => x.Account)
+                .FirstOrDefaultAsync(x => x.MasterId == masterId);
         }
 
         public async Task<Master> GetMasterByAccountIdDao(string accountId)
@@ -60,7 +62,9 @@ namespace DAOs.DAOs
 
         public async Task<List<Master>> GetAllMastersDAO() 
         {
-            return await _context.Masters.ToListAsync();
+            return await _context.Masters
+                .Include(x => x.Account)
+                .ToListAsync();
         }
 
         public async Task<T> CreateDao<T>(T entity) where T : class

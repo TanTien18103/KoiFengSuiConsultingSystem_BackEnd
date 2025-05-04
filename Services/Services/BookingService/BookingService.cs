@@ -24,6 +24,7 @@ using System.Runtime.CompilerServices;
 using System.Linq;
 using Repositories.Repositories.OrderRepository;
 using Services.ApiModels.KoiVariety;
+using BusinessObjects.TimeCoreHelper;
 
 namespace Services.Services.BookingService
 {
@@ -126,8 +127,8 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                var currentDate = DateOnly.FromDateTime(DateTime.Now);
-                var currentTime = TimeOnly.FromDateTime(DateTime.Now);
+                var currentDate = DateOnly.FromDateTime(TimeHepler.SystemTimeNow);
+                var currentTime = TimeOnly.FromDateTime(TimeHepler.SystemTimeNow);
 
                 if (request.BookingDate < currentDate ||
                     (request.BookingDate == currentDate && request.StartTime <= currentTime))
@@ -768,8 +769,8 @@ namespace Services.Services.BookingService
                     return res;
                 }
 
-                var today = DateOnly.FromDateTime(DateTime.UtcNow);
-                var now = TimeOnly.FromDateTime(DateTime.UtcNow);
+                var today = DateOnly.FromDateTime(TimeHepler.SystemTimeNow);
+                var now = TimeOnly.FromDateTime(TimeHepler.SystemTimeNow);
 
                 if (onlineBooking.BookingDate.HasValue && onlineBooking.StartTime.HasValue)
                 {
@@ -869,7 +870,7 @@ namespace Services.Services.BookingService
                     res.Message = ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE;
                     return res;
                 }
-                var today = DateOnly.FromDateTime(DateTime.Now);
+                var today = DateOnly.FromDateTime(TimeHepler.SystemTimeNow);
                 if (today <= bookingOnline.BookingDate.GetValueOrDefault())
                 {
                     res.IsSuccess = false;
@@ -1523,7 +1524,7 @@ namespace Services.Services.BookingService
                     return res;
                 }
                 // Lấy thời điểm 24 giờ trước
-                var cutoffDate = DateTime.Now.AddDays(-1);
+                var cutoffDate = TimeHepler.SystemTimeNow.AddDays(-1);
 
                 // Lấy các booking chưa thanh toán tạo trước thời điểm cutoff
                 var unpaidBookings = await _onlineRepo.GetUnpaidBookingsOlderThanRepo(cutoffDate);

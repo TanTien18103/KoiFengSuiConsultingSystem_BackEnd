@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using BusinessObjects.TimeCoreHelper;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -169,7 +170,7 @@ namespace DAOs.DAOs
                 course.IsBestSeller = false;
             }
 
-            course.UpdateAt = DateTime.Now;
+            course.UpdateAt = TimeHepler.SystemTimeNow;
             _context.Courses.Update(course);
             await _context.SaveChangesAsync();
             return course;

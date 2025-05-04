@@ -25,6 +25,7 @@ using Services.ServicesHelpers.UploadService;
 using Azure;
 using Repositories.Repositories.RegisterCourseRepository;
 using Repositories.Repositories.CertificateRepository;
+using BusinessObjects.TimeCoreHelper;
 
 namespace Services.Services.CourseService
 {
@@ -180,7 +181,7 @@ namespace Services.Services.CourseService
 
                 var course = _mapper.Map<Course>(request);
                 course.CourseId = GenerateShortGuid();
-                course.CreateAt = DateTime.Now;
+                course.CreateAt = TimeHepler.SystemTimeNow;
                 course.Status = CourseStatusEnum.Inactive.ToString();
                 course.CreateBy = masterid;
                 course.CategoryId = request.CourseCategory;
@@ -265,7 +266,7 @@ namespace Services.Services.CourseService
                 if (request.ImageUrl != null)
                     course.ImageUrl = await _uploadService.UploadImageAsync(request.ImageUrl);
 
-                course.UpdateAt = DateTime.Now;
+                course.UpdateAt = TimeHepler.SystemTimeNow;
 
                 await _courseRepo.UpdateCourse(course);
                 var response = await _courseRepo.GetCourseById(id);

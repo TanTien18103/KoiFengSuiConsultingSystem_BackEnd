@@ -2,6 +2,7 @@
 using BusinessObjects.Constants;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
+using BusinessObjects.TimeCoreHelper;
 using Microsoft.AspNetCore.Http;
 using Repositories.Repositories.ChapterRepository;
 using Repositories.Repositories.CourseRepository;
@@ -144,7 +145,7 @@ namespace Services.Services.ChapterService
 
                 var chapter = _mapper.Map<Chapter>(request);
                 chapter.ChapterId = GenerateShortGuid();
-                chapter.CreateDate = DateTime.Now;
+                chapter.CreateDate = TimeHepler.SystemTimeNow;
                 chapter.Video = await _bunnyCdnService.UploadVideoAsync(request.Video);
                 await _chapterRepo.CreateChapter(chapter);
 

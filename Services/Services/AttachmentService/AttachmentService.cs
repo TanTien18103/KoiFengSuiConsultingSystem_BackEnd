@@ -22,6 +22,7 @@ using BusinessObjects.Models;
 using System.Reflection.Metadata;
 using Services.ApiModels.FengShuiDocument;
 using System.Xml.Linq;
+using BusinessObjects.TimeCoreHelper;
 
 namespace Services.Services.AttachmentService
 {
@@ -125,9 +126,9 @@ namespace Services.Services.AttachmentService
                 {
                     AttachmentId = Guid.NewGuid().ToString("N").Substring(0, 20),
                     Status = AttachmentStatusEnums.Pending.ToString(),
-                    AttachmentName = $"Attachment_{request.BookingOfflineId}_{DateTime.Now:yyyyMMdd}",
-                    DocNo = $"DOC_{DateTime.Now:yyyyMMddHHmmss}",
-                    CreatedDate = DateTime.Now,
+                    AttachmentName = $"Attachment_{request.BookingOfflineId}_{TimeHepler.SystemTimeNow:yyyyMMdd}",
+                    DocNo = $"DOC_{TimeHepler.SystemTimeNow:yyyyMMddHHmmss}",
+                    CreatedDate = TimeHepler.SystemTimeNow,
                     AttachmentUrl = fileUrl,
                     CreateBy = masterId
                 };
@@ -530,8 +531,8 @@ namespace Services.Services.AttachmentService
                 var random = new Random();
                 string otp = random.Next(100000, 999999).ToString();
                 attachment.OtpCode = otp;
-                attachment.OtpExpiredTime = DateTime.Now.AddMinutes(5);
-                attachment.UpdatedDate = DateTime.Now;
+                attachment.OtpExpiredTime = TimeHepler.SystemTimeNow.AddMinutes(5);
+                attachment.UpdatedDate = TimeHepler.SystemTimeNow;
 
                 // Gửi OTP qua email
                 var emailContent = $@"
@@ -589,7 +590,7 @@ namespace Services.Services.AttachmentService
                     return res;
                 }
 
-                if (attachment.OtpExpiredTime == null || DateTime.Now > attachment.OtpExpiredTime)
+                if (attachment.OtpExpiredTime == null || TimeHepler.SystemTimeNow > attachment.OtpExpiredTime)
                 {
                     attachment.OtpCode = null;
                     attachment.OtpExpiredTime = null;
@@ -625,7 +626,7 @@ namespace Services.Services.AttachmentService
                 attachment.OtpCode = null;
                 attachment.OtpExpiredTime = null;
                 attachment.Status = AttachmentStatusEnums.Success.ToString();
-                attachment.UpdatedDate = DateTime.Now;
+                attachment.UpdatedDate = TimeHepler.SystemTimeNow;
 
                 await _attachmentRepo.UpdateAttachment(attachment);
 

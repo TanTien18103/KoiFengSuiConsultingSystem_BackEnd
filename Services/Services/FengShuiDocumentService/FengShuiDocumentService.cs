@@ -20,6 +20,7 @@ using static BusinessObjects.Constants.ResponseMessageConstrantsKoiPond;
 using AutoMapper;
 using BusinessObjects.Models;
 using Services.ApiModels.FengShuiDocument;
+using BusinessObjects.TimeCoreHelper;
 
 namespace Services.Services.FengShuiDocumentService
 {
@@ -118,10 +119,10 @@ namespace Services.Services.FengShuiDocumentService
                     FengShuiDocumentId = Guid.NewGuid().ToString("N").Substring(0, 20),
                     Status = DocumentStatusEnum.Pending.ToString(),
                     Version = "1.0",
-                    DocNo = $"FS_{DateTime.Now:yyyyMMddHHmmss}",
-                    DocumentName = $"FengShui_{request.BookingOfflineId}_{DateTime.Now:yyyyMMdd}",
+                    DocNo = $"FS_{TimeHepler.SystemTimeNow:yyyyMMddHHmmss}",
+                    DocumentName = $"FengShui_{request.BookingOfflineId}_{TimeHepler.SystemTimeNow:yyyyMMdd}",
                     DocumentUrl = pdfUrl,
-                    CreateDate = DateTime.Now,
+                    CreateDate = TimeHepler.SystemTimeNow,
                     CreateBy = masterId
                 };
 
@@ -166,11 +167,11 @@ namespace Services.Services.FengShuiDocumentService
                     DocumentId = createdDocument.FengShuiDocumentId,
                     Status = "Pending",
                     Version = "1.0",
-                    DocNo = $"FS_{DateTime.Now:yyyyMMddHHmmss}",
+                    DocNo = $"FS_{TimeHepler.SystemTimeNow:yyyyMMddHHmmss}",
                     DocumentName = createdDocument.DocumentName,
                     DocumentUrl = pdfUrl,
-                    CreateDate = DateTime.Now,
-                    UpdateDate = DateTime.Now,
+                    CreateDate = TimeHepler.SystemTimeNow,
+                    UpdateDate = TimeHepler.SystemTimeNow,
                     CreateBy = masterId,
                     BookingOffline = new BookingOfflineInfo
                     {

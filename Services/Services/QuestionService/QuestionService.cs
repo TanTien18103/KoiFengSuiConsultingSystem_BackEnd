@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects.Constants;
 using BusinessObjects.Models;
+using BusinessObjects.TimeCoreHelper;
 using Microsoft.AspNetCore.Http;
 using Repositories.Repositories.AccountRepository;
 using Repositories.Repositories.AnswerRepository;
@@ -250,8 +251,8 @@ namespace Services.Services.QuestionService
                 var question = _mapper.Map<Question>(questionRequest);
                 question.QuestionId = GenerateShortGuid();
                 question.QuizId = quizId;
-                question.CreateAt = DateTime.Now;
-                question.UpdateAt = DateTime.Now;
+                question.CreateAt = TimeHepler.SystemTimeNow;
+                question.UpdateAt = TimeHepler.SystemTimeNow;
                 question.Point = pointPerQuestion;
 
                 if (question.Answers != null && question.Answers.Any())
@@ -260,8 +261,8 @@ namespace Services.Services.QuestionService
                     {
                         answer.AnswerId = GenerateShortGuid();
                         answer.QuestionId = question.QuestionId;
-                        answer.CreateAt = DateTime.Now;
-                        answer.UpdateDate = DateTime.Now;
+                        answer.CreateAt = TimeHepler.SystemTimeNow;
+                        answer.UpdateDate = TimeHepler.SystemTimeNow;
                     }
                 }
 

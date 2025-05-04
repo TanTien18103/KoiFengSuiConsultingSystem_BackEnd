@@ -2,6 +2,7 @@
 using BusinessObjects.Constants;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
+using BusinessObjects.TimeCoreHelper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Repositories.Repositories.BookingOfflineRepository;
@@ -88,7 +89,7 @@ namespace Services.Services.ContractService
                 
                 // Cập nhật trạng thái của contract
                 contract.Status = ContractStatusEnum.ContractRejectedByCustomer.ToString();
-                contract.UpdatedDate = DateTime.Now;
+                contract.UpdatedDate = TimeHepler.SystemTimeNow;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
                 
                 res.IsSuccess = true;
@@ -165,7 +166,7 @@ namespace Services.Services.ContractService
                 await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
                 
                 contract.Status = ContractStatusEnum.ContractApprovedByManager.ToString();
-                contract.UpdatedDate = DateTime.Now;
+                contract.UpdatedDate = TimeHepler.SystemTimeNow;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
                 
                 res.IsSuccess = true;
@@ -222,7 +223,7 @@ namespace Services.Services.ContractService
                 
                 // Cập nhật trạng thái của contract
                 contract.Status = ContractStatusEnum.ContractRejectedByCustomer.ToString();
-                contract.UpdatedDate = DateTime.Now;
+                contract.UpdatedDate = TimeHepler.SystemTimeNow;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
                 
                 res.IsSuccess = true;
@@ -299,7 +300,7 @@ namespace Services.Services.ContractService
                 await _bookingOfflineRepo.UpdateBookingOffline(bookingOffline);
                 
                 contract.Status = ContractStatusEnum.VerifyingOTP.ToString();
-                contract.UpdatedDate = DateTime.Now;
+                contract.UpdatedDate = TimeHepler.SystemTimeNow;
                 var updatedContract = await _contractRepo.UpdateContract(contract);
                 
                 res.IsSuccess = true;
@@ -402,9 +403,9 @@ namespace Services.Services.ContractService
                 {   
                     ContractId = Guid.NewGuid().ToString("N").Substring(0, 20),
                     Status = ContractStatusEnum.Pending.ToString(),
-                    ContractName = $"Contract_{request.BookingOfflineId}_{DateTime.Now:yyyyMMdd}",
-                    DocNo = $"DOC_{DateTime.Now:yyyyMMddHHmmss}",
-                    CreatedDate = DateTime.Now,
+                    ContractName = $"Contract_{request.BookingOfflineId}_{TimeHepler.SystemTimeNow:yyyyMMdd}",
+                    DocNo = $"DOC_{TimeHepler.SystemTimeNow:yyyyMMddHHmmss}",
+                    CreatedDate = TimeHepler.SystemTimeNow,
                     ContractUrl = tempPdfUrl,
                     CreateBy = accountId
                 };
@@ -432,13 +433,13 @@ namespace Services.Services.ContractService
                 res.Message = ResponseMessageConstrantsContract.CREATED_SUCCESS;
                 res.Data = new ContractResponse
                 {
-                    ContractId = $"C{DateTime.Now:yyMMddHHmmss}",
+                    ContractId = $"C{TimeHepler.SystemTimeNow:yyMMddHHmmss}",
                     Status = ContractStatusEnum.Pending.ToString(),
-                    DocNo = $"DOC_{DateTime.Now:yyyyMMddHHmmss}",
+                    DocNo = $"DOC_{TimeHepler.SystemTimeNow:yyyyMMddHHmmss}",
                     ContractName = contract.ContractName,
                     ContractUrl = tempPdfUrl,
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now,
+                    CreatedDate = TimeHepler.SystemTimeNow,
+                    UpdatedDate = TimeHepler.SystemTimeNow,
                     CreateBy = accountId
                 };
                 return res;
@@ -641,8 +642,8 @@ namespace Services.Services.ContractService
                 var random = new Random();
                 string otp = random.Next(100000, 999999).ToString();
                 contract.OtpCode = otp;
-                contract.OtpExpiredTime = DateTime.Now.AddMinutes(5);
-                contract.UpdatedDate = DateTime.Now;
+                contract.OtpExpiredTime = TimeHepler.SystemTimeNow.AddMinutes(5);
+                contract.UpdatedDate = TimeHepler.SystemTimeNow;
 
                 // Gửi OTP qua email
                 var emailContent = $@"
@@ -693,7 +694,7 @@ namespace Services.Services.ContractService
                     return res;
                 }
 
-                if (DateTime.Now > contract.OtpExpiredTime)
+                if (TimeHepler.SystemTimeNow > contract.OtpExpiredTime)
                 {
                     contract.OtpCode = null;
                     contract.OtpExpiredTime = null;
@@ -726,7 +727,7 @@ namespace Services.Services.ContractService
                 contract.OtpCode = null;
                 contract.OtpExpiredTime = null;
                 contract.Status = ContractStatusEnum.FirstPaymentSuccess.ToString();
-                contract.UpdatedDate = DateTime.Now;
+                contract.UpdatedDate = TimeHepler.SystemTimeNow;
 
                 await _contractRepo.UpdateContract(contract);
                 res.IsSuccess = true;

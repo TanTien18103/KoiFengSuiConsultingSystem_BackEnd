@@ -16,6 +16,7 @@ namespace BusinessObjects.Enums
         Paid1st,
         Paid2nd,
         WaitingForRefund,
-        Refunded
+        ManagerRefunded,
+        Received
     }
 }

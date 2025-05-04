@@ -18,5 +18,10 @@ namespace Services.Services.OrderService
         Task<ResultModel> CheckAndUpdateExpiredOrders();
         Task<ResultModel> GetPendingConfirmOrders();
         Task<ResultModel> GetDetailsOrder(string id);
+
+        //refund
+        Task<ResultModel> GetManagerRefunded();
+        Task<ResultModel> ManagerConfirmRefunded(string id);
+        Task<ResultModel> CustomerConfirmReceived(string id);
     }
 }

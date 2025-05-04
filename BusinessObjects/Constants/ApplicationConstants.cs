@@ -133,6 +133,7 @@ public class ResponseMessageConstrantsOrder
     public const string NOT_FOUND = "Không tìm thấy đơn hàng";
     public const string NOT_FOUND_PENDING = "Không tìm thấy đơn hàng đang chờ được xử lý";
     public const string NOT_FOUND_WAITINGFORREFUND = "Không tìm thấy đơn hàng đang chờ hoàn tiền";
+    public const string NOT_FOUND_MANAGERREFUNDED = "Không tìm thấy đơn hàng quản lý đã hoàn tiền";
     public const string FOUND = "Tìm thấy đơn hàng: ";
     public const string INVALID_DATA = "Dữ liệu không hợp lệ";
     public const string NOTALLOWED = "Bạn không được phép xem đơn hàng này";
@@ -146,6 +147,8 @@ public class ResponseMessageConstrantsOrder
     public const string REQUEST_FAILED_ORDER = "Gửi yêu cầu thất bại cho đơn hàng: ";
     public const string NEED_TO_PAY_SERVICE_NOT_FOUND = "Không tìm thấy dịch vụ cần thanh toán";
     public const string ORDER_STATUS_TO_PAID = "Cập nhật trạng thái đơn hàng thành đã thanh toán thành công";
+    public const string ORDER_STATUS_TO_MANAGERREFUNDED = "Quản lý cập nhật trạng thái là đã hoàn tiền. Vui lòng chờ khách hàng xác nhận";
+    public const string ORDER_STATUS_TO_RECEIVED = "Khách hàng xác nhận đã nhận được tiền thành công";
     public const string ORDER_STATUS_TO_PENDINGCONFIRM = "Cập nhật trạng thái đơn hàng thành chờ xác nhận đã thanh toán thành công";
     public const string ORDER_CANCELED_SUCCESS = "Đơn hàng được hủy thành công";
     public const string ORDER_EXPIRED = "Đơn hàng đã quá hạn thanh toán";

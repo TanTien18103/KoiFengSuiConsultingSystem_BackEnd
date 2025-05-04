@@ -589,7 +589,7 @@ namespace Services.Services.OrderService
             try
             {
                 var order = await _orderRepo.GetOneOrderByService(serviceId, serviceType);
-                
+
                 switch (serviceType)
                 {
                     case PaymentTypeEnums.BookingOnline:
@@ -808,6 +808,112 @@ namespace Services.Services.OrderService
             if (identity == null || !identity.IsAuthenticated) return null;
 
             return identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        }
+
+
+        // Refund
+        public async Task<ResultModel> GetManagerRefunded()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var orders = await _orderRepo.GetAllOrders();
+                var pendingConfirmOrders = orders.Where(x => x.Status == PaymentStatusEnums.ManagerRefunded.ToString()).OrderByDescending(x => x.CreatedDate).ToList();
+
+                if (pendingConfirmOrders == null || !pendingConfirmOrders.Any() || pendingConfirmOrders.Count == 0)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsOrder.NOT_FOUND_MANAGERREFUNDED;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Data = _mapper.Map<List<OrderResponse>>(pendingConfirmOrders);
+                res.Message = ResponseMessageConstrantsOrder.FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> ManagerConfirmRefunded(string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var order = await _orderRepo.GetOrderById(id);
+                if (order == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsOrder.NOT_FOUND;
+                    return res;
+                }
+
+                order.Status = PaymentStatusEnums.ManagerRefunded.ToString();
+                order.PaymentDate = TimeHepler.SystemTimeNow;
+                await _orderRepo.UpdateOrder(order);
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsOrder.ORDER_STATUS_TO_MANAGERREFUNDED;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> CustomerConfirmReceived(string id)
+        {
+            var res = new ResultModel();
+            try
+            {
+                var order = await _orderRepo.GetOrderById(id);
+                if (order == null)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsOrder.NOT_FOUND;
+                    return res;
+                }
+
+                order.Status = PaymentStatusEnums.Received.ToString();
+                order.PaymentDate = TimeHepler.SystemTimeNow;
+                await _orderRepo.UpdateOrder(order);
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Message = ResponseMessageConstrantsOrder.ORDER_STATUS_TO_RECEIVED;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                return res;
+            }
         }
     }
 }

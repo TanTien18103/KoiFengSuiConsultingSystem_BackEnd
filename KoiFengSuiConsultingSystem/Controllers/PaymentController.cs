@@ -15,6 +15,7 @@ using Net.payOS.Types;
 using Services.Services.PaymentService;
 using BusinessObjects.Exceptions;
 using Services.ServicesHelpers.RefundSerivce;
+using Services.Services.OrderService;
 
 namespace KoiFengSuiConsultingSystem.Controllers
 {
@@ -24,6 +25,7 @@ namespace KoiFengSuiConsultingSystem.Controllers
     {
         private readonly IPaymentService _paymentService;
         private readonly IRefundService _refundService;
+        private readonly IOrderService _orderService;
         public PaymentController(IPaymentService paymentService, IRefundService refundService)
         {
             _paymentService = paymentService;
@@ -52,27 +54,26 @@ namespace KoiFengSuiConsultingSystem.Controllers
                 return StatusCode(ex.StatusCode, new { ex.Code, ex.Message });
             }
         }
-        //[HttpPost("payos/transfer-handler")]
-        //public IActionResult PayOSPaymentExecute([FromBody] WebhookType request)
-        //{
-        //    _paymentService.GetWebhookTypeAsync(request);
-        //    return Ok();
-        //}
 
-        //[Authorize(Roles = "Admin")]
-        //[HttpGet("payos/admin/payment-info/{orderCode}")]
-        //public async Task<IActionResult> GetPayOSPaymentInfo([FromRoute] long orderCode)
-        //{
-        //    var response = await _paymentService.GetPaymentLinkInformationAsync(orderCode);
-        //    return Ok(response);
-        //}
+        [HttpGet("get-manager-refunded")]
+        public async Task<IActionResult> GetManagerRefunded()
+        {
+            var res = await _orderService.GetManagerRefunded();
+            return StatusCode(res.StatusCode, res);
+        }
 
-        //[Authorize(Roles = "Customer")]
-        //[HttpGet("payos/customer/confirmation/{orderId}/{orderCode}")]
-        //public async Task<IActionResult> PayOSConfirmPayment([FromRoute] string orderId, long orderCode)
-        //{
-        //    await _paymentService.ConfirmPayment(orderId, orderCode);
-        //    return Ok();
-        //}
+        [HttpPut("manager-confirm-refunded")]
+        public async Task<IActionResult> ManagerConfirmRefunded(string id)
+        {
+            var res = await _orderService.ManagerConfirmRefunded(id);
+            return StatusCode(res.StatusCode, res);
+        }
+
+        [HttpGet("customer-confirm-received")]
+        public async Task<IActionResult> CustomerConfirmReceived(string id)
+        {
+            var res = await _orderService.CustomerConfirmReceived(id);
+            return StatusCode(res.StatusCode, res);
+        }
     }
 }

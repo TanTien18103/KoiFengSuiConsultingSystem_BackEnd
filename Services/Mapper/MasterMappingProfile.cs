@@ -14,7 +14,9 @@ namespace Services.Mapper
     {
         public MasterMappingProfile()
         {
-            CreateMap<Master, MasterListReponseDTO>();
+            CreateMap<Master, MasterListReponseDTO>()
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Account.Email))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Account.PhoneNumber));
 
             CreateMap<Master, MasterDetailReponseDTO>();
 

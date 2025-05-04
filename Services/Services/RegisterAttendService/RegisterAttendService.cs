@@ -2,6 +2,7 @@
 using BusinessObjects.Constants;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
+using BusinessObjects.TimeCoreHelper;
 using Microsoft.AspNetCore.Http;
 using Repositories.Repositories.CustomerRepository;
 using Repositories.Repositories.OrderRepository;
@@ -154,7 +155,7 @@ namespace Services.Services.RegisterAttendService
                             CreatedDate = firstTicket.CreatedDate,
                             TotalPrice = totalPrice,
                             Location = workshop.LocationId ?? string.Empty,
-                            StartDate = workshop.StartDate ?? DateTime.Now,
+                            StartDate = workshop.StartDate ?? TimeHepler.SystemTimeNow,
                             StartTime = workshop.StartTime,
                             EndTime = workshop.EndTime
                         };
@@ -383,7 +384,7 @@ namespace Services.Services.RegisterAttendService
                     res.Message = ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND;
                     return res;
                 }
-                if (workshop.StartDate <= DateTime.Now)
+                if (workshop.StartDate <= TimeHepler.SystemTimeNow)
                 {
                     res.IsSuccess = false;
                     res.StatusCode = StatusCodes.Status400BadRequest;
@@ -392,7 +393,7 @@ namespace Services.Services.RegisterAttendService
                     return res;
                 }
 
-                if (workshop.StartDate.HasValue && (workshop.StartDate.Value - DateTime.Now).TotalDays < 1)
+                if (workshop.StartDate.HasValue && (workshop.StartDate.Value - TimeHepler.SystemTimeNow).TotalDays < 1)
                 {
                     res.IsSuccess = false;
                     res.StatusCode = StatusCodes.Status400BadRequest;
@@ -458,7 +459,7 @@ namespace Services.Services.RegisterAttendService
                 }
 
                 var registerAttends = new List<RegisterAttend>();
-                var createdDate = DateTime.Now;
+                var createdDate = TimeHepler.SystemTimeNow;
                 var groupId = GenerateShortGuid();
                 
                 for (int i = 0; i < request.NumberOfTicket; i++)
@@ -538,7 +539,7 @@ namespace Services.Services.RegisterAttendService
                 }
 
                 // Kiểm tra workshop đã bắt đầu chưa
-                if (workshop.StartDate <= DateTime.Now)
+                if (workshop.StartDate <= TimeHepler.SystemTimeNow)
                 {
                     res.IsSuccess = false;
                     res.StatusCode = StatusCodes.Status400BadRequest;
@@ -583,7 +584,7 @@ namespace Services.Services.RegisterAttendService
                             CustomerId = customerId,
                             WorkshopId = workshopId,
                             Status = RegisterAttendStatusEnums.Pending.ToString(),
-                            CreatedDate = DateTime.Now,
+                            CreatedDate = TimeHepler.SystemTimeNow,
                             GroupId = groupId,
                         };
                         await _registerAttendRepo.CreateRegisterAttend(newTicket);

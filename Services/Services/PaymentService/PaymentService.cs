@@ -34,6 +34,7 @@ using Microsoft.Extensions.Logging;
 using Services.ApiModels;
 using Repositories.Repositories.RegisterAttendRepository;
 using AutoMapper;
+using BusinessObjects.TimeCoreHelper;
 
 namespace Services.Services.PaymentService
 {
@@ -188,7 +189,7 @@ namespace Services.Services.PaymentService
                         if (workshop == null)
                             throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsWorkshop.WORKSHOP_NOT_FOUND, StatusCodes.Status404NotFound);
                         // Kiểm tra workshop đã bắt đầu chưa
-                        if (workshop.StartDate <= DateTime.Now)
+                        if (workshop.StartDate <= TimeHepler.SystemTimeNow)
                             throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Workshop đã bắt đầu, không thể thanh toán", StatusCodes.Status400BadRequest);
 
                         var totalTickets = registerAttends.Count;
@@ -201,7 +202,7 @@ namespace Services.Services.PaymentService
 
                     case PaymentTypeEnums.BookingOnline:
                         var bookingOnline = await _bookingOnlineRepo.GetBookingOnlineByIdRepo(serviceId);
-                        if (bookingOnline.BookingDate <= DateOnly.FromDateTime(DateTime.Now) && bookingOnline.StartTime <= TimeOnly.FromDateTime(DateTime.Now))
+                        if (bookingOnline.BookingDate <= DateOnly.FromDateTime(TimeHepler.SystemTimeNow) && bookingOnline.StartTime <= TimeOnly.FromDateTime(TimeHepler.SystemTimeNow))
                             throw new AppException(ResponseCodeConstants.BAD_REQUEST, "Buổi tư vấn đã bắt đầu, không thể thanh toán", StatusCodes.Status400BadRequest);
                         if (bookingOnline == null)
                             throw new AppException(ResponseCodeConstants.NOT_FOUND, ResponseMessageConstrantsBooking.NOT_FOUND_ONLINE, StatusCodes.Status404NotFound);
@@ -274,8 +275,8 @@ namespace Services.Services.PaymentService
                 items.Add(item);
 
                 // Thời gian hết hạn thanh toán (15 phút)
-                var expiredAt = ConvertDateTimeToUnixTimestamp(DateTime.Now.AddMinutes(15));
-                int orderCode = int.Parse(DateTime.Now.ToString("ffffff"));
+                var expiredAt = ConvertDateTimeToUnixTimestamp(TimeHepler.SystemTimeNow.AddMinutes(15));
+                int orderCode = int.Parse(TimeHepler.SystemTimeNow.ToString("ffffff"));
 
                 // Tạo dữ liệu thanh toán với thông tin chi tiết
                 PaymentData paymentData = new PaymentData(
@@ -306,7 +307,7 @@ namespace Services.Services.PaymentService
                     OrderCode = orderCode.ToString(),
                     PaymentReference = createPayment.checkoutUrl,
                     Status = PaymentStatusEnums.Pending.ToString(),
-                    CreatedDate = DateTime.Now,
+                    CreatedDate = TimeHepler.SystemTimeNow,
                     Description = description,
                     PaymentId = GenerateShortGuid(),
                     Note = serviceType == PaymentTypeEnums.BookingOffline ? 
@@ -465,7 +466,7 @@ namespace Services.Services.PaymentService
         private async Task UpdateOrderPayment(Order order, long orderCode)
         {
             order.Status = PaymentStatusEnums.Paid.ToString();
-            order.PaymentDate = DateTime.Now;
+            order.PaymentDate = TimeHepler.SystemTimeNow;
             order.PaymentId = orderCode.ToString();
             await _orderRepo.UpdateOrder(order);
         }

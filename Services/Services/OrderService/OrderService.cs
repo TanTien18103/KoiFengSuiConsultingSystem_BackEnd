@@ -3,6 +3,7 @@ using BusinessObjects.Constants;
 using BusinessObjects.Enums;
 using BusinessObjects.Exceptions;
 using BusinessObjects.Models;
+using BusinessObjects.TimeCoreHelper;
 using MailKit.Search;
 using Microsoft.AspNetCore.Http;
 using Repositories.Repositories.AnswerRepository;
@@ -141,7 +142,7 @@ namespace Services.Services.OrderService
 
                 order.Status = PaymentStatusEnums.PendingConfirm.ToString();
                 order.PaymentReference = null;
-                order.PaymentDate = DateTime.Now;
+                order.PaymentDate = TimeHepler.SystemTimeNow;
                 await _orderRepo.UpdateOrder(order);
 
                 res.IsSuccess = true;
@@ -197,7 +198,7 @@ namespace Services.Services.OrderService
 
                 order.Status = PaymentStatusEnums.Paid.ToString();
                 order.PaymentReference = null;
-                order.PaymentDate = DateTime.Now;
+                order.PaymentDate = TimeHepler.SystemTimeNow;
                 await _orderRepo.UpdateOrder(order);
 
                 // RegisterAttend
@@ -396,8 +397,8 @@ namespace Services.Services.OrderService
                                 ChapterId = chapter.ChapterId,
                                 Status = EnrollChapterStatusEnums.InProgress.ToString(),
                                 EnrollCourseId = result.EnrollCourseId,
-                                CreateDate = DateTime.Now,
-                                UpdateDate = DateTime.Now,
+                                CreateDate = TimeHepler.SystemTimeNow,
+                                UpdateDate = TimeHepler.SystemTimeNow,
                             };
 
                             await _enrollChapterRepo.CreateEnrollChapter(enrollChapter);
@@ -741,7 +742,7 @@ namespace Services.Services.OrderService
                 }
 
                 var expiredOrders = pendingOrders
-                    .Where(o => o.CreatedDate.HasValue && o.CreatedDate.Value.AddMinutes(15) < DateTime.Now)
+                    .Where(o => o.CreatedDate.HasValue && o.CreatedDate.Value.AddMinutes(15) < TimeHepler.SystemTimeNow)
                     .ToList();
 
                 foreach (var order in expiredOrders)

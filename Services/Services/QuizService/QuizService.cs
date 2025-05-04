@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects.Constants;
 using BusinessObjects.Models;
+using BusinessObjects.TimeCoreHelper;
 using Microsoft.AspNetCore.Http;
 using Repositories.Repositories.AccountRepository;
 using Repositories.Repositories.CourseRepository;
@@ -240,7 +241,7 @@ namespace Services.Services.QuizService
                 newQuiz.QuizId = GenerateShortGuid();
                 newQuiz.CourseId = courseId;
                 newQuiz.CreateBy = master.MasterId;
-                newQuiz.CreateAt = DateTime.Now;
+                newQuiz.CreateAt = TimeHepler.SystemTimeNow;
                 newQuiz.Score = 100;
                 var createdQuiz = await _quizRepo.CreateQuiz(newQuiz);
 
@@ -263,7 +264,7 @@ namespace Services.Services.QuizService
                     return res;
                 }
 
-                course.UpdateAt = DateTime.Now;
+                course.UpdateAt = TimeHepler.SystemTimeNow;
                 course.QuizId = existingQuiz.QuizId;
 
                 var updatedCourse = await _courseRepo.UpdateCourse(course);
@@ -412,7 +413,7 @@ namespace Services.Services.QuizService
                     return res;
                 }
 
-                course.UpdateAt = DateTime.Now;
+                course.UpdateAt = TimeHepler.SystemTimeNow;
                 await _courseRepo.UpdateCourse(course);
 
                 res.IsSuccess = true;

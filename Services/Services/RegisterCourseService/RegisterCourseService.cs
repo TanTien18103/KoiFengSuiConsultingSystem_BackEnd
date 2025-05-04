@@ -2,6 +2,7 @@
 using BusinessObjects.Constants;
 using BusinessObjects.Enums;
 using BusinessObjects.Models;
+using BusinessObjects.TimeCoreHelper;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Hosting;
@@ -476,16 +477,16 @@ namespace Services.Services.RegisterCourseService
                             customerInfo.Account.FullName,
                             masterInfo.MasterName,
                             course.CourseName,
-                            DateOnly.FromDateTime(DateTime.Now)
+                            DateOnly.FromDateTime(TimeHepler.SystemTimeNow)
                         );
 
                         var certificate = new BusinessObjects.Models.Certificate
                         {
                             CertificateId = GenerateShortGuid(),
-                            IssueDate = DateOnly.FromDateTime(DateTime.Now),
+                            IssueDate = DateOnly.FromDateTime(TimeHepler.SystemTimeNow),
                             Description = $"Chứng nhận hoàn thành khóa học {course.CourseName}",
                             CertificateImage = certificateImageUrl,
-                            CreateDate = DateTime.Now
+                            CreateDate = TimeHepler.SystemTimeNow
                         };
                         await _certificateRepo.CreateCertificate(certificate);
 
@@ -497,14 +498,14 @@ namespace Services.Services.RegisterCourseService
                                 EnrollCertId = GenerateShortGuid(),
                                 CustomerId = customerid,
                                 CertificateId = certificate.CertificateId,
-                                FinishDate = DateOnly.FromDateTime(DateTime.Now),
-                                CreateDate = DateTime.Now,
+                                FinishDate = DateOnly.FromDateTime(TimeHepler.SystemTimeNow),
+                                CreateDate = TimeHepler.SystemTimeNow,
                             };
                             await _enrollCertRepo.CreateEnrollCert(enrollCert);
 
                             registerCourse.EnrollCertId = enrollCert.EnrollCertId;
                             registerCourse.Status = RegisterCourseStatusEnums.Completed.ToString();
-                            registerCourse.UpdateDate = DateTime.Now;
+                            registerCourse.UpdateDate = TimeHepler.SystemTimeNow;
                             await _registerCourseRepo.UpdateRegisterCourse(registerCourse);
                         }
 
@@ -693,8 +694,8 @@ namespace Services.Services.RegisterCourseService
                 }
 
                 certificate.CertificateId = GenerateShortGuid();
-                certificate.CreateDate = DateTime.Now;
-                certificate.UpdateDate = DateTime.Now;
+                certificate.CreateDate = TimeHepler.SystemTimeNow;
+                certificate.UpdateDate = TimeHepler.SystemTimeNow;
                 certificate.CertificateImage = uploadResult;
 
                 var createdCertificate = await _certificateRepo.CreateCertificate(certificate);
@@ -715,7 +716,7 @@ namespace Services.Services.RegisterCourseService
                     if (course.CertificateId == null)
                     {
                         course.CertificateId = createdCertificate.CertificateId;
-                        course.UpdateAt = DateTime.Now;
+                        course.UpdateAt = TimeHepler.SystemTimeNow;
                         var courseUpdate = await _courseRepo.UpdateCourse(course);
                         if (courseUpdate == null)
                         {

@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using BusinessObjects.TimeCoreHelper;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -81,7 +82,7 @@ namespace DAOs.DAOs
                 return null;
                 
             registerCourse.Rating = rating;
-            registerCourse.UpdateDate = DateTime.Now;
+            registerCourse.UpdateDate = TimeHepler.SystemTimeNow;
             
             _context.RegisterCourses.Update(registerCourse);
             await _context.SaveChangesAsync();

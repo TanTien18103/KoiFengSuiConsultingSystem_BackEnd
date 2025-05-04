@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObjects.Constants;
 using BusinessObjects.Models;
+using BusinessObjects.TimeCoreHelper;
 using Microsoft.AspNetCore.Http;
 using Repositories.Repositories.AnswerRepository;
 using Repositories.Repositories.QuestionRepository;
@@ -56,7 +57,7 @@ namespace Services.Services.AnswerService
                 var answer = _mapper.Map<Answer>(answerRequest);
                 answer.AnswerId = GenerateShortGuid();
                 answer.QuestionId = questionid;
-                answer.CreateAt = DateTime.Now;
+                answer.CreateAt = TimeHepler.SystemTimeNow;
 
                 var result = await _answerRepo.CreateAnswer(answer);
                 if (result == null)

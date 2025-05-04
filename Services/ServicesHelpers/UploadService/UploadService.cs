@@ -1,6 +1,7 @@
 ﻿using BusinessObjects.Constants;
 using BusinessObjects.Exceptions;
 using BusinessObjects.Models;
+using BusinessObjects.TimeCoreHelper;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using ExcelDataReader;
@@ -97,7 +98,7 @@ namespace Services.ServicesHelpers.UploadService
                 {
                     File = new FileDescription(file.FileName, stream),
                     Folder = "documents",
-                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{DateTime.Now.Ticks}"
+                    PublicId = $"{Path.GetFileNameWithoutExtension(file.FileName)}_{TimeHepler.SystemTimeNow.Ticks}"
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -314,8 +315,8 @@ namespace Services.ServicesHelpers.UploadService
                                             CourseId = courseId,
                                             CreateBy = masterId,
                                             Score = 100,
-                                            CreateAt = DateTime.Now,
-                                            UpdateAt = DateTime.Now,
+                                            CreateAt = TimeHepler.SystemTimeNow,
+                                            UpdateAt = TimeHepler.SystemTimeNow,
                                             Questions = new List<Question>()
                                         };
                                         quiz = currentQuiz;
@@ -337,8 +338,8 @@ namespace Services.ServicesHelpers.UploadService
                                             QuizId = currentQuiz.QuizId,
                                             QuestionText = questionText,
                                             QuestionType = questionType,
-                                            CreateAt = DateTime.Now,
-                                            UpdateAt = DateTime.Now,
+                                            CreateAt = TimeHepler.SystemTimeNow,
+                                            UpdateAt = TimeHepler.SystemTimeNow,
                                             Point = 0,
                                             Answers = new List<Answer>()
                                         };
@@ -361,8 +362,8 @@ namespace Services.ServicesHelpers.UploadService
                                             QuestionId = currentQuestion.QuestionId,
                                             OptionText = optionText,
                                             OptionType = optionType,
-                                            CreateAt = DateTime.Now,
-                                            UpdateDate = DateTime.Now,
+                                            CreateAt = TimeHepler.SystemTimeNow,
+                                            UpdateDate = TimeHepler.SystemTimeNow,
                                             IsCorrect = isCorrect
                                         };
                                         currentQuestion.Answers.Add(answer);

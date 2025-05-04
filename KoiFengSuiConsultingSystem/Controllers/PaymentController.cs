@@ -26,10 +26,11 @@ namespace KoiFengSuiConsultingSystem.Controllers
         private readonly IPaymentService _paymentService;
         private readonly IRefundService _refundService;
         private readonly IOrderService _orderService;
-        public PaymentController(IPaymentService paymentService, IRefundService refundService)
+        public PaymentController(IPaymentService paymentService, IRefundService refundService, IOrderService orderService)
         {
             _paymentService = paymentService;
             _refundService = refundService;
+            _orderService = orderService;
         }
 
         [Authorize(Roles = "Customer")]

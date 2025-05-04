@@ -818,9 +818,12 @@ namespace Services.Services.OrderService
             try
             {
                 var orders = await _orderRepo.GetAllOrders();
-                var pendingConfirmOrders = orders.Where(x => x.Status == PaymentStatusEnums.ManagerRefunded.ToString()).OrderByDescending(x => x.CreatedDate).ToList();
+                var managerRefundedOrders = orders
+                .Where(x => x?.Status != null && x.Status == PaymentStatusEnums.ManagerRefunded.ToString())
+                .OrderByDescending(x => x?.CreatedDate)
+                .ToList();
 
-                if (pendingConfirmOrders == null || !pendingConfirmOrders.Any() || pendingConfirmOrders.Count == 0)
+                if (managerRefundedOrders == null || !managerRefundedOrders.Any() || managerRefundedOrders.Count == 0)
                 {
                     res.IsSuccess = false;
                     res.StatusCode = StatusCodes.Status404NotFound;
@@ -832,7 +835,7 @@ namespace Services.Services.OrderService
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                res.Data = _mapper.Map<List<OrderResponse>>(pendingConfirmOrders);
+                res.Data = _mapper.Map<List<OrderResponse>>(managerRefundedOrders);
                 res.Message = ResponseMessageConstrantsOrder.FOUND;
                 return res;
             }

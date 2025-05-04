@@ -71,8 +71,6 @@ namespace Services.ServicesHelpers.RefundSerivce
             }
 
             string customerQrUrl = GetCustomerRefundQR(order);
-            await UpdateOrderStatusForRefund(order);
-
             return customerQrUrl;
         }
 
@@ -100,17 +98,6 @@ namespace Services.ServicesHelpers.RefundSerivce
             };
 
             return $"https://img.vietqr.io/image/{account.BankId}-{account.AccountNo}-compact.png?{string.Join("&", parameters)}";
-        }
-
-        private async Task UpdateOrderStatusForRefund(Order order)
-        {
-            if(order.Status != PaymentStatusEnums.WaitingForRefund.ToString())
-            {
-                throw new AppException(ResponseCodeConstants.BAD_REQUEST, ResponseMessageConstrantsOrder.NOT_WAITING_FOR_REFUND, StatusCodes.Status400BadRequest);
-            }
-            
-            order.Status = PaymentStatusEnums.Refunded.ToString();
-            await _orderRepo.UpdateOrder(order);
         }
     }
 }

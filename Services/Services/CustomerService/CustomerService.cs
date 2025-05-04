@@ -194,7 +194,7 @@ public class CustomerService : ICustomerService
         double finalScore = Math.Round(normalizedScore, 2);
 
         // Gọi phương thức trả về message tương thích
-        string message = FengShuiHelper.GetCompatibilityMessage(finalScore, userElement, fishCount);
+        string message = FengShuiHelper.GetCompatibilityMessage(finalScore, userElement, fishCount,request.PondDirection,request.PondShape,request.ColorRatios);
 
         res.IsSuccess = true;
         res.Message = message;

@@ -160,7 +160,7 @@ namespace DAOs.DAOs
                 .Where(rc => rc.CourseId == courseId)
                 .CountAsync();
 
-            if (course.Rating.HasValue && course.Rating >= 4.5m && registrationCount > 10)
+            if (course.Rating.HasValue && course.Rating >= 4.5m && registrationCount > 5)
             {
                 course.IsBestSeller = true;
             }

@@ -596,6 +596,109 @@ public static class ResponseMessageConstrantsPhongThuy
         "  - Với 5 hoặc 10 con: Tăng cường sự vững chắc, hỗ trợ xây dựng nền tảng lâu dài trong sự nghiệp và cuộc sống.\n" +
         "  - Với 2 hoặc 7 con: Kích hoạt vận may, thúc đẩy tài vận và mang lại cơ hội phát triển trong kinh doanh, đầu tư.";
 
+    // === Direction Recommendations ===
+    public const string KimDirectionRecommendation =
+        "- **Đề xuất hướng hồ cá**: Hướng Tây (tương hợp), hướng Trung tâm (tương sinh).\n" +
+        "- **Lý do phong thủy**: Hướng Tây thuộc hành Kim, củng cố năng lượng bản mệnh, mang lại sự ổn định và hỗ trợ sức khỏe, tinh thần. Hướng Trung tâm thuộc hành Thổ, tương sinh với Kim, kích hoạt tài lộc và thu hút vận may.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Hướng Tây: Tăng cường sự tự tin, tạo không gian hài hòa, phù hợp cho việc thư giãn và cân bằng cuộc sống.\n" +
+        "  - Hướng Trung tâm: Thúc đẩy tài vận, hỗ trợ thăng tiến sự nghiệp và mang lại cơ hội mới.";
+
+    public const string MocDirectionRecommendation =
+        "- **Đề xuất hướng hồ cá**: Hướng Đông (tương hợp), hướng Bắc (tương sinh).\n" +
+        "- **Lý do phong thủy**: Hướng Đông thuộc hành Mộc, củng cố năng lượng bản mệnh, mang lại sự sáng tạo và sức sống. Hướng Bắc thuộc hành Thủy, tương sinh với Mộc, nuôi dưỡng năng lượng và thu hút cơ hội.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Hướng Đông: Thúc đẩy sự sáng tạo, tăng cường quan hệ xã hội và mang lại bình an.\n" +
+        "  - Hướng Bắc: Kích hoạt vận may, hỗ trợ sự nghiệp, đặc biệt trong lĩnh vực đổi mới.";
+
+    public const string ThuyDirectionRecommendation =
+        "- **Đề xuất hướng hồ cá**: Hướng Bắc (tương hợp), hướng Tây (tương sinh).\n" +
+        "- **Lý do phong thủy**: Hướng Bắc thuộc hành Thủy, củng cố năng lượng bản mệnh, mang lại trí tuệ và tài lộc. Hướng Tây thuộc hành Kim, tương sinh với Thủy, kích hoạt năng lượng tích cực và may mắn.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Hướng Bắc: Tăng sự nhạy bén, hỗ trợ quyết định tài chính và tạo năng lượng hài hòa.\n" +
+        "  - Hướng Tây: Thúc đẩy tài vận, hỗ trợ thăng tiến và mang lại cơ hội bất ngờ.";
+
+    public const string HoaDirectionRecommendation =
+        "- **Đề xuất hướng hồ cá**: Hướng Nam (tương hợp), hướng Đông (tương sinh).\n" +
+        "- **Lý do phong thủy**: Hướng Nam thuộc hành Hỏa, củng cố năng lượng bản mệnh, mang lại đam mê và thành công. Hướng Đông thuộc hành Mộc, tương sinh với Hỏa, kích hoạt sáng tạo và vận may.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Hướng Nam: Tăng sự tự tin, thúc đẩy đam mê và nổi bật trong công việc, xã hội.\n" +
+        "  - Hướng Đông: Hỗ trợ sự nghiệp, kích thích sáng tạo và mang lại cơ hội mới.";
+
+    public const string ThoDirectionRecommendation =
+        "- **Đề xuất hướng hồ cá**: Hướng Trung tâm (tương hợp), hướng Nam (tương sinh).\n" +
+        "- **Lý do phong thủy**: Hướng Trung tâm thuộc hành Thổ, củng cố năng lượng bản mệnh, mang lại sự ổn định và an toàn. Hướng Nam thuộc hành Hỏa, tương sinh với Thổ, kích hoạt tài lộc và thịnh vượng.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Hướng Trung tâm: Tăng sự vững chắc, hỗ trợ xây dựng nền tảng lâu dài.\n" +
+        "  - Hướng Nam: Kích hoạt vận may, thúc đẩy tài vận và cơ hội phát triển.";
+
+    // === Shape Recommendations ===
+    public const string KimShapeRecommendation =
+        "- **Đề xuất hình dạng hồ cá**: Hình tròn (tương hợp).\n" +
+        "- **Lý do phong thủy**: Hình tròn thuộc hành Kim, củng cố năng lượng bản mệnh, mang lại sự hài hòa, cân bằng và hỗ trợ tinh thần. Hình dạng này giúp năng lượng lưu thông trơn tru, tạo cảm giác an yên.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Hình tròn: Tăng cường sự tự tin, hỗ trợ sức khỏe và tạo không gian thư giãn, phù hợp cho gia đình hoặc văn phòng.";
+
+    public const string MocShapeRecommendation =
+        "- **Đề xuất hình dạng hồ cá**: Hình chữ nhật (tương hợp).\n" +
+        "- **Lý do phong thủy**: Hình chữ nhật thuộc hành Mộc, củng cố năng lượng bản mệnh, mang lại sự phát triển, sáng tạo và sức sống. Hình dạng này hỗ trợ sự linh hoạt và thu hút năng lượng tích cực.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Hình chữ nhật: Thúc đẩy sự sáng tạo, tăng cường quan hệ xã hội và mang lại cảm giác tươi mới.";
+
+    public const string ThuyShapeRecommendation =
+        "- **Đề xuất hình dạng hồ cá**: Hình tự do (tương hợp).\n" +
+        "- **Lý do phong thủy**: Hình tự do thuộc hành Thủy, củng cố năng lượng bản mệnh, mang lại sự linh hoạt, trí tuệ và dòng chảy tài lộc. Hình dạng này tạo cảm giác tự nhiên, hỗ trợ sự nhạy bén.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Hình tự do: Tăng sự nhạy bén, hỗ trợ quyết định tài chính và tạo không gian hài hòa.";
+
+    public const string HoaShapeRecommendation =
+        "- **Đề xuất hình dạng hồ cá**: Hình tam giác (tương hợp).\n" +
+        "- **Lý do phong thủy**: Hình tam giác thuộc hành Hỏa, củng cố năng lượng bản mệnh, mang lại đam mê, nhiệt huyết và thành công. Hình dạng này kích thích sự năng động và nổi bật.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Hình tam giác: Tăng sự tự tin, thúc đẩy đam mê và tạo điểm nhấn trong không gian.";
+
+    public const string ThoShapeRecommendation =
+        "- **Đề xuất hình dạng hồ cá**: Hình vuông (tương hợp).\n" +
+        "- **Lý do phong thủy**: Hình vuông thuộc hành Thổ, củng cố năng lượng bản mệnh, mang lại sự ổn định, bền vững và an toàn. Hình dạng này tạo cảm giác vững chắc, hỗ trợ xây dựng nền tảng lâu dài.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Hình vuông: Tăng sự vững chắc, hỗ trợ sự nghiệp và tạo không gian an toàn, ổn định.";
+
+    // === Color Recommendations ===
+    public const string KimColorRecommendation =
+        "- **Đề xuất màu sắc cá**: Trắng, Xám, Ghi (tương hợp), Vàng, Nâu (tương sinh).\n" +
+        "- **Lý do phong thủy**: Màu Trắng, Xám, Ghi thuộc hành Kim, củng cố năng lượng bản mệnh, mang lại sự tinh tế, ổn định và hỗ trợ tinh thần. Màu Vàng, Nâu thuộc hành Thổ, tương sinh với Kim, kích hoạt tài lộc và vận may.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Trắng, Xám, Ghi: Tăng sự tự tin, tạo không gian thanh lịch, hỗ trợ sức khỏe.\n" +
+        "  - Vàng, Nâu: Thúc đẩy tài vận, hỗ trợ thăng tiến và mang lại cơ hội mới.";
+
+    public const string MocColorRecommendation =
+        "- **Đề xuất màu sắc cá**: Xanh lá (tương hợp), Xanh dương, Đen (tương sinh).\n" +
+        "- **Lý do phong thủy**: Màu Xanh lá thuộc hành Mộc, củng cố năng lượng bản mệnh, mang lại sự sáng tạo, sức sống và phát triển. Màu Xanh dương, Đen thuộc hành Thủy, tương sinh với Mộc, nuôi dưỡng năng lượng và thu hút cơ hội.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Xanh lá: Thúc đẩy sáng tạo, tăng cường quan hệ xã hội và mang lại bình an.\n" +
+        "  - Xanh dương, Đen: Kích hoạt vận may, hỗ trợ sự nghiệp và đổi mới.";
+
+    public const string ThuyColorRecommendation =
+        "- **Đề xuất màu sắc cá**: Đen, Xanh dương (tương hợp), Trắng, Xám, Ghi (tương sinh).\n" +
+        "- **Lý do phong thủy**: Màu Đen, Xanh dương thuộc hành Thủy, củng cố năng lượng bản mệnh, mang lại trí tuệ, linh hoạt và tài lộc. Màu Trắng, Xám, Ghi thuộc hành Kim, tương sinh với Thủy, kích hoạt năng lượng tích cực.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Đen, Xanh dương: Tăng sự nhạy bén, hỗ trợ tài chính và tạo năng lượng hài hòa.\n" +
+        "  - Trắng, Xám, Ghi: Thúc đẩy tài vận, hỗ trợ thăng tiến và mang lại cơ hội.";
+
+    public const string HoaColorRecommendation =
+        "- **Đề xuất màu sắc cá**: Đỏ, Hồng, Cam, Tím (tương hợp), Xanh lá (tương sinh).\n" +
+        "- **Lý do phong thủy**: Màu Đỏ, Hồng, Cam, Tím thuộc hành Hỏa, củng cố năng lượng bản mệnh, mang lại đam mê, nhiệt huyết và thành công. Màu Xanh lá thuộc hành Mộc, tương sinh với Hỏa, kích hoạt sáng tạo và vận may.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Đỏ, Hồng, Cam, Tím: Tăng sự tự tin, thúc đẩy đam mê và tạo sự nổi bật.\n" +
+        "  - Xanh lá: Hỗ trợ sự nghiệp, kích thích sáng tạo và mang lại cơ hội mới.";
+
+    public const string ThoColorRecommendation =
+        "- **Đề xuất màu sắc cá**: Vàng, Nâu (tương hợp), Đỏ, Hồng, Cam, Tím (tương sinh).\n" +
+        "- **Lý do phong thủy**: Màu Vàng, Nâu thuộc hành Thổ, củng cố năng lượng bản mệnh, mang lại sự ổn định, bền vững và an toàn. Màu Đỏ, Hồng, Cam, Tím thuộc hành Hỏa, tương sinh với Thổ, kích hoạt tài lộc và thịnh vượng.\n" +
+        "- **Lợi ích cụ thể**:\n" +
+        "  - Vàng, Nâu: Tăng sự vững chắc, hỗ trợ sự nghiệp và tạo không gian ổn định.\n" +
+        "  - Đỏ, Hồng, Cam, Tím: Kích hoạt vận may, thúc đẩy tài vận và cơ hội phát triển.";
+
     // === Compatibility Score Messages ===
     public const string VeryLowScore = "⚠️ **Mức độ phù hợp rất thấp.** Nguy cơ ảnh hưởng tiêu cực đến tài lộc, tinh thần và vận khí.";
     public const string LowScore = "❗ **Mức độ phù hợp thấp.** Cần điều chỉnh phong thủy để cải thiện năng lượng.";
@@ -604,11 +707,18 @@ public static class ResponseMessageConstrantsPhongThuy
     public const string VeryHighScore = "🌟 **Mức độ phù hợp rất cao.** Đây là lựa chọn cát lợi theo phong thủy.";
 
     // === Relationship Messages ===
-    public const string SameElementRelationship = "🔗 Ngũ hành của số lượng cá là **{0}**, trùng với mệnh của bạn (**{1}**). Đây là mối quan hệ **tương hợp**.";
-    public const string GeneratingRelationship = "🌱 Ngũ hành của số lượng cá là **{0}**, **sinh** ra bản mệnh của bạn (**{0} sinh {1}**). Đây là mối quan hệ **tương sinh**, rất cát lợi.";
-    public const string OvercomingRelationship = "🔥 Ngũ hành của số lượng cá là **{0}**, **khắc** bản mệnh của bạn (**{0} khắc {1}**). Đây là mối quan hệ **tương khắc**, cần lưu ý.";
-    public const string NoRelationship = "🔄 Ngũ hành của số lượng cá là **{0}**, không có quan hệ trực tiếp với mệnh **{1}**.";
+    public const string SameElementRelationship = "🔗 Ngũ hành của {2} là **{0}**, trùng với mệnh của bạn (**{1}**). Đây là mối quan hệ **tương hợp**.";
+    public const string GeneratingRelationship = "🌱 Ngũ hành của {2} là **{0}**, **sinh** ra bản mệnh của bạn (**{0} sinh {1}**). Đây là mối quan hệ **tương sinh**, rất cát lợi.";
+    public const string OvercomingRelationship = "🔥 Ngũ hành của {2} là **{0}**, **khắc** bản mệnh của bạn (**{0} khắc {1}**). Đây là mối quan hệ **tương khắc**, cần lưu ý.";
+    public const string NoRelationship = "🔄 Ngũ hành của {2} là **{0}**, không có quan hệ trực tiếp với mệnh **{1}**.";
     public const string UnknownRelationship = "❓ Không xác định được ngũ hành từ số lượng cá.";
+
+    public const string FavorableDirection = "🔗 Hướng hồ cá **{0}** phù hợp với mệnh **{1}**. Đây là hướng **tương hợp** hoặc **tương sinh**.";
+    public const string UnfavorableDirection = "🔥 Hướng hồ cá **{0}** không phù hợp với mệnh **{1}**. Đây là hướng bất lợi.";
+    public const string FavorableShape = "🔗 Hình dạng hồ cá **{0}** phù hợp với mệnh **{1}**. Đây là hình dạng **tương hợp**.";
+    public const string UnfavorableShape = "🔥 Hình dạng hồ cá **{0}** không phù hợp với mệnh **{1}**. Đây là hình dạng bất lợi.";
+    public const string FavorableColor = "🔗 Sự kết hợp màu sắc hồ cá (**{0}**) phù hợp với mệnh **{1}**. Đây là tổ hợp màu **tương hợp** hoặc **tương sinh**.";
+    public const string UnfavorableColor = "🔥 Sự kết hợp màu sắc hồ cá (**{0}**) không phù hợp với mệnh **{1}**. Đây là tổ hợp màu bất lợi.";
 
     // === Detailed Effect ===
     public const string SameElementEffect = "- Tăng cường sự cân bằng và ổn định trong cuộc sống.\n- Hỗ trợ tốt về sức khỏe và tinh thần.\n- Tạo cảm giác an yên, dễ thu hút năng lượng tích cực.";
@@ -616,11 +726,25 @@ public static class ResponseMessageConstrantsPhongThuy
     public const string OvercomingEffect = "- Có thể gây mệt mỏi, tinh thần suy giảm, dễ sinh nóng nảy hoặc thiếu tập trung.\n- Công việc có thể gặp trở ngại, dễ xung đột trong các mối quan hệ.\n- Tài lộc chậm phát triển hoặc dễ hao hụt.";
     public const string NoRelationshipEffect = "- Không ảnh hưởng lớn đến phong thủy nhưng cũng không tạo hỗ trợ đặc biệt.\n- Có thể cảm thấy bình thường, không thay đổi nhiều về vận khí.";
 
+    public const string FavorableDirectionEffect = "- Tăng cường dòng chảy năng lượng tích cực, hỗ trợ tài lộc và may mắn.\n- Tạo không gian hài hòa, thúc đẩy sự thư giãn và cân bằng.";
+    public const string UnfavorableDirectionEffect = "- Có thể gây cản trở dòng năng lượng, ảnh hưởng đến tài lộc và sức khỏe.\n- Tạo cảm giác bất an hoặc khó chịu trong không gian.";
+    public const string FavorableShapeEffect = "- Củng cố năng lượng bản mệnh, tạo sự hài hòa và cân bằng.\n- Hỗ trợ tinh thần, mang lại cảm giác thoải mái và an toàn.";
+    public const string UnfavorableShapeEffect = "- Gây rối loạn năng lượng, có thể dẫn đến căng thẳng hoặc thiếu tập trung.\n- Ảnh hưởng tiêu cực đến vận khí và sự ổn định.";
+    public const string FavorableColorEffect = "- Tăng cường năng lượng tích cực, hỗ trợ tài lộc và tinh thần.\n- Tạo không gian thẩm mỹ, thúc đẩy sự tự tin và sáng tạo.";
+    public const string UnfavorableColorEffect = "- Có thể gây mất cân bằng năng lượng, ảnh hưởng đến tâm trạng và vận may.\n- Tạo cảm giác khó chịu hoặc không thoải mái.";
+
     // === Suggestions ===
     public const string SuggestionSame = "Bạn có thể giữ nguyên số lượng cá hiện tại hoặc chọn số lượng tương ứng để duy trì sự hòa hợp.";
     public const string SuggestionGenerating = "Bạn nên giữ số lượng cá hiện tại hoặc chọn các số thuộc hành **{0}** để tiếp tục được hỗ trợ phong thủy.";
     public const string SuggestionOvercoming = "Bạn nên thay đổi số lượng cá để chuyển sang hành **tương sinh** hoặc **tương hợp** với mệnh **{0}**.";
     public const string SuggestionNoRelation = "Bạn nên cân nhắc chọn số lượng cá mang hành tương sinh hoặc tương hợp để tối ưu phong thủy.";
+
+    public const string SuggestionFavorableDirection = "Bạn nên giữ hướng hồ cá hiện tại để duy trì năng lượng tích cực.";
+    public const string SuggestionUnfavorableDirection = "Bạn nên thay đổi hướng hồ cá sang hướng **tương sinh** hoặc **tương hợp** với mệnh **{0}**.";
+    public const string SuggestionFavorableShape = "Bạn nên giữ hình dạng hồ cá hiện tại để duy trì sự hài hòa.";
+    public const string SuggestionUnfavorableShape = "Bạn nên thay đổi hình dạng hồ cá sang hình **tương hợp** với mệnh **{0}**.";
+    public const string SuggestionFavorableColor = "Bạn nên giữ tổ hợp màu sắc hồ cá hiện tại để duy trì năng lượng tích cực.";
+    public const string SuggestionUnfavorableColor = "Bạn nên điều chỉnh tổ hợp màu sắc hồ cá, ưu tiên các màu **tương sinh** hoặc **tương hợp** với mệnh **{0}**.";
 
     // === Tips ===
     public const string FengShuiTips =

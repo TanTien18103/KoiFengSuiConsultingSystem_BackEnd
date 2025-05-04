@@ -63,6 +63,14 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
+        [HttpGet("get-manager-refunded-for-mobile")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> GetManagerRefundedForCustomer()
+        {
+            var res = await _orderService.GetManagerRefundedForCustomer();
+            return StatusCode(res.StatusCode, res);
+        }
+
         [HttpPut("manager-confirm-refunded")]
         public async Task<IActionResult> ManagerConfirmRefunded(string id)
         {

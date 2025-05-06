@@ -903,8 +903,8 @@ namespace Services.Services.KoiVarietyService
                         foreach (var koiVariety in koi)
                         {
                             // Kiểm tra tỷ lệ màu hợp
-                            var compatibleColorCount = 0;
-                            var totalColorCount = koiVariety.VarietyColors.Count;
+                            double compatibleColorCount = 0;
+                            double totalColorCount = koiVariety.VarietyColors.Count;
                             double totalCompatiblePercentage = 0;
 
                             foreach (var varietyColor in koiVariety.VarietyColors)

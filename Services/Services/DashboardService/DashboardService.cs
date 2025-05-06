@@ -1,6 +1,9 @@
-﻿using Repositories.Repositories.AccountRepository;
+﻿using BusinessObjects.Constants;
+using Microsoft.AspNetCore.Http;
+using Repositories.Repositories.AccountRepository;
 using Repositories.Repositories.OrderRepository;
 using Services.ApiModels;
+using Services.ApiModels.Customer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -80,11 +83,15 @@ namespace Services.Services.DashboardService
                 };
                 res.IsSuccess = true;
                 res.Data = dashboard;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
             }
             catch (Exception ex)
             {
                 res.IsSuccess = false;
                 res.Message = ex.Message;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
             }
             return res;
         }

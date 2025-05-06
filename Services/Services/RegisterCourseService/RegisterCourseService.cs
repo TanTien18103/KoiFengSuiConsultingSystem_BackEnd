@@ -937,6 +937,9 @@ namespace Services.Services.RegisterCourseService
                         // Draw decorative corner in top right
                         graphics.DrawImage(topCornerImage, bitmap.Width - 200, 40, 160, 160);
 
+                        // Draw decorative corner in bottom left
+                        graphics.DrawImage(bottomCornerImage, 40, bitmap.Height - 200, 160, 160);
+
                         // Draw koi lotus decoration in bottom left
                         float koiLotusRatio = 500f / 187f;
                         float desiredWidth = 400;

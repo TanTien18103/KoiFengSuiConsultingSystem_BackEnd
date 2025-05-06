@@ -21,6 +21,7 @@ namespace Services.Services.OrderService
 
         //refund
         Task<ResultModel> GetManagerRefunded();
+        Task<ResultModel> GetManagerRefundedForCustomer();
         Task<ResultModel> ManagerConfirmRefunded(string id);
         Task<ResultModel> CustomerConfirmReceived(string id);
     }

@@ -11,6 +11,7 @@ using Repositories.Repositories.BookingOfflineRepository;
 using Repositories.Repositories.BookingOnlineRepository;
 using Repositories.Repositories.ChapterRepository;
 using Repositories.Repositories.CourseRepository;
+using Repositories.Repositories.CustomerRepository;
 using Repositories.Repositories.EnrollAnswerRepository;
 using Repositories.Repositories.EnrollCertRepository;
 using Repositories.Repositories.EnrollChapterRepository;
@@ -47,8 +48,9 @@ namespace Services.Services.OrderService
         private readonly IRegisterCourseRepo _registerCourseRepo;
         private readonly IEnrollChapterRepo _enrollChapterRepo;
         private readonly IMasterScheduleRepo _masterScheduleRepo;
+        private readonly ICustomerRepo _customerRepo;
 
-        public OrderService(IOrderRepo orderRepo, IMapper mapper, IRegisterAttendRepo registerAttendRepo, IWorkShopRepo workShopRepo, IHttpContextAccessor contextAccessor, IBookingOfflineRepo bookingOfflineRepo, ICourseRepo courseRepo, IChapterRepo chapterRepo, IRegisterCourseRepo registerCourseRepo, IEnrollChapterRepo enrollChapterRepo, IBookingOnlineRepo bookingOnlineRepo, IMasterScheduleRepo masterScheduleRepo)
+        public OrderService(IOrderRepo orderRepo, IMapper mapper, IRegisterAttendRepo registerAttendRepo, IWorkShopRepo workShopRepo, IHttpContextAccessor contextAccessor, IBookingOfflineRepo bookingOfflineRepo, ICourseRepo courseRepo, IChapterRepo chapterRepo, IRegisterCourseRepo registerCourseRepo, IEnrollChapterRepo enrollChapterRepo, IBookingOnlineRepo bookingOnlineRepo, IMasterScheduleRepo masterScheduleRepo, ICustomerRepo customerRepo)
         {
             _orderRepo = orderRepo;
             _mapper = mapper;
@@ -62,6 +64,7 @@ namespace Services.Services.OrderService
             _enrollChapterRepo = enrollChapterRepo;
             _bookingOnlineRepo = bookingOnlineRepo;
             _masterScheduleRepo = masterScheduleRepo;
+            _customerRepo = customerRepo;
         }
 
         public static string GenerateShortGuid()
@@ -818,9 +821,12 @@ namespace Services.Services.OrderService
             try
             {
                 var orders = await _orderRepo.GetAllOrders();
-                var pendingConfirmOrders = orders.Where(x => x.Status == PaymentStatusEnums.ManagerRefunded.ToString()).OrderByDescending(x => x.CreatedDate).ToList();
+                var managerRefundedOrders = orders
+                .Where(x => x?.Status != null && x.Status == PaymentStatusEnums.ManagerRefunded.ToString())
+                .OrderByDescending(x => x?.CreatedDate)
+                .ToList();
 
-                if (pendingConfirmOrders == null || !pendingConfirmOrders.Any() || pendingConfirmOrders.Count == 0)
+                if (managerRefundedOrders == null || !managerRefundedOrders.Any() || managerRefundedOrders.Count == 0)
                 {
                     res.IsSuccess = false;
                     res.StatusCode = StatusCodes.Status404NotFound;
@@ -832,7 +838,56 @@ namespace Services.Services.OrderService
                 res.IsSuccess = true;
                 res.StatusCode = StatusCodes.Status200OK;
                 res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                res.Data = _mapper.Map<List<OrderResponse>>(pendingConfirmOrders);
+                res.Data = _mapper.Map<List<OrderResponse>>(managerRefundedOrders);
+                res.Message = ResponseMessageConstrantsOrder.FOUND;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
+        public async Task<ResultModel> GetManagerRefundedForCustomer()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var accountId = GetAuthenticatedAccountId();
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status401Unauthorized;
+                    res.ResponseCode = ResponseCodeConstants.UNAUTHORIZED;
+                    res.Message = ResponseMessageIdentity.UNAUTHENTICATED_OR_UNAUTHORIZED;
+                    return res;
+                }
+
+                var customerId = await _customerRepo.GetCustomerIdByAccountId(accountId);
+
+                var orders = await _orderRepo.GetAllOrders();
+                var managerRefundedOrders = orders
+                .Where(x => x?.Status != null && x.Status == PaymentStatusEnums.ManagerRefunded.ToString() && x.CustomerId == customerId)
+                .OrderByDescending(x => x?.CreatedDate)
+                .ToList();
+
+                if (managerRefundedOrders == null || !managerRefundedOrders.Any() || managerRefundedOrders.Count == 0)
+                {
+                    res.IsSuccess = false;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.Message = ResponseMessageConstrantsOrder.NOT_FOUND_MANAGERREFUNDED;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.Data = _mapper.Map<List<OrderResponse>>(managerRefundedOrders);
                 res.Message = ResponseMessageConstrantsOrder.FOUND;
                 return res;
             }

@@ -321,6 +321,12 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .WithExposedHeaders("Content-Disposition", "Content-Length");
     });
+    options.AddPolicy("AllowBackend", policy =>
+    {
+        policy.WithOrigins("https://koifengshui-001-site1.ltempurl.com/swagger/index.html")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
 // Cloudinary Configuration
@@ -352,6 +358,7 @@ app.UseCors("AllowAll");
 app.UseCors("AllowAllOrigins");
 app.UseCors("AllowVercel");
 app.UseCors("AllowBunnyCDN");
+app.UseCors("AllowBackend");
 app.UseCors("DefaultCorsPolicy");
 app.UseSession();
 

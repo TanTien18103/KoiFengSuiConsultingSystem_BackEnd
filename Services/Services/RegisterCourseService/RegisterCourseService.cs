@@ -469,41 +469,10 @@ namespace Services.Services.RegisterCourseService
                 if (registerCourse != null)
                 {
                     var quiz = await _quizRepo.GetQuizById(enrollQuiz.QuizId);
-                    if (quiz == null)
-                    {
-                        res.IsSuccess = false;
-                        res.StatusCode = StatusCodes.Status404NotFound;
-                        res.Message = ResponseMessageConstrantQuiz.QUIZ_NOT_FOUND;
-                        return res;
-                    }
-
-                    decimal quizScore = quiz.Score.GetValueOrDefault();
-                    decimal passThreshold = quizScore * 0.8m;
-
-                    // ⛔ Nếu học viên đã đạt >=80% trước đó, không cập nhật gì nữa
-                    if (enrollQuiz.Point >= passThreshold)
-                    {
-                        res.IsSuccess = true;
-                        res.StatusCode = StatusCodes.Status200OK;
-                        res.ResponseCode = ResponseCodeConstants.SUCCESS;
-                        res.Message = ResponseMessageConstrantQuiz.QUIZ_MEET_REQUIREMENT;
-                        res.Data = new QuizResultResponse
-                        {
-                            QuizId = quizid,
-                            ParticipantId = customerid,
-                            TotalScore = (decimal)enrollQuiz.Point, // sử dụng điểm cũ
-                            TotalQuestions = questions.Count,
-                            CorrectAnswers = correctCount,
-                        };
-                        return res;
-                    }
-
-                    // Nếu điểm mới đạt ≥80%, tiến hành cấp chứng chỉ
-                    if (totalScore >= passThreshold)
+                    if (totalScore >= quiz.Score.GetValueOrDefault() * 0.8m)
                     {
                         var customerInfo = await _customerRepo.GetCustomerById(customerid);
                         var masterInfo = await _masterRepo.GetByMasterId(masterid);
-
                         string certificateImageUrl = await GenerateCertificateImageAndUploadToCloudinary(
                             customerInfo.Account.FullName,
                             masterInfo.MasterName,
@@ -519,24 +488,26 @@ namespace Services.Services.RegisterCourseService
                             CertificateImage = certificateImageUrl,
                             CreateDate = TimeHepler.SystemTimeNow
                         };
-
                         await _certificateRepo.CreateCertificate(certificate);
 
-                        var enrollCert = new EnrollCert
+                        var existingEnrollCert = await _enrollCertRepo.GetByCustomerIdAndCertificateId(customerid, certificate.CertificateId);
+                        if (existingEnrollCert == null)
                         {
-                            EnrollCertId = GenerateShortGuid(),
-                            CustomerId = customerid,
-                            CertificateId = certificate.CertificateId,
-                            FinishDate = DateOnly.FromDateTime(TimeHepler.SystemTimeNow),
-                            CreateDate = TimeHepler.SystemTimeNow,
-                        };
+                            var enrollCert = new EnrollCert
+                            {
+                                EnrollCertId = GenerateShortGuid(),
+                                CustomerId = customerid,
+                                CertificateId = certificate.CertificateId,
+                                FinishDate = DateOnly.FromDateTime(TimeHepler.SystemTimeNow),
+                                CreateDate = TimeHepler.SystemTimeNow,
+                            };
+                            await _enrollCertRepo.CreateEnrollCert(enrollCert);
 
-                        await _enrollCertRepo.CreateEnrollCert(enrollCert);
-
-                        registerCourse.EnrollCertId = enrollCert.EnrollCertId;
-                        registerCourse.Status = RegisterCourseStatusEnums.Completed.ToString();
-                        registerCourse.UpdateDate = TimeHepler.SystemTimeNow;
-                        await _registerCourseRepo.UpdateRegisterCourse(registerCourse);
+                            registerCourse.EnrollCertId = enrollCert.EnrollCertId;
+                            registerCourse.Status = RegisterCourseStatusEnums.Completed.ToString();
+                            registerCourse.UpdateDate = TimeHepler.SystemTimeNow;
+                            await _registerCourseRepo.UpdateRegisterCourse(registerCourse);
+                        }
 
                         res.IsSuccess = true;
                         res.StatusCode = StatusCodes.Status200OK;

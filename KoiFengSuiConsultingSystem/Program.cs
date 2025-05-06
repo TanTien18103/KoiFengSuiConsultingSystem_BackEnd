@@ -323,7 +323,7 @@ builder.Services.AddCors(options =>
     });
     options.AddPolicy("AllowBackend", policy =>
     {
-        policy.WithOrigins("https://koifengshui-001-site1.ltempurl.com/swagger/index.html")
+        policy.WithOrigins("http://koifengshui-001-site1.ltempurl.com/")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });

@@ -57,7 +57,6 @@ namespace Services.Services.DashboardService
                         Male = maleCount,
                         Female = femaleCount
                     },
-
                     MonthlyComparison = monthlyStats.Select(dto => new MonthlyComparison
                     {
                         MonthYear = dto.MonthYear,
@@ -66,7 +65,6 @@ namespace Services.Services.DashboardService
                         BookingOnline = dto.BookingOnline,
                         BookingOffline = dto.BookingOffline
                     }).ToList(),
-
                     TimeAdmittedToday = admittedTimeline.Select(dto => new HourlyAdmit
                     {
                         Count = dto.Count,
@@ -80,7 +78,6 @@ namespace Services.Services.DashboardService
                         BookingOffline = todayBookingOffline
                     }
                 };
-
                 res.IsSuccess = true;
                 res.Data = dashboard;
             }
@@ -89,7 +86,6 @@ namespace Services.Services.DashboardService
                 res.IsSuccess = false;
                 res.Message = ex.Message;
             }
-
             return res;
         }
     }

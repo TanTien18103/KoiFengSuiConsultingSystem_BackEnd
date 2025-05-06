@@ -28,6 +28,7 @@ public class ResponseCodeConstants
     public const string UNAUTHORIZED = "Unauthorized!";
     public const string FORBIDDEN = "Forbidden!";
     public const string EXPIRED = "Expired!";
+    public const string VALIDATION_FAIL = "Validation fail!";
 }
 
 //Controllers
@@ -446,6 +447,8 @@ public class ResponseMessageConstrantQuiz
     public const string QUIZ_UPDATE_FAILED = "Cập nhật bài kiểm tra thất bại!";
     public const string QUIZ_SUBMITED_SUCCESS = "Đã nộp bài kiểm tra thành công!";
     public const string CERTIFICATE_ALREADY_GRANTED = "Bạn đã được cấp chứng chỉ. Không cần cấp lại.";
+    public const string QUIZ_SCORE_NOT_ENOUGH = "Chưa đạt đủ 80% để được cấp chứng chỉ.";
+    public const string QUIZ_MEET_REQUIREMENT = "Học viên đã đạt đủ điều kiện từ trước. Không cập nhật điểm mới.";
 }
 
 public class ResponseMessageConstrantsQuestion

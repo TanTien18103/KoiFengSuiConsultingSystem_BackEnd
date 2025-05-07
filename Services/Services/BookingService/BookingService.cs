@@ -199,6 +199,8 @@ namespace Services.Services.BookingService
                 booking.Status = BookingOnlineEnums.Pending.ToString();
                 booking.MasterScheduleId = masterScheduleId;
                 booking.Price = 3000;
+                booking.CreateDate = TimeHepler.SystemTimeNow;
+                booking.UpdateDate = TimeHepler.SystemTimeNow;
 
                 var createdBooking = await _onlineRepo.CreateBookingOnlineRepo(booking);
                 var bookingResponse = await _onlineRepo.GetBookingOnlineByIdRepo(createdBooking.BookingOnlineId);

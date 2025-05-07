@@ -204,6 +204,7 @@ public class ResponseMessageConstrantsBooking
     public const string MISSINNG_MASTERID = "Thiếu MasterId";
     public const string PENDING_BOOKING_EXISTS = "Bạn đã có một đơn đặt lịch đang chờ xử lý. Vui lòng hoàn tất hoặc hủy trước khi tạo đơn mới.";
     public const string COMPLETE_BOOKING_DATE_FAILED = "Buổi tư vấn chưa kết thúc, không thể cập nhật trạng thái.";
+    public const string BOOKING_NOT_PAID1ST = "Buổi tư vấn chưa thanh toán lần 1";
 }
 public class ResponseMessageConstrantsPackage
 {

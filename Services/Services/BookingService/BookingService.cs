@@ -553,6 +553,16 @@ namespace Services.Services.BookingService
                         }
                     }
 
+                    var orderBooking = await _orderRepo.GetOrderByServiceIdAndStatus(bookingOffline.BookingOfflineId, PaymentTypeEnums.BookingOffline.ToString(), PaymentStatusEnums.Paid1st.ToString());
+                    if (orderBooking == null)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.Message = ResponseMessageConstrantsBooking.BOOKING_NOT_PAID1ST;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        return res;
+                    }
+
                     var masterSchedule = new MasterSchedule
                     {
                         MasterScheduleId = GenerateShortGuid(),

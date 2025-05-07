@@ -233,44 +233,31 @@ namespace DAOs.DAOs
 
         public async Task<int> GetTodayCourseCountDao()
         {
-            var today = DateTime.Today;
-
             return await _context.Orders
-                .CountAsync(o => o.CreatedDate.Value.Date == today && (
-                o.Status == PaymentStatusEnums.Paid.ToString() ||
-                o.Status == PaymentStatusEnums.Paid.ToString()) && 
-                o.ServiceType == PaymentTypeEnums.Course.ToString());
+                .CountAsync(o => (o.Status == PaymentStatusEnums.Paid.ToString() ||
+                                  o.Status == PaymentStatusEnums.Paid.ToString()) &&
+                                  o.ServiceType == PaymentTypeEnums.Course.ToString());
         }
 
         public async Task<int> GetTodayWorkshopCheckInCountDao()
         {
-            var today = DateTime.Today;
-
             return await _context.Orders
-                .CountAsync(o => o.CreatedDate.Value.Date == today
-                && o.Status == PaymentStatusEnums.Paid.ToString()
-                && o.ServiceType == PaymentTypeEnums.RegisterAttend.ToString());
+                .CountAsync(o => o.Status == PaymentStatusEnums.Paid.ToString()
+                                 && o.ServiceType == PaymentTypeEnums.RegisterAttend.ToString());
         }
 
         public async Task<int> GetTodayBookingOfflineCountDao()
         {
-            var today = DateTime.Today;
-
             return await _context.Orders
-                 .CountAsync(o => o.CreatedDate.Value.Date == today
-                && o.Status == PaymentStatusEnums.Paid2nd.ToString()
-                && o.ServiceType == PaymentTypeEnums.BookingOffline.ToString());
-
+                .CountAsync(o => o.Status == PaymentStatusEnums.Paid2nd.ToString()
+                                 && o.ServiceType == PaymentTypeEnums.BookingOffline.ToString());
         }
 
         public async Task<int> GetTodayBookingOnlineCountDao()
         {
-            var today = DateTime.Today;
-
             return await _context.Orders
-                .CountAsync(o => o.CreatedDate.Value.Date == today
-                && o.Status == PaymentStatusEnums.Paid.ToString()
-                && o.ServiceType == PaymentTypeEnums.BookingOnline.ToString());
+                .CountAsync(o => o.Status == PaymentStatusEnums.Paid.ToString()
+                                 && o.ServiceType == PaymentTypeEnums.BookingOnline.ToString());
         }
     }
 }

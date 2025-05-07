@@ -2,6 +2,7 @@
 using BusinessObjects.Enums;
 using BusinessObjects.Exceptions;
 using BusinessObjects.Models;
+using BusinessObjects.TimeCoreHelper;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -106,6 +107,8 @@ namespace DAOs.DAOs
                     _context.BookingOfflines.Update(booking);
                     await _context.SaveChangesAsync();
 
+                    booking.CreateDate = TimeHepler.SystemTimeNow;
+                    booking.UpdateDate = TimeHepler.SystemTimeNow;
                     booking.SelectedPrice = selectedPrice;
                     _context.BookingOfflines.Update(booking);
                     await _context.SaveChangesAsync();

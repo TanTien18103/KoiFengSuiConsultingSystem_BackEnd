@@ -199,6 +199,8 @@ namespace Services.Services.BookingService
                 booking.Status = BookingOnlineEnums.Pending.ToString();
                 booking.MasterScheduleId = masterScheduleId;
                 booking.Price = 3000;
+                booking.CreateDate = TimeHepler.SystemTimeNow;
+                booking.UpdateDate = TimeHepler.SystemTimeNow;
 
                 var createdBooking = await _onlineRepo.CreateBookingOnlineRepo(booking);
                 var bookingResponse = await _onlineRepo.GetBookingOnlineByIdRepo(createdBooking.BookingOnlineId);
@@ -551,6 +553,16 @@ namespace Services.Services.BookingService
                             res.StatusCode = StatusCodes.Status409Conflict;
                             return res;
                         }
+                    }
+
+                    var orderBooking = await _orderRepo.GetOrderByServiceIdAndStatus(bookingOffline.BookingOfflineId, PaymentTypeEnums.BookingOffline.ToString(), PaymentStatusEnums.Paid1st.ToString());
+                    if (orderBooking == null)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.Message = ResponseMessageConstrantsBooking.BOOKING_NOT_PAID1ST;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        return res;
                     }
 
                     var masterSchedule = new MasterSchedule

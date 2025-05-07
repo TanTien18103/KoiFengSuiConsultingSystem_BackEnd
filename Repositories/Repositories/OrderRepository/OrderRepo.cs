@@ -89,9 +89,6 @@ namespace Repositories.Repositories.OrderRepository
             return OrderDAO.Instance.GetMonthlyServiceStatisticsDao();
         }
 
-        
-        
-
         public Task<List<GetTodayTimeAdmittedDto>> GetTodayTimeAdmitted()
         {
             return OrderDAO.Instance.GetTodayTimeAdmittedDao();

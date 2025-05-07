@@ -30,6 +30,13 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
+        [HttpGet("get-all-for-mobile")]
+        public async Task<IActionResult> GetConsultationPackagesForMobile()
+        {
+            var res = await _consultationPackageService.GetConsultationPackagesForMobile();
+            return StatusCode(res.StatusCode, res);
+        }
+
         [HttpPost("create")]
         public async Task<IActionResult> CreatePackage([FromForm] ConsultationPackageRequest consultationPackageRequest)
         {

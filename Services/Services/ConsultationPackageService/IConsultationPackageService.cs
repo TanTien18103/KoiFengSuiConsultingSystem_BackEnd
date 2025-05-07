@@ -13,6 +13,7 @@ namespace Services.Services.ConsultationPackageService
     {
         Task<ResultModel> GetConsultationPackageById(string id);
         Task<ResultModel> GetConsultationPackages();
+        Task<ResultModel> GetConsultationPackagesForMobile();
         Task<ResultModel> CreateConsultationPackage(ConsultationPackageRequest consultationPackageRequest);
         Task<ResultModel> UpdateConsultationPackage(string id, ConsultationPackageUpdateRequest consultationPackageRequest);
         Task<ResultModel> DeleteConsultationPackage(string id);

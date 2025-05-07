@@ -177,6 +177,39 @@ namespace Services.Services.ConsultationPackageService
             }
         }
 
+        public async Task<ResultModel> GetConsultationPackagesForMobile()
+        {
+            var res = new ResultModel();
+            try
+            {
+                var packages = await _consultationPackageRepo.GetConsultationPackages();
+                var activePackages = packages.Where(x => x.Status == ConsultationPackageStatusEnums.Active.ToString()).ToList();
+                if (activePackages == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsPackage.PACKAGE_NOT_FOUND;
+                    return res;
+                }
+
+                res.IsSuccess = true;
+                res.ResponseCode = ResponseCodeConstants.SUCCESS;
+                res.StatusCode = StatusCodes.Status200OK;
+                res.Message = ResponseMessageConstrantsPackage.PACKAGE_FOUND;
+                res.Data = _mapper.Map<List<ConsultationPackageResponse>>(activePackages);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.ResponseCode = ResponseCodeConstants.FAILED;
+                res.StatusCode = StatusCodes.Status500InternalServerError;
+                res.Message = ex.Message;
+                return res;
+            }
+        }
+
         public async Task<ResultModel> UpdateConsultationPackage(string id, ConsultationPackageUpdateRequest consultationPackageRequest)
         {
             var res = new ResultModel();

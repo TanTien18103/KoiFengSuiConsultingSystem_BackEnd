@@ -713,7 +713,7 @@ namespace Services.Services.CourseService
             }
         }
 
-        public async Task<ResultModel> UpdateCourseStatus(string id, CourseStatusEnum status)
+        public async Task<ResultModel> UpdateCourseStatus(string id)
         {
             var res = new ResultModel();
 
@@ -730,15 +730,6 @@ namespace Services.Services.CourseService
 
                 id = id.Trim();
 
-                if (!Enum.IsDefined(typeof(CourseStatusEnum), status))
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
-                    res.StatusCode = StatusCodes.Status400BadRequest;
-                    res.Message = ResponseMessageConstrantsCourse.STATUS_INVALID;
-                    return res;
-                }
-
                 var course = await _courseRepo.GetCourseById(id);
                 if (course == null)
                 {
@@ -749,47 +740,44 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                if (!course.Chapters.Any() || course.Chapters == null || course.Chapters.Count() == 0)
+                if(course.Status == CourseStatusEnum.Inactive.ToString())
                 {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = ResponseMessageConstrantsChapter.CHAPTER_NOT_FOUND;
-                    return res;
-                }
-
-                if (course.QuizId == null)
-                {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                    res.StatusCode = StatusCodes.Status404NotFound;
-                    res.Message = "Khóa học không có bài kiểm tra";
-                    return res;
-                }
-                else
-                {
-                    if (!course.Quiz.Questions.Any())
+                    if (!course.Chapters.Any() || course.Chapters == null || course.Chapters.Count() == 0)
                     {
                         res.IsSuccess = false;
                         res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
                         res.StatusCode = StatusCodes.Status404NotFound;
-                        res.Message = "Bài kiểm tra không có câu hỏi";
+                        res.Message = ResponseMessageConstrantsChapter.CHAPTER_NOT_FOUND;
                         return res;
                     }
+
+                    if (course.QuizId == null)
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.Message = "Khóa học không có bài kiểm tra";
+                        return res;
+                    }
+                    else
+                    {
+                        if (!course.Quiz.Questions.Any())
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                            res.StatusCode = StatusCodes.Status404NotFound;
+                            res.Message = "Bài kiểm tra không có câu hỏi";
+                            return res;
+                        }
+                    }
+                    course.Status = CourseStatusEnum.Active.ToString();
                 }
 
-                var newStatus = status.ToString();
-
-                if (course.Status == newStatus)
+                if (course.Status == CourseStatusEnum.Active.ToString())
                 {
-                    res.IsSuccess = false;
-                    res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
-                    res.StatusCode = StatusCodes.Status400BadRequest;
-                    res.Message = ResponseMessageConstrantsCourse.COURSE_ALREADY_HAS_THIS_STATUS;
-                    return res;
+                    course.Status = CourseStatusEnum.Inactive.ToString();
                 }
 
-                course.Status = newStatus;
                 await _courseRepo.UpdateCourse(course);
 
                 res.IsSuccess = true;
@@ -799,6 +787,7 @@ namespace Services.Services.CourseService
                 res.Message = ResponseMessageConstrantsCourse.COURSE_STATUS_UPDATED_SUCCESS;
                 return res;
             }
+
             catch (Exception ex)
             {
                 res.IsSuccess = false;

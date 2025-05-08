@@ -82,9 +82,9 @@ namespace KoiFengSuiConsultingSystem.Controllers
             return StatusCode(result.StatusCode, result);
         }
         [HttpPut("update-course-status/{id}")]
-        public async Task<IActionResult> UpdateCourseStatus(string id, [FromQuery] CourseStatusEnum status)
+        public async Task<IActionResult> UpdateCourseStatus(string id)
         {
-            var result = await _courseService.UpdateCourseStatus(id, status);
+            var result = await _courseService.UpdateCourseStatus(id);
             return StatusCode(result.StatusCode, result);
         }
 

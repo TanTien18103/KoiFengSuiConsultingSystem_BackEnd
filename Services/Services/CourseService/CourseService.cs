@@ -749,7 +749,7 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                if (!course.Chapters.Any())
+                if (!course.Chapters.Any() || course.Chapters == null || course.Chapters.Count() == 0)
                 {
                     res.IsSuccess = false;
                     res.ResponseCode = ResponseCodeConstants.NOT_FOUND;

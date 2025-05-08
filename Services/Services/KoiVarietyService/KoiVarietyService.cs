@@ -915,6 +915,14 @@ namespace Services.Services.KoiVarietyService
                                     totalCompatiblePercentage += (double)varietyColor.Percentage; // giả sử Percentage là từ 0 đến 100
                                 }
                             }
+                            // Nếu cá có tổng màu là 1
+                            if (totalColorCount == 1)
+                            {
+                                if (compatibleColorCount == 1 && totalCompatiblePercentage == 100)
+                                {
+                                    allKoi.Add(koiVariety);
+                                }
+                            }
                             // Nếu cá có tổng màu là 2
                             if (totalColorCount == 2)
                             {

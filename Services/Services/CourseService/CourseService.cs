@@ -739,7 +739,7 @@ namespace Services.Services.CourseService
                     res.Message = ResponseMessageConstrantsCourse.COURSE_NOT_FOUND;
                     return res;
                 }
-
+                
                 if(course.Status == CourseStatusEnum.Inactive.ToString())
                 {
                     if (!course.Chapters.Any() || course.Chapters == null || course.Chapters.Count() == 0)

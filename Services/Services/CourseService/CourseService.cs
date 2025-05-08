@@ -749,6 +749,35 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
+                if (!course.Chapters.Any())
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = ResponseMessageConstrantsChapter.CHAPTER_NOT_FOUND;
+                    return res;
+                }
+
+                if (course.QuizId == null)
+                {
+                    res.IsSuccess = false;
+                    res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                    res.StatusCode = StatusCodes.Status404NotFound;
+                    res.Message = "Khóa học không có bài kiểm tra";
+                    return res;
+                }
+                else
+                {
+                    if (!course.Quiz.Questions.Any())
+                    {
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                        res.StatusCode = StatusCodes.Status404NotFound;
+                        res.Message = "Bài kiểm tra không có câu hỏi";
+                        return res;
+                    }
+                }
+
                 var newStatus = status.ToString();
 
                 if (course.Status == newStatus)

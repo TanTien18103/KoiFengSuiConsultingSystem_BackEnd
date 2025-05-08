@@ -261,8 +261,8 @@ public class FengShuiHelper
         string relationship = string.Join("\n", relationshipMessages);
         string detailedEffect = string.Join("\n\n", effectMessages);
         string suggestion = string.Join("\n", suggestionMessages);
-        string tips = ResponseMessageConstrantsPhongThuy.FengShuiTips;
+        //string tips = ResponseMessageConstrantsPhongThuy.FengShuiTips;
 
-        return $"{scoreMessage}\n\n🔗 **Mối quan hệ phong thủy:**\n{relationship}\n\n📊 **Tác động phong thủy:**\n{detailedEffect}\n\n🧭 **Gợi ý điều chỉnh:**\n{suggestion}\n\n{tips}";
+        return $"{scoreMessage}\n\n🔗 **Mối quan hệ phong thủy:**\n{relationship}\n\n📊 **Tác động phong thủy:**\n{detailedEffect}\n\n🧭 **Gợi ý điều chỉnh:**\n{suggestion}";
     }
 }

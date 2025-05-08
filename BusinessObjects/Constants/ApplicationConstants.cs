@@ -754,9 +754,9 @@ public static class ResponseMessageConstrantsPhongThuy
     public const string SuggestionUnfavorableColor = "Bạn nên điều chỉnh tổ hợp màu sắc hồ cá, ưu tiên các màu **tương sinh** hoặc **tương hợp** với mệnh **{0}**.";
 
     // === Tips ===
-    public const string FengShuiTips =
-        "💡 **Mẹo phong thủy tăng cường vận khí:**\n" +
-        "- Đặt bể cá ở hướng Đông hoặc Đông Nam để kích hoạt tài lộc.\n" +
-        "- Kết hợp thêm cây thủy sinh hoặc đá phong thủy cùng hành với mệnh của bạn.\n" +
-        "- Tránh đặt bể cá trong phòng ngủ hoặc đối diện cửa chính.";
+    //public const string FengShuiTips =
+    //    "💡 **Mẹo phong thủy tăng cường vận khí:**\n" +
+    //    "- Đặt bể cá ở hướng Đông hoặc Đông Nam để kích hoạt tài lộc.\n" +
+    //    "- Kết hợp thêm cây thủy sinh hoặc đá phong thủy cùng hành với mệnh của bạn.\n" +
+    //    "- Tránh đặt bể cá trong phòng ngủ hoặc đối diện cửa chính.";
 }

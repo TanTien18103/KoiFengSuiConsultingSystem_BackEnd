@@ -16,7 +16,7 @@ namespace Services.Services.CourseService
         Task<ResultModel> GetCourses();
         Task<ResultModel> CreateCourse(CourseRequest course);
         Task<ResultModel> UpdateCourse(string id, CourseUpdateRequest course);
-        Task<ResultModel> UpdateCourseStatus(string id, CourseStatusEnum status);
+        Task<ResultModel> UpdateCourseStatus(string id);
         Task<ResultModel> DeleteCourse(string courseId);
         Task<ResultModel> GetCoursesByMaster();
         Task<ResultModel> GetIsBestSellerCourses();

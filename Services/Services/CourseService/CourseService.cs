@@ -740,28 +740,28 @@ namespace Services.Services.CourseService
                     return res;
                 }
 
-                if(course.Status == CourseStatusEnum.Inactive.ToString())
+                switch (course.Status)
                 {
-                    if (!course.Chapters.Any() || course.Chapters == null || course.Chapters.Count() == 0)
-                    {
-                        res.IsSuccess = false;
-                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                        res.StatusCode = StatusCodes.Status404NotFound;
-                        res.Message = ResponseMessageConstrantsChapter.CHAPTER_NOT_FOUND;
-                        return res;
-                    }
+                    case var status when status == CourseStatusEnum.Inactive.ToString():
+                        if (course.Chapters == null || !course.Chapters.Any())
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                            res.StatusCode = StatusCodes.Status404NotFound;
+                            res.Message = ResponseMessageConstrantsChapter.CHAPTER_NOT_FOUND;
+                            return res;
+                        }
 
-                    if (course.QuizId == null)
-                    {
-                        res.IsSuccess = false;
-                        res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
-                        res.StatusCode = StatusCodes.Status404NotFound;
-                        res.Message = "Khóa học không có bài kiểm tra";
-                        return res;
-                    }
-                    else
-                    {
-                        if (!course.Quiz.Questions.Any())
+                        if (course.QuizId == null)
+                        {
+                            res.IsSuccess = false;
+                            res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
+                            res.StatusCode = StatusCodes.Status404NotFound;
+                            res.Message = "Khóa học không có bài kiểm tra";
+                            return res;
+                        }
+
+                        if (course.Quiz == null || !course.Quiz.Questions.Any())
                         {
                             res.IsSuccess = false;
                             res.ResponseCode = ResponseCodeConstants.NOT_FOUND;
@@ -769,13 +769,20 @@ namespace Services.Services.CourseService
                             res.Message = "Bài kiểm tra không có câu hỏi";
                             return res;
                         }
-                    }
-                    course.Status = CourseStatusEnum.Active.ToString();
-                }
 
-                if (course.Status == CourseStatusEnum.Active.ToString())
-                {
-                    course.Status = CourseStatusEnum.Inactive.ToString();
+                        course.Status = CourseStatusEnum.Active.ToString();
+                        break;
+
+                    case var status when status == CourseStatusEnum.Active.ToString():
+                        course.Status = CourseStatusEnum.Inactive.ToString();
+                        break;
+
+                    default:
+                        res.IsSuccess = false;
+                        res.ResponseCode = ResponseCodeConstants.BAD_REQUEST;
+                        res.StatusCode = StatusCodes.Status400BadRequest;
+                        res.Message = "Trạng thái khóa học không hợp lệ";
+                        return res;
                 }
 
                 await _courseRepo.UpdateCourse(course);
@@ -787,7 +794,6 @@ namespace Services.Services.CourseService
                 res.Message = ResponseMessageConstrantsCourse.COURSE_STATUS_UPDATED_SUCCESS;
                 return res;
             }
-
             catch (Exception ex)
             {
                 res.IsSuccess = false;
